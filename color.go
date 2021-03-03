@@ -2,6 +2,11 @@ package lipgloss
 
 import "github.com/muesli/termenv"
 
+var (
+	color             func(string) termenv.Color = termenv.ColorProfile().Color
+	hasDarkBackground                            = termenv.HasDarkBackground()
+)
+
 // ColorType is an interface used in color specifications.
 type ColorType interface {
 	value() string
@@ -48,9 +53,6 @@ type AdaptiveColor struct {
 }
 
 func (a AdaptiveColor) value() string {
-	if !darkBackgroundQueried {
-		hasDarkBackground = termenv.HasDarkBackground()
-	}
 	if hasDarkBackground {
 		return a.Dark
 	}

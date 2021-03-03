@@ -13,13 +13,6 @@ import (
 // ANSI reset sequence.
 const resetSeq = termenv.CSI + termenv.ResetSeq + "m"
 
-var (
-	// Cache termenv lookups
-	color                 func(string) termenv.Color = termenv.ColorProfile().Color
-	darkBackgroundQueried bool
-	hasDarkBackground     bool
-)
-
 // Style describes formatting instructions for a given string.
 type Style struct {
 	Bold          bool
