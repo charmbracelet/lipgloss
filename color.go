@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	hasDarkBackground bool
-	color             func(string) termenv.Color
-	initTermenv       sync.Once
+	hasDarkBackground    bool
+	color                func(string) termenv.Color = termenv.ColorProfile().Color
+	checkBackgroundColor sync.Once
 )
 
 // ColorType is an interface used in color specifications.
@@ -58,9 +58,8 @@ type AdaptiveColor struct {
 }
 
 func (a AdaptiveColor) value() string {
-	initTermenv.Do(func() {
+	checkBackgroundColor.Do(func() {
 		hasDarkBackground = termenv.HasDarkBackground()
-		color = termenv.ColorProfile().Color
 	})
 
 	if hasDarkBackground {

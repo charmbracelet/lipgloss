@@ -16,7 +16,7 @@ const (
 
 // Perform text alignment. If the string is multi-lined, we also make all lines
 // the same width by padding them with spaces.
-func align(s string, t Align) string {
+func alignText(s string, t Align) string {
 	if strings.Count(s, "\n") == 0 {
 		return s
 	}

@@ -13,55 +13,224 @@ import (
 // ANSI reset sequence.
 const resetSeq = termenv.CSI + termenv.ResetSeq + "m"
 
-// Style describes formatting instructions for a given string.
+// Style contains formatting instructions for a given string.
 type Style struct {
-	Bold          bool
-	Italic        bool
-	Underline     bool
-	Strikethrough bool
-	Reverse       bool
-	Blink         bool
-	Faint         bool
-	Foreground    ColorType
-	Background    ColorType
+	bold          *bool
+	italic        *bool
+	underline     *bool
+	strikethrough *bool
+	reverse       *bool
+	blink         *bool
+	faint         *bool
+	foreground    *ColorType
+	background    *ColorType
 
 	// If the string contains multiple lines, they'll wrap at this value.
 	// Lines will also be padded with spaces so they'll all be the same width.
-	Width int
+	width *int
 
 	// Text alignment.
-	Align Align
+	align *Align
 
 	// Padding. This will be colored according to the Background value if
 	// StylePadding is true.
-	LeftPadding   int
-	RightPadding  int
-	TopPadding    int
-	BottomPadding int
+	leftPadding   *int
+	rightPadding  *int
+	topPadding    *int
+	bottomPadding *int
 
 	// Whether or not to apply styling to the padding. Most notably, this
 	// determines whether or not the indent background color is styled.
-	StylePadding bool
+	stylePadding *bool
 
 	// Margins. These will never be colored.
-	LeftMargin   int
-	RightMargin  int
-	TopMargin    int
-	BottomMargin int
+	leftMargin   *int
+	rightMargin  *int
+	topMargin    *int
+	bottomMargin *int
 
 	// If set, we truncate lines at this value after all other style has been
 	// applied. That is to say, the physical width of strings will not exceed
 	// this value, so this can be handy when building user interfaces.
-	MaxWidth int
+	maxWidth *int
 
 	// Whether or not to remove trailing spaces with no background color. By
 	// default we leave them in.
-	RenderClearTrailingSpaces bool
+	renderClearTrailingSpaces *bool
 
 	// Whether to draw underlines on spaces (like padding). We don't do this by
 	// default as it's likely not what people want, but you can turn it on if
 	// you so desire.
-	RenderUnderlinesOnSpaces bool
+	renderUnderlinesOnSpaces *bool
+}
+
+func (s Style) Bold(v bool) Style {
+	s.bold = &v
+	return s
+}
+
+func (s Style) Italic(v bool) Style {
+	s.italic = &v
+	return s
+}
+
+func (s Style) Underline(v bool) Style {
+	s.underline = &v
+	return s
+}
+
+func (s Style) Strikethrough(v bool) Style {
+	s.strikethrough = &v
+	return s
+}
+
+func (s Style) Reverse(v bool) Style {
+	s.reverse = &v
+	return s
+}
+
+func (s Style) Blink(v bool) Style {
+	s.blink = &v
+	return s
+}
+
+func (s Style) Faint(v bool) Style {
+	s.faint = &v
+	return s
+}
+
+func (s Style) Foreground(c ColorType) Style {
+	s.foreground = &c
+	return s
+}
+
+func (s Style) Background(c ColorType) Style {
+	s.background = &c
+	return s
+}
+
+func (s Style) Width(i int) Style {
+	s.width = &i
+	return s
+}
+
+func (s Style) Align(a Align) Style {
+	s.align = &a
+	return s
+}
+
+// Padding is a shorthand method for setting padding on all sides at once.
+//
+// With one argument, the value is applied to all sides.
+//
+// With two arguments, the value is applied to the vertical and horizontal sides,
+// in that order.
+//
+// With three arguments, the value is applied to the top side, the horizontal
+// sides, and the bottom side, in that order.
+//
+// With four arguments, the value is applied clockwise starting from the top
+// side, followed by the right side, then the bottom, and finally the top.
+//
+// With more than four arguments no padding will be added.
+func (s Style) Padding(i ...int) Style {
+	top, right, bottom, left, ok := whichSides(i...)
+	if !ok {
+		return s
+	}
+
+	s.topPadding = &top
+	s.rightPadding = &right
+	s.bottomPadding = &bottom
+	s.leftPadding = &left
+	return s
+}
+
+func (s Style) LeftPadding(i int) Style {
+	s.leftPadding = &i
+	return s
+}
+
+func (s Style) RightPadding(i int) Style {
+	s.rightPadding = &i
+	return s
+}
+
+func (s Style) TopPadding(i int) Style {
+	s.topPadding = &i
+	return s
+}
+
+func (s Style) BottomPadding(i int) Style {
+	s.bottomPadding = &i
+	return s
+}
+
+func (s Style) StylePadding(v bool) Style {
+	s.stylePadding = &v
+	return s
+}
+
+// Margin is a shorthand method for setting margins on all sides at once.
+//
+// With one argument, the value is applied to all sides.
+//
+// With two arguments, the value is applied to the vertical and horizontal sides,
+// in that order.
+//
+// With three arguments, the value is applied to the top side, the horizontal
+// sides, and the bottom side, in that order.
+//
+// With four arguments, the value is applied clockwise starting from the top
+// side, followed by the right side, then the bottom, and finally the top.
+//
+// With more than four arguments no padding will be added.
+func (s Style) Margin(i ...int) Style {
+	top, right, bottom, left, ok := whichSides(i...)
+	if !ok {
+		return s
+	}
+
+	s.topMargin = &top
+	s.rightMargin = &right
+	s.bottomMargin = &bottom
+	s.leftMargin = &left
+	return s
+}
+
+func (s Style) LeftMargin(i int) Style {
+	s.leftMargin = &i
+	return s
+}
+
+func (s Style) RightMargin(i int) Style {
+	s.rightMargin = &i
+	return s
+}
+
+func (s Style) TopMargin(i int) Style {
+	s.topMargin = &i
+	return s
+}
+
+func (s Style) BottomMargin(i int) Style {
+	s.bottomMargin = &i
+	return s
+}
+
+func (s Style) MaxWidth(i int) Style {
+	s.maxWidth = &i
+	return s
+}
+
+func (s Style) RenderClearTrailingSpaces(v bool) Style {
+	s.renderClearTrailingSpaces = &v
+	return s
+}
+
+func (s Style) RenderUnderlinesOnSpaces(v bool) Style {
+	s.renderUnderlinesOnSpaces = &v
+	return s
 }
 
 // Apply applies formatting to a given string.
@@ -87,7 +256,7 @@ func (s Style) ApplyInline(str string) string {
 //     fmt.Println(userStyle.WithMaxWidth(16).Apply(userInput))
 //
 func (s Style) WithMaxWidth(n int) Style {
-	s.MaxWidth = n
+	s.maxWidth = &n
 	return s
 }
 
@@ -102,37 +271,41 @@ func (s Style) apply(str string, singleLine bool) string {
 		noUnderlineStyler *termenv.Style
 	)
 
-	if s.Bold {
+	if s.bold != nil && *s.bold {
 		styler = styler.Bold()
 	}
-	if s.Italic {
+	if s.italic != nil && *s.italic {
 		styler = styler.Italic()
 	}
-	if s.Strikethrough {
+	if s.strikethrough != nil && *s.strikethrough {
 		styler = styler.CrossOut()
 	}
-	if s.Reverse {
+	if s.reverse != nil && *s.reverse {
 		styler = styler.Reverse()
 	}
-	if s.Blink {
+	if s.blink != nil && *s.blink {
 		styler = styler.Blink()
 	}
-	if s.Faint {
+	if s.faint != nil && *s.faint {
 		styler = styler.Faint()
 	}
 
-	switch c := s.Foreground.(type) {
-	case Color, AdaptiveColor:
-		styler = styler.Foreground(color(c.value()))
+	if s.foreground != nil {
+		switch c := (*s.foreground).(type) {
+		case Color, AdaptiveColor:
+			styler = styler.Foreground(color(c.value()))
+		}
 	}
 
-	switch c := s.Background.(type) {
-	case Color, AdaptiveColor:
-		styler = styler.Background(color(c.value()))
+	if s.background != nil {
+		switch c := (*s.background).(type) {
+		case Color, AdaptiveColor:
+			styler = styler.Background(color(c.value()))
+		}
 	}
 
-	if s.Underline {
-		if s.Underline && !s.RenderUnderlinesOnSpaces {
+	if s.renderUnderlinesOnSpaces != nil && s.underline != nil && *s.underline {
+		if !*s.renderUnderlinesOnSpaces {
 			stylerCopy := styler
 			noUnderlineStyler = &stylerCopy
 		}
@@ -144,45 +317,79 @@ func (s Style) apply(str string, singleLine bool) string {
 		str = strings.Replace(str, "\n", "", -1)
 	}
 
-	if !s.StylePadding {
+	if s.stylePadding != nil && !*s.stylePadding {
 		str = styler.Styled(str)
 	}
 
 	// Word wrap
-	if !singleLine && s.Width > 0 {
-		str = wordwrap.String(str, s.Width-s.LeftPadding-s.RightPadding)
+	if !singleLine && s.width != nil && *s.width > 0 {
+		var leftPadding, rightPadding int
+		if s.leftPadding != nil {
+			leftPadding = *s.leftPadding
+		}
+		if s.rightPadding != nil {
+			rightPadding = *s.rightPadding
+		}
+		str = wordwrap.String(str, *s.width-leftPadding-rightPadding)
 	}
 
 	// Is a background color set?
-	backgroundColorSet := true
-	switch s.Background.(type) {
-	case nil, noColor:
-		backgroundColorSet = false
+	var backgroundColorSet bool
+	if s.background != nil {
+		backgroundColorSet = true
+		switch (*s.background).(type) {
+		case noColor:
+			backgroundColorSet = false
+		}
 	}
 
 	// Left/right padding
-	str = padLeft(str, s.LeftPadding)
-	if !s.RenderClearTrailingSpaces || backgroundColorSet {
-		str = padRight(str, s.RightPadding, s.StylePadding)
+	if s.leftPadding != nil {
+		str = padLeft(str, *s.leftPadding)
+	}
+
+	if (s.renderClearTrailingSpaces != nil && !*s.renderClearTrailingSpaces) || backgroundColorSet {
+		var rightPadding int
+		if s.rightPadding != nil {
+			rightPadding = *s.rightPadding
+		}
+		var stylePadding bool
+		if s.stylePadding != nil {
+			stylePadding = *s.stylePadding
+		}
+		str = padRight(str, rightPadding, stylePadding)
 	}
 
 	// Top/bottom padding
-	if !singleLine && s.TopPadding > 0 {
-		str = strings.Repeat("\n", s.TopPadding) + str
+	if s.topPadding != nil && *s.topPadding > 0 && !singleLine {
+		str = strings.Repeat("\n", *s.topPadding) + str
 	}
-	if !singleLine && s.BottomPadding > 0 {
-		str += strings.Repeat("\n", s.BottomPadding)
+	if s.bottomPadding != nil && *s.bottomPadding > 0 && !singleLine {
+		str += strings.Repeat("\n", *s.bottomPadding)
 	}
 
 	numLines := strings.Count(str, "\n")
 
 	// Set alignment. This will also pad short lines with spaces so that all
-	// lines are the same length.
-	if numLines > 0 && (!s.RenderClearTrailingSpaces || backgroundColorSet || s.Align != AlignLeft) {
-		str = align(str, s.Align)
+	// lines are the same length, so we run it under a few different conditions
+	// beyond alignment.
+	var renderClearTrailingSpaces bool
+	{
+		align := AlignLeft
+		if s.align != nil {
+			align = *s.align
+		}
+
+		if s.renderClearTrailingSpaces != nil {
+			renderClearTrailingSpaces = *s.renderClearTrailingSpaces
+		}
+
+		if numLines > 0 && (align != AlignLeft || !renderClearTrailingSpaces || backgroundColorSet) {
+			str = alignText(str, align)
+		}
 	}
 
-	if s.StylePadding {
+	if s.stylePadding != nil && *s.stylePadding {
 		// We have to do some extra work to not render underlines on spaces
 		if noUnderlineStyler != nil {
 			var b strings.Builder
@@ -203,36 +410,38 @@ func (s Style) apply(str string, singleLine bool) string {
 	}
 
 	// Add left margin
-	str = padLeft(str, s.LeftMargin)
+	if s.leftMargin != nil {
+		str = padLeft(str, *s.leftMargin)
+	}
 
 	// Add right margin
-	if !s.RenderClearTrailingSpaces {
-		str = padRight(str, s.RightMargin, false)
+	if s.rightMargin != nil && !renderClearTrailingSpaces {
+		str = padRight(str, *s.rightMargin, false)
 	}
 
 	// Top/bottom margin
 	if !singleLine {
 		var maybeSpaces string
 
-		if s.RenderClearTrailingSpaces {
+		if renderClearTrailingSpaces {
 			_, width := getLines(str)
 			maybeSpaces = strings.Repeat(" ", width)
 		}
 
-		if s.TopMargin > 0 {
-			str = strings.Repeat(maybeSpaces+"\n", s.TopMargin) + str
+		if s.topMargin != nil && *s.topMargin > 0 {
+			str = strings.Repeat(maybeSpaces+"\n", *s.topMargin) + str
 		}
-		if s.BottomMargin > 0 {
-			str += strings.Repeat("\n"+maybeSpaces, s.BottomMargin) + "\n"
+		if s.bottomMargin != nil && *s.bottomMargin > 0 {
+			str += strings.Repeat("\n"+maybeSpaces, *s.bottomMargin) + "\n"
 		}
 	}
 
 	// Truncate accoridng to MaxWidth
-	if s.MaxWidth > 0 {
+	if s.maxWidth != nil && *s.maxWidth > 0 {
 		lines := strings.Split(str, "\n")
 
 		for i := range lines {
-			lines[i] = truncate.String(lines[i], uint(s.MaxWidth))
+			lines[i] = truncate.String(lines[i], uint(*s.maxWidth))
 		}
 
 		str = strings.Join(lines, "\n")
@@ -268,4 +477,44 @@ func padRight(str string, n int, stylePadding bool) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+// whichEdges is a helper method for setting values on sides of a block based
+// on the number of arguments. It follows the CSS shorthand rules for blocks
+// like margin, padding. and borders. Here are how the rules work:
+//
+// 0 args:  do nothing
+// 1 arg:   all sides
+// 2 args:  top -> bottom
+// 3 args:  top -> horizontal -> bottom
+// 4 args:  top -> right -> bottom -> left
+// 5+ args: do nothing
+func whichSides(i ...int) (top, right, bottom, left int, ok bool) {
+	switch len(i) {
+	case 1:
+		top = i[0]
+		bottom = i[0]
+		left = i[0]
+		right = i[0]
+		ok = true
+	case 2:
+		top = i[0]
+		bottom = i[0]
+		left = i[1]
+		right = i[1]
+		ok = true
+	case 3:
+		top = i[0]
+		left = i[1]
+		right = i[1]
+		bottom = i[2]
+		ok = true
+	case 4:
+		top = i[0]
+		right = i[1]
+		bottom = i[2]
+		left = i[3]
+		ok = true
+	}
+	return
 }
