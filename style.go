@@ -56,64 +56,101 @@ type Style struct {
 
 	// Whether or not to remove trailing spaces with no background color. By
 	// default we leave them in.
-	renderClearTrailingSpaces *bool
+	drawClearTrailingSpaces *bool
 
-	// Whether to draw underlines on spaces (like padding). We don't do this by
-	// default as it's likely not what people want, but you can turn it on if
-	// you so desire.
-	renderUnderlinesOnSpaces *bool
+	// Whether to apply underlines and strikes to whitespace like margins and
+	// padding. We don't do this by default as it's likely not what people
+	// want, but you can turn it on if you so desire.
+	underlineWhitespace     *bool
+	strikethroughWhitespace *bool
 }
 
+// NewStyle returns a new, empty Style. It's syntatic sugar for the literal
+// Style{}.
+func NewStyle() Style {
+	return Style{}
+}
+
+// Inherit creates a new style using a given style as the starting point. It's
+// syntatic sugar for Style{}.Inherit().
+func Inherit(s Style) Style {
+	return s
+}
+
+// Bold sets a bold formatting rule.
 func (s Style) Bold(v bool) Style {
 	s.bold = &v
 	return s
 }
 
+// Italic sets an italic formatting rule. In some terminal emulators this will
+// render with "reverse" coloring if not italic font variant is available.
 func (s Style) Italic(v bool) Style {
 	s.italic = &v
 	return s
 }
 
+// Underine sets an underline rule. By default, underlines will not be drawn on
+// whitespace like margins and padding. To change this behavior set
+// renderUnderlinesOnSpaces.
 func (s Style) Underline(v bool) Style {
 	s.underline = &v
 	return s
 }
 
+// Strikethrough sets a strikethrough rule. By default, strikes will not be
+// drawn on whitespace like margins and padding. To change this behavior set
+// renderStrikethroughOnSpaces.
 func (s Style) Strikethrough(v bool) Style {
 	s.strikethrough = &v
 	return s
 }
 
+// Reverse sets a rule for inverting foreground and background colors.
 func (s Style) Reverse(v bool) Style {
 	s.reverse = &v
 	return s
 }
 
+// Blink sets a rule for blinking forground text.
 func (s Style) Blink(v bool) Style {
 	s.blink = &v
 	return s
 }
 
+// Faint sets a rule for rendering the foreground color in a dimmer shade.
 func (s Style) Faint(v bool) Style {
 	s.faint = &v
 	return s
 }
 
+// Foreground sets a foreground color.
+//
+//     // Sets the foreground to blue
+//     s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
+//
+//     // Removes the foreground color
+//     s.Foreground(lipgloss.NoColor)
+//
 func (s Style) Foreground(c ColorType) Style {
 	s.foreground = &c
 	return s
 }
 
+// Background sets a background color.
 func (s Style) Background(c ColorType) Style {
 	s.background = &c
 	return s
 }
 
+// Width sets the width of the block before applying margins and padding. This
+// effects when.
 func (s Style) Width(i int) Style {
 	s.width = &i
 	return s
 }
 
+// Align sets a text alignment rule.
 func (s Style) Align(a Align) Style {
 	s.align = &a
 	return s
@@ -123,14 +160,14 @@ func (s Style) Align(a Align) Style {
 //
 // With one argument, the value is applied to all sides.
 //
-// With two arguments, the value is applied to the vertical and horizontal sides,
-// in that order.
+// With two arguments, the value is applied to the vertical and horizontal
+// sides, in that order.
 //
 // With three arguments, the value is applied to the top side, the horizontal
 // sides, and the bottom side, in that order.
 //
 // With four arguments, the value is applied clockwise starting from the top
-// side, followed by the right side, then the bottom, and finally the top.
+// side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments no padding will be added.
 func (s Style) Padding(i ...int) Style {
@@ -175,14 +212,14 @@ func (s Style) StylePadding(v bool) Style {
 //
 // With one argument, the value is applied to all sides.
 //
-// With two arguments, the value is applied to the vertical and horizontal sides,
-// in that order.
+// With two arguments, the value is applied to the vertical and horizontal
+// sides, in that order.
 //
 // With three arguments, the value is applied to the top side, the horizontal
 // sides, and the bottom side, in that order.
 //
 // With four arguments, the value is applied clockwise starting from the top
-// side, followed by the right side, then the bottom, and finally the top.
+// side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments no padding will be added.
 func (s Style) Margin(i ...int) Style {
@@ -223,14 +260,117 @@ func (s Style) MaxWidth(i int) Style {
 	return s
 }
 
-func (s Style) RenderClearTrailingSpaces(v bool) Style {
-	s.renderClearTrailingSpaces = &v
+// Whether or not to draw trailing spaces with no background color. By default
+// we leave them in.
+func (s Style) DrawClearTrailingSpaces(v bool) Style {
+	s.drawClearTrailingSpaces = &v
 	return s
 }
 
-func (s Style) RenderUnderlinesOnSpaces(v bool) Style {
-	s.renderUnderlinesOnSpaces = &v
+func (s Style) UnderlineWhitespace(v bool) Style {
+	s.underlineWhitespace = &v
 	return s
+}
+
+func (s Style) StrikethroughWhitespace(v bool) Style {
+	s.strikethroughWhitespace = &v
+	return s
+}
+
+// Inherit takes values from another style and applies them to this style. Only
+// values explicitly set on the style in argument will be applied. Values on
+// this style struct will be overwritten.
+func (o Style) Inherit(i Style) Style {
+	// We could use reflection here, but it's slow, so we're doing things
+	// the old-fashioned way.
+
+	// Inline
+	if i.bold != nil {
+		o.bold = i.bold
+	}
+	if i.italic != nil {
+		o.italic = i.italic
+	}
+	if i.underline != nil {
+		o.underline = i.underline
+	}
+	if i.strikethrough != nil {
+		o.strikethrough = i.strikethrough
+	}
+	if i.reverse != nil {
+		o.reverse = i.reverse
+	}
+	if i.blink != nil {
+		o.blink = i.blink
+	}
+	if i.faint != nil {
+		o.faint = i.faint
+	}
+
+	// Colors
+	if i.foreground != nil {
+		o.foreground = i.foreground
+	}
+	if i.background != nil {
+		o.background = i.background
+	}
+
+	// Width
+	if i.width != nil {
+		o.width = i.width
+	}
+
+	// Alignment
+	if i.align != nil {
+		o.align = i.align
+	}
+
+	// Padding
+	if i.leftPadding != nil {
+		o.leftPadding = i.leftPadding
+	}
+	if i.rightPadding != nil {
+		o.rightPadding = i.rightPadding
+	}
+	if i.topPadding != nil {
+		o.rightPadding = i.topPadding
+	}
+	if i.bottomPadding != nil {
+		o.bottomPadding = i.bottomPadding
+	}
+	if i.stylePadding != nil {
+		o.stylePadding = i.stylePadding
+	}
+
+	// Margins
+	if i.leftMargin != nil {
+		o.leftMargin = i.leftMargin
+	}
+	if i.rightMargin != nil {
+		o.rightMargin = i.rightMargin
+	}
+	if i.topMargin != nil {
+		o.topMargin = i.topMargin
+	}
+	if i.bottomMargin != nil {
+		o.bottomMargin = i.bottomMargin
+	}
+
+	// Etc
+	if i.maxWidth != nil {
+		o.maxWidth = i.maxWidth
+	}
+	if i.drawClearTrailingSpaces != nil {
+		o.drawClearTrailingSpaces = i.drawClearTrailingSpaces
+	}
+	if i.underlineWhitespace != nil {
+		o.underlineWhitespace = i.underlineWhitespace
+	}
+	if i.strikethroughWhitespace != nil {
+		o.strikethroughWhitespace = i.strikethroughWhitespace
+	}
+
+	return i
 }
 
 // Apply applies formatting to a given string.
@@ -262,23 +402,29 @@ func (s Style) WithMaxWidth(n int) Style {
 
 func (s Style) apply(str string, singleLine bool) string {
 	var (
-		styler = termenv.Style{}
+		styler termenv.Style
 
-		// A copy of the main termenv styler, but without underlines. Used to
-		// not render underlines on spaces, if applicable. It's a pointer so
-		// we can treat it like a maybe monad, since it won't always be
-		// applicable.
-		noUnderlineStyler *termenv.Style
+		// Additional styling helpers for spaces, which won't always be
+		// applicable
+		styleSpaces bool
+		spaceStyler termenv.Style
 	)
+
+	// Helper conditions
+	underline := s.underline != nil && *s.underline
+	underlineWhitespace := s.underlineWhitespace != nil && *s.underlineWhitespace
+	strike := s.strikethrough != nil && *s.strikethrough
+	strikeWhitespace := s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
+
+	if (underline && !underlineWhitespace) || (strike && !strikeWhitespace) {
+		styleSpaces = true
+	}
 
 	if s.bold != nil && *s.bold {
 		styler = styler.Bold()
 	}
 	if s.italic != nil && *s.italic {
 		styler = styler.Italic()
-	}
-	if s.strikethrough != nil && *s.strikethrough {
-		styler = styler.CrossOut()
 	}
 	if s.reverse != nil && *s.reverse {
 		styler = styler.Reverse()
@@ -294,6 +440,10 @@ func (s Style) apply(str string, singleLine bool) string {
 		switch c := (*s.foreground).(type) {
 		case Color, AdaptiveColor:
 			styler = styler.Foreground(color(c.value()))
+
+			if styleSpaces {
+				spaceStyler = spaceStyler.Foreground(color(c.value()))
+			}
 		}
 	}
 
@@ -301,18 +451,31 @@ func (s Style) apply(str string, singleLine bool) string {
 		switch c := (*s.background).(type) {
 		case Color, AdaptiveColor:
 			styler = styler.Background(color(c.value()))
+
+			if styleSpaces {
+				spaceStyler = spaceStyler.Background(color(c.value()))
+			}
 		}
 	}
 
-	if s.renderUnderlinesOnSpaces != nil && s.underline != nil && *s.underline {
-		if !*s.renderUnderlinesOnSpaces {
-			stylerCopy := styler
-			noUnderlineStyler = &stylerCopy
+	if styleSpaces {
+		if underlineWhitespace {
+			spaceStyler = spaceStyler.Underline()
 		}
+		if strikeWhitespace {
+			spaceStyler = spaceStyler.CrossOut()
+		}
+	}
+
+	if underline {
 		styler = styler.Underline()
 	}
 
-	// Strip spaces in single line mode
+	if strike {
+		styler = styler.CrossOut()
+	}
+
+	// Strip newlines in single line mode
 	if singleLine {
 		str = strings.Replace(str, "\n", "", -1)
 	}
@@ -334,12 +497,12 @@ func (s Style) apply(str string, singleLine bool) string {
 	}
 
 	// Is a background color set?
-	var backgroundColorSet bool
+	var hasBackgroundColor bool
 	if s.background != nil {
-		backgroundColorSet = true
+		hasBackgroundColor = true
 		switch (*s.background).(type) {
 		case noColor:
-			backgroundColorSet = false
+			hasBackgroundColor = false
 		}
 	}
 
@@ -348,7 +511,12 @@ func (s Style) apply(str string, singleLine bool) string {
 		str = padLeft(str, *s.leftPadding)
 	}
 
-	if (s.renderClearTrailingSpaces != nil && !*s.renderClearTrailingSpaces) || backgroundColorSet {
+	drawClearTrailingSpaces := true
+	if s.drawClearTrailingSpaces != nil {
+		drawClearTrailingSpaces = *s.drawClearTrailingSpaces
+	}
+
+	if drawClearTrailingSpaces || hasBackgroundColor {
 		var rightPadding int
 		if s.rightPadding != nil {
 			rightPadding = *s.rightPadding
@@ -373,30 +541,27 @@ func (s Style) apply(str string, singleLine bool) string {
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
-	var renderClearTrailingSpaces bool
 	{
 		align := AlignLeft
 		if s.align != nil {
 			align = *s.align
 		}
 
-		if s.renderClearTrailingSpaces != nil {
-			renderClearTrailingSpaces = *s.renderClearTrailingSpaces
-		}
-
-		if numLines > 0 && (align != AlignLeft || !renderClearTrailingSpaces || backgroundColorSet) {
+		if numLines > 0 && (align != AlignLeft || drawClearTrailingSpaces || hasBackgroundColor) {
 			str = alignText(str, align)
 		}
 	}
 
 	if s.stylePadding != nil && *s.stylePadding {
-		// We have to do some extra work to not render underlines on spaces
-		if noUnderlineStyler != nil {
+
+		// We have to do some extra work to not render underlines and/or
+		// strikes on spaces.
+		if styleSpaces {
 			var b strings.Builder
 
 			for _, c := range str {
 				if unicode.IsSpace(c) {
-					b.WriteString(noUnderlineStyler.Styled(string(c)))
+					b.WriteString(spaceStyler.Styled(string(c)))
 					continue
 				}
 				b.WriteString(styler.Styled(string(c)))
@@ -407,6 +572,9 @@ func (s Style) apply(str string, singleLine bool) string {
 		} else {
 			str = styler.Styled(str)
 		}
+
+	} else {
+		str = styler.Styled(str)
 	}
 
 	// Add left margin
@@ -415,7 +583,7 @@ func (s Style) apply(str string, singleLine bool) string {
 	}
 
 	// Add right margin
-	if s.rightMargin != nil && !renderClearTrailingSpaces {
+	if s.rightMargin != nil && drawClearTrailingSpaces {
 		str = padRight(str, *s.rightMargin, false)
 	}
 
@@ -423,7 +591,7 @@ func (s Style) apply(str string, singleLine bool) string {
 	if !singleLine {
 		var maybeSpaces string
 
-		if renderClearTrailingSpaces {
+		if drawClearTrailingSpaces {
 			_, width := getLines(str)
 			maybeSpaces = strings.Repeat(" ", width)
 		}
@@ -479,7 +647,7 @@ func padRight(str string, n int, stylePadding bool) string {
 	return strings.Join(lines, "\n")
 }
 
-// whichEdges is a helper method for setting values on sides of a block based
+// whichSides is a helper method for setting values on sides of a block based
 // on the number of arguments. It follows the CSS shorthand rules for blocks
 // like margin, padding. and borders. Here are how the rules work:
 //
