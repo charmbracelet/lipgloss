@@ -90,60 +90,76 @@ func (o Style) Inherit(i Style) Style {
 
 	// Inline
 	if i.bold != nil {
-		o.bold = i.bold
+		v := *i.bold
+		o.bold = &v
 	}
 	if i.italic != nil {
-		o.italic = i.italic
+		v := *i.italic
+		o.italic = &v
 	}
 	if i.underline != nil {
-		o.underline = i.underline
+		v := *i.underline
+		o.underline = &v
 	}
 	if i.strikethrough != nil {
-		o.strikethrough = i.strikethrough
+		v := *i.strikethrough
+		o.strikethrough = &v
 	}
 	if i.reverse != nil {
-		o.reverse = i.reverse
+		v := *i.reverse
+		o.reverse = &v
 	}
 	if i.blink != nil {
-		o.blink = i.blink
+		v := *i.blink
+		o.blink = &v
 	}
 	if i.faint != nil {
-		o.faint = i.faint
+		v := *i.faint
+		o.faint = &v
 	}
 
 	// Colors
 	if i.foreground != nil {
-		o.foreground = i.foreground
+		v := *i.foreground
+		o.foreground = &v
 	}
 	if i.background != nil {
-		o.background = i.background
+		v := *i.background
+		o.background = &v
 	}
 
 	// Width
 	if i.width != nil {
-		o.width = i.width
+		v := *i.width
+		o.width = &v
 	}
 
 	// Alignment
 	if i.align != nil {
-		o.align = i.align
+		v := *i.align
+		o.align = &v
 	}
 
 	// Etc
 	if i.maxWidth != nil {
-		o.maxWidth = i.maxWidth
+		v := *i.maxWidth
+		o.maxWidth = &v
 	}
 	if i.inline != nil {
-		o.inline = i.inline
+		v := *i.inline
+		o.inline = &v
 	}
 	if i.drawClearTrailingSpaces != nil {
-		o.drawClearTrailingSpaces = i.drawClearTrailingSpaces
+		v := *i.drawClearTrailingSpaces
+		o.drawClearTrailingSpaces = &v
 	}
 	if i.underlineWhitespace != nil {
-		o.underlineWhitespace = i.underlineWhitespace
+		v := *i.underlineWhitespace
+		o.underlineWhitespace = &v
 	}
 	if i.strikethroughWhitespace != nil {
-		o.strikethroughWhitespace = i.strikethroughWhitespace
+		v := *i.strikethroughWhitespace
+		o.strikethroughWhitespace = &v
 	}
 
 	return o
