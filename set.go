@@ -126,8 +126,8 @@ func (s Style) BottomPadding(i int) Style {
 	return s
 }
 
-func (s Style) StylePadding(v bool) Style {
-	s.stylePadding = &v
+func (s Style) ColorWhitespace(v bool) Style {
+	s.colorWhitespace = &v
 	return s
 }
 

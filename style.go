@@ -2,9 +2,7 @@ package lipgloss
 
 import (
 	"strings"
-	"unicode"
 
-	"github.com/muesli/reflow/indent"
 	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
@@ -33,15 +31,16 @@ type Style struct {
 	align *Align
 
 	// Padding. This will be colored according to the Background value if
-	// StylePadding is true.
+	// colorWhitespace is true.
 	leftPadding   *int
 	rightPadding  *int
 	topPadding    *int
 	bottomPadding *int
 
-	// Whether or not to apply styling to the padding. Most notably, this
-	// determines whether or not the indent background color is styled.
-	stylePadding *bool
+	// Whether or not to apply a background color to the whitespace surrounding
+	// text blocks. Most notably, this determines whether or not the indent
+	// background color will be styled.
+	colorWhitespace *bool
 
 	// Margins. These will never be colored.
 	leftMargin   *int
@@ -61,9 +60,9 @@ type Style struct {
 	// default we leave them in.
 	drawClearTrailingSpaces *bool
 
-	// Whether to apply underlines and strikes to whitespace like margins and
-	// padding. We don't do this by default as it's likely not what people
-	// want, but you can turn it on if you so desire.
+	// Whether to apply underlines and strikes to whitespace like padding. We
+	// don't do this by default as it's likely not what people usually want,
+	// but it can can turned it on for certain graphic effects.
 	underlineWhitespace     *bool
 	strikethroughWhitespace *bool
 }
@@ -141,8 +140,8 @@ func (o Style) Inherit(i Style) Style {
 	if i.bottomPadding != nil {
 		o.bottomPadding = i.bottomPadding
 	}
-	if i.stylePadding != nil {
-		o.stylePadding = i.stylePadding
+	if i.colorWhitespace != nil {
+		o.colorWhitespace = i.colorWhitespace
 	}
 
 	// Margins
@@ -182,25 +181,32 @@ func (o Style) Inherit(i Style) Style {
 // Render applies formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
-		singleLine = s.inline != nil && *s.inline
-
-		styler termenv.Style
-
-		// Additional styling helpers for spaces, which won't always be
-		// applicable
-		styleSpaces bool
-		spaceStyler termenv.Style
+		singleLine       = s.inline != nil && *s.inline
+		styler           termenv.Style
+		whitespaceStyler termenv.Style // won't always be applicable
 	)
 
-	// Helper conditions
-	underline := s.underline != nil && *s.underline
-	underlineWhitespace := s.underlineWhitespace != nil && *s.underlineWhitespace
-	strike := s.strikethrough != nil && *s.strikethrough
-	strikeWhitespace := s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
-
-	if (underline && !underlineWhitespace) || (strike && !strikeWhitespace) {
-		styleSpaces = true
+	// Is a background color set?
+	var hasBackgroundColor bool
+	if s.background != nil {
+		_, ok := (*s.background).(noColor)
+		hasBackgroundColor = !ok
 	}
+
+	// By default, we color padding and space around paragraphs by default if
+	// a background color is set.
+	colorWhitespace := hasBackgroundColor && (s.colorWhitespace == nil || *s.colorWhitespace)
+
+	// Helper conditions. Niladic types make our conditions rather long and
+	// convoluted.
+	underline := s.underline != nil && *s.underline
+	underlineWhitespace := underline && s.underlineWhitespace != nil && *s.underlineWhitespace
+	strike := s.strikethrough != nil && *s.strikethrough
+	strikeWhitespace := strike && s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
+
+	// Whether or not to apply foreground styling to whitespace for things like
+	// strikethroughs and underlines.
+	styleWhitespace := underlineWhitespace || strikeWhitespace
 
 	if s.bold != nil && *s.bold {
 		styler = styler.Bold()
@@ -223,8 +229,8 @@ func (s Style) Render(str string) string {
 		case Color, AdaptiveColor:
 			styler = styler.Foreground(color(c.value()))
 
-			if styleSpaces {
-				spaceStyler = spaceStyler.Foreground(color(c.value()))
+			if styleWhitespace {
+				whitespaceStyler = whitespaceStyler.Foreground(color(c.value()))
 			}
 		}
 	}
@@ -234,19 +240,17 @@ func (s Style) Render(str string) string {
 		case Color, AdaptiveColor:
 			styler = styler.Background(color(c.value()))
 
-			if styleSpaces {
-				spaceStyler = spaceStyler.Background(color(c.value()))
+			if colorWhitespace {
+				whitespaceStyler = whitespaceStyler.Background(color(c.value()))
 			}
 		}
 	}
 
-	if styleSpaces {
-		if underlineWhitespace {
-			spaceStyler = spaceStyler.Underline()
-		}
-		if strikeWhitespace {
-			spaceStyler = spaceStyler.CrossOut()
-		}
+	if underlineWhitespace {
+		whitespaceStyler = whitespaceStyler.Underline()
+	}
+	if strikeWhitespace {
+		whitespaceStyler = whitespaceStyler.CrossOut()
 	}
 
 	if underline {
@@ -262,10 +266,6 @@ func (s Style) Render(str string) string {
 		str = strings.Replace(str, "\n", "", -1)
 	}
 
-	if s.stylePadding != nil && !*s.stylePadding {
-		str = styler.Styled(str)
-	}
-
 	// Word wrap
 	if !singleLine && s.width != nil && *s.width > 0 {
 		var leftPadding, rightPadding int
@@ -278,36 +278,37 @@ func (s Style) Render(str string) string {
 		str = wordwrap.String(str, *s.width-leftPadding-rightPadding)
 	}
 
-	// Is a background color set?
-	var hasBackgroundColor bool
-	if s.background != nil {
-		hasBackgroundColor = true
-		switch (*s.background).(type) {
-		case noColor:
-			hasBackgroundColor = false
+	// We draw clear trailing spaces by default
+	drawClearTrailingSpaces := s.drawClearTrailingSpaces == nil || *s.drawClearTrailingSpaces
+
+	// Render core text
+	{
+		var b strings.Builder
+		l := strings.Split(str, "\n")
+		for i := range l {
+			b.WriteString(styler.Styled(l[i]))
+			if i != len(l)-1 {
+				b.WriteRune('\n')
+			}
 		}
+
+		str = b.String()
 	}
 
 	// Left/right padding
 	if s.leftPadding != nil {
-		str = padLeft(str, *s.leftPadding)
-	}
-
-	drawClearTrailingSpaces := true
-	if s.drawClearTrailingSpaces != nil {
-		drawClearTrailingSpaces = *s.drawClearTrailingSpaces
-	}
-
-	if drawClearTrailingSpaces || hasBackgroundColor {
-		var rightPadding int
-		if s.rightPadding != nil {
-			rightPadding = *s.rightPadding
+		var st *termenv.Style
+		if colorWhitespace || styleWhitespace {
+			st = &whitespaceStyler
 		}
-		var stylePadding bool
-		if s.stylePadding != nil {
-			stylePadding = *s.stylePadding
+		str = padLeft(str, *s.leftPadding, st)
+	}
+	if (colorWhitespace || drawClearTrailingSpaces) && s.rightPadding != nil {
+		var st *termenv.Style
+		if colorWhitespace || styleWhitespace {
+			st = &whitespaceStyler
 		}
-		str = padRight(str, rightPadding, stylePadding)
+		str = padRight(str, *s.rightPadding, st)
 	}
 
 	// Top/bottom padding
@@ -318,55 +319,34 @@ func (s Style) Render(str string) string {
 		str += strings.Repeat("\n", *s.bottomPadding)
 	}
 
-	numLines := strings.Count(str, "\n")
-
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
 	{
+		numLines := strings.Count(str, "\n")
+
 		align := AlignLeft
 		if s.align != nil {
 			align = *s.align
 		}
 
-		if numLines > 0 && (align != AlignLeft || drawClearTrailingSpaces || hasBackgroundColor) {
-			str = alignText(str, align)
-		}
-	}
-
-	if s.stylePadding != nil && *s.stylePadding {
-
-		// We have to do some extra work to not render underlines and/or
-		// strikes on spaces.
-		if styleSpaces {
-			var b strings.Builder
-
-			for _, c := range str {
-				if unicode.IsSpace(c) {
-					b.WriteString(spaceStyler.Styled(string(c)))
-					continue
-				}
-				b.WriteString(styler.Styled(string(c)))
+		if numLines > 0 && (align != AlignLeft || drawClearTrailingSpaces || colorWhitespace) {
+			var st *termenv.Style
+			if colorWhitespace || styleWhitespace {
+				st = &whitespaceStyler
 			}
-
-			str = b.String()
-
-		} else {
-			str = styler.Styled(str)
+			str = alignText(str, align, st)
 		}
-
-	} else {
-		str = styler.Styled(str)
 	}
 
 	// Add left margin
 	if s.leftMargin != nil {
-		str = padLeft(str, *s.leftMargin)
+		str = padLeft(str, *s.leftMargin, nil)
 	}
 
 	// Add right margin
-	if s.rightMargin != nil && drawClearTrailingSpaces {
-		str = padRight(str, *s.rightMargin, false)
+	if s.rightMargin != nil {
+		str = padRight(str, *s.rightMargin, nil)
 	}
 
 	// Top/bottom margin
@@ -401,30 +381,52 @@ func (s Style) Render(str string) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int) string {
-	if n == 0 || str == "" {
+func padLeft(str string, n int, style *termenv.Style) string {
+	if n == 0 {
 		return str
 	}
-	return indent.String(str, uint(n))
+
+	sp := strings.Repeat(" ", n)
+	if style != nil {
+		sp = style.Styled(sp)
+	}
+
+	b := strings.Builder{}
+	l := strings.Split(str, "\n")
+
+	for i := range l {
+		b.WriteString(sp)
+		b.WriteString(l[i])
+		if i != len(l)-1 {
+			b.WriteRune('\n')
+		}
+	}
+
+	//return indent.String(str, uint(n))
+	return b.String()
 }
 
 // Apply right right padding.
-func padRight(str string, n int, stylePadding bool) string {
+func padRight(str string, n int, style *termenv.Style) string {
 	if n == 0 || str == "" {
 		return str
 	}
 
-	padding := strings.Repeat(" ", n)
-
-	var maybeReset string
-	if !stylePadding {
-		maybeReset = resetSeq
+	sp := strings.Repeat(" ", n)
+	if style != nil {
+		sp = style.Styled(sp)
 	}
 
-	lines := strings.Split(str, "\n")
-	for i := range lines {
-		lines[i] += maybeReset + padding
+	b := strings.Builder{}
+	l := strings.Split(str, "\n")
+
+	for i := range l {
+		b.WriteString(l[i])
+		b.WriteString(sp)
+		if i != len(l)-1 {
+			b.WriteRune('\n')
+		}
 	}
 
-	return strings.Join(lines, "\n")
+	return b.String()
 }

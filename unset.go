@@ -99,9 +99,9 @@ func (s Style) UnsetBottomPadding() Style {
 	return s
 }
 
-// UnsetStylePadding removes the rule for coloring padding, if set.
-func (s Style) UnsetStylePadding() Style {
-	s.stylePadding = nil
+// UnsetColorWhitespace removes the rule for coloring padding, if set.
+func (s Style) UnsetColorWhitespace() Style {
+	s.colorWhitespace = nil
 	return s
 }
 
