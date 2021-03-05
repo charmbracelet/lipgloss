@@ -394,7 +394,7 @@ func (o Style) Inherit(i Style) Style {
 		o.strikethroughWhitespace = i.strikethroughWhitespace
 	}
 
-	return i
+	return o
 }
 
 // Render applies formatting to a given string.
