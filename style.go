@@ -49,6 +49,9 @@ type Style struct {
 	topMargin    *int
 	bottomMargin *int
 
+	// When set, render as a single line.
+	inline *bool
+
 	// If set, we truncate lines at this value after all other style has been
 	// applied. That is to say, the physical width of strings will not exceed
 	// this value, so this can be handy when building user interfaces.
@@ -255,8 +258,26 @@ func (s Style) BottomMargin(i int) Style {
 	return s
 }
 
-func (s Style) MaxWidth(i int) Style {
-	s.maxWidth = &i
+// Inline makes rendering output one line. This is useful for enforcing that
+// rendering occurs on a single line at render time, particularly with styles
+// and strings you may not have control of. Works well with MaxWidth().
+func (s Style) Inline(v bool) Style {
+	s.inline = &v
+	return s
+}
+
+// WithMaxWidth applies a max width to a given style. This is useful in
+// enforcing a certain width at render time, particularly with aribtrary
+// strings and styles.
+//
+// Example:
+//
+//     var userInput string = "..."
+//     var userStyle = text.Style{ /* ... */ }
+//     fmt.Println(userStyle.MaxWidth(16).Render(userInput))
+//
+func (s Style) MaxWidth(n int) Style {
+	s.maxWidth = &n
 	return s
 }
 
@@ -279,10 +300,10 @@ func (s Style) StrikethroughWhitespace(v bool) Style {
 
 // Inherit takes values from another style and applies them to this style. Only
 // values explicitly set on the style in argument will be applied. Values on
-// this style struct will be overwritten.
+// the style of parent of this method will be overwritten.
 func (o Style) Inherit(i Style) Style {
-	// We could use reflection here, but it's slow, so we're doing things
-	// the old-fashioned way.
+	// We could use reflection here, but it's slow, so we're doing things the
+	// long way.
 
 	// Inline
 	if i.bold != nil {
@@ -360,6 +381,9 @@ func (o Style) Inherit(i Style) Style {
 	if i.maxWidth != nil {
 		o.maxWidth = i.maxWidth
 	}
+	if i.inline != nil {
+		o.inline = i.inline
+	}
 	if i.drawClearTrailingSpaces != nil {
 		o.drawClearTrailingSpaces = i.drawClearTrailingSpaces
 	}
@@ -373,35 +397,11 @@ func (o Style) Inherit(i Style) Style {
 	return i
 }
 
-// Apply applies formatting to a given string.
-func (s Style) Apply(str string) string {
-	return s.apply(str, false)
-}
-
-// Apply as applies formatting to the given string, removing newlines and
-// skipping over block-level rules. Use this internally if you require an
-// inline-style only in your library or component.
-func (s Style) ApplyInline(str string) string {
-	return s.apply(str, true)
-}
-
-// WithMaxWidth applies a max width to a given style. This is useful in
-// enforcing a certain width at render time, particularly with aribtrary
-// strings and styles.
-//
-// Example:
-//
-//     var userInput string = "..."
-//     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.WithMaxWidth(16).Apply(userInput))
-//
-func (s Style) WithMaxWidth(n int) Style {
-	s.maxWidth = &n
-	return s
-}
-
-func (s Style) apply(str string, singleLine bool) string {
+// Render applies formatting to a given string.
+func (s Style) Render(str string) string {
 	var (
+		singleLine = s.inline != nil && *s.inline
+
 		styler termenv.Style
 
 		// Additional styling helpers for spaces, which won't always be

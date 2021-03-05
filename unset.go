@@ -138,6 +138,12 @@ func (s Style) UnsetBottomMargin() Style {
 	return s
 }
 
+// UnsetInline removes the inline style rule, if set.
+func (s Style) UnsetInline() Style {
+	s.inline = nil
+	return s
+}
+
 // UnsetMaxWidth removes the max width style rule, if set.
 func (s Style) UnsetMaxWidth() Style {
 	s.maxWidth = nil
