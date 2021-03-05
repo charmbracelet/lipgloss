@@ -200,9 +200,9 @@ func (s Style) Render(str string) string {
 	// Helper conditions. Niladic types make our conditions rather long and
 	// convoluted.
 	underline := s.underline != nil && *s.underline
-	underlineWhitespace := underline && s.underlineWhitespace != nil && *s.underlineWhitespace
+	underlineWhitespace := s.underlineWhitespace != nil && *s.underlineWhitespace
 	strike := s.strikethrough != nil && *s.strikethrough
-	strikeWhitespace := strike && s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
+	strikeWhitespace := s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
 
 	// Whether or not to apply foreground styling to whitespace for things like
 	// strikethroughs and underlines.
