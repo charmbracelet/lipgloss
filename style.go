@@ -82,6 +82,8 @@ func NewStyle() Style {
 // Inherit takes values from another style and applies them to this style. Only
 // values explicitly set on the style in argument will be applied. Values on
 // the style of parent of this method will be overwritten.
+//
+// Margins and padding are not inherited.
 func (o Style) Inherit(i Style) Style {
 	// We could use reflection here, but it's slow, so we're doing things the
 	// long way.
@@ -125,37 +127,6 @@ func (o Style) Inherit(i Style) Style {
 	// Alignment
 	if i.align != nil {
 		o.align = i.align
-	}
-
-	// Padding
-	if i.leftPadding != nil {
-		o.leftPadding = i.leftPadding
-	}
-	if i.rightPadding != nil {
-		o.rightPadding = i.rightPadding
-	}
-	if i.topPadding != nil {
-		o.rightPadding = i.topPadding
-	}
-	if i.bottomPadding != nil {
-		o.bottomPadding = i.bottomPadding
-	}
-	if i.colorWhitespace != nil {
-		o.colorWhitespace = i.colorWhitespace
-	}
-
-	// Margins
-	if i.leftMargin != nil {
-		o.leftMargin = i.leftMargin
-	}
-	if i.rightMargin != nil {
-		o.rightMargin = i.rightMargin
-	}
-	if i.topMargin != nil {
-		o.topMargin = i.topMargin
-	}
-	if i.bottomMargin != nil {
-		o.bottomMargin = i.bottomMargin
 	}
 
 	// Etc
