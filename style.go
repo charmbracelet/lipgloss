@@ -79,12 +79,6 @@ func NewStyle() Style {
 	return Style{}
 }
 
-// Inherit creates a new style using a given style as the starting point. It's
-// syntatic sugar for Style{}.Inherit().
-func Inherit(s Style) Style {
-	return s
-}
-
 // Inherit takes values from another style and applies them to this style. Only
 // values explicitly set on the style in argument will be applied. Values on
 // the style of parent of this method will be overwritten.
