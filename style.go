@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"strings"
+	"unicode"
 
 	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/reflow/wordwrap"
@@ -60,11 +61,16 @@ type Style struct {
 	// default we leave them in.
 	drawClearTrailingSpaces *bool
 
-	// Whether to apply underlines and strikes to whitespace like padding. We
-	// don't do this by default as it's likely not what people usually want,
-	// but it can can turned it on for certain graphic effects.
+	// Whether to apply underlines and strikethroughs to whitespace like
+	// padding. We don't do this by default as it's likely not what people
+	// usually want, but it can can turned it on for certain graphic effects.
 	underlineWhitespace     *bool
 	strikethroughWhitespace *bool
+
+	// Whether or not to apply underlines and strikethroughs to spaces in
+	// bewteen words. By default we do.
+	underlineSpaces     *bool
+	strikethroughSpaces *bool
 }
 
 // NewStyle returns a new, empty Style. It's syntatic sugar for the literal
@@ -181,9 +187,11 @@ func (o Style) Inherit(i Style) Style {
 // Render applies formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
-		singleLine       = s.inline != nil && *s.inline
-		styler           termenv.Style
-		whitespaceStyler termenv.Style // won't always be applicable
+		singleLine = s.inline != nil && *s.inline
+		styler     termenv.Style
+
+		spaceStyler      termenv.Style // spaces between words; not always applicable
+		whitespaceStyler termenv.Style // padding; not always applicable
 	)
 
 	// Is a background color set?
@@ -204,9 +212,12 @@ func (s Style) Render(str string) string {
 	strike := s.strikethrough != nil && *s.strikethrough
 	strikeWhitespace := s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
 
-	// Whether or not to apply foreground styling to whitespace for things like
+	// Whether or not to apply foreground styling to whitespace with regards to
 	// strikethroughs and underlines.
 	styleWhitespace := underlineWhitespace || strikeWhitespace
+
+	// Figure out how we need to treat underlines and strikethroughs on spaces
+	underlineSpaces, strikethroughSpaces, useSpaceStyler := s.getSpaceStylingRules()
 
 	if s.bold != nil && *s.bold {
 		styler = styler.Bold()
@@ -227,10 +238,14 @@ func (s Style) Render(str string) string {
 	if s.foreground != nil {
 		switch c := (*s.foreground).(type) {
 		case Color, AdaptiveColor:
-			styler = styler.Foreground(color(c.value()))
+			fg := color(c.value())
+			styler = styler.Foreground(fg)
 
 			if styleWhitespace {
-				whitespaceStyler = whitespaceStyler.Foreground(color(c.value()))
+				whitespaceStyler = whitespaceStyler.Foreground(fg)
+			}
+			if useSpaceStyler {
+				spaceStyler = spaceStyler.Foreground(fg)
 			}
 		}
 	}
@@ -238,19 +253,16 @@ func (s Style) Render(str string) string {
 	if s.background != nil {
 		switch c := (*s.background).(type) {
 		case Color, AdaptiveColor:
-			styler = styler.Background(color(c.value()))
+			bg := color(c.value())
+			styler = styler.Background(bg)
 
 			if colorWhitespace {
-				whitespaceStyler = whitespaceStyler.Background(color(c.value()))
+				whitespaceStyler = whitespaceStyler.Background(bg)
+			}
+			if useSpaceStyler {
+				spaceStyler = spaceStyler.Background(bg)
 			}
 		}
-	}
-
-	if underlineWhitespace {
-		whitespaceStyler = whitespaceStyler.Underline()
-	}
-	if strikeWhitespace {
-		whitespaceStyler = whitespaceStyler.CrossOut()
 	}
 
 	if underline {
@@ -259,6 +271,19 @@ func (s Style) Render(str string) string {
 
 	if strike {
 		styler = styler.CrossOut()
+	}
+
+	if underlineWhitespace {
+		whitespaceStyler = whitespaceStyler.Underline()
+	}
+	if strikeWhitespace {
+		whitespaceStyler = whitespaceStyler.CrossOut()
+	}
+	if underlineSpaces {
+		spaceStyler = spaceStyler.Underline()
+	}
+	if strikethroughSpaces {
+		spaceStyler = spaceStyler.CrossOut()
 	}
 
 	// Strip newlines in single line mode
@@ -284,9 +309,21 @@ func (s Style) Render(str string) string {
 	// Render core text
 	{
 		var b strings.Builder
+
 		l := strings.Split(str, "\n")
 		for i := range l {
-			b.WriteString(styler.Styled(l[i]))
+			if useSpaceStyler {
+				// Look for spaces and apply a different styler
+				for _, r := range []rune(l[i]) {
+					if unicode.IsSpace(r) {
+						b.WriteString(spaceStyler.Styled(string(r)))
+						continue
+					}
+					b.WriteString(styler.Styled(string(r)))
+				}
+			} else {
+				b.WriteString(styler.Styled(l[i]))
+			}
 			if i != len(l)-1 {
 				b.WriteRune('\n')
 			}
@@ -378,6 +415,62 @@ func (s Style) Render(str string) string {
 	}
 
 	return str
+}
+
+func (s Style) getSpaceStylingRules() (underlineSpaces, strikethroughSpaces, styleSpacesSeparately bool) {
+	var sepA, sepB bool
+	underlineSpaces, sepA = s.shouldUnderlineSpaces()
+	strikethroughSpaces, sepB = s.shouldStrikethroughSpaces()
+	styleSpacesSeparately = sepA || sepB
+	return
+}
+
+func (s Style) shouldUnderlineSpaces() (underlineSpaces, styleSpacesSeparately bool) {
+	underline := s.underline != nil && *s.underline
+
+	// Underline is enabled and UnderlineSpaces is unset.
+	// Or Underline is enabled and UnderlineSpaces is set to true.
+	if underline && (s.underlineSpaces == nil || *s.underlineSpaces) {
+		return true, false
+	}
+
+	// Underline is disabled and UnderlineSpaces is explicitly disabled. We
+	// need a separate termenv styler for spaces.
+	if underline && (s.underlineSpaces != nil && !*s.underlineSpaces) {
+		return false, true
+	}
+
+	// Underline is disabled but UnderlineSpaces is set to true. We need
+	// a separate termenv style for spaces.
+	if !underline && s.underlineSpaces != nil && *s.underlineSpaces {
+		return true, true
+	}
+
+	return false, false
+}
+
+func (s Style) shouldStrikethroughSpaces() (strikethroughSpaces, styleSpacesSeparately bool) {
+	strike := s.strikethrough != nil && *s.strikethrough
+
+	// Strikethough is enabled and StrikethroughSpaces is unset.
+	// Or Strikethrough is enabled and StrikethroughSpaces is set to true.
+	if strike && (s.strikethroughSpaces == nil || *s.strikethroughSpaces) {
+		return true, false
+	}
+
+	// Strikethrough is disabled and StrikethroughSpaces is explicitly
+	// disabled. We need a separate termenv styler for spaces.
+	if strike && (s.strikethroughSpaces != nil && !*s.strikethroughSpaces) {
+		return false, true
+	}
+
+	// Strikethrough is disabled but StrikethroughSpaces is set to true. In
+	// this case we need to use a seprate termenv style for spaces.
+	if !strike && s.strikethroughSpaces != nil && *s.strikethroughSpaces {
+		return true, true
+	}
+
+	return false, false
 }
 
 // Apply left padding.

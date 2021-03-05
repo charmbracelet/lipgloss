@@ -170,3 +170,13 @@ func (s Style) UnsetStrikethroughWhitespace() Style {
 	s.strikethroughWhitespace = nil
 	return s
 }
+
+func (s Style) UnsetUnderlineSpaces(v bool) Style {
+	s.underlineSpaces = nil
+	return s
+}
+
+func (s Style) UnsetStrikethroughSpaces(v bool) Style {
+	s.strikethroughSpaces = nil
+	return s
+}
