@@ -165,6 +165,126 @@ func (o Style) Inherit(i Style) Style {
 	return o
 }
 
+// Copy reuturns a copy of this style.
+func (i Style) Copy() Style {
+	o := Style{}
+
+	// Inline
+	if i.bold != nil {
+		v := *i.bold
+		o.bold = &v
+	}
+	if i.italic != nil {
+		v := *i.italic
+		o.italic = &v
+	}
+	if i.underline != nil {
+		v := *i.underline
+		o.underline = &v
+	}
+	if i.strikethrough != nil {
+		v := *i.strikethrough
+		o.strikethrough = &v
+	}
+	if i.reverse != nil {
+		v := *i.reverse
+		o.reverse = &v
+	}
+	if i.blink != nil {
+		v := *i.blink
+		o.blink = &v
+	}
+	if i.faint != nil {
+		v := *i.faint
+		o.faint = &v
+	}
+
+	// Colors
+	if i.foreground != nil {
+		v := *i.foreground
+		o.foreground = &v
+	}
+	if i.background != nil {
+		*o.background = *i.background
+	}
+
+	// Width
+	if i.width != nil {
+		v := *i.width
+		o.width = &v
+	}
+
+	// Alignment
+	if i.align != nil {
+		v := *i.align
+		o.align = &v
+	}
+
+	// Padding
+	if i.leftPadding != nil {
+		v := *i.leftPadding
+		o.leftPadding = &v
+	}
+	if i.rightPadding != nil {
+		v := *i.rightPadding
+		o.rightPadding = &v
+	}
+	if i.topPadding != nil {
+		v := *i.topPadding
+		o.rightPadding = &v
+	}
+	if i.bottomPadding != nil {
+		v := *i.bottomPadding
+		o.bottomPadding = &v
+	}
+	if i.colorWhitespace != nil {
+		v := *i.colorWhitespace
+		o.colorWhitespace = &v
+	}
+
+	// Margins
+	if i.leftMargin != nil {
+		v := *i.leftMargin
+		o.leftMargin = &v
+	}
+	if i.rightMargin != nil {
+		v := *i.rightMargin
+		o.rightMargin = &v
+	}
+	if i.topMargin != nil {
+		v := *i.topMargin
+		o.topMargin = &v
+	}
+	if i.bottomMargin != nil {
+		v := *i.bottomMargin
+		o.bottomMargin = &v
+	}
+
+	// Etc
+	if i.maxWidth != nil {
+		v := *i.maxWidth
+		o.maxWidth = &v
+	}
+	if i.inline != nil {
+		v := *i.inline
+		o.inline = &v
+	}
+	if i.drawClearTrailingSpaces != nil {
+		v := *i.drawClearTrailingSpaces
+		o.drawClearTrailingSpaces = &v
+	}
+	if i.underlineWhitespace != nil {
+		v := *i.underlineWhitespace
+		o.underlineWhitespace = &v
+	}
+	if i.strikethroughWhitespace != nil {
+		v := *i.strikethroughWhitespace
+		o.strikethroughWhitespace = &v
+	}
+
+	return o
+}
+
 // Render applies formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
