@@ -9,403 +9,203 @@ import (
 	"github.com/muesli/termenv"
 )
 
-// ANSI reset sequence.
-const resetSeq = termenv.CSI + termenv.ResetSeq + "m"
+// propKey is a property for a key
+type propKey int
 
-// Style contains formatting instructions for a given string.
-type Style struct {
-	bold          *bool
-	italic        *bool
-	underline     *bool
-	strikethrough *bool
-	reverse       *bool
-	blink         *bool
-	faint         *bool
-	foreground    *ColorType
-	background    *ColorType
+// Available properties
+const (
+	boldKey propKey = iota
+	italicKey
+	underlineKey
+	strikethroughKey
+	reverseKey
+	blinkKey
+	faintKey
+	foregroundKey
+	backgroundKey
+	widthKey
+	alignKey
+	topPaddingKey
+	rightPaddingKey
+	bottomPaddingKey
+	leftPaddingKey
+	colorWhitespaceKey
+	topMarginKey
+	rightMarginKey
+	bottomMarginKey
+	leftMarginKey
+	inlineKey
+	maxWidthKey
+	drawClearTrailingSpacesKey
+	underlineWhitespaceKey
+	strikethroughWhitespaceKey
+	underlineSpacesKey
+	strikethroughSpacesKey
+)
 
-	// If the string contains multiple lines, they'll wrap at this value.
-	// Lines will also be padded with spaces so they'll all be the same width.
-	width *int
-
-	// Text alignment.
-	align *Align
-
-	// Padding. This will be colored according to the Background value if
-	// colorWhitespace is true.
-	leftPadding   *int
-	rightPadding  *int
-	topPadding    *int
-	bottomPadding *int
-
-	// Whether or not to apply a background color to the whitespace surrounding
-	// text blocks. Most notably, this determines whether or not the indent
-	// background color will be styled.
-	colorWhitespace *bool
-
-	// Margins. These will never be colored.
-	leftMargin   *int
-	rightMargin  *int
-	topMargin    *int
-	bottomMargin *int
-
-	// When set, render as a single line.
-	inline *bool
-
-	// If set, we truncate lines at this value after all other style has been
-	// applied. That is to say, the physical width of strings will not exceed
-	// this value, so this can be handy when building user interfaces.
-	maxWidth *int
-
-	// Whether or not to remove trailing spaces with no background color. By
-	// default we leave them in.
-	drawClearTrailingSpaces *bool
-
-	// Whether to apply underlines and strikethroughs to whitespace like
-	// padding. We don't do this by default as it's likely not what people
-	// usually want, but it can can turned it on for certain graphic effects.
-	underlineWhitespace     *bool
-	strikethroughWhitespace *bool
-
-	// Whether or not to apply underlines and strikethroughs to spaces in
-	// bewteen words. By default we do.
-	underlineSpaces     *bool
-	strikethroughSpaces *bool
-}
-
-// NewStyle returns a new, empty Style. It's syntatic sugar for the literal
-// Style{}.
+// NewStyle returns a new, empty Style.  While it's syntactis sugar for
+// make(Style), it's recommended to use this function for creating styles
+// incase the underlying implementation changes.
 func NewStyle() Style {
-	return Style{}
+	return make(Style)
 }
 
-// Inherit takes values from another style and applies them to this style. Only
-// values explicitly set on the style in argument will be applied. Values on
-// the style of parent of this method will be overwritten.
+// Style contains property definitions that comprise a style as a whole.
+type Style map[propKey]interface{}
+
+// Copy returns a copy of this style.
+func (s Style) Copy() Style {
+	o := make(Style)
+	for k, v := range s {
+		o[k] = v
+	}
+	return o
+}
+
+// Inherit takes values from the style in the argument applies them to this
+// style, overwriting existing definitions. Only values explicitly set on the
+// style in argument will be applied.
 //
 // Margins and padding are not inherited.
-func (o Style) Inherit(i Style) Style {
-	// We could use reflection here, but it's slow, so we're doing things the
-	// long way.
+func (o Style) Inherit(i Style) {
+	for k, v := range i {
+		switch k {
+		case topMarginKey, rightMarginKey, bottomMarginKey, leftMarginKey:
+			// Margins are not inherited
+			continue
+		case topPaddingKey, rightPaddingKey, bottomPaddingKey, leftPaddingKey:
+			// Padding is not inherited
+			continue
+		}
 
-	// Inline
-	if i.bold != nil {
-		v := *i.bold
-		o.bold = &v
+		if _, exists := o[k]; exists {
+			continue
+		}
+		o[k] = v
 	}
-	if i.italic != nil {
-		v := *i.italic
-		o.italic = &v
-	}
-	if i.underline != nil {
-		v := *i.underline
-		o.underline = &v
-	}
-	if i.strikethrough != nil {
-		v := *i.strikethrough
-		o.strikethrough = &v
-	}
-	if i.reverse != nil {
-		v := *i.reverse
-		o.reverse = &v
-	}
-	if i.blink != nil {
-		v := *i.blink
-		o.blink = &v
-	}
-	if i.faint != nil {
-		v := *i.faint
-		o.faint = &v
-	}
-
-	// Colors
-	if i.foreground != nil {
-		v := *i.foreground
-		o.foreground = &v
-	}
-	if i.background != nil {
-		v := *i.background
-		o.background = &v
-	}
-
-	// Width
-	if i.width != nil {
-		v := *i.width
-		o.width = &v
-	}
-
-	// Alignment
-	if i.align != nil {
-		v := *i.align
-		o.align = &v
-	}
-
-	// Etc
-	if i.maxWidth != nil {
-		v := *i.maxWidth
-		o.maxWidth = &v
-	}
-	if i.inline != nil {
-		v := *i.inline
-		o.inline = &v
-	}
-	if i.drawClearTrailingSpaces != nil {
-		v := *i.drawClearTrailingSpaces
-		o.drawClearTrailingSpaces = &v
-	}
-	if i.underlineWhitespace != nil {
-		v := *i.underlineWhitespace
-		o.underlineWhitespace = &v
-	}
-	if i.strikethroughWhitespace != nil {
-		v := *i.strikethroughWhitespace
-		o.strikethroughWhitespace = &v
-	}
-
-	return o
 }
 
-// Copy reuturns a copy of this style.
-func (i Style) Copy() Style {
-	o := Style{}
-
-	// Inline
-	if i.bold != nil {
-		v := *i.bold
-		o.bold = &v
-	}
-	if i.italic != nil {
-		v := *i.italic
-		o.italic = &v
-	}
-	if i.underline != nil {
-		v := *i.underline
-		o.underline = &v
-	}
-	if i.strikethrough != nil {
-		v := *i.strikethrough
-		o.strikethrough = &v
-	}
-	if i.reverse != nil {
-		v := *i.reverse
-		o.reverse = &v
-	}
-	if i.blink != nil {
-		v := *i.blink
-		o.blink = &v
-	}
-	if i.faint != nil {
-		v := *i.faint
-		o.faint = &v
-	}
-
-	// Colors
-	if i.foreground != nil {
-		v := *i.foreground
-		o.foreground = &v
-	}
-	if i.background != nil {
-		*o.background = *i.background
-	}
-
-	// Width
-	if i.width != nil {
-		v := *i.width
-		o.width = &v
-	}
-
-	// Alignment
-	if i.align != nil {
-		v := *i.align
-		o.align = &v
-	}
-
-	// Padding
-	if i.leftPadding != nil {
-		v := *i.leftPadding
-		o.leftPadding = &v
-	}
-	if i.rightPadding != nil {
-		v := *i.rightPadding
-		o.rightPadding = &v
-	}
-	if i.topPadding != nil {
-		v := *i.topPadding
-		o.rightPadding = &v
-	}
-	if i.bottomPadding != nil {
-		v := *i.bottomPadding
-		o.bottomPadding = &v
-	}
-	if i.colorWhitespace != nil {
-		v := *i.colorWhitespace
-		o.colorWhitespace = &v
-	}
-
-	// Margins
-	if i.leftMargin != nil {
-		v := *i.leftMargin
-		o.leftMargin = &v
-	}
-	if i.rightMargin != nil {
-		v := *i.rightMargin
-		o.rightMargin = &v
-	}
-	if i.topMargin != nil {
-		v := *i.topMargin
-		o.topMargin = &v
-	}
-	if i.bottomMargin != nil {
-		v := *i.bottomMargin
-		o.bottomMargin = &v
-	}
-
-	// Etc
-	if i.maxWidth != nil {
-		v := *i.maxWidth
-		o.maxWidth = &v
-	}
-	if i.inline != nil {
-		v := *i.inline
-		o.inline = &v
-	}
-	if i.drawClearTrailingSpaces != nil {
-		v := *i.drawClearTrailingSpaces
-		o.drawClearTrailingSpaces = &v
-	}
-	if i.underlineWhitespace != nil {
-		v := *i.underlineWhitespace
-		o.underlineWhitespace = &v
-	}
-	if i.strikethroughWhitespace != nil {
-		v := *i.strikethroughWhitespace
-		o.strikethroughWhitespace = &v
-	}
-
-	return o
-}
-
-// Render applies formatting to a given string.
+// Render applies the defined style formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
-		singleLine = s.inline != nil && *s.inline
-		styler     termenv.Style
+		te           termenv.Style
+		teSpace      termenv.Style
+		teWhitespace termenv.Style
 
-		spaceStyler      termenv.Style // spaces between words; not always applicable
-		whitespaceStyler termenv.Style // padding; not always applicable
+		bold          = s.getAsBool(boldKey, false)
+		italic        = s.getAsBool(italicKey, false)
+		underline     = s.getAsBool(underlineKey, false)
+		strikethrough = s.getAsBool(strikethroughKey, false)
+		reverse       = s.getAsBool(reverseKey, false)
+		blink         = s.getAsBool(blinkKey, false)
+		faint         = s.getAsBool(faintKey, false)
+
+		fg = s.getAsColor(foregroundKey)
+		bg = s.getAsColor(backgroundKey)
+
+		width = s.getAsInt(widthKey)
+		align = s.getAsAlign(alignKey)
+
+		topPadding    = s.getAsInt(topPaddingKey)
+		rightPadding  = s.getAsInt(rightPaddingKey)
+		bottomPadding = s.getAsInt(bottomPaddingKey)
+		leftPadding   = s.getAsInt(leftPaddingKey)
+
+		topMargin    = s.getAsInt(topMarginKey)
+		rightMargin  = s.getAsInt(rightMarginKey)
+		bottomMargin = s.getAsInt(bottomMarginKey)
+		leftMargin   = s.getAsInt(leftMarginKey)
+
+		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
+		inline          = s.getAsBool(inlineKey, false)
+		maxWidth        = s.getAsInt(maxWidthKey)
+
+		drawClearTrailingSpaces = s.getAsBool(drawClearTrailingSpacesKey, true)
+		underlineWhitespace     = s.getAsBool(underlineWhitespaceKey, false)
+		strikethroughWhitespace = s.getAsBool(strikethroughWhitespaceKey, false)
+
+		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
+		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
+
+		// Do we need to style whitespace (padding and space outsode
+		// paragraphs) separately?
+		styleWhitespace = underlineWhitespace || strikethroughWhitespace
+
+		// Do we need to style spaces separately?
+		useSpaceStyler = underlineSpaces || strikethroughSpaces
 	)
 
-	// Is a background color set?
-	var hasBackgroundColor bool
-	if s.background != nil {
-		_, ok := (*s.background).(noColor)
-		hasBackgroundColor = !ok
+	if bold {
+		te = te.Bold()
+	}
+	if italic {
+		te = te.Italic()
+	}
+	if underline {
+		te = te.Underline()
+	}
+	if reverse {
+		te = te.Reverse()
+	}
+	if blink {
+		te = te.Blink()
+	}
+	if faint {
+		te = te.Faint()
 	}
 
-	// By default, we color padding and space around paragraphs by default if
-	// a background color is set.
-	colorWhitespace := hasBackgroundColor && (s.colorWhitespace == nil || *s.colorWhitespace)
-
-	// Helper conditions. Niladic types make our conditions rather long and
-	// convoluted.
-	underline := s.underline != nil && *s.underline
-	underlineWhitespace := s.underlineWhitespace != nil && *s.underlineWhitespace
-	strike := s.strikethrough != nil && *s.strikethrough
-	strikeWhitespace := s.strikethroughWhitespace != nil && *s.strikethroughWhitespace
-
-	// Whether or not to apply foreground styling to whitespace with regards to
-	// strikethroughs and underlines.
-	styleWhitespace := underlineWhitespace || strikeWhitespace
-
-	// Figure out how we need to treat underlines and strikethroughs on spaces
-	underlineSpaces, strikethroughSpaces, useSpaceStyler := s.getSpaceStylingRules()
-
-	if s.bold != nil && *s.bold {
-		styler = styler.Bold()
-	}
-	if s.italic != nil && *s.italic {
-		styler = styler.Italic()
-	}
-	if s.reverse != nil && *s.reverse {
-		styler = styler.Reverse()
-	}
-	if s.blink != nil && *s.blink {
-		styler = styler.Blink()
-	}
-	if s.faint != nil && *s.faint {
-		styler = styler.Faint()
-	}
-
-	if s.foreground != nil {
-		switch c := (*s.foreground).(type) {
-		case Color, AdaptiveColor:
-			fg := color(c.value())
-			styler = styler.Foreground(fg)
-
-			if styleWhitespace {
-				whitespaceStyler = whitespaceStyler.Foreground(fg)
-			}
-			if useSpaceStyler {
-				spaceStyler = spaceStyler.Foreground(fg)
-			}
+	if fg != "" {
+		fgc := color(fg)
+		te = te.Foreground(fgc)
+		te.Foreground(fgc)
+		if styleWhitespace {
+			teWhitespace = teWhitespace.Foreground(fgc)
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.Foreground(fgc)
 		}
 	}
 
-	if s.background != nil {
-		switch c := (*s.background).(type) {
-		case Color, AdaptiveColor:
-			bg := color(c.value())
-			styler = styler.Background(bg)
-
-			if colorWhitespace {
-				whitespaceStyler = whitespaceStyler.Background(bg)
-			}
-			if useSpaceStyler {
-				spaceStyler = spaceStyler.Background(bg)
-			}
+	if bg != "" {
+		bgc := color(bg)
+		te = te.Background(bgc)
+		if colorWhitespace {
+			teWhitespace = teWhitespace.Background(bgc)
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.Background(bgc)
 		}
 	}
 
 	if underline {
-		styler = styler.Underline()
+		te = te.Underline()
 	}
-
-	if strike {
-		styler = styler.CrossOut()
+	if strikethrough {
+		te = te.CrossOut()
 	}
 
 	if underlineWhitespace {
-		whitespaceStyler = whitespaceStyler.Underline()
+		teWhitespace = teWhitespace.Underline()
 	}
-	if strikeWhitespace {
-		whitespaceStyler = whitespaceStyler.CrossOut()
+	if strikethroughWhitespace {
+		teWhitespace = teWhitespace.CrossOut()
 	}
 	if underlineSpaces {
-		spaceStyler = spaceStyler.Underline()
+		teSpace = teSpace.Underline()
 	}
 	if strikethroughSpaces {
-		spaceStyler = spaceStyler.CrossOut()
+		teSpace = teSpace.CrossOut()
 	}
 
 	// Strip newlines in single line mode
-	if singleLine {
+	if inline {
 		str = strings.Replace(str, "\n", "", -1)
 	}
 
 	// Word wrap
-	if !singleLine && s.width != nil && *s.width > 0 {
-		var leftPadding, rightPadding int
-		if s.leftPadding != nil {
-			leftPadding = *s.leftPadding
-		}
-		if s.rightPadding != nil {
-			rightPadding = *s.rightPadding
-		}
-		str = wordwrap.String(str, *s.width-leftPadding-rightPadding)
+	if !inline && width > 0 {
+		str = wordwrap.String(str, width-leftPadding-rightPadding)
 	}
-
-	// We draw clear trailing spaces by default
-	drawClearTrailingSpaces := s.drawClearTrailingSpaces == nil || *s.drawClearTrailingSpaces
 
 	// Render core text
 	{
@@ -417,13 +217,13 @@ func (s Style) Render(str string) string {
 				// Look for spaces and apply a different styler
 				for _, r := range []rune(l[i]) {
 					if unicode.IsSpace(r) {
-						b.WriteString(spaceStyler.Styled(string(r)))
+						b.WriteString(teSpace.Styled(string(r)))
 						continue
 					}
-					b.WriteString(styler.Styled(string(r)))
+					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(styler.Styled(l[i]))
+				b.WriteString(te.Styled(l[i]))
 			}
 			if i != len(l)-1 {
 				b.WriteRune('\n')
@@ -434,27 +234,27 @@ func (s Style) Render(str string) string {
 	}
 
 	// Left/right padding
-	if s.leftPadding != nil {
+	if leftPadding > 0 {
 		var st *termenv.Style
 		if colorWhitespace || styleWhitespace {
-			st = &whitespaceStyler
+			st = &teWhitespace
 		}
-		str = padLeft(str, *s.leftPadding, st)
+		str = padLeft(str, leftPadding, st)
 	}
-	if (colorWhitespace || drawClearTrailingSpaces) && s.rightPadding != nil {
+	if (colorWhitespace || drawClearTrailingSpaces) && rightPadding > 0 {
 		var st *termenv.Style
 		if colorWhitespace || styleWhitespace {
-			st = &whitespaceStyler
+			st = &teWhitespace
 		}
-		str = padRight(str, *s.rightPadding, st)
+		str = padRight(str, rightPadding, st)
 	}
 
 	// Top/bottom padding
-	if s.topPadding != nil && *s.topPadding > 0 && !singleLine {
-		str = strings.Repeat("\n", *s.topPadding) + str
+	if topPadding > 0 && !inline {
+		str = strings.Repeat("\n", topPadding) + str
 	}
-	if s.bottomPadding != nil && *s.bottomPadding > 0 && !singleLine {
-		str += strings.Repeat("\n", *s.bottomPadding)
+	if bottomPadding > 0 && !inline {
+		str += strings.Repeat("\n", bottomPadding)
 	}
 
 	// Set alignment. This will also pad short lines with spaces so that all
@@ -463,32 +263,21 @@ func (s Style) Render(str string) string {
 	{
 		numLines := strings.Count(str, "\n")
 
-		align := AlignLeft
-		if s.align != nil {
-			align = *s.align
-		}
-
 		if numLines > 0 && (align != AlignLeft || drawClearTrailingSpaces || colorWhitespace) {
 			var st *termenv.Style
 			if colorWhitespace || styleWhitespace {
-				st = &whitespaceStyler
+				st = &teWhitespace
 			}
 			str = alignText(str, align, st)
 		}
 	}
 
-	// Add left margin
-	if s.leftMargin != nil {
-		str = padLeft(str, *s.leftMargin, nil)
-	}
-
-	// Add right margin
-	if s.rightMargin != nil {
-		str = padRight(str, *s.rightMargin, nil)
-	}
+	// Add left and right margin
+	str = padLeft(str, leftMargin, nil)
+	str = padRight(str, rightMargin, nil)
 
 	// Top/bottom margin
-	if !singleLine {
+	if !inline {
 		var maybeSpaces string
 
 		if drawClearTrailingSpaces {
@@ -496,20 +285,20 @@ func (s Style) Render(str string) string {
 			maybeSpaces = strings.Repeat(" ", width)
 		}
 
-		if s.topMargin != nil && *s.topMargin > 0 {
-			str = strings.Repeat(maybeSpaces+"\n", *s.topMargin) + str
+		if topMargin > 0 {
+			str = strings.Repeat(maybeSpaces+"\n", topMargin) + str
 		}
-		if s.bottomMargin != nil && *s.bottomMargin > 0 {
-			str += strings.Repeat("\n"+maybeSpaces, *s.bottomMargin) + "\n"
+		if bottomMargin > 0 {
+			str += strings.Repeat("\n"+maybeSpaces, bottomMargin)
 		}
 	}
 
 	// Truncate accoridng to MaxWidth
-	if s.maxWidth != nil && *s.maxWidth > 0 {
+	if maxWidth > 0 {
 		lines := strings.Split(str, "\n")
 
 		for i := range lines {
-			lines[i] = truncate.String(lines[i], uint(*s.maxWidth))
+			lines[i] = truncate.String(lines[i], uint(maxWidth))
 		}
 
 		str = strings.Join(lines, "\n")
@@ -518,60 +307,48 @@ func (s Style) Render(str string) string {
 	return str
 }
 
-func (s Style) getSpaceStylingRules() (underlineSpaces, strikethroughSpaces, styleSpacesSeparately bool) {
-	var sepA, sepB bool
-	underlineSpaces, sepA = s.shouldUnderlineSpaces()
-	strikethroughSpaces, sepB = s.shouldStrikethroughSpaces()
-	styleSpacesSeparately = sepA || sepB
-	return
+func (s Style) getAsBool(k propKey, defaultVal bool) bool {
+	v, ok := s[k]
+	if !ok {
+		return defaultVal
+	}
+	if b, ok := v.(bool); ok {
+		return b
+	}
+	return defaultVal
 }
 
-func (s Style) shouldUnderlineSpaces() (underlineSpaces, styleSpacesSeparately bool) {
-	underline := s.underline != nil && *s.underline
-
-	// Underline is enabled and UnderlineSpaces is unset.
-	// Or Underline is enabled and UnderlineSpaces is set to true.
-	if underline && (s.underlineSpaces == nil || *s.underlineSpaces) {
-		return true, false
+func (s Style) getAsColor(k propKey) string {
+	v, ok := s[k]
+	if !ok {
+		return ""
 	}
-
-	// Underline is disabled and UnderlineSpaces is explicitly disabled. We
-	// need a separate termenv styler for spaces.
-	if underline && (s.underlineSpaces != nil && !*s.underlineSpaces) {
-		return false, true
+	if c, ok := v.(ColorType); ok {
+		return c.value()
 	}
-
-	// Underline is disabled but UnderlineSpaces is set to true. We need
-	// a separate termenv style for spaces.
-	if !underline && s.underlineSpaces != nil && *s.underlineSpaces {
-		return true, true
-	}
-
-	return false, false
+	return ""
 }
 
-func (s Style) shouldStrikethroughSpaces() (strikethroughSpaces, styleSpacesSeparately bool) {
-	strike := s.strikethrough != nil && *s.strikethrough
-
-	// Strikethough is enabled and StrikethroughSpaces is unset.
-	// Or Strikethrough is enabled and StrikethroughSpaces is set to true.
-	if strike && (s.strikethroughSpaces == nil || *s.strikethroughSpaces) {
-		return true, false
+func (s Style) getAsInt(k propKey) int {
+	v, ok := s[k]
+	if !ok {
+		return 0
 	}
-
-	// Strikethrough is disabled and StrikethroughSpaces is explicitly
-	// disabled. We need a separate termenv styler for spaces.
-	if strike && (s.strikethroughSpaces != nil && !*s.strikethroughSpaces) {
-		return false, true
+	if i, ok := v.(int); ok {
+		return i
 	}
+	return 0
+}
 
-	// Strikethrough is disabled but StrikethroughSpaces is set to true. In
-	// this case we need to use a seprate termenv style for spaces.
-	if !strike && s.strikethroughSpaces != nil && *s.strikethroughSpaces {
-		return true, true
+func (s Style) getAsAlign(k propKey) Align {
+	v, ok := s[k]
+	if !ok {
+		return AlignLeft
 	}
-
-	return false, false
+	if a, ok := v.(Align); ok {
+		return a
+	}
+	return AlignLeft
 }
 
 // Apply left padding.

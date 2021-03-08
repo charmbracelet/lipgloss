@@ -2,14 +2,14 @@ package lipgloss
 
 // Bold sets a bold formatting rule.
 func (s Style) Bold(v bool) Style {
-	s.bold = &v
+	s[boldKey] = v
 	return s
 }
 
 // Italic sets an italic formatting rule. In some terminal emulators this will
 // render with "reverse" coloring if not italic font variant is available.
 func (s Style) Italic(v bool) Style {
-	s.italic = &v
+	s[italicKey] = v
 	return s
 }
 
@@ -17,7 +17,7 @@ func (s Style) Italic(v bool) Style {
 // whitespace like margins and padding. To change this behavior set
 // renderUnderlinesOnSpaces.
 func (s Style) Underline(v bool) Style {
-	s.underline = &v
+	s[underlineKey] = v
 	return s
 }
 
@@ -25,25 +25,25 @@ func (s Style) Underline(v bool) Style {
 // drawn on whitespace like margins and padding. To change this behavior set
 // renderStrikethroughOnSpaces.
 func (s Style) Strikethrough(v bool) Style {
-	s.strikethrough = &v
+	s[strikethroughKey] = v
 	return s
 }
 
 // Reverse sets a rule for inverting foreground and background colors.
 func (s Style) Reverse(v bool) Style {
-	s.reverse = &v
+	s[reverseKey] = v
 	return s
 }
 
 // Blink sets a rule for blinking forground text.
 func (s Style) Blink(v bool) Style {
-	s.blink = &v
+	s[blinkKey] = v
 	return s
 }
 
 // Faint sets a rule for rendering the foreground color in a dimmer shade.
 func (s Style) Faint(v bool) Style {
-	s.faint = &v
+	s[faintKey] = v
 	return s
 }
 
@@ -56,26 +56,26 @@ func (s Style) Faint(v bool) Style {
 //     s.Foreground(lipgloss.NoColor)
 //
 func (s Style) Foreground(c ColorType) Style {
-	s.foreground = &c
+	s[foregroundKey] = c
 	return s
 }
 
 // Background sets a background color.
 func (s Style) Background(c ColorType) Style {
-	s.background = &c
+	s[backgroundKey] = c
 	return s
 }
 
 // Width sets the width of the block before applying margins and padding. This
 // effects when.
 func (s Style) Width(i int) Style {
-	s.width = &i
+	s[widthKey] = i
 	return s
 }
 
 // Align sets a text alignment rule.
 func (s Style) Align(a Align) Style {
-	s.align = &a
+	s[alignKey] = a
 	return s
 }
 
@@ -99,35 +99,43 @@ func (s Style) Padding(i ...int) Style {
 		return s
 	}
 
-	s.topPadding = &top
-	s.rightPadding = &right
-	s.bottomPadding = &bottom
-	s.leftPadding = &left
+	s[topPaddingKey] = top
+	s[rightPaddingKey] = right
+	s[bottomPaddingKey] = bottom
+	s[leftPaddingKey] = left
 	return s
 }
 
+// LeftPadding adds padding on the left.
 func (s Style) LeftPadding(i int) Style {
-	s.leftPadding = &i
+	s[leftPaddingKey] = i
 	return s
 }
 
+// Right Padding adds padding on the right.
 func (s Style) RightPadding(i int) Style {
-	s.rightPadding = &i
+	s[rightPaddingKey] = i
 	return s
 }
 
+// TopPadding addds padding to the top of the block.
 func (s Style) TopPadding(i int) Style {
-	s.topPadding = &i
+	s[topPaddingKey] = i
 	return s
 }
 
+// BottomPadding adds padding to the bottom of the block.
 func (s Style) BottomPadding(i int) Style {
-	s.bottomPadding = &i
+	s[bottomPaddingKey] = i
 	return s
 }
 
+// ColorWhitespace determins whether or not the background color should be
+// applied to the padding. This is true by default as it's more than likely the
+// desired and expected behavior, but it can be disabled for certain graphic
+// effects.
 func (s Style) ColorWhitespace(v bool) Style {
-	s.colorWhitespace = &v
+	s[colorWhitespaceKey] = v
 	return s
 }
 
@@ -151,30 +159,34 @@ func (s Style) Margin(i ...int) Style {
 		return s
 	}
 
-	s.topMargin = &top
-	s.rightMargin = &right
-	s.bottomMargin = &bottom
-	s.leftMargin = &left
+	s[topMarginKey] = top
+	s[rightMarginKey] = right
+	s[bottomMarginKey] = bottom
+	s[leftMarginKey] = left
 	return s
 }
 
+// LeftMargin sets the value of the left margin.
 func (s Style) LeftMargin(i int) Style {
-	s.leftMargin = &i
+	s[leftMarginKey] = i
 	return s
 }
 
+// RightMargin sets the value of the right margin.
 func (s Style) RightMargin(i int) Style {
-	s.rightMargin = &i
+	s[rightMarginKey] = i
 	return s
 }
 
+// TopMargin sets the value of the top margin.
 func (s Style) TopMargin(i int) Style {
-	s.topMargin = &i
+	s[topMarginKey] = i
 	return s
 }
 
+// BottomMargin sets the value of the bottom margin.
 func (s Style) BottomMargin(i int) Style {
-	s.bottomMargin = &i
+	s[bottomMarginKey] = i
 	return s
 }
 
@@ -182,13 +194,13 @@ func (s Style) BottomMargin(i int) Style {
 // rendering occurs on a single line at render time, particularly with styles
 // and strings you may not have control of. Works well with MaxWidth().
 func (s Style) Inline(v bool) Style {
-	s.inline = &v
+	s[inlineKey] = v
 	return s
 }
 
-// WithMaxWidth applies a max width to a given style. This is useful in
-// enforcing a certain width at render time, particularly with aribtrary
-// strings and styles.
+// MaxWidth applies a max width to a given style. This is useful in enforcing
+// a certain width at render time, particularly with aribtrary strings and
+// styles.
 //
 // Example:
 //
@@ -197,34 +209,34 @@ func (s Style) Inline(v bool) Style {
 //     fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 //
 func (s Style) MaxWidth(n int) Style {
-	s.maxWidth = &n
+	s[maxWidthKey] = n
 	return s
 }
 
 // Whether or not to draw trailing spaces with no background color. By default
 // we leave them in.
 func (s Style) DrawClearTrailingSpaces(v bool) Style {
-	s.drawClearTrailingSpaces = &v
+	s[drawClearTrailingSpacesKey] = v
 	return s
 }
 
 func (s Style) UnderlineWhitespace(v bool) Style {
-	s.underlineWhitespace = &v
+	s[underlineWhitespaceKey] = v
 	return s
 }
 
 func (s Style) StrikethroughWhitespace(v bool) Style {
-	s.strikethroughWhitespace = &v
+	s[strikethroughWhitespaceKey] = v
 	return s
 }
 
 func (s Style) UnderlineSpaces(v bool) Style {
-	s.underlineSpaces = &v
+	s[underlineSpacesKey] = v
 	return s
 }
 
 func (s Style) StrikethroughSpaces(v bool) Style {
-	s.strikethroughSpaces = &v
+	s[strikethroughSpacesKey] = v
 	return s
 }
 
