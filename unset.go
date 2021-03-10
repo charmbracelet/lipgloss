@@ -171,11 +171,13 @@ func (s Style) UnsetStrikethroughWhitespace() Style {
 	return s
 }
 
+// UnsetUnderlineSpaces removes the value set by UnderlineSpaces.
 func (s Style) UnsetUnderlineSpaces(v bool) Style {
 	delete(s, underlineSpacesKey)
 	return s
 }
 
+// UnsetUnderlineSpaces removes the value set by UnsetStrikethroughSpaces.
 func (s Style) UnsetStrikethroughSpaces(v bool) Style {
 	delete(s, strikethroughSpacesKey)
 	return s

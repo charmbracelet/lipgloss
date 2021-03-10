@@ -130,7 +130,7 @@ func (s Style) BottomPadding(i int) Style {
 	return s
 }
 
-// ColorWhitespace determins whether or not the background color should be
+// ColorWhitespace determines whether or not the background color should be
 // applied to the padding. This is true by default as it's more than likely the
 // desired and expected behavior, but it can be disabled for certain graphic
 // effects.
@@ -199,7 +199,7 @@ func (s Style) Inline(v bool) Style {
 }
 
 // MaxWidth applies a max width to a given style. This is useful in enforcing
-// a certain width at render time, particularly with aribtrary strings and
+// a certain width at render time, particularly with arbitrary strings and
 // styles.
 //
 // Example:
@@ -220,21 +220,35 @@ func (s Style) DrawClearTrailingSpaces(v bool) Style {
 	return s
 }
 
+// UnderlineWhitespace determines whether to draw underlines in areas outside
+// text blocks. By default this is false, but it can be enabled for certain
+// graphic effects. Also note that whitespace can be underlined without
+// underlining text.
 func (s Style) UnderlineWhitespace(v bool) Style {
 	s[underlineWhitespaceKey] = v
 	return s
 }
 
+// StrikethroughWhitespace determines whether to draw strikethroughs in areas
+// outside text blocks. By default this is false, but it can be enabled for
+// certain graphic effects. Also note that whitespace can be struck without
+// striking through text.
 func (s Style) StrikethroughWhitespace(v bool) Style {
 	s[strikethroughWhitespaceKey] = v
 	return s
 }
 
+// UnderlineSpaces determines whether to underline spaces between words. By
+// default this is true. Spaces can also be underlined without underlining the
+// text itself.
 func (s Style) UnderlineSpaces(v bool) Style {
 	s[underlineSpacesKey] = v
 	return s
 }
 
+// StrikethroughSpaces determines whether to apply strikethroughs to spaces
+// between words. By default this is true. Spaces can also be struck without
+// underlining the text itself.
 func (s Style) StrikethroughSpaces(v bool) Style {
 	s[strikethroughSpacesKey] = v
 	return s

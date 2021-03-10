@@ -293,7 +293,7 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	// Truncate accoridng to MaxWidth
+	// Truncate according to MaxWidth
 	if maxWidth > 0 {
 		lines := strings.Split(str, "\n")
 
