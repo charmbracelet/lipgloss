@@ -291,5 +291,5 @@ func whichSides(i ...int) (top, right, bottom, left int, ok bool) {
 		left = i[3]
 		ok = true
 	}
-	return
+	return top, right, bottom, left, ok
 }

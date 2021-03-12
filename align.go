@@ -78,5 +78,5 @@ func getLines(s string) (lines []string, widest int) {
 		}
 	}
 
-	return
+	return lines, widest
 }
