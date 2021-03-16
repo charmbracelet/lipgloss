@@ -9,10 +9,10 @@ import (
 	"github.com/muesli/termenv"
 )
 
-// propKey is a property for a key
+// Property for a key.
 type propKey int
 
-// Available properties
+// Available properties.
 const (
 	boldKey propKey = iota
 	italicKey
@@ -41,23 +41,47 @@ const (
 	strikethroughWhitespaceKey
 	underlineSpacesKey
 	strikethroughSpacesKey
+	borderKey
 )
 
-// NewStyle returns a new, empty Style.  While it's syntactis sugar for
-// make(Style), it's recommended to use this function for creating styles
-// incase the underlying implementation changes.
+// A set of properties.
+type rules map[propKey]interface{}
+
+// NewStyle returns a new, empty Style.  While it's syntactic sugar for the
+// Style{} primative, which is safe to use, it's recommended to use this
+// function for creating styles incase the underlying implementation changes.
 func NewStyle() Style {
-	return make(Style)
+	return Style{}
 }
 
 // Style contains property definitions that comprise a style as a whole.
-type Style map[propKey]interface{}
+type Style struct {
+	rules map[propKey]interface{}
+	value string
+}
+
+// SetString sets the underlying string value for this style. To render once
+// the underlying string is set, use the Style.String. This method is
+// a convenience for cases when having a stringer implementation is handy, such
+// as when using fmt.Sprintf. You can also simply define a style and render out
+// strings directly with Style.Render.
+func (s Style) SetString(str string) Style {
+	s.value = str
+	return s
+}
+
+// String implements stringer for a Style, returning the rendered result based
+// on the rules in this style. An underlying string value must be set with
+// Style.SetString prior to using this method.
+func (s Style) String() string {
+	return s.Render(s.value)
+}
 
 // Copy returns a copy of this style.
 func (s Style) Copy() Style {
-	o := make(Style)
-	for k, v := range s {
-		o[k] = v
+	o := NewStyle()
+	for k, v := range s.rules {
+		o.rules[k] = v
 	}
 	return o
 }
@@ -68,7 +92,7 @@ func (s Style) Copy() Style {
 //
 // Margins and padding are not inherited.
 func (o Style) Inherit(i Style) {
-	for k, v := range i {
+	for k, v := range i.rules {
 		switch k {
 		case topMarginKey, rightMarginKey, bottomMarginKey, leftMarginKey:
 			// Margins are not inherited
@@ -78,10 +102,10 @@ func (o Style) Inherit(i Style) {
 			continue
 		}
 
-		if _, exists := o[k]; exists {
+		if _, exists := o.rules[k]; exists {
 			continue
 		}
-		o[k] = v
+		o.rules[k] = v
 	}
 }
 
@@ -154,8 +178,8 @@ func (s Style) Render(str string) string {
 		te = te.Faint()
 	}
 
-	if fg != "" {
-		fgc := color(fg)
+	if fg != NoColor {
+		fgc := color(fg.value())
 		te = te.Foreground(fgc)
 		te.Foreground(fgc)
 		if styleWhitespace {
@@ -166,8 +190,8 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	if bg != "" {
-		bgc := color(bg)
+	if bg != NoColor {
+		bgc := color(bg.value())
 		te = te.Background(bgc)
 		if colorWhitespace {
 			teWhitespace = teWhitespace.Background(bgc)
@@ -272,6 +296,9 @@ func (s Style) Render(str string) string {
 		}
 	}
 
+	// Draw borders
+	str = s.renderBorder(str)
+
 	// Add left and right margin
 	str = padLeft(str, leftMargin, nil)
 	str = padRight(str, rightMargin, nil)
@@ -308,7 +335,7 @@ func (s Style) Render(str string) string {
 }
 
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
-	v, ok := s[k]
+	v, ok := s.rules[k]
 	if !ok {
 		return defaultVal
 	}
@@ -318,19 +345,19 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	return defaultVal
 }
 
-func (s Style) getAsColor(k propKey) string {
-	v, ok := s[k]
+func (s Style) getAsColor(k propKey) ColorType {
+	v, ok := s.rules[k]
 	if !ok {
-		return ""
+		return NoColor
 	}
 	if c, ok := v.(ColorType); ok {
-		return c.value()
+		return c
 	}
-	return ""
+	return NoColor
 }
 
 func (s Style) getAsInt(k propKey) int {
-	v, ok := s[k]
+	v, ok := s.rules[k]
 	if !ok {
 		return 0
 	}
@@ -341,7 +368,7 @@ func (s Style) getAsInt(k propKey) int {
 }
 
 func (s Style) getAsAlign(k propKey) Align {
-	v, ok := s[k]
+	v, ok := s.rules[k]
 	if !ok {
 		return AlignLeft
 	}
@@ -349,6 +376,17 @@ func (s Style) getAsAlign(k propKey) Align {
 		return a
 	}
 	return AlignLeft
+}
+
+func (s Style) getAsBorder(k propKey) Border {
+	v, ok := s.rules[k]
+	if !ok {
+		return Border{}
+	}
+	if b, ok := v.(Border); ok {
+		return b
+	}
+	return Border{}
 }
 
 // Apply left padding.
