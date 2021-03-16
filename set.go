@@ -201,14 +201,28 @@ func (s Style) BottomMargin(i int) Style {
 // Inline makes rendering output one line. This is useful for enforcing that
 // rendering occurs on a single line at render time, particularly with styles
 // and strings you may not have control of. Works well with MaxWidth().
+//
+// Because this in intended to be used at the time of render, this method will
+// not mutate the style and instead return a copy.
+//
+// Example:
+//
+//     var userInput string = "..."
+//     var userStyle = text.Style{ /* ... */ }
+//     fmt.Println(userStyle.Inline().Render(userInput))
+//
 func (s Style) Inline(v bool) Style {
-	s.set(inlineKey, v)
-	return s
+	o := s.Copy()
+	o.set(inlineKey, v)
+	return o
 }
 
 // MaxWidth applies a max width to a given style. This is useful in enforcing
 // a certain width at render time, particularly with arbitrary strings and
 // styles.
+//
+// Because this in intended to be used at the time of render, this method will
+// not mutate the style and instead return a copy.
 //
 // Example:
 //
@@ -217,8 +231,9 @@ func (s Style) Inline(v bool) Style {
 //     fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 //
 func (s Style) MaxWidth(n int) Style {
-	s.set(maxWidthKey, n)
-	return s
+	o := s.Copy()
+	o.set(maxWidthKey, n)
+	return o
 }
 
 // Whether or not to draw trailing spaces with no background color. By default
@@ -259,11 +274,6 @@ func (s Style) UnderlineSpaces(v bool) Style {
 // underlining the text itself.
 func (s Style) StrikethroughSpaces(v bool) Style {
 	s.set(strikethroughSpacesKey, v)
-	return s
-}
-
-func (s Style) Border(b Border) Style {
-	s.set(borderKey, b)
 	return s
 }
 

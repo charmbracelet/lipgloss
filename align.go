@@ -65,18 +65,3 @@ func alignText(str string, t Align, style *termenv.Style) string {
 
 	return b.String()
 }
-
-// Split a string into lines, additionally returning the size of the widest
-// line.
-func getLines(s string) (lines []string, widest int) {
-	lines = strings.Split(s, "\n")
-
-	for _, l := range lines {
-		w := ansi.PrintableRuneWidth(l)
-		if widest < w {
-			widest = w
-		}
-	}
-
-	return lines, widest
-}

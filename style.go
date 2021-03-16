@@ -41,7 +41,6 @@ const (
 	strikethroughWhitespaceKey
 	underlineSpacesKey
 	strikethroughSpacesKey
-	borderKey
 )
 
 // A set of properties.
@@ -80,6 +79,7 @@ func (s Style) String() string {
 // Copy returns a copy of this style.
 func (s Style) Copy() Style {
 	o := NewStyle()
+	o.rules = make(rules)
 	for k, v := range s.rules {
 		o.rules[k] = v
 	}
@@ -296,9 +296,6 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	// Draw borders
-	str = s.renderBorder(str)
-
 	// Add left and right margin
 	str = padLeft(str, leftMargin, nil)
 	str = padRight(str, rightMargin, nil)
@@ -334,61 +331,6 @@ func (s Style) Render(str string) string {
 	return str
 }
 
-func (s Style) getAsBool(k propKey, defaultVal bool) bool {
-	v, ok := s.rules[k]
-	if !ok {
-		return defaultVal
-	}
-	if b, ok := v.(bool); ok {
-		return b
-	}
-	return defaultVal
-}
-
-func (s Style) getAsColor(k propKey) ColorType {
-	v, ok := s.rules[k]
-	if !ok {
-		return NoColor
-	}
-	if c, ok := v.(ColorType); ok {
-		return c
-	}
-	return NoColor
-}
-
-func (s Style) getAsInt(k propKey) int {
-	v, ok := s.rules[k]
-	if !ok {
-		return 0
-	}
-	if i, ok := v.(int); ok {
-		return i
-	}
-	return 0
-}
-
-func (s Style) getAsAlign(k propKey) Align {
-	v, ok := s.rules[k]
-	if !ok {
-		return AlignLeft
-	}
-	if a, ok := v.(Align); ok {
-		return a
-	}
-	return AlignLeft
-}
-
-func (s Style) getAsBorder(k propKey) Border {
-	v, ok := s.rules[k]
-	if !ok {
-		return Border{}
-	}
-	if b, ok := v.(Border); ok {
-		return b
-	}
-	return Border{}
-}
-
 // Apply left padding.
 func padLeft(str string, n int, style *termenv.Style) string {
 	if n == 0 {
@@ -411,7 +353,6 @@ func padLeft(str string, n int, style *termenv.Style) string {
 		}
 	}
 
-	//return indent.String(str, uint(n))
 	return b.String()
 }
 

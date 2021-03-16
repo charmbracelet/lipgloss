@@ -182,8 +182,3 @@ func (s Style) UnsetStrikethroughSpaces() Style {
 	delete(s.rules, strikethroughSpacesKey)
 	return s
 }
-
-func (s Style) UnsetBorder() Style {
-	delete(s.rules, borderKey)
-	return s
-}
