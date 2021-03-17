@@ -23,53 +23,69 @@ const (
 //     blockA := "...\n...\n...\n...\n..."
 //     fmt.Println(lipgloss.Join(blockA, blockB, lipgloss.AlignTop))
 //
-func Join(left, right string, joinType JoinType) string {
-	l, leftWidth := getLines(left)
-	r, rightWidth := getLines(right)
+func Join(joinType JoinType, strs ...string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	if len(strs) == 1 {
+		return strs[1]
+	}
+
+	var (
+		// Groups of strings broken into multiple lines
+		blocks = make([][]string, len(strs))
+
+		// Max line widths for the above text blocks
+		maxWidths = make([]int, len(strs))
+
+		// Height of the tallest block
+		maxHeight int
+	)
+
+	// Break text blocks into lines and get max widths for each text block
+	for i, str := range strs {
+		blocks[i], maxWidths[i] = getLines(str)
+		if len(blocks[i]) > maxHeight {
+			maxHeight = len(blocks[i])
+		}
+	}
 
 	// Add extra lines to make each side the same height
-	if len(l) != len(r) {
-		extraLines := make([]string, abs(len(l)-len(r)))
+	for i := range blocks {
+		if len(blocks[i]) >= maxHeight {
+			continue
+		}
+
+		extraLines := make([]string, maxHeight-len(blocks[i]))
 
 		switch joinType {
 		case JoinMiddle:
-			// Note: we add the remainder to the bottom.
 			half := len(extraLines) / 2
 			start := extraLines[half:]
 			end := extraLines[:half]
-			if len(l) < len(r) {
-				l = append(start, l...)
-				l = append(l, end...)
-				break
-			}
-			r = append(start, r...)
-			r = append(r, end...)
+			blocks[i] = append(start, blocks[i]...)
+			blocks[i] = append(blocks[i], end...)
 
 		case JoinBottom:
-			if len(l) < len(r) {
-				l = append(extraLines, l...)
-				break
-			}
-			r = append(extraLines, r...)
+			blocks[i] = append(extraLines, blocks[i]...)
 
 		default: // JoinTop
-			if len(l) < len(r) {
-				l = append(l, extraLines...)
-				break
-			}
-			r = append(r, extraLines...)
-
+			blocks[i] = append(blocks[i], extraLines...)
 		}
 	}
 
 	// Merge lines
 	var b strings.Builder
-	for i := range l {
-		b.WriteString(l[i])
-		b.WriteString(strings.Repeat(" ", leftWidth-ansi.PrintableRuneWidth(l[i])))
-		b.WriteString(r[i])
-		b.WriteString(strings.Repeat(" ", rightWidth-ansi.PrintableRuneWidth(r[i])))
-		if i < len(l) {
+	var done bool
+	for i := range blocks[0] { // remember, all blocks have the same number of members now
+		for j, block := range blocks {
+			b.WriteString(block[i])
+			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.PrintableRuneWidth(block[i])))
+			if j == len(block)-1 {
+				done = true
+			}
+		}
+		if !done {
 			b.WriteRune('\n')
 		}
 	}
