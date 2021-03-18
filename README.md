@@ -1,6 +1,12 @@
 Lip Gloss
 =========
 
+<p>
+    <a href="https://github.com/charmbracelet/lipgloss/releases"><img src="https://img.shields.io/github/release/charmbracelet/lipgloss.svg" alt="Latest Release"></a>
+    <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
+    <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
+</p>
+
 Style definitions for building command line applications.
 
 ```go
@@ -212,7 +218,7 @@ fmt.Printf("%s\n", style)
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
 libraries which deal with color and ANSI-aware text operations, respectively.
-For certain use cases, Termenv and Reflow may be sufficient for your needs.
+For many use cases Termenv and Reflow will be sufficient for your needs.
 
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
