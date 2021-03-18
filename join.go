@@ -7,6 +7,15 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
+// Helpers for vertical and horizontal joins.
+const (
+	JoinTop    = 0.0
+	JoinBottom = 1.0
+	JoinCenter = 0.5
+	JoinLeft   = 0.0
+	JoinRight  = 1.0
+)
+
 // JoinHorizontal is a utility function for horizontally joining two
 // potentially multi-lined strings along a vertical axis. The first argument is
 // the position, which 0 being all the way at the top and 1 being all the way
@@ -22,6 +31,9 @@ import (
 //
 //     // Join 20% from the top
 //     str := lipgloss.JoinHorizontal(0.2, blockA, blockB)
+//
+//     // Join on the top edge
+//     str := lipgloss.JoinHorizontal(lipgloss.JoinTop, blockA, blockB)
 //
 func JoinHorizontal(pos float64, strs ...string) string {
 	if len(strs) == 0 {
@@ -61,10 +73,10 @@ func JoinHorizontal(pos float64, strs ...string) string {
 		extraLines := make([]string, maxHeight-len(blocks[i]))
 
 		switch pos {
-		case 0: // Top
+		case JoinTop:
 			blocks[i] = append(blocks[i], extraLines...)
 
-		case 1: // Bottom
+		case JoinBottom:
 			blocks[i] = append(extraLines, blocks[i]...)
 
 		default: // Somewhere in the middle
@@ -97,21 +109,6 @@ func JoinHorizontal(pos float64, strs ...string) string {
 	return b.String()
 }
 
-// JoinTop joins two text blocks horizontally, along the top edge.
-func JoinTop(strs ...string) string {
-	return JoinHorizontal(0, strs...)
-}
-
-// JoinMiddle joins two text blocks horizontally, along the center axis.
-func JoinMiddle(strs ...string) string {
-	return JoinHorizontal(0.5, strs...)
-}
-
-// JoinBottom joins two text blocks horizontally, along the bottom edge.
-func JoinBottom(strs ...string) string {
-	return JoinHorizontal(1, strs...)
-}
-
 // JoinVertical is a utility function for vertically joining two potentially
 // multi-lined strings along a horizontal axis. The first argument is the
 // position, which 0 being all the way to the left and 1 being all the way to
@@ -126,7 +123,10 @@ func JoinBottom(strs ...string) string {
 //     blockA := "...\n...\n...\n...\n..."
 //
 //     // Join 20% from the top
-//     str := lipgloss.JoinHorizontal(0.2, blockA, blockB)
+//     str := lipgloss.JoinVertical(0.2, blockA, blockB)
+//
+//     // Join on the right edge
+//     str := lipgloss.JoinVertical(lipgloss.JoinRight, blockA, blockB)
 //
 func JoinVertical(pos float64, strs ...string) string {
 	if len(strs) == 0 {
@@ -155,11 +155,11 @@ func JoinVertical(pos float64, strs ...string) string {
 			w := maxWidth - ansi.PrintableRuneWidth(line)
 
 			switch pos {
-			case 0: // Left
+			case JoinLeft:
 				b.WriteString(line)
 				b.WriteString(strings.Repeat(" ", w))
 
-			case 1: // Right
+			case JoinRight:
 				b.WriteString(strings.Repeat(" ", w))
 				b.WriteString(line)
 
@@ -173,11 +173,9 @@ func JoinVertical(pos float64, strs ...string) string {
 				left := w - split
 				right := w - left
 
-				extraSpaces := strings.Repeat(" ", w)
-
-				b.WriteString(extraSpaces[left:])
+				b.WriteString(strings.Repeat(" ", left))
 				b.WriteString(line)
-				b.WriteString(extraSpaces[right:])
+				b.WriteString(strings.Repeat(" ", right))
 			}
 
 			// Write a newline as long as we're not on the last line of the
@@ -189,19 +187,4 @@ func JoinVertical(pos float64, strs ...string) string {
 	}
 
 	return b.String()
-}
-
-// JoinLeft joins two text blocks vertically, aligned along the left edge.
-func JoinLeft(strs ...string) string {
-	return JoinVertical(0, strs...)
-}
-
-// JoinCenter joins two text blocks vertically, aligned along the center axis.
-func JoinCenter(strs ...string) string {
-	return JoinVertical(0.5, strs...)
-}
-
-// JoinRight joins two text blocks vertically, aligned along the right edge.
-func JoinRight(strs ...string) string {
-	return JoinVertical(1, strs...)
 }
