@@ -126,14 +126,14 @@ lipgloss.NewStyle().Margin(2, 4, 3, 1)
 
 ## Aligning Text
 
-You can align blocks of text to the left, center, or right:
+You can align blocks of text to the left, right, or center.
 
 ```go
 var style = lipgloss.NewStyle().
     Width(24).
-    Align(lipgloss.AlignLeft)    // align it left
-    Align(lipgloss.AlignRight)   // no wait, align it right
-    Align(lipgloss.AlignCenter). // just kidding, align it in the center
+    Align(lipgloss.AlignLeft).  // align it left
+    Align(lipgloss.AlignRight). // no wait, align it right
+    Align(lipgloss.AlignCenter) // just kidding, align it in the center
 ```
 
 
@@ -144,8 +144,12 @@ Just use `Copy()`:
 ```go
 var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 
-var wildStyle = style.Copy().Blink()
+var wildStyle = style.Copy().Blink(true)
 ```
+
+`Copy()` performs a copy on the underlying data structure ensuring that you
+get a true, dereferenced copy of a style. Without using `Copy()` it's possible
+to mutate styles.
 
 
 ## Inheritance
@@ -202,7 +206,7 @@ someStyle.Inline().MaxWidth(5).Render("yadda yadda")
 Generally, you just call the `Render(string)` method on a `lipgloss.Style`:
 
 ```go
-fmt.Println(lipgloss.NewStyle().Bold().Render("Hello, kitty."))
+fmt.Println(lipgloss.NewStyle().Bold(true).Render("Hello, kitty."))
 ```
 
 But you could also use the Stringer interface:
@@ -235,4 +239,4 @@ Part of [Charm](https://charm.sh).
 
 <a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge-unrounded.jpg" width="400"></a>
 
-Charm热爱开源! / Charm loves open source!
+Charm热爱开源! • Charm loves open source!
