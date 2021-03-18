@@ -18,11 +18,11 @@ const (
 
 // JoinHorizontal is a utility function for horizontally joining two
 // potentially multi-lined strings along a vertical axis. The first argument is
-// the position, which 0 being all the way at the top and 1 being all the way
+// the position, with 0 being all the way at the top and 1 being all the way
 // at the bottom.
 //
 // If you just want to align to the left, right or center you may as well just
-// use the helper functions JoinTop, JoinMiddle, and JoinBottom.
+// use the helper constants JoinTop, JoinCenter, and JoinBottom.
 //
 // Example:
 //
@@ -111,11 +111,11 @@ func JoinHorizontal(pos float64, strs ...string) string {
 
 // JoinVertical is a utility function for vertically joining two potentially
 // multi-lined strings along a horizontal axis. The first argument is the
-// position, which 0 being all the way to the left and 1 being all the way to
+// position, with 0 being all the way to the left and 1 being all the way to
 // the right.
 //
 // If you just want to align to the left, right or center you may as well just
-// use the helper functions JoinLeft, JoinCenter, and JoinRight.
+// use the helper constants JoinLeft, JoinCenter, and JoinRight.
 //
 // Example:
 //
