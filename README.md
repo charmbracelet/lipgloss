@@ -225,10 +225,14 @@ paragraphs of text.
 
 ```go
 // Horizontally join three paragraphs along their bottom edges
-lipgloss.HorizontalJoin(lipgloss.Top, paragraphA, paragraphB, paragraphC)
+lipgloss.HorizontalJoin(lipgloss.JoinTop, paragraphA, paragraphB, paragraphC)
 
 // Vertically join two paragraphs along their center axes
-lipgloss.VerticalJoin(lipgloss.Center, paragraphA, paragraphB)
+lipgloss.VerticalJoin(lipgloss.JoinCenter, paragraphA, paragraphB)
+
+// Horizontally join three paragraphs, with the shorter ones aligning 20%
+// from the top of the tallest.
+lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
 ```
 
 
