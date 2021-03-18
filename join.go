@@ -6,24 +6,36 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
-type JoinType int
+// HorizontalAxis specifies the axis on which to perform a horizontal join.
+type HorizontalAxis int
 
+// Available horizontal axes.
 const (
-	JoinTop JoinType = iota
-	JoinMiddle
-	JoinBottom
+	HLeft HorizontalAxis = iota
+	HMiddle
+	HRight
 )
 
-// Join is a utility function for horizontally joining two potentially
-// multi-lined strings along a vertical axis.
+// VerticalAxis specifies the axis on which to perform a vertical join.
+type VerticalAxis int
+
+// Available vertical axes.
+const (
+	VTop VerticalAxis = iota
+	VMiddle
+	VBottom
+)
+
+// JoinHorizontal is a utility function for horizontally joining two
+// potentially multi-lined strings along a vertical axis.
 //
 // Example:
 //
 //     blockB := "...\n...\n..."
 //     blockA := "...\n...\n...\n...\n..."
-//     fmt.Println(lipgloss.Join(blockA, blockB, lipgloss.AlignTop))
+//     str := lipgloss.Join(lipgloss.AlignTop, blockA, blockB)
 //
-func Join(joinType JoinType, strs ...string) string {
+func JoinHorizontal(axis VerticalAxis, strs ...string) string {
 	if len(strs) == 0 {
 		return ""
 	}
@@ -58,18 +70,18 @@ func Join(joinType JoinType, strs ...string) string {
 
 		extraLines := make([]string, maxHeight-len(blocks[i]))
 
-		switch joinType {
-		case JoinMiddle:
+		switch axis {
+		case VMiddle:
 			half := len(extraLines) / 2
 			start := extraLines[half:]
 			end := extraLines[:half]
 			blocks[i] = append(start, blocks[i]...)
 			blocks[i] = append(blocks[i], end...)
 
-		case JoinBottom:
+		case VBottom:
 			blocks[i] = append(extraLines, blocks[i]...)
 
-		default: // JoinTop
+		default: // Top
 			blocks[i] = append(blocks[i], extraLines...)
 		}
 	}
@@ -87,6 +99,64 @@ func Join(joinType JoinType, strs ...string) string {
 		}
 		if !done {
 			b.WriteRune('\n')
+		}
+	}
+
+	return b.String()
+}
+
+func JoinVertical(axis HorizontalAxis, strs ...string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	if len(strs) == 1 {
+		return strs[1]
+	}
+
+	var (
+		blocks   = make([][]string, len(strs))
+		maxWidth int
+	)
+
+	for i := range strs {
+		var w int
+		blocks[i], w = getLines(strs[i])
+		if w > maxWidth {
+			maxWidth = w
+		}
+	}
+
+	var b strings.Builder
+	for i, block := range blocks {
+		for j, line := range block {
+			w := maxWidth - ansi.PrintableRuneWidth(line)
+
+			switch axis {
+			case HMiddle:
+				if w < 1 {
+					b.WriteString(line)
+					break
+				}
+				extraSpaces := strings.Repeat(" ", w)
+				half := len(extraSpaces) / 2
+				b.WriteString(extraSpaces[:half])
+				b.WriteString(line)
+				b.WriteString(extraSpaces[half:])
+
+			case HRight:
+				b.WriteString(strings.Repeat(" ", w))
+				b.WriteString(line)
+
+			default: // Left
+				b.WriteString(line)
+				b.WriteString(strings.Repeat(" ", w))
+			}
+
+			// Write a newline as long as we're not on the last line of the
+			// last block.
+			if !(i == len(blocks)-1 && j == len(block)-1) {
+				b.WriteRune('\n')
+			}
 		}
 	}
 
