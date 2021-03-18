@@ -126,7 +126,7 @@ lipgloss.NewStyle().Margin(2, 4, 3, 1)
 
 ## Aligning Text
 
-You can align blocks of text to the left, right, or center.
+You can align paragraphs of text to the left, right, or center.
 
 ```go
 var style = lipgloss.NewStyle().
@@ -147,15 +147,15 @@ var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 var wildStyle = style.Copy().Blink(true)
 ```
 
-`Copy()` performs a copy on the underlying data structure ensuring that you
-get a true, dereferenced copy of a style. Without using `Copy()` it's possible
-to mutate styles.
+`Copy()` performs a copy on the underlying data structure ensuring that you get
+a true, dereferenced copy of a style. Without copying it's possible to mutate
+styles.
 
 
 ## Inheritance
 
 Styles can inherit rules from other styles. When inheriting, only unset rules
-are inherited.
+on the receiver are inherited.
 
 ```go
 var styleA = lipgloss.NewStyle().
