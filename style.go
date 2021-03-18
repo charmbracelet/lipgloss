@@ -47,13 +47,13 @@ const (
 type rules map[propKey]interface{}
 
 // NewStyle returns a new, empty Style.  While it's syntactic sugar for the
-// Style{} primative, which is safe to use, it's recommended to use this
-// function for creating styles incase the underlying implementation changes.
+// Style{} primative, it's recommended to use this function for creating styles
+// incase the underlying implementation changes.
 func NewStyle() Style {
 	return Style{}
 }
 
-// Style contains property definitions that comprise a style as a whole.
+// Style contains a set of rules that comprise a style as a whole.
 type Style struct {
 	rules map[propKey]interface{}
 	value string

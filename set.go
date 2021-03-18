@@ -74,8 +74,7 @@ func (s Style) Background(c ColorType) Style {
 	return s
 }
 
-// Width sets the width of the block before applying margins and padding. This
-// effects when.
+// Width sets the width of the block before applying margins and padding.
 func (s Style) Width(i int) Style {
 	s.set(widthKey, i)
 	return s
