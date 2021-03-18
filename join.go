@@ -205,11 +205,3 @@ func JoinCenter(strs ...string) string {
 func JoinRight(strs ...string) string {
 	return JoinVertical(1, strs...)
 }
-
-// Return the absolute value of an integer.
-func abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
-}
