@@ -23,20 +23,20 @@ type ColorType interface {
 //
 // Example usage:
 //
-//     color := NoColor
+//     var style = someStyle.Copy().Background(lipgloss.NoColor{})
 //
-var NoColor = noColor{}
+type NoColor struct{}
 
-type noColor struct{}
-
-func (n noColor) value() string {
+func (n NoColor) value() string {
 	return ""
 }
 
+var noColor = NoColor{}
+
 // Color specifies a color by hex or ANSI value. For example:
 //
-//     ansiColor := Color("21")
-//     hexColor := Color("#0000ff")
+//     ansiColor := lipgloss.Color("21")
+//     hexColor := lipgloss.Color("#0000ff")
 //
 type Color string
 
@@ -50,7 +50,7 @@ func (c Color) value() string {
 //
 // Example usage:
 //
-//     color := AdaptiveColor{Light: "#0000ff", Dark: "#000099"}
+//     color := lipgloss.AdaptiveColor{Light: "#0000ff", Dark: "#000099"}
 //
 type AdaptiveColor struct {
 	Light string

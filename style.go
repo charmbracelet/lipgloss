@@ -179,7 +179,7 @@ func (s Style) Render(str string) string {
 		te = te.Faint()
 	}
 
-	if fg != NoColor {
+	if fg != noColor {
 		fgc := color(fg.value())
 		te = te.Foreground(fgc)
 		te.Foreground(fgc)
@@ -191,7 +191,7 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	if bg != NoColor {
+	if bg != noColor {
 		bgc := color(bg.value())
 		te = te.Background(bgc)
 		if colorWhitespace {

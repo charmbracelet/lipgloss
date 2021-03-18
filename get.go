@@ -20,12 +20,12 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 func (s Style) getAsColor(k propKey) ColorType {
 	v, ok := s.rules[k]
 	if !ok {
-		return NoColor
+		return NoColor{}
 	}
 	if c, ok := v.(ColorType); ok {
 		return c
 	}
-	return NoColor
+	return NoColor{}
 }
 
 func (s Style) getAsInt(k propKey) int {
