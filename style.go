@@ -76,7 +76,8 @@ func (s Style) String() string {
 	return s.Render(s.value)
 }
 
-// Copy returns a copy of this style.
+// Copy returns a copy of this style. An underlying string value set with
+// Style.SetString will not be copied.
 func (s Style) Copy() Style {
 	o := NewStyle()
 	o.rules = make(rules)
@@ -90,7 +91,7 @@ func (s Style) Copy() Style {
 // style, overwriting existing definitions. Only values explicitly set on the
 // style in argument will be applied.
 //
-// Margins and padding are not inherited.
+// Margins, padding, and underlying string values are not inherited.
 func (o Style) Inherit(i Style) {
 	for k, v := range i.rules {
 		switch k {
