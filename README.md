@@ -62,7 +62,7 @@ automatically be degraded to their closest available value.
 You can also specify color options for light and dark backgrounds:
 
 ```go
-lipgloss.AdaptiveColor({Light: "236", Dark: "248"})
+lipgloss.AdaptiveColor{Light: "236", Dark: "248"}
 ```
 
 The terminal's background color will automatically be detected and the
@@ -218,6 +218,20 @@ fmt.Printf("%s\n", style)
 ```
 
 
+## Joining Paragraphs
+
+There are also some utility functions for horizontally and vertically joining
+paragraphs of text.
+
+```go
+// Horizontally join three paragraphs along their bottom edges
+lipgloss.HorizontalJoin(lipgloss.Top, paragraphA, paragraphB, paragraphC)
+
+// Vertically join two paragraphs along their center axes
+lipgloss.VerticalJoin(lipgloss.Center, paragraphA, paragraphB)
+```
+
+
 ## Under the Hood
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
@@ -226,6 +240,16 @@ For many use cases Termenv and Reflow will be sufficient for your needs.
 
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
+
+
+## Rendering Markdown
+
+Lip Gloss is intended for use in building terminal user interfaces. For a more
+document-centric rendering solution with support for things like lists, tables,
+and syntax-highlighted code have a look at [Glamour][glamour], the
+stylesheet-based Markdown renderer.
+
+[glamour]: https://github.com/charmbracelet/glamour
 
 
 ## License
@@ -239,4 +263,4 @@ Part of [Charm](https://charm.sh).
 
 <a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge-unrounded.jpg" width="400"></a>
 
-Charm热爱开源! • Charm loves open source!
+Charm热爱开源 • Charm loves open source
