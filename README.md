@@ -1,0 +1,232 @@
+Lip Gloss
+=========
+
+Style definitions for building command line applications.
+
+```go
+
+import "github.com/charmbracelet/lipgloss"
+
+var style = lipgloss.NewStyle().
+    Bold(true).
+    Foreground(lipgloss.Color("#04B575")).
+    Background(lipgloss.Color("#3C3C3C")).
+    PaddingTop(2).
+    PaddingLeft(4).
+    Width(24)
+
+fmt.Println(style.Render("Hello, kitty."))
+```
+
+
+## Colors
+
+Lip Gloss supports the following color profiles:
+
+### ANSI 16 colors (4-bit)
+
+```go
+lipgloss.Color("5")  // magenta
+lipgloss.Color("9")  // red
+lipgloss.Color("12") // light blue
+```
+
+### ANSI 256 Colors (8-bit)
+
+```go
+lipgloss.Color("86")  // aqua
+lipgloss.Color("201") // hot pink
+lipgloss.Color("202") // orange
+```
+
+### True Color (24-bit)
+
+```go
+lipgloss.Color("#0000FF") // good ol' 100% blue
+lipgloss.Color("#04B575") // a green
+lipgloss.Color("#3C3C3C") // a dark gray
+```
+
+Additionally, the terminal's color profile will be detected, and colors will
+automatically be degraded to their closest available value.
+
+
+### Adaptive Colors
+
+You can also specify color options for light and dark backgrounds:
+
+```go
+lipgloss.AdaptiveColor({Light: "236", Dark: "248"})
+```
+
+The terminal's background color will automatically be detected and the
+appropriate color will be used at runtime.
+
+
+## Inline Formatting
+
+Lip Gloss supports the usual ANSI text formatting options:
+
+```go
+var style = lipgloss.NewStyle().
+    Bold(true).
+    Italic(true).
+    Faint(true).
+    Blink(true).
+    Strikethrough(true).
+    Underline(true).
+    Reverse(true)
+```
+
+
+## Block-Level Formatting
+
+Lip Gloss also supports rules for block-level formatting:
+
+```go
+// Padding
+var style = lipgloss.NewStyle().
+    TopPadding(2).
+    RightPadding(4).
+    BottomPadding(2).
+    LeftPadding(4)
+
+// Margins
+var style = lipgloss.NewStyle().
+    TopMargin(2).
+    RightMargin(4).
+    BottomMargin(2).
+    LeftMargin(4)
+```
+
+There is also shorthand syntax for margins and padding, which follows the same
+format as CSS:
+
+```go
+// 2 cells on all sides
+lipgloss.NewStyle().Padding(2)
+
+// 2 cells on the top and bottom, 4 cells on the left and right
+lipgloss.NewStyle().Margin(2, 4)
+
+// 1 cell on the top, 4 cells on the sides, 2 cells on the bottom
+lipgloss.NewStyle().Padding(1, 4, 2)
+
+// Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
+// the bottom, and 1 on the left
+lipgloss.NewStyle().Margin(2, 4, 3, 1)
+```
+
+
+## Aligning Text
+
+You can align blocks of text to the left, center, or right:
+
+```go
+var style = lipgloss.NewStyle().
+    Width(24).
+    Align(lipgloss.AlignLeft)    // align it left
+    Align(lipgloss.AlignRight)   // no wait, align it right
+    Align(lipgloss.AlignCenter). // just kidding, align it in the center
+```
+
+
+## Copying Styles
+
+Just use `Copy()`:
+
+```go
+var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
+
+var wildStyle = style.Copy().Blink()
+```
+
+
+## Inheritance
+
+Styles can inherit rules from other styles. When inheriting, only unset rules
+are inherited.
+
+```go
+var styleA = lipgloss.NewStyle().
+    Foreground(lipgloss.Color("229")).
+    Background(lipgloss.Color("63"))
+
+// Only the background color will be inherited here, because the foreground
+// color will have been already set:
+var styleB = lipgloss.NewStyle().
+    Foreground(lipgloss.Color("201")).
+    Inherit(styleA)
+```
+
+
+## Unsetting rules
+
+All rules can be unset:
+
+```go
+var style = lipgloss.NewStyle().
+    Bold(true).                        // make it bold
+    UnsetBold().                       // jk don't make it bold
+    Background(lipgloss.Color("227")). // yellow background
+    UnsetBackground()                  // never mind
+```
+
+Note that in the case of boolean values, unset values are different from falsey
+ones in that values specifically set to `false` will be copied and inherited,
+whereas unset values will not.
+
+
+## Enforcing Rules
+
+Sometimes, such as when developing a component, you want to make sure style
+definitions respect their indended purpose in the UI. This is where `Inline`
+and `MaxWidth` come in:
+
+```go
+// Force rendering onto a single line
+someStyle.Inline().Render("yadda yadda")
+
+// Also limit rendering to five cells
+someStyle.Inline().MaxWidth(5).Render("yadda yadda")
+```
+
+## Rendering
+
+Generally, you just call the `Render(string)` method on a `lipgloss.Style`:
+
+```go
+fmt.Println(lipgloss.NewStyle().Bold().Render("Hello, kitty."))
+```
+
+But you could also use the Stringer interface:
+
+```go
+var style = lipgloss.NewStyle().String("你好，猫咪。").Bold(true)
+
+fmt.Printf("%s\n", style)
+```
+
+
+## Under the Hood
+
+Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
+libraries which deal with color and ANSI-aware text operations, respectively.
+For certain use cases, Termenv and Reflow may be sufficient for your needs.
+
+[termenv]: https://github.com/muesli/termenv
+[reflow]: https://github.com/muesli/reflow
+
+
+## License
+
+[MIT](https://github.com/charmbracelet/lipgloss/raw/master/LICENSE)
+
+
+***
+
+Part of [Charm](https://charm.sh).
+
+<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge-unrounded.jpg" width="400"></a>
+
+Charm热爱开源! / Charm loves open source!
