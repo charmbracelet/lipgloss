@@ -239,7 +239,7 @@ func (s Style) Render(str string) string {
 		for i := range l {
 			if useSpaceStyler {
 				// Look for spaces and apply a different styler
-				for _, r := range []rune(l[i]) {
+				for _, r := range l[i] {
 					if unicode.IsSpace(r) {
 						b.WriteString(teSpace.Styled(string(r)))
 						continue
