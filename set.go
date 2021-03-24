@@ -5,7 +5,17 @@ func (s *Style) set(key propKey, value interface{}) {
 	if s.rules == nil {
 		s.rules = make(rules)
 	}
-	s.rules[key] = value
+
+	switch v := value.(type) {
+	case int:
+		// We don't allow negative integers on any of our values, so just keep
+		// them at zero or above. We could also use uints instead, but the
+		// conversions are a little tedious so we're sticking with ints for
+		// sake of usability.
+		s.rules[key] = max(0, v)
+	default:
+		s.rules[key] = v
+	}
 }
 
 // Bold sets a bold formatting rule.
