@@ -60,6 +60,12 @@ func (s Style) UnsetWidth() Style {
 	return s
 }
 
+// UnsetHeight removes the height style rule, if set.
+func (s Style) UnsetHeight() Style {
+	delete(s.rules, heightKey)
+	return s
+}
+
 // UnsetAlign removes the text alignment style rule, if set.
 func (s Style) UnsetAlign() Style {
 	delete(s.rules, alignKey)
@@ -147,6 +153,12 @@ func (s Style) UnsetInline() Style {
 // UnsetMaxWidth removes the max width style rule, if set.
 func (s Style) UnsetMaxWidth() Style {
 	delete(s.rules, maxWidthKey)
+	return s
+}
+
+// UnsetMaxHeight removes the max width style rule, if set.
+func (s Style) UnsetMaxHeight() Style {
+	delete(s.rules, maxHeightKey)
 	return s
 }
 

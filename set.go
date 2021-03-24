@@ -74,9 +74,18 @@ func (s Style) Background(c ColorType) Style {
 	return s
 }
 
-// Width sets the width of the block before applying margins and padding.
+// Width sets the width of the block before applying margins. The width, if
+// set, also determines where text will wrap.
 func (s Style) Width(i int) Style {
 	s.set(widthKey, i)
+	return s
+}
+
+// Height sets the width of the block before applying margins. If the height of
+// the text block is less than this value after applying padding (or not), the
+// block will be set to this height.
+func (s Style) Height(i int) Style {
+	s.set(heightKey, i)
 	return s
 }
 
@@ -232,6 +241,18 @@ func (s Style) Inline(v bool) Style {
 func (s Style) MaxWidth(n int) Style {
 	o := s.Copy()
 	o.set(maxWidthKey, n)
+	return o
+}
+
+// MaxHeight applies a max width to a given style. This is useful in enforcing
+// a certain width at render time, particularly with arbitrary strings and
+// styles.
+//
+// Because this in intended to be used at the time of render, this method will
+// not mutate the style and instead return a copy.
+func (s Style) MaxHeight(n int) Style {
+	o := s.Copy()
+	o.set(maxHeightKey, n)
 	return o
 }
 

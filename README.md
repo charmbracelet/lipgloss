@@ -137,6 +137,19 @@ var style = lipgloss.NewStyle().
 ```
 
 
+## Setting the height
+
+In addition to the width, you can also set a minimum height.
+
+```go
+var str = lipgloss.NewStyle().
+    Width(24).
+    Height(32).
+    Foreground(lipgloss.Color("63")).
+    Render("What’s for lunch?")
+```
+
+
 ## Copying Styles
 
 Just use `Copy()`:
@@ -191,7 +204,7 @@ whereas unset values will not.
 
 Sometimes, such as when developing a component, you want to make sure style
 definitions respect their indended purpose in the UI. This is where `Inline`
-and `MaxWidth` come in:
+and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
 // Force rendering onto a single line
@@ -199,6 +212,9 @@ someStyle.Inline().Render("yadda yadda")
 
 // Also limit rendering to five cells
 someStyle.Inline().MaxWidth(5).Render("yadda yadda")
+
+// Limit rendering to a 5x5 cell block
+someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 ```
 
 ## Rendering

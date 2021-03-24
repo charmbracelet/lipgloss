@@ -24,6 +24,7 @@ const (
 	foregroundKey
 	backgroundKey
 	widthKey
+	heightKey
 	alignKey
 	paddingTopKey
 	paddingRightKey
@@ -36,6 +37,7 @@ const (
 	marginLeftKey
 	inlineKey
 	maxWidthKey
+	maxHeightKey
 	drawClearTrailingSpacesKey
 	underlineWhitespaceKey
 	strikethroughWhitespaceKey
@@ -128,8 +130,9 @@ func (s Style) Render(str string) string {
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
 
-		width = s.getAsInt(widthKey)
-		align = s.getAsAlign(alignKey)
+		width  = s.getAsInt(widthKey)
+		height = s.getAsInt(heightKey)
+		align  = s.getAsAlign(alignKey)
 
 		topPadding    = s.getAsInt(paddingTopKey)
 		rightPadding  = s.getAsInt(paddingRightKey)
@@ -144,6 +147,7 @@ func (s Style) Render(str string) string {
 		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 		inline          = s.getAsBool(inlineKey, false)
 		maxWidth        = s.getAsInt(maxWidthKey)
+		maxHeight       = s.getAsInt(maxHeightKey)
 
 		drawClearTrailingSpaces = s.getAsBool(drawClearTrailingSpacesKey, true)
 		underlineWhitespace     = s.getAsBool(underlineWhitespaceKey, false)
@@ -285,6 +289,14 @@ func (s Style) Render(str string) string {
 		str += strings.Repeat("\n", bottomPadding)
 	}
 
+	// Height
+	if height > 0 {
+		h := strings.Count(str, "\n")
+		if height > h {
+			str += strings.Repeat("\n", height-h)
+		}
+	}
+
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
@@ -330,6 +342,12 @@ func (s Style) Render(str string) string {
 		}
 
 		str = strings.Join(lines, "\n")
+	}
+
+	// Truncate according to MaxHeight
+	if maxHeight > 0 {
+		lines := strings.Split(str, "\n")
+		str = strings.Join(lines[:min(maxHeight, len(lines))], "\n")
 	}
 
 	return str
@@ -383,4 +401,11 @@ func padRight(str string, n int, style *termenv.Style) string {
 	}
 
 	return b.String()
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
