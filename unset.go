@@ -182,3 +182,9 @@ func (s Style) UnsetStrikethroughSpaces() Style {
 	delete(s.rules, strikethroughSpacesKey)
 	return s
 }
+
+// UnsetString sets the underlying string value to the empty string.
+func (s Style) UnsetString() Style {
+	s.value = ""
+	return s
+}
