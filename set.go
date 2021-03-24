@@ -182,26 +182,26 @@ func (s Style) Margin(i ...int) Style {
 	return s
 }
 
-// LeftMargin sets the value of the left margin.
-func (s Style) LeftMargin(i int) Style {
+// MarginLeft sets the value of the left margin.
+func (s Style) MarginLeft(i int) Style {
 	s.set(marginLeftKey, i)
 	return s
 }
 
-// RightMargin sets the value of the right margin.
-func (s Style) RightMargin(i int) Style {
+// MarginRight sets the value of the right margin.
+func (s Style) MarginRight(i int) Style {
 	s.set(marginRightKey, i)
 	return s
 }
 
-// TopMargin sets the value of the top margin.
-func (s Style) TopMargin(i int) Style {
+// MarginTop sets the value of the top margin.
+func (s Style) MarginTop(i int) Style {
 	s.set(marginTopKey, i)
 	return s
 }
 
-// BottomMargin sets the value of the bottom margin.
-func (s Style) BottomMargin(i int) Style {
+// MarginBottom sets the value of the bottom margin.
+func (s Style) MarginBottom(i int) Style {
 	s.set(marginBottomKey, i)
 	return s
 }
