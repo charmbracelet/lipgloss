@@ -76,14 +76,14 @@ func (s Style) String() string {
 	return s.Render(s.value)
 }
 
-// Copy returns a copy of this style. An underlying string value set with
-// Style.SetString will not be copied.
+// Copy returns a copy of this style, including any underlying string values.
 func (s Style) Copy() Style {
 	o := NewStyle()
 	o.rules = make(rules)
 	for k, v := range s.rules {
 		o.rules[k] = v
 	}
+	o.value = s.value
 	return o
 }
 
