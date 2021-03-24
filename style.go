@@ -154,7 +154,7 @@ func (s Style) Render(str string) string {
 
 		// Do we need to style whitespace (padding and space outsode
 		// paragraphs) separately?
-		styleWhitespace = underlineWhitespace || strikethroughWhitespace
+		styleWhitespace = reverse || underlineWhitespace || strikethroughWhitespace
 
 		// Do we need to style spaces separately?
 		useSpaceStyler = underlineSpaces || strikethroughSpaces
@@ -170,6 +170,9 @@ func (s Style) Render(str string) string {
 		te = te.Underline()
 	}
 	if reverse {
+		if reverse {
+			teWhitespace = teWhitespace.Reverse()
+		}
 		te = te.Reverse()
 	}
 	if blink {
