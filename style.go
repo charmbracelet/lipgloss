@@ -25,15 +25,15 @@ const (
 	backgroundKey
 	widthKey
 	alignKey
-	topPaddingKey
-	rightPaddingKey
-	bottomPaddingKey
-	leftPaddingKey
+	paddingTopKey
+	paddingRightKey
+	paddingBottomKey
+	paddingLeftKey
 	colorWhitespaceKey
-	topMarginKey
-	rightMarginKey
-	bottomMarginKey
-	leftMarginKey
+	marginTopKey
+	marginRightKey
+	marginBottomKey
+	marginLeftKey
 	inlineKey
 	maxWidthKey
 	drawClearTrailingSpacesKey
@@ -95,10 +95,10 @@ func (s Style) Copy() Style {
 func (o Style) Inherit(i Style) {
 	for k, v := range i.rules {
 		switch k {
-		case topMarginKey, rightMarginKey, bottomMarginKey, leftMarginKey:
+		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
 			// Margins are not inherited
 			continue
-		case topPaddingKey, rightPaddingKey, bottomPaddingKey, leftPaddingKey:
+		case paddingTopKey, paddingRightKey, paddingBottomKey, paddingLeftKey:
 			// Padding is not inherited
 			continue
 		}
@@ -131,15 +131,15 @@ func (s Style) Render(str string) string {
 		width = s.getAsInt(widthKey)
 		align = s.getAsAlign(alignKey)
 
-		topPadding    = s.getAsInt(topPaddingKey)
-		rightPadding  = s.getAsInt(rightPaddingKey)
-		bottomPadding = s.getAsInt(bottomPaddingKey)
-		leftPadding   = s.getAsInt(leftPaddingKey)
+		topPadding    = s.getAsInt(paddingTopKey)
+		rightPadding  = s.getAsInt(paddingRightKey)
+		bottomPadding = s.getAsInt(paddingBottomKey)
+		leftPadding   = s.getAsInt(paddingLeftKey)
 
-		topMargin    = s.getAsInt(topMarginKey)
-		rightMargin  = s.getAsInt(rightMarginKey)
-		bottomMargin = s.getAsInt(bottomMarginKey)
-		leftMargin   = s.getAsInt(leftMarginKey)
+		topMargin    = s.getAsInt(marginTopKey)
+		rightMargin  = s.getAsInt(marginRightKey)
+		bottomMargin = s.getAsInt(marginBottomKey)
+		leftMargin   = s.getAsInt(marginLeftKey)
 
 		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 		inline          = s.getAsBool(inlineKey, false)

@@ -68,34 +68,34 @@ func (s Style) UnsetAlign() Style {
 
 // UnsetPadding removes all padding style rules.
 func (s Style) UnsetPadding() Style {
-	delete(s.rules, leftPaddingKey)
-	delete(s.rules, rightPaddingKey)
-	delete(s.rules, topPaddingKey)
-	delete(s.rules, bottomPaddingKey)
+	delete(s.rules, paddingLeftKey)
+	delete(s.rules, paddingRightKey)
+	delete(s.rules, paddingTopKey)
+	delete(s.rules, paddingBottomKey)
 	return s
 }
 
 // UnsetLeftPadding removes the left padding style rule, if set.
-func (s Style) UnsetLeftPadding() Style {
-	delete(s.rules, leftPaddingKey)
+func (s Style) UnsetPaddingLeft() Style {
+	delete(s.rules, paddingLeftKey)
 	return s
 }
 
 // UnsetRightPadding removes the left padding style rule, if set.
-func (s Style) UnsetRightPadding() Style {
-	delete(s.rules, rightPaddingKey)
+func (s Style) UnsetPaddingRight() Style {
+	delete(s.rules, paddingRightKey)
 	return s
 }
 
 // UnsetTopPadding removes the top padding style rule, if set.
-func (s Style) UnsetTopPadding() Style {
-	delete(s.rules, topPaddingKey)
+func (s Style) UnsetPaddingTop() Style {
+	delete(s.rules, paddingTopKey)
 	return s
 }
 
 // UnsetBottomPadding removes the bottom style rule, if set.
-func (s Style) UnsetBottomPadding() Style {
-	delete(s.rules, bottomPaddingKey)
+func (s Style) UnsetPaddingBottom() Style {
+	delete(s.rules, paddingBottomKey)
 	return s
 }
 
@@ -107,34 +107,34 @@ func (s Style) UnsetColorWhitespace() Style {
 
 // UnsetMargins removes all margin style rules.
 func (s Style) UnsetMargins() Style {
-	delete(s.rules, leftMarginKey)
-	delete(s.rules, rightMarginKey)
-	delete(s.rules, topMarginKey)
-	delete(s.rules, bottomMarginKey)
+	delete(s.rules, marginLeftKey)
+	delete(s.rules, marginRightKey)
+	delete(s.rules, marginTopKey)
+	delete(s.rules, marginBottomKey)
 	return s
 }
 
 // UnsetLeftMargin removes the left margin style rule, if set.
-func (s Style) UnsetLeftMargin() Style {
-	delete(s.rules, leftMarginKey)
+func (s Style) UnsetMarginLeft() Style {
+	delete(s.rules, marginLeftKey)
 	return s
 }
 
 // UnsetRightMargin removes the right margin style rule, if set.
-func (s Style) UnsetRightMargin() Style {
-	delete(s.rules, rightMarginKey)
+func (s Style) UnsetMarginRight() Style {
+	delete(s.rules, marginRightKey)
 	return s
 }
 
 // UnsetTopMargin removes the top margin style rule, if set.
-func (s Style) UnsetTopMargin() Style {
-	delete(s.rules, topMarginKey)
+func (s Style) UnsetMarginTop() Style {
+	delete(s.rules, marginTopKey)
 	return s
 }
 
 // UnsetBottomMargin removes the bottom margin style rule, if set.
-func (s Style) UnsetBottomMargin() Style {
-	delete(s.rules, bottomMarginKey)
+func (s Style) UnsetMarginBottom() Style {
+	delete(s.rules, marginBottomKey)
 	return s
 }
 

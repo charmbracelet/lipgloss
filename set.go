@@ -106,34 +106,34 @@ func (s Style) Padding(i ...int) Style {
 		return s
 	}
 
-	s.set(topPaddingKey, top)
-	s.set(rightPaddingKey, right)
-	s.set(bottomPaddingKey, bottom)
-	s.set(leftPaddingKey, left)
+	s.set(paddingTopKey, top)
+	s.set(paddingRightKey, right)
+	s.set(paddingBottomKey, bottom)
+	s.set(paddingLeftKey, left)
 	return s
 }
 
 // LeftPadding adds padding on the left.
-func (s Style) LeftPadding(i int) Style {
-	s.set(leftPaddingKey, i)
+func (s Style) PaddingLeft(i int) Style {
+	s.set(paddingLeftKey, i)
 	return s
 }
 
 // Right Padding adds padding on the right.
 func (s Style) RightPadding(i int) Style {
-	s.set(rightPaddingKey, i)
+	s.set(paddingRightKey, i)
 	return s
 }
 
 // TopPadding addds padding to the top of the block.
 func (s Style) TopPadding(i int) Style {
-	s.set(topPaddingKey, i)
+	s.set(paddingTopKey, i)
 	return s
 }
 
 // BottomPadding adds padding to the bottom of the block.
 func (s Style) BottomPadding(i int) Style {
-	s.set(bottomPaddingKey, i)
+	s.set(paddingBottomKey, i)
 	return s
 }
 
@@ -166,34 +166,34 @@ func (s Style) Margin(i ...int) Style {
 		return s
 	}
 
-	s.set(topMarginKey, top)
-	s.set(rightMarginKey, right)
-	s.set(bottomMarginKey, bottom)
-	s.set(leftMarginKey, left)
+	s.set(marginTopKey, top)
+	s.set(marginRightKey, right)
+	s.set(marginBottomKey, bottom)
+	s.set(marginLeftKey, left)
 	return s
 }
 
 // LeftMargin sets the value of the left margin.
 func (s Style) LeftMargin(i int) Style {
-	s.set(leftMarginKey, i)
+	s.set(marginLeftKey, i)
 	return s
 }
 
 // RightMargin sets the value of the right margin.
 func (s Style) RightMargin(i int) Style {
-	s.set(rightMarginKey, i)
+	s.set(marginRightKey, i)
 	return s
 }
 
 // TopMargin sets the value of the top margin.
 func (s Style) TopMargin(i int) Style {
-	s.set(topMarginKey, i)
+	s.set(marginTopKey, i)
 	return s
 }
 
 // BottomMargin sets the value of the bottom margin.
 func (s Style) BottomMargin(i int) Style {
-	s.set(bottomMarginKey, i)
+	s.set(marginBottomKey, i)
 	return s
 }
 

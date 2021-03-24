@@ -92,17 +92,17 @@ Lip Gloss also supports rules for block-level formatting:
 ```go
 // Padding
 var style = lipgloss.NewStyle().
-    TopPadding(2).
-    RightPadding(4).
-    BottomPadding(2).
-    LeftPadding(4)
+    PaddingTop(2).
+    PaddingRight(4).
+    PaddingBottom(2).
+    PaddingLeft(4)
 
 // Margins
 var style = lipgloss.NewStyle().
-    TopMargin(2).
-    RightMargin(4).
-    BottomMargin(2).
-    LeftMargin(4)
+    MarginTop(2).
+    RightMarginRight(4).
+    MarginBottom(2).
+    MarginLeft(4)
 ```
 
 There is also shorthand syntax for margins and padding, which follows the same
