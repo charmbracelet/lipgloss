@@ -19,10 +19,6 @@ const (
 // the same width by padding them with spaces. If a termenv style is passed,
 // use that to style the spaces added.
 func alignText(str string, t Align, width int, style *termenv.Style) string {
-	if strings.Count(str, "\n") == 0 {
-		return str
-	}
-
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 

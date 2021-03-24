@@ -303,7 +303,7 @@ func (s Style) Render(str string) string {
 	{
 		numLines := strings.Count(str, "\n")
 
-		if numLines > 0 && (align != AlignLeft || drawClearTrailingSpaces || colorWhitespace) {
+		if !(numLines == 0 && width == 0) && (drawClearTrailingSpaces || colorWhitespace) {
 			var st *termenv.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
