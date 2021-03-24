@@ -18,37 +18,43 @@ const (
 // Perform text alignment. If the string is multi-lined, we also make all lines
 // the same width by padding them with spaces. If a termenv style is passed,
 // use that to style the spaces added.
-func alignText(str string, t Align, style *termenv.Style) string {
+func alignText(str string, t Align, width int, style *termenv.Style) string {
 	if strings.Count(str, "\n") == 0 {
 		return str
 	}
 
-	lines, widest := getLines(str)
+	lines, widestLine := getLines(str)
 	var b strings.Builder
 
 	for i, l := range lines {
-		w := ansi.PrintableRuneWidth(l)
+		lineWidth := ansi.PrintableRuneWidth(l)
 
-		if n := widest - w; n > 0 {
+		shortAmount := widestLine - lineWidth                // difference from the widest line
+		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
+
+		if shortAmount > 0 {
+
 			switch t {
 			case AlignRight:
-				s := strings.Repeat(" ", n)
+				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
 					s = style.Styled(s)
 				}
 				l = s + l
 			case AlignCenter:
-				left := n / 2
-				right := left + n%2 // note that we put the remainder on the right
+				left := shortAmount / 2
+				right := left + shortAmount%2 // note that we put the remainder on the right
+
 				leftSpaces := strings.Repeat(" ", left)
 				rightSpaces := strings.Repeat(" ", right)
+
 				if style != nil {
 					leftSpaces = style.Styled(leftSpaces)
 					rightSpaces = style.Styled(rightSpaces)
 				}
 				l = leftSpaces + l + rightSpaces
-			default:
-				s := strings.Repeat(" ", n)
+			default: // AlignLeft
+				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
 					s = style.Styled(s)
 				}

@@ -308,7 +308,7 @@ func (s Style) Render(str string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = alignText(str, align, st)
+			str = alignText(str, align, width, st)
 		}
 	}
 
@@ -401,6 +401,13 @@ func padRight(str string, n int, style *termenv.Style) string {
 	}
 
 	return b.String()
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func min(a, b int) int {
