@@ -53,8 +53,9 @@ lipgloss.Color("#04B575") // a green
 lipgloss.Color("#3C3C3C") // a dark gray
 ```
 
-Additionally, the terminal's color profile will be detected, and colors will
-automatically be degraded to their closest available value.
+The terminal's color profile will be automatically detected, and colors outside
+the gamut of the current palette will be automatically coerced to their closest
+available value.
 
 
 ### Adaptive Colors
