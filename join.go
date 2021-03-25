@@ -92,21 +92,14 @@ func JoinHorizontal(pos float64, strs ...string) string {
 
 	// Merge lines
 	var b strings.Builder
-	var done bool
 	for i := range blocks[0] { // remember, all blocks have the same number of members now
 		for j, block := range blocks {
 			b.WriteString(block[i])
 
 			// Also make lines the same length
 			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.PrintableRuneWidth(block[i])))
-
-			if j == len(block)-1 {
-				done = true
-			}
 		}
-		if !done {
-			b.WriteRune('\n')
-		}
+		b.WriteRune('\n')
 	}
 
 	return b.String()
