@@ -40,7 +40,7 @@ func JoinHorizontal(pos float64, strs ...string) string {
 		return ""
 	}
 	if len(strs) == 1 {
-		return strs[1]
+		return strs[0]
 	}
 
 	pos = math.Min(1, math.Max(0, pos))
@@ -96,7 +96,10 @@ func JoinHorizontal(pos float64, strs ...string) string {
 	for i := range blocks[0] { // remember, all blocks have the same number of members now
 		for j, block := range blocks {
 			b.WriteString(block[i])
+
+			// Also make lines the same length
 			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.PrintableRuneWidth(block[i])))
+
 			if j == len(block)-1 {
 				done = true
 			}
@@ -133,7 +136,7 @@ func JoinVertical(pos float64, strs ...string) string {
 		return ""
 	}
 	if len(strs) == 1 {
-		return strs[1]
+		return strs[0]
 	}
 
 	var (
