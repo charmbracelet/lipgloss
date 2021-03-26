@@ -311,8 +311,6 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	str = s.applyBorder(str)
-
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
@@ -348,6 +346,8 @@ func (s Style) Render(str string) string {
 			str += strings.Repeat("\n"+maybeSpaces, bottomMargin)
 		}
 	}
+
+	str = s.applyBorder(str)
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {
