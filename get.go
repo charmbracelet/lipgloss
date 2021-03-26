@@ -6,6 +6,12 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
+// Returns whether or not the given property is set.
+func (s Style) isSet(k propKey) bool {
+	_, exists := s.rules[k]
+	return exists
+}
+
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	v, ok := s.rules[k]
 	if !ok {
@@ -48,6 +54,17 @@ func (s Style) getAsAlign(k propKey) Align {
 		return a
 	}
 	return AlignLeft
+}
+
+func (s Style) getAsBorderStyle(k propKey) Border {
+	v, ok := s.rules[k]
+	if !ok {
+		return noBorder
+	}
+	if b, ok := v.(Border); ok {
+		return b
+	}
+	return noBorder
 }
 
 // Split a string into lines, additionally returning the size of the widest

@@ -9,7 +9,7 @@ func (s *Style) set(key propKey, value interface{}) {
 	switch v := value.(type) {
 	case int:
 		// We don't allow negative integers on any of our values, so just keep
-		// them at zero or above. We could also use uints instead, but the
+		// them at zero or above. We could use uints instead, but the
 		// conversions are a little tedious so we're sticking with ints for
 		// sake of usability.
 		s.rules[key] = max(0, v)
@@ -120,7 +120,7 @@ func (s Style) Align(a Align) Style {
 //
 // With more than four arguments no padding will be added.
 func (s Style) Padding(i ...int) Style {
-	top, right, bottom, left, ok := whichSides(i...)
+	top, right, bottom, left, ok := whichSidesInt(i...)
 	if !ok {
 		return s
 	}
@@ -178,9 +178,9 @@ func (s Style) ColorWhitespace(v bool) Style {
 // With four arguments, the value is applied clockwise starting from the top
 // side, followed by the right side, then the bottom, and finally the left.
 //
-// With more than four arguments no padding will be added.
+// With more than four arguments no margin will be added.
 func (s Style) Margin(i ...int) Style {
-	top, right, bottom, left, ok := whichSides(i...)
+	top, right, bottom, left, ok := whichSidesInt(i...)
 	if !ok {
 		return s
 	}
@@ -213,6 +213,206 @@ func (s Style) MarginTop(i int) Style {
 // MarginBottom sets the value of the bottom margin.
 func (s Style) MarginBottom(i int) Style {
 	s.set(marginBottomKey, i)
+	return s
+}
+
+// Border is shorthand for setting a the border style and which sides should
+// have a border at once. The variadic argument sides works as follows:
+//
+// With one value, the value is applied to all sides.
+//
+// With two values, the values are applied to the vertical and horizontal
+// sides, in that order.
+//
+// With three values, the values are applied to the top side, the horizontal
+// sides, and the bottom side, in that order.
+//
+// With four values, the values are applied clockwise starting from the top
+// side, followed by the right side, then the bottom, and finally the left.
+//
+// With more than four arguments the border will be applied to all sides.
+//
+// Examples:
+//
+//     // Applies borders to the top and bottom only
+//     lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true, false)
+//
+//     // Applies rounded borders to the right and bottom only
+//     lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
+//
+func (s Style) Border(b Border, sides ...bool) Style {
+	s.set(borderStyleKey, b)
+
+	top, right, bottom, left, ok := whichSidesBool(sides...)
+	if !ok {
+		top = true
+		right = true
+		bottom = true
+		left = true
+	}
+
+	s.set(borderTopKey, top)
+	s.set(borderRightKey, right)
+	s.set(borderBottomKey, bottom)
+	s.set(borderLeftKey, left)
+
+	return s
+}
+
+// BorderStyle defines the Border on a style. A Border contains a series of
+// definitions for the sides and corners of a border.
+//
+// Note that if border visibility has not been set for any sides when setting
+// the border style, the border will be enabled for all sides during rendering.
+//
+// You can define border characters as you'd like, though several default
+// styles are included: NormalBorder(), RoundedBorder(), ThickBorder(), and
+// DoubleBorder().
+//
+// Example:
+//
+//     lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
+//
+func (s Style) BorderStyle(b Border) Style {
+	s.set(borderStyleKey, b)
+	return s
+}
+
+// BorderTop determines whether or not to draw a top border.
+func (s Style) BorderTop(v bool) Style {
+	s.set(borderTopKey, v)
+	return s
+}
+
+// BorderRight determines whether or not to draw a right border.
+func (s Style) BorderRight(v bool) Style {
+	s.set(borderRightKey, v)
+	return s
+}
+
+// BorderBottom determines whether or not to draw a bottom border.
+func (s Style) BorderBottom(v bool) Style {
+	s.set(borderBottomKey, v)
+	return s
+}
+
+// BorderLeft determines whether or not to draw a left border.
+func (s Style) BorderLeft(v bool) Style {
+	s.set(borderLeftKey, v)
+	return s
+}
+
+// BorderForegroundColor is a shorthand function for setting all of the
+// foreground colors of the borders at once. The arguments work as follows:
+//
+// With one argument, the argument is applied to all sides.
+//
+// With two arguments, the arguments are applied to the vertical and horizontal
+// sides, in that order.
+//
+// With three arguments, the arguments are applied to the top side, the
+// horizontal sides, and the bottom side, in that order.
+//
+// With four arguments, the arguments are applied clockwise starting from the
+// top side, followed by the right side, then the bottom, and finally the left.
+//
+// With more than four arguments nothing will be set.
+func (s Style) BorderForegroundColor(c ...ColorType) Style {
+	if len(c) == 0 {
+		return s
+	}
+
+	top, right, bottom, left, ok := whichSidesColor(c...)
+	if !ok {
+		return s
+	}
+
+	s.set(borderTopFGColorKey, top)
+	s.set(borderRightFGColorKey, right)
+	s.set(borderBottomFGColorKey, bottom)
+	s.set(borderLeftFGColorKey, left)
+
+	return s
+}
+
+// BorderTopForegroundColor set the top color of the border.
+func (s Style) BorderTopForegroundColor(c ColorType) Style {
+	s.set(borderTopFGColorKey, c)
+	return s
+}
+
+// BorderRightForegroundColor set the top color of the border.
+func (s Style) BorderRightForegroundColor(c ColorType) Style {
+	s.set(borderRightFGColorKey, c)
+	return s
+}
+
+// BorderBottomForegroundColor set the top color of the border.
+func (s Style) BorderBottomForegroundColor(c ColorType) Style {
+	s.set(borderBottomFGColorKey, c)
+	return s
+}
+
+// BorderLeftForegroundColor set the top color of the border.
+func (s Style) BorderLeftForegroundColor(c ColorType) Style {
+	s.set(borderLeftFGColorKey, c)
+	return s
+}
+
+// BorderBackgroundColor is a shorthand function for setting all of the
+// background colors of the borders at once. The arguments work as follows:
+//
+// With one argument, the argument is applied to all sides.
+//
+// With two arguments, the arguments are applied to the vertical and horizontal
+// sides, in that order.
+//
+// With three arguments, the arguments are applied to the top side, the
+// horizontal sides, and the bottom side, in that order.
+//
+// With four arguments, the arguments are applied clockwise starting from the
+// top side, followed by the right side, then the bottom, and finally the left.
+//
+// With more than four arguments nothing will be set.
+func (s Style) BorderBackgroundColor(c ...ColorType) Style {
+	if len(c) == 0 {
+		return s
+	}
+
+	top, right, bottom, left, ok := whichSidesColor(c...)
+	if !ok {
+		return s
+	}
+
+	s.set(borderTopBGColorKey, top)
+	s.set(borderRightBGColorKey, right)
+	s.set(borderBottomBGColorKey, bottom)
+	s.set(borderLeftBGColorKey, left)
+
+	return s
+}
+
+// BorderTopBackgroundColor set the top color of the border.
+func (s Style) BorderTopBackgroundColor(c ColorType) Style {
+	s.set(borderTopBGColorKey, c)
+	return s
+}
+
+// BorderRightBackgroundColor set the top color of the border.
+func (s Style) BorderRightBackgroundColor(c ColorType) Style {
+	s.set(borderRightBGColorKey, c)
+	return s
+}
+
+// BorderBottomBackgroundColor set the top color of the border.
+func (s Style) BorderBottomBackgroundColor(c ColorType) Style {
+	s.set(borderBottomBGColorKey, c)
+	return s
+}
+
+// BorderLeftBackgroundColor set the top color of the border.
+func (s Style) BorderLeftBackgroundColor(c ColorType) Style {
+	s.set(borderLeftBGColorKey, c)
 	return s
 }
 
@@ -307,7 +507,7 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 	return s
 }
 
-// whichSides is a helper method for setting values on sides of a block based
+// whichSidesInt is a helper method for setting values on sides of a block based
 // on the number of arguments. It follows the CSS shorthand rules for blocks
 // like margin, padding. and borders. Here are how the rules work:
 //
@@ -317,7 +517,73 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 // 3 args:  top -> horizontal -> bottom
 // 4 args:  top -> right -> bottom -> left
 // 5+ args: do nothing
-func whichSides(i ...int) (top, right, bottom, left int, ok bool) {
+func whichSidesInt(i ...int) (top, right, bottom, left int, ok bool) {
+	switch len(i) {
+	case 1:
+		top = i[0]
+		bottom = i[0]
+		left = i[0]
+		right = i[0]
+		ok = true
+	case 2:
+		top = i[0]
+		bottom = i[0]
+		left = i[1]
+		right = i[1]
+		ok = true
+	case 3:
+		top = i[0]
+		left = i[1]
+		right = i[1]
+		bottom = i[2]
+		ok = true
+	case 4:
+		top = i[0]
+		right = i[1]
+		bottom = i[2]
+		left = i[3]
+		ok = true
+	}
+	return top, right, bottom, left, ok
+}
+
+// whichSidesBool is like whichSidesInt, except it operates on a series of
+// boolean values. See the comment on whichSidesInt for details on how this
+// works.
+func whichSidesBool(i ...bool) (top, right, bottom, left bool, ok bool) {
+	switch len(i) {
+	case 1:
+		top = i[0]
+		bottom = i[0]
+		left = i[0]
+		right = i[0]
+		ok = true
+	case 2:
+		top = i[0]
+		bottom = i[0]
+		left = i[1]
+		right = i[1]
+		ok = true
+	case 3:
+		top = i[0]
+		left = i[1]
+		right = i[1]
+		bottom = i[2]
+		ok = true
+	case 4:
+		top = i[0]
+		right = i[1]
+		bottom = i[2]
+		left = i[3]
+		ok = true
+	}
+	return top, right, bottom, left, ok
+}
+
+// whichSidesColor is like whichSides, except it operates on a series of
+// boolean values. See the comment on whichSidesInt for details on how this
+// works.
+func whichSidesColor(i ...ColorType) (top, right, bottom, left ColorType, ok bool) {
 	switch len(i) {
 	case 1:
 		top = i[0]

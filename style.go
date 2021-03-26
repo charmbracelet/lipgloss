@@ -35,6 +35,20 @@ const (
 	marginRightKey
 	marginBottomKey
 	marginLeftKey
+	borderKey
+	borderStyleKey
+	borderTopKey
+	borderRightKey
+	borderBottomKey
+	borderLeftKey
+	borderTopFGColorKey
+	borderRightFGColorKey
+	borderBottomFGColorKey
+	borderLeftFGColorKey
+	borderTopBGColorKey
+	borderRightBGColorKey
+	borderBottomBGColorKey
+	borderLeftBGColorKey
 	inlineKey
 	maxWidthKey
 	maxHeightKey
@@ -296,6 +310,8 @@ func (s Style) Render(str string) string {
 			str += strings.Repeat("\n", height-h)
 		}
 	}
+
+	str = s.applyBorder(str)
 
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
