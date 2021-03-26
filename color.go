@@ -13,6 +13,7 @@ var (
 // ColorType is an interface used in color specifications.
 type ColorType interface {
 	value() string
+	color() termenv.Color
 }
 
 // NoColor is used to specify the absence of color styling. When this is active
@@ -29,6 +30,10 @@ func (n NoColor) value() string {
 	return ""
 }
 
+func (n NoColor) color() termenv.Color {
+	return color("")
+}
+
 var noColor = NoColor{}
 
 // Color specifies a color by hex or ANSI value. For example:
@@ -40,6 +45,10 @@ type Color string
 
 func (c Color) value() string {
 	return string(c)
+}
+
+func (c Color) color() termenv.Color {
+	return color(string(c))
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -60,4 +69,8 @@ func (a AdaptiveColor) value() string {
 		return a.Dark
 	}
 	return a.Light
+}
+
+func (a AdaptiveColor) color() termenv.Color {
+	return color(a.value())
 }

@@ -31,19 +31,24 @@ const (
 
 // Place places a string or text block vertically in an unstyled box of a given
 // width or height.
-func Place(width, height int, hPos, vPos Position, str string) string {
-	return PlaceVertical(height, vPos, PlaceHorizontal(width, hPos, str))
+func Place(width, height int, hPos, vPos Position, str string, opts ...WhitespaceOption) string {
+	return PlaceVertical(height, vPos, PlaceHorizontal(width, hPos, str, opts...), opts...)
 }
 
 // PlaceHorizontal places a string or text block horizontally in an unstyled
 // block of a given width. If the given width is shorter than the max width of
 // the string (measured by it's longest line) this will be a noöp.
-func PlaceHorizontal(width int, pos Position, str string) string {
+func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOption) string {
 	lines, contentWidth := getLines(str)
 	gap := width - contentWidth
 
 	if gap <= 0 {
 		return str
+	}
+
+	ws := &whitespace{}
+	for _, opt := range opts {
+		opt(ws)
 	}
 
 	var b strings.Builder
@@ -52,10 +57,10 @@ func PlaceHorizontal(width int, pos Position, str string) string {
 
 		case Left:
 			b.WriteString(l)
-			b.WriteString(strings.Repeat(" ", gap))
+			b.WriteString(ws.render(gap))
 
 		case Right:
-			b.WriteString(strings.Repeat(" ", gap))
+			b.WriteString(ws.render(gap))
 			b.WriteString(l)
 
 		default: // somewhere in the middle
@@ -63,9 +68,9 @@ func PlaceHorizontal(width int, pos Position, str string) string {
 			left := gap - split
 			right := gap - left
 
-			b.WriteString(strings.Repeat(" ", left))
+			b.WriteString(ws.render(left))
 			b.WriteString(l)
-			b.WriteString(strings.Repeat(" ", right))
+			b.WriteString(ws.render(right))
 		}
 
 		if i < len(lines)-1 {
@@ -79,7 +84,7 @@ func PlaceHorizontal(width int, pos Position, str string) string {
 // PlaceVertical places a string or text block vertically in an unstyled block
 // of a given height. If the given height is shorter than the height of the
 // string (measured by it's newlines) then this will be a noöp.
-func PlaceVertical(height int, pos Position, str string) string {
+func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOption) string {
 	contentHeight := strings.Count(str, "\n") + 1
 	gap := height - contentHeight
 
@@ -87,14 +92,20 @@ func PlaceVertical(height int, pos Position, str string) string {
 		return str
 	}
 
+	ws := &whitespace{}
+	for _, opt := range opts {
+		opt(ws)
+	}
+
 	_, width := getLines(str)
-	emptyLine := strings.Repeat(" ", width)
+	emptyLine := ws.render(width)
 	b := strings.Builder{}
 
 	switch pos {
 
 	case Top:
 		b.WriteString(str)
+		b.WriteRune('\n')
 		for i := 0; i < gap; i++ {
 			b.WriteString(emptyLine)
 			if i < gap-1 {
@@ -115,10 +126,8 @@ func PlaceVertical(height int, pos Position, str string) string {
 		b.WriteString(str)
 
 		for i := 0; i < bottom; i++ {
+			b.WriteRune('\n')
 			b.WriteString(emptyLine)
-			if i < bottom-1 {
-				b.WriteRune('\n')
-			}
 		}
 
 	}
