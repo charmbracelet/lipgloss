@@ -167,7 +167,7 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Top, border.BottomRight, width)
+		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
 		bottom = styleBorder(bottom, bottomFGColor, bottomBGColor)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
