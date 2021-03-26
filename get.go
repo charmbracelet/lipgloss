@@ -45,15 +45,15 @@ func (s Style) getAsInt(k propKey) int {
 	return 0
 }
 
-func (s Style) getAsAlign(k propKey) Align {
+func (s Style) getAsPosition(k propKey) Position {
 	v, ok := s.rules[k]
 	if !ok {
-		return AlignLeft
+		return Position(0)
 	}
-	if a, ok := v.(Align); ok {
-		return a
+	if p, ok := v.(Position); ok {
+		return p
 	}
-	return AlignLeft
+	return Position(0)
 }
 
 func (s Style) getAsBorderStyle(k propKey) Border {

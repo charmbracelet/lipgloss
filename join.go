@@ -7,15 +7,6 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
-// Helpers for vertical and horizontal joins.
-const (
-	JoinTop    = 0.0
-	JoinBottom = 1.0
-	JoinCenter = 0.5
-	JoinLeft   = 0.0
-	JoinRight  = 1.0
-)
-
 // JoinHorizontal is a utility function for horizontally joining two
 // potentially multi-lined strings along a vertical axis. The first argument is
 // the position, with 0 being all the way at the top and 1 being all the way
@@ -35,15 +26,13 @@ const (
 //     // Join on the top edge
 //     str := lipgloss.JoinHorizontal(lipgloss.JoinTop, blockA, blockB)
 //
-func JoinHorizontal(pos float64, strs ...string) string {
+func JoinHorizontal(pos Position, strs ...string) string {
 	if len(strs) == 0 {
 		return ""
 	}
 	if len(strs) == 1 {
 		return strs[0]
 	}
-
-	pos = math.Min(1, math.Max(0, pos))
 
 	var (
 		// Groups of strings broken into multiple lines
@@ -73,15 +62,15 @@ func JoinHorizontal(pos float64, strs ...string) string {
 		extraLines := make([]string, maxHeight-len(blocks[i]))
 
 		switch pos {
-		case JoinTop:
+		case Top:
 			blocks[i] = append(blocks[i], extraLines...)
 
-		case JoinBottom:
+		case Bottom:
 			blocks[i] = append(extraLines, blocks[i]...)
 
 		default: // Somewhere in the middle
 			n := len(extraLines)
-			split := int(math.Round(float64(n) * pos))
+			split := int(math.Round(float64(n) * pos.value()))
 			top := n - split
 			bottom := n - top
 
@@ -126,7 +115,7 @@ func JoinHorizontal(pos float64, strs ...string) string {
 //     // Join on the right edge
 //     str := lipgloss.JoinVertical(lipgloss.JoinRight, blockA, blockB)
 //
-func JoinVertical(pos float64, strs ...string) string {
+func JoinVertical(pos Position, strs ...string) string {
 	if len(strs) == 0 {
 		return ""
 	}
@@ -153,11 +142,11 @@ func JoinVertical(pos float64, strs ...string) string {
 			w := maxWidth - ansi.PrintableRuneWidth(line)
 
 			switch pos {
-			case JoinLeft:
+			case Left:
 				b.WriteString(line)
 				b.WriteString(strings.Repeat(" ", w))
 
-			case JoinRight:
+			case Right:
 				b.WriteString(strings.Repeat(" ", w))
 				b.WriteString(line)
 
@@ -167,7 +156,7 @@ func JoinVertical(pos float64, strs ...string) string {
 					break
 				}
 
-				split := int(math.Round(float64(w) * pos))
+				split := int(math.Round(float64(w) * pos.value()))
 				left := w - split
 				right := w - left
 

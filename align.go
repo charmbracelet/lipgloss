@@ -7,18 +7,10 @@ import (
 	"github.com/muesli/termenv"
 )
 
-type Align int
-
-const (
-	AlignLeft Align = iota
-	AlignRight
-	AlignCenter
-)
-
 // Perform text alignment. If the string is multi-lined, we also make all lines
 // the same width by padding them with spaces. If a termenv style is passed,
 // use that to style the spaces added.
-func alignText(str string, t Align, width int, style *termenv.Style) string {
+func alignText(str string, pos Position, width int, style *termenv.Style) string {
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
@@ -30,14 +22,14 @@ func alignText(str string, t Align, width int, style *termenv.Style) string {
 
 		if shortAmount > 0 {
 
-			switch t {
-			case AlignRight:
+			switch pos {
+			case Right:
 				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
 					s = style.Styled(s)
 				}
 				l = s + l
-			case AlignCenter:
+			case Center:
 				left := shortAmount / 2
 				right := left + shortAmount%2 // note that we put the remainder on the right
 
@@ -49,7 +41,7 @@ func alignText(str string, t Align, width int, style *termenv.Style) string {
 					rightSpaces = style.Styled(rightSpaces)
 				}
 				l = leftSpaces + l + rightSpaces
-			default: // AlignLeft
+			default: // Left
 				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
 					s = style.Styled(s)

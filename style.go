@@ -143,7 +143,7 @@ func (s Style) Render(str string) string {
 
 		width  = s.getAsInt(widthKey)
 		height = s.getAsInt(heightKey)
-		align  = s.getAsAlign(alignKey)
+		align  = s.getAsPosition(alignKey)
 
 		topPadding    = s.getAsInt(paddingTopKey)
 		rightPadding  = s.getAsInt(paddingRightKey)

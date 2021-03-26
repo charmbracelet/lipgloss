@@ -100,8 +100,8 @@ func (s Style) Height(i int) Style {
 }
 
 // Align sets a text alignment rule.
-func (s Style) Align(a Align) Style {
-	s.set(alignKey, a)
+func (s Style) Align(p Position) Style {
+	s.set(alignKey, p)
 	return s
 }
 
