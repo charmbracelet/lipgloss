@@ -275,13 +275,6 @@ func (s Style) UnsetMaxHeight() Style {
 	return s
 }
 
-// UnsetDrawClearTrailingSpaces removes the rule for drawing clear trailing
-// spaces, if set.
-func (s Style) UnsetDrawClearTrailingSpaces() Style {
-	delete(s.rules, drawClearTrailingSpacesKey)
-	return s
-}
-
 // UnsetUnderlineWhitespace removes the rule for underlining whitespace, if
 // set.
 func (s Style) UnsetUnderlineWhitespace() Style {

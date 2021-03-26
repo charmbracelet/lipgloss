@@ -466,13 +466,6 @@ func (s Style) MaxHeight(n int) Style {
 	return o
 }
 
-// Whether or not to draw trailing spaces with no background color. By default
-// we leave them in.
-func (s Style) DrawClearTrailingSpaces(v bool) Style {
-	s.set(drawClearTrailingSpacesKey, v)
-	return s
-}
-
 // UnderlineWhitespace determines whether to draw underlines in areas outside
 // text blocks. By default this is false, but it can be enabled for certain
 // graphic effects. Also note that whitespace can be underlined without

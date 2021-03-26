@@ -52,7 +52,6 @@ const (
 	inlineKey
 	maxWidthKey
 	maxHeightKey
-	drawClearTrailingSpacesKey
 	underlineWhitespaceKey
 	strikethroughWhitespaceKey
 	underlineSpacesKey
@@ -163,7 +162,6 @@ func (s Style) Render(str string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		drawClearTrailingSpaces = s.getAsBool(drawClearTrailingSpacesKey, true)
 		underlineWhitespace     = s.getAsBool(underlineWhitespaceKey, false)
 		strikethroughWhitespace = s.getAsBool(strikethroughWhitespaceKey, false)
 
@@ -287,7 +285,7 @@ func (s Style) Render(str string) string {
 		}
 		str = padLeft(str, leftPadding, st)
 	}
-	if (colorWhitespace || drawClearTrailingSpaces) && rightPadding > 0 {
+	if rightPadding > 0 {
 		var st *termenv.Style
 		if colorWhitespace || styleWhitespace {
 			st = &teWhitespace
@@ -317,7 +315,7 @@ func (s Style) Render(str string) string {
 	{
 		numLines := strings.Count(str, "\n")
 
-		if !(numLines == 0 && width == 0) && (drawClearTrailingSpaces || colorWhitespace) {
+		if !(numLines == 0 && width == 0) {
 			var st *termenv.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
@@ -332,18 +330,14 @@ func (s Style) Render(str string) string {
 
 	// Top/bottom margin
 	if !inline {
-		var maybeSpaces string
-
-		if drawClearTrailingSpaces {
-			_, width := getLines(str)
-			maybeSpaces = strings.Repeat(" ", width)
-		}
+		_, width := getLines(str)
+		spaces := strings.Repeat(" ", width)
 
 		if topMargin > 0 {
-			str = strings.Repeat(maybeSpaces+"\n", topMargin) + str
+			str = strings.Repeat(spaces+"\n", topMargin) + str
 		}
 		if bottomMargin > 0 {
-			str += strings.Repeat("\n"+maybeSpaces, bottomMargin)
+			str += strings.Repeat("\n"+spaces, bottomMargin)
 		}
 	}
 
