@@ -52,8 +52,6 @@ const (
 	inlineKey
 	maxWidthKey
 	maxHeightKey
-	underlineWhitespaceKey
-	strikethroughWhitespaceKey
 	underlineSpacesKey
 	strikethroughSpacesKey
 )
@@ -162,15 +160,12 @@ func (s Style) Render(str string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineWhitespace     = s.getAsBool(underlineWhitespaceKey, false)
-		strikethroughWhitespace = s.getAsBool(strikethroughWhitespaceKey, false)
-
 		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
 		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
 
 		// Do we need to style whitespace (padding and space outsode
 		// paragraphs) separately?
-		styleWhitespace = reverse || underlineWhitespace || strikethroughWhitespace
+		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
 		useSpaceStyler = underlineSpaces || strikethroughSpaces
@@ -228,12 +223,6 @@ func (s Style) Render(str string) string {
 		te = te.CrossOut()
 	}
 
-	if underlineWhitespace {
-		teWhitespace = teWhitespace.Underline()
-	}
-	if strikethroughWhitespace {
-		teWhitespace = teWhitespace.CrossOut()
-	}
 	if underlineSpaces {
 		teSpace = teSpace.Underline()
 	}

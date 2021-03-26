@@ -466,24 +466,6 @@ func (s Style) MaxHeight(n int) Style {
 	return o
 }
 
-// UnderlineWhitespace determines whether to draw underlines in areas outside
-// text blocks. By default this is false, but it can be enabled for certain
-// graphic effects. Also note that whitespace can be underlined without
-// underlining text.
-func (s Style) UnderlineWhitespace(v bool) Style {
-	s.set(underlineWhitespaceKey, v)
-	return s
-}
-
-// StrikethroughWhitespace determines whether to draw strikethroughs in areas
-// outside text blocks. By default this is false, but it can be enabled for
-// certain graphic effects. Also note that whitespace can be struck without
-// striking through text.
-func (s Style) StrikethroughWhitespace(v bool) Style {
-	s.set(strikethroughWhitespaceKey, v)
-	return s
-}
-
 // UnderlineSpaces determines whether to underline spaces between words. By
 // default this is true. Spaces can also be underlined without underlining the
 // text itself.

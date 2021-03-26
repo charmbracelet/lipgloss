@@ -275,20 +275,6 @@ func (s Style) UnsetMaxHeight() Style {
 	return s
 }
 
-// UnsetUnderlineWhitespace removes the rule for underlining whitespace, if
-// set.
-func (s Style) UnsetUnderlineWhitespace() Style {
-	delete(s.rules, underlineSpacesKey)
-	return s
-}
-
-// UnsetUnderlineWhitespace removes the rule for strikingn through whitespace,
-// if set.
-func (s Style) UnsetStrikethroughWhitespace() Style {
-	delete(s.rules, strikethroughSpacesKey)
-	return s
-}
-
 // UnsetUnderlineSpaces removes the value set by UnderlineSpaces.
 func (s Style) UnsetUnderlineSpaces() Style {
 	delete(s.rules, underlineSpacesKey)

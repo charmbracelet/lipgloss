@@ -42,8 +42,8 @@ func (c Color) value() string {
 	return string(c)
 }
 
-// AdaptiveColor provides color alternatives for light and dark backgrounds.
-// The appropriate color with be returned based on the darkness of the terminal
+// AdaptiveColor provides color options for light and dark backgrounds. The
+// appropriate color with be returned based on the darkness of the terminal
 // background color determined at runtime.
 //
 // Example usage:
