@@ -26,29 +26,42 @@ const (
 	widthKey
 	heightKey
 	alignKey
+
+	// Padding
 	paddingTopKey
 	paddingRightKey
 	paddingBottomKey
 	paddingLeftKey
+
 	colorWhitespaceKey
+
+	// Margins
 	marginTopKey
 	marginRightKey
 	marginBottomKey
 	marginLeftKey
-	borderKey
+
+	// Border runes
 	borderStyleKey
+
+	// Border edges
 	borderTopKey
 	borderRightKey
 	borderBottomKey
 	borderLeftKey
+
+	// Border foreground colors
 	borderTopFGColorKey
 	borderRightFGColorKey
 	borderBottomFGColorKey
 	borderLeftFGColorKey
+
+	// Border background colors
 	borderTopBGColorKey
 	borderRightBGColorKey
 	borderBottomBGColorKey
 	borderLeftBGColorKey
+
 	inlineKey
 	maxWidthKey
 	maxHeightKey
