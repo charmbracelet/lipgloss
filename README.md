@@ -67,7 +67,7 @@ lipgloss.AdaptiveColor{Light: "236", Dark: "248"}
 ```
 
 The terminal's background color will automatically be detected and the
-appropriate color will be used at runtime.
+appropriate color will be chosen at runtime.
 
 
 ## Inline Formatting
