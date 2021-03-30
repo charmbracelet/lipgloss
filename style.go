@@ -40,6 +40,7 @@ const (
 	marginRightKey
 	marginBottomKey
 	marginLeftKey
+	marginBackgroundKey
 
 	// Border runes
 	borderStyleKey
@@ -127,6 +128,13 @@ func (o Style) Inherit(i Style) Style {
 		case paddingTopKey, paddingRightKey, paddingBottomKey, paddingLeftKey:
 			// Padding is not inherited
 			continue
+		case backgroundKey:
+			o.rules[k] = v
+
+			// The margins also inherit the background color
+			if !o.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
+				o.rules[marginBackgroundKey] = v
+			}
 		}
 
 		if _, exists := o.rules[k]; exists {
@@ -163,11 +171,6 @@ func (s Style) Render(str string) string {
 		rightPadding  = s.getAsInt(paddingRightKey)
 		bottomPadding = s.getAsInt(paddingBottomKey)
 		leftPadding   = s.getAsInt(paddingLeftKey)
-
-		topMargin    = s.getAsInt(marginTopKey)
-		rightMargin  = s.getAsInt(marginRightKey)
-		bottomMargin = s.getAsInt(marginBottomKey)
-		leftMargin   = s.getAsInt(marginLeftKey)
 
 		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 		inline          = s.getAsBool(inlineKey, false)
@@ -329,22 +332,7 @@ func (s Style) Render(str string) string {
 
 	str = s.applyBorder(str)
 
-	// Add left and right margin
-	str = padLeft(str, leftMargin, nil)
-	str = padRight(str, rightMargin, nil)
-
-	// Top/bottom margin
-	if !inline {
-		_, width := getLines(str)
-		spaces := strings.Repeat(" ", width)
-
-		if topMargin > 0 {
-			str = strings.Repeat(spaces+"\n", topMargin) + str
-		}
-		if bottomMargin > 0 {
-			str += strings.Repeat("\n"+spaces, bottomMargin)
-		}
-	}
+	str = s.applyMargins(str, inline)
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {
@@ -361,6 +349,41 @@ func (s Style) Render(str string) string {
 	if maxHeight > 0 {
 		lines := strings.Split(str, "\n")
 		str = strings.Join(lines[:min(maxHeight, len(lines))], "\n")
+	}
+
+	return str
+}
+
+func (s Style) applyMargins(str string, inline bool) string {
+	var (
+		topMargin    = s.getAsInt(marginTopKey)
+		rightMargin  = s.getAsInt(marginRightKey)
+		bottomMargin = s.getAsInt(marginBottomKey)
+		leftMargin   = s.getAsInt(marginLeftKey)
+
+		styler termenv.Style
+	)
+
+	bgc := s.getAsColor(marginBackgroundKey)
+	if bgc != noColor {
+		styler = styler.Background(bgc.color())
+	}
+
+	// Add left and right margin
+	str = padLeft(str, leftMargin, &styler)
+	str = padRight(str, rightMargin, &styler)
+
+	// Top/bottom margin
+	if !inline {
+		_, width := getLines(str)
+		spaces := strings.Repeat(" ", width)
+
+		if topMargin > 0 {
+			str = styler.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
+		}
+		if bottomMargin > 0 {
+			str += styler.Styled(strings.Repeat("\n"+spaces, bottomMargin))
+		}
 	}
 
 	return str

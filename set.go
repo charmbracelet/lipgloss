@@ -216,6 +216,11 @@ func (s Style) MarginBottom(i int) Style {
 	return s
 }
 
+func (s Style) marginBackground(c ColorType) Style {
+	s.set(marginBackgroundKey, c)
+	return s
+}
+
 // Border is shorthand for setting a the border style and which sides should
 // have a border at once. The variadic argument sides works as follows:
 //

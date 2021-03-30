@@ -144,6 +144,14 @@ func (s Style) UnsetMarginBottom() Style {
 	return s
 }
 
+// UnsetMarginBackground removes the margin's background color. The margin's
+// background color is set from the background color of another style during
+// inheritance.
+func (s Style) UnsetMarginBackground() Style {
+	delete(s.rules, marginBackgroundKey)
+	return s
+}
+
 // UnsetBorderStyle removes the border style rule, if set.
 func (s Style) UnsetBorderStyle() Style {
 	delete(s.rules, borderStyleKey)
