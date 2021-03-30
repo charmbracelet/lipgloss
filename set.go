@@ -1,10 +1,16 @@
 package lipgloss
 
-// Set a value on the underlying rules map.
-func (s *Style) set(key propKey, value interface{}) {
+// This could (should) probably just be moved into NewStyle(). We've broken it
+// out so we can call it in a lazy way.
+func (s *Style) init() {
 	if s.rules == nil {
 		s.rules = make(rules)
 	}
+}
+
+// Set a value on the underlying rules map.
+func (s *Style) set(key propKey, value interface{}) {
+	s.init()
 
 	switch v := value.(type) {
 	case int:

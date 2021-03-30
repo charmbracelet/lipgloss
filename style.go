@@ -106,7 +106,7 @@ func (s Style) String() string {
 // Copy returns a copy of this style, including any underlying string values.
 func (s Style) Copy() Style {
 	o := NewStyle()
-	o.rules = make(rules)
+	o.init()
 	for k, v := range s.rules {
 		o.rules[k] = v
 	}
@@ -120,6 +120,8 @@ func (s Style) Copy() Style {
 //
 // Margins, padding, and underlying string values are not inherited.
 func (o Style) Inherit(i Style) Style {
+	o.init()
+
 	for k, v := range i.rules {
 		switch k {
 		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
