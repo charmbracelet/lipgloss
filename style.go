@@ -305,7 +305,7 @@ func (s Style) Render(str string) string {
 
 	// Height
 	if height > 0 {
-		h := strings.Count(str, "\n")
+		h := strings.Count(str, "\n") + 1
 		if height > h {
 			str += strings.Repeat("\n", height-h)
 		}
