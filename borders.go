@@ -134,12 +134,30 @@ func (s Style) applyBorder(str string) string {
 		width += ansi.PrintableRuneWidth(border.Left)
 	}
 
-	// Figure out which glyphs we should be using for our corners based on
-	// which sides are set to show
-	border.TopLeft = getCorner(hasTop, hasLeft, border.Top, border.Left, border.TopLeft)
-	border.TopRight = getCorner(hasTop, hasRight, border.Top, border.Right, border.TopRight)
-	border.BottomLeft = getCorner(hasBottom, hasLeft, border.Bottom, border.Left, border.BottomLeft)
-	border.BottomRight = getCorner(hasBottom, hasRight, border.Bottom, border.Right, border.BottomRight)
+	// Figure out which corners we should actually be using based on which
+	// sides are set to show.
+	if hasTop {
+		switch {
+		case !hasLeft && !hasRight:
+			border.TopLeft = ""
+			border.TopRight = ""
+		case !hasLeft:
+			border.TopLeft = ""
+		case !hasRight:
+			border.TopRight = ""
+		}
+	}
+	if hasBottom {
+		switch {
+		case !hasLeft && !hasRight:
+			border.BottomLeft = ""
+			border.BottomRight = ""
+		case !hasLeft:
+			border.BottomLeft = ""
+		case !hasRight:
+			border.BottomRight = ""
+		}
+	}
 
 	var out strings.Builder
 
@@ -176,21 +194,6 @@ func (s Style) applyBorder(str string) string {
 	return out.String()
 }
 
-// Figure out which corner element we should be using based on which sides are
-// hidden and visible
-func getCorner(showH, showV bool, horiz, vert, corner string) string {
-	switch {
-	case showH && !showV:
-		return horiz
-	case !showH && showV:
-		return vert
-	case !showH && !showV:
-		return ""
-	default:
-		return corner
-	}
-}
-
 // Render the horizontal (top or bottom) portion of a border.
 func renderHorizontalEdge(left, middle, right string, width int) string {
 	if width < 1 {
@@ -207,7 +210,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i <= width; i += midWidth {
+	for i := leftWidth + rightWidth; i < width+rightWidth; i += midWidth {
 		out.WriteString(middle)
 	}
 	out.WriteString(right)
