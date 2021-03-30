@@ -326,6 +326,8 @@ func (s Style) Render(str string) string {
 		}
 	}
 
+	str = s.applyBorder(str)
+
 	// Add left and right margin
 	str = padLeft(str, leftMargin, nil)
 	str = padRight(str, rightMargin, nil)
@@ -342,8 +344,6 @@ func (s Style) Render(str string) string {
 			str += strings.Repeat("\n"+spaces, bottomMargin)
 		}
 	}
-
-	str = s.applyBorder(str)
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {
