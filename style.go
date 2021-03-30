@@ -118,7 +118,7 @@ func (s Style) Copy() Style {
 // style in argument will be applied.
 //
 // Margins, padding, and underlying string values are not inherited.
-func (o Style) Inherit(i Style) {
+func (o Style) Inherit(i Style) Style {
 	for k, v := range i.rules {
 		switch k {
 		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
@@ -134,6 +134,7 @@ func (o Style) Inherit(i Style) {
 		}
 		o.rules[k] = v
 	}
+	return o
 }
 
 // Render applies the defined style formatting to a given string.
