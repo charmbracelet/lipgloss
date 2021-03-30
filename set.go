@@ -139,19 +139,19 @@ func (s Style) PaddingLeft(i int) Style {
 }
 
 // Right Padding adds padding on the right.
-func (s Style) RightPadding(i int) Style {
+func (s Style) PaddingRight(i int) Style {
 	s.set(paddingRightKey, i)
 	return s
 }
 
 // TopPadding addds padding to the top of the block.
-func (s Style) TopPadding(i int) Style {
+func (s Style) PaddingTop(i int) Style {
 	s.set(paddingTopKey, i)
 	return s
 }
 
 // BottomPadding adds padding to the bottom of the block.
-func (s Style) BottomPadding(i int) Style {
+func (s Style) PaddingBottom(i int) Style {
 	s.set(paddingBottomKey, i)
 	return s
 }
