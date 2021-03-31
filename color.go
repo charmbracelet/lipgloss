@@ -10,10 +10,12 @@ var (
 	hasDarkBackground bool                       = termenv.HasDarkBackground()
 )
 
-// TerminalColor is a color intended to be rendered in the terminal.
+// TerminalColor is a color intended to be rendered in the terminal. It
+// satisfies the Go color.Color interface.
 type TerminalColor interface {
 	value() string
 	color() termenv.Color
+	RGBA() (r, g, b, a uint32)
 }
 
 // NoColor is used to specify the absence of color styling. When this is active
@@ -34,6 +36,13 @@ func (n NoColor) color() termenv.Color {
 	return color("")
 }
 
+// RGBA returns the RGBA value of this color. Because we have to return
+// something, despite this color being the absence of color, we're returning
+// defaults for all values.
+func (n NoColor) RGBA() (r, g, b, a uint32) {
+	return 0, 0, 0, 0
+}
+
 var noColor = NoColor{}
 
 // Color specifies a color by hex or ANSI value. For example:
@@ -51,9 +60,14 @@ func (c Color) color() termenv.Color {
 	return color(string(c))
 }
 
+// RGBA returns the RGBA value of this color.
+func (c Color) RGBA() (r, g, b, a uint32) {
+	return c.RGBA()
+}
+
 // AdaptiveColor provides color options for light and dark backgrounds. The
-// appropriate color with be returned based on the darkness of the terminal
-// background color determined at runtime.
+// appropriate color with be returned at runtime based on the darkness of the
+// terminal background color.
 //
 // Example usage:
 //
@@ -64,13 +78,18 @@ type AdaptiveColor struct {
 	Dark  string
 }
 
-func (a AdaptiveColor) value() string {
+func (ac AdaptiveColor) value() string {
 	if hasDarkBackground {
-		return a.Dark
+		return ac.Dark
 	}
-	return a.Light
+	return ac.Light
 }
 
-func (a AdaptiveColor) color() termenv.Color {
-	return color(a.value())
+func (ac AdaptiveColor) color() termenv.Color {
+	return color(ac.value())
+}
+
+// RGBA returns the RGBA value of this color.
+func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
+	return ac.RGBA()
 }
