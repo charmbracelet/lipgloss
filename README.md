@@ -196,8 +196,10 @@ var style = lipgloss.NewStyle().
     UnsetBackground()                  // never mind
 ```
 
+When a rule is unset, it won't be inherited or copied.
+
 Note that in the case of boolean values, unset values are different from falsey
-ones in that values specifically set to `false` will be copied and inherited,
+ones. That is, values explicitly set to `false` will be copied and inherited,
 whereas unset values will not.
 
 
