@@ -7,7 +7,7 @@ Lip Gloss
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
 </p>
 
-Style definitions for building command line applications.
+Style definitions for nice terminal layouts
 
 ```go
 
@@ -273,6 +273,18 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 You can also style the whitespace. For details, see [the docs][docs].
 
 ***
+
+
+## What about Bubble Tea?
+
+Lip Gloss is a nice compliment to [Bubble Tea][tea]. Bubble Tea (and
+[Bubbles][bubbles]) are are concerned with user interface logic, whereas Lip
+Gloss works as an aid for for building the views that Bubble Tea will render.
+Lip Gloss, in fact, was built after studying patterns we saw emerging as we
+built user interfaces with Bubble Tea.
+
+[tea]: https://github.com/charmbracelet/tea
+[bubbles]: https://github.com/charmbracelet/bubbles
 
 
 ## Under the Hood
