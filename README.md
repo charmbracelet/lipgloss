@@ -137,9 +137,9 @@ You can align paragraphs of text to the left, right, or center.
 ```go
 var style = lipgloss.NewStyle().
     Width(24).
-    Align(lipgloss.AlignLeft).  // align it left
-    Align(lipgloss.AlignRight). // no wait, align it right
-    Align(lipgloss.AlignCenter) // just kidding, align it in the center
+    Align(lipgloss.Left).  // align it left
+    Align(lipgloss.Right). // no wait, align it right
+    Align(lipgloss.Center) // just kidding, align it in the center
 ```
 
 
@@ -249,10 +249,10 @@ paragraphs of text.
 
 ```go
 // Horizontally join three paragraphs along their bottom edges
-lipgloss.HorizontalJoin(lipgloss.JoinBottom, paragraphA, paragraphB, paragraphC)
+lipgloss.HorizontalJoin(lipgloss.Bottom, paragraphA, paragraphB, paragraphC)
 
 // Vertically join two paragraphs along their center axes
-lipgloss.VerticalJoin(lipgloss.JoinCenter, paragraphA, paragraphB)
+lipgloss.VerticalJoin(lipgloss.Center, paragraphA, paragraphB)
 
 // Horizontally join three paragraphs, with the shorter ones aligning 20%
 // from the top of the tallest
@@ -284,11 +284,11 @@ You can also style the whitespace. For details, see [the docs][docs].
 
 ## What about Bubble Tea?
 
-Lip Gloss is a nice compliment to [Bubble Tea][tea]. Bubble Tea (and
-[Bubbles][bubbles]) are are concerned with user interface logic, whereas Lip
-Gloss works as an aid for for building the views that Bubble Tea will render.
-Lip Gloss, in fact, was built after studying patterns we saw emerging as we
-built user interfaces with Bubble Tea.
+Lip Gloss compliments [Bubble Tea][tea]. Bubble Tea (and [Bubbles][bubbles])
+are are concerned with user interface logic, whereas Lip Gloss works well as an
+aid for building the views that Bubble Tea will render. Lip Gloss, in fact, was
+built after studying patterns we saw emerging as we built user interfaces with
+Bubble Tea.
 
 [tea]: https://github.com/charmbracelet/tea
 [bubbles]: https://github.com/charmbracelet/bubbles
