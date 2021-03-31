@@ -23,12 +23,12 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	return defaultVal
 }
 
-func (s Style) getAsColor(k propKey) ColorType {
+func (s Style) getAsColor(k propKey) TerminalColor {
 	v, ok := s.rules[k]
 	if !ok {
 		return NoColor{}
 	}
-	if c, ok := v.(ColorType); ok {
+	if c, ok := v.(TerminalColor); ok {
 		return c
 	}
 	return NoColor{}

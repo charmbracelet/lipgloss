@@ -79,13 +79,13 @@ func (s Style) Faint(v bool) Style {
 //     // Removes the foreground color
 //     s.Foreground(lipgloss.NoColor)
 //
-func (s Style) Foreground(c ColorType) Style {
+func (s Style) Foreground(c TerminalColor) Style {
 	s.set(foregroundKey, c)
 	return s
 }
 
 // Background sets a background color.
-func (s Style) Background(c ColorType) Style {
+func (s Style) Background(c TerminalColor) Style {
 	s.set(backgroundKey, c)
 	return s
 }
@@ -222,7 +222,7 @@ func (s Style) MarginBottom(i int) Style {
 	return s
 }
 
-func (s Style) marginBackground(c ColorType) Style {
+func (s Style) marginBackground(c TerminalColor) Style {
 	s.set(marginBackgroundKey, c)
 	return s
 }
@@ -328,7 +328,7 @@ func (s Style) BorderLeft(v bool) Style {
 // top side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments nothing will be set.
-func (s Style) BorderForegroundColor(c ...ColorType) Style {
+func (s Style) BorderForegroundColor(c ...TerminalColor) Style {
 	if len(c) == 0 {
 		return s
 	}
@@ -347,25 +347,25 @@ func (s Style) BorderForegroundColor(c ...ColorType) Style {
 }
 
 // BorderTopForegroundColor set the top color of the border.
-func (s Style) BorderTopForegroundColor(c ColorType) Style {
+func (s Style) BorderTopForegroundColor(c TerminalColor) Style {
 	s.set(borderTopFGColorKey, c)
 	return s
 }
 
 // BorderRightForegroundColor set the top color of the border.
-func (s Style) BorderRightForegroundColor(c ColorType) Style {
+func (s Style) BorderRightForegroundColor(c TerminalColor) Style {
 	s.set(borderRightFGColorKey, c)
 	return s
 }
 
 // BorderBottomForegroundColor set the top color of the border.
-func (s Style) BorderBottomForegroundColor(c ColorType) Style {
+func (s Style) BorderBottomForegroundColor(c TerminalColor) Style {
 	s.set(borderBottomFGColorKey, c)
 	return s
 }
 
 // BorderLeftForegroundColor set the top color of the border.
-func (s Style) BorderLeftForegroundColor(c ColorType) Style {
+func (s Style) BorderLeftForegroundColor(c TerminalColor) Style {
 	s.set(borderLeftFGColorKey, c)
 	return s
 }
@@ -385,7 +385,7 @@ func (s Style) BorderLeftForegroundColor(c ColorType) Style {
 // top side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments nothing will be set.
-func (s Style) BorderBackgroundColor(c ...ColorType) Style {
+func (s Style) BorderBackgroundColor(c ...TerminalColor) Style {
 	if len(c) == 0 {
 		return s
 	}
@@ -404,25 +404,25 @@ func (s Style) BorderBackgroundColor(c ...ColorType) Style {
 }
 
 // BorderTopBackgroundColor set the top color of the border.
-func (s Style) BorderTopBackgroundColor(c ColorType) Style {
+func (s Style) BorderTopBackgroundColor(c TerminalColor) Style {
 	s.set(borderTopBGColorKey, c)
 	return s
 }
 
 // BorderRightBackgroundColor set the top color of the border.
-func (s Style) BorderRightBackgroundColor(c ColorType) Style {
+func (s Style) BorderRightBackgroundColor(c TerminalColor) Style {
 	s.set(borderRightBGColorKey, c)
 	return s
 }
 
 // BorderBottomBackgroundColor set the top color of the border.
-func (s Style) BorderBottomBackgroundColor(c ColorType) Style {
+func (s Style) BorderBottomBackgroundColor(c TerminalColor) Style {
 	s.set(borderBottomBGColorKey, c)
 	return s
 }
 
 // BorderLeftBackgroundColor set the top color of the border.
-func (s Style) BorderLeftBackgroundColor(c ColorType) Style {
+func (s Style) BorderLeftBackgroundColor(c TerminalColor) Style {
 	s.set(borderLeftBGColorKey, c)
 	return s
 }
@@ -569,7 +569,7 @@ func whichSidesBool(i ...bool) (top, right, bottom, left bool, ok bool) {
 // whichSidesColor is like whichSides, except it operates on a series of
 // boolean values. See the comment on whichSidesInt for details on how this
 // works.
-func whichSidesColor(i ...ColorType) (top, right, bottom, left ColorType, ok bool) {
+func whichSidesColor(i ...TerminalColor) (top, right, bottom, left TerminalColor, ok bool) {
 	switch len(i) {
 	case 1:
 		top = i[0]

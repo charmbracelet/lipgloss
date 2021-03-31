@@ -47,14 +47,14 @@ func (w whitespace) render(width int) string {
 type WhitespaceOption func(*whitespace)
 
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
-func WithWhitespaceForeground(c ColorType) WhitespaceOption {
+func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
 		w.style = w.style.Foreground(c.color())
 	}
 }
 
 // WithWhiteSpaceBackground sets the background color of the whitespace.
-func WithWhitespaceBackground(c ColorType) WhitespaceOption {
+func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
 		w.style = w.style.Background(c.color())
 	}

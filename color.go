@@ -10,8 +10,8 @@ var (
 	hasDarkBackground bool                       = termenv.HasDarkBackground()
 )
 
-// ColorType is an interface used in color specifications.
-type ColorType interface {
+// TerminalColor is a color intended to be rendered in the terminal.
+type TerminalColor interface {
 	value() string
 	color() termenv.Color
 }

@@ -219,7 +219,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 }
 
 // Apply foreground and background styling to a border.
-func styleBorder(border string, fg, bg ColorType) string {
+func styleBorder(border string, fg, bg TerminalColor) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}
