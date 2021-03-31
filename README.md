@@ -248,16 +248,38 @@ lipgloss.HorizontalJoin(lipgloss.JoinTop, paragraphA, paragraphB, paragraphC)
 lipgloss.VerticalJoin(lipgloss.JoinCenter, paragraphA, paragraphB)
 
 // Horizontally join three paragraphs, with the shorter ones aligning 20%
-// from the top of the tallest.
+// from the top of the tallest
 lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
 ```
+
+
+## Placing Text in Whitespace
+
+Sometimes you simply want to place a block of text in whitespace.
+
+```go
+// Center a paragraph horizontally in a space 80 cells wide. The height of
+// the block returned will be as tall as the input paragraph.
+block := lipgloss.PlaceHorizontal(80, lipgloss.Center, fancyStyledParagraph)
+
+// Place a paragraph at the bottom of a space 30 cells tall. The width of
+// the text block returned will be as wide as the input paragraph.
+block := lipgloss.PlaceVertical(30, lipgloss.Bottom, fancyStyledParagraph)
+
+// Place a paragraph in the bottom right corner of a 30x80 cell space.
+block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledParagraph)
+```
+
+You can also style the whitespace. For details, see [the docs][docs].
+
+***
 
 
 ## Under the Hood
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
 libraries which deal with color and ANSI-aware text operations, respectively.
-For many use cases Termenv and Reflow will be sufficient for your needs.
+For many use cases Termenv and Reflow may be sufficient for your needs.
 
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
@@ -265,10 +287,9 @@ For many use cases Termenv and Reflow will be sufficient for your needs.
 
 ## Rendering Markdown
 
-Lip Gloss is intended for use in building terminal user interfaces. For a more
-document-centric rendering solution with support for things like lists, tables,
-and syntax-highlighted code have a look at [Glamour][glamour], the
-stylesheet-based Markdown renderer.
+For a more document-centric rendering solution with support for things like
+lists, tables, and syntax-highlighted code have a look at [Glamour][glamour],
+the stylesheet-based Markdown renderer.
 
 [glamour]: https://github.com/charmbracelet/glamour
 
@@ -285,3 +306,6 @@ Part of [Charm](https://charm.sh).
 <a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge-unrounded.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
+
+
+[docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
