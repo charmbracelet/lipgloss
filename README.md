@@ -249,7 +249,7 @@ paragraphs of text.
 
 ```go
 // Horizontally join three paragraphs along their bottom edges
-lipgloss.HorizontalJoin(lipgloss.JoinTop, paragraphA, paragraphB, paragraphC)
+lipgloss.HorizontalJoin(lipgloss.JoinBottom, paragraphA, paragraphB, paragraphC)
 
 // Vertically join two paragraphs along their center axes
 lipgloss.VerticalJoin(lipgloss.JoinCenter, paragraphA, paragraphB)
