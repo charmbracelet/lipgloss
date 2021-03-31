@@ -25,8 +25,9 @@ var (
 
 	// General
 
-	subtle = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
-	accent = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
+	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -35,7 +36,7 @@ var (
 		String()
 
 	url = lipgloss.NewStyle().
-		Foreground(accent).
+		Foreground(special).
 		Render
 
 	// Tabs
@@ -64,7 +65,7 @@ var (
 
 	tab = lipgloss.NewStyle().
 		Border(tabBorder, true).
-		BorderForegroundColor(lipgloss.Color("#874BFD")).
+		BorderForegroundColor(highlight).
 		Padding(0, 1)
 
 	activeTab = tab.Copy().
@@ -135,14 +136,14 @@ var (
 	listItem = lipgloss.NewStyle().PaddingLeft(2).Render
 
 	checkMark = lipgloss.NewStyle().SetString("✓").
-			Foreground(accent).
+			Foreground(special).
 			PaddingRight(1).
 			String()
 
 	listDone = func(s string) string {
 		return checkMark + lipgloss.NewStyle().
 			Strikethrough(true).
-			Foreground(lipgloss.AdaptiveColor{Light: "", Dark: "#696969"}).
+			Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
 			Render(s)
 	}
 
@@ -150,8 +151,8 @@ var (
 
 	historyStyle = lipgloss.NewStyle().
 			Align(lipgloss.Left).
-			Foreground(lipgloss.Color("#874BFD")).
-			Background(lipgloss.AdaptiveColor{Light: "#F1F3EA", Dark: "#f1f1f1"}).
+			Foreground(lipgloss.Color("#FAFAFA")).
+			Background(highlight).
 			Margin(1, 3, 0, 0).
 			Padding(1, 2).
 			Height(19).
