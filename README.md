@@ -7,7 +7,12 @@ Lip Gloss
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
 </p>
 
-Style definitions for nice terminal layouts
+Style definitions for nice terminal layouts.
+
+![Glamour dark style example](https://stuff.charm.sh/lipgloss/lipgloss-example.png)
+
+
+Lip Gloss takes an expressive, declarative approach to terminal rendering. Users familiar with CSS will feel at home with Lip Gloss.
 
 ```go
 
@@ -15,13 +20,13 @@ import "github.com/charmbracelet/lipgloss"
 
 var style = lipgloss.NewStyle().
     Bold(true).
-    Foreground(lipgloss.Color("#04B575")).
-    Background(lipgloss.Color("#3C3C3C")).
+    Foreground(lipgloss.Color("#FAFAFA")).
+    Background(lipgloss.Color("#7D56F4")).
     PaddingTop(2).
     PaddingLeft(4).
-    Width(24)
+    Width(22)
 
-fmt.Println(style.Render("Hello, kitty."))
+    fmt.Println(style.Render("Hello, kitty."))
 ```
 
 
@@ -138,9 +143,9 @@ var style = lipgloss.NewStyle().
 ```
 
 
-## Setting the height
+## Width and Height
 
-In addition to the width, you can also set a minimum height.
+Setting a minimim width and height is simple and straightforward.
 
 ```go
 var str = lipgloss.NewStyle().
@@ -184,7 +189,7 @@ var styleB = lipgloss.NewStyle().
 ```
 
 
-## Unsetting rules
+## Unsetting Rules
 
 All rules can be unset:
 
@@ -293,7 +298,7 @@ built user interfaces with Bubble Tea.
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
 libraries which deal with color and ANSI-aware text operations, respectively.
-For many use cases Termenv and Reflow may be sufficient for your needs.
+For many use cases Termenv and Reflow will be sufficient for your needs.
 
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
