@@ -285,28 +285,31 @@ func (s Style) Render(str string) string {
 		str = b.String()
 	}
 
-	// Left/right padding
-	if leftPadding > 0 {
-		var st *termenv.Style
-		if colorWhitespace || styleWhitespace {
-			st = &teWhitespace
+	// Padding
+	if !inline {
+		if leftPadding > 0 {
+			var st *termenv.Style
+			if colorWhitespace || styleWhitespace {
+				st = &teWhitespace
+			}
+			str = padLeft(str, leftPadding, st)
 		}
-		str = padLeft(str, leftPadding, st)
-	}
-	if rightPadding > 0 {
-		var st *termenv.Style
-		if colorWhitespace || styleWhitespace {
-			st = &teWhitespace
-		}
-		str = padRight(str, rightPadding, st)
-	}
 
-	// Top/bottom padding
-	if topPadding > 0 && !inline {
-		str = strings.Repeat("\n", topPadding) + str
-	}
-	if bottomPadding > 0 && !inline {
-		str += strings.Repeat("\n", bottomPadding)
+		if rightPadding > 0 {
+			var st *termenv.Style
+			if colorWhitespace || styleWhitespace {
+				st = &teWhitespace
+			}
+			str = padRight(str, rightPadding, st)
+		}
+
+		if topPadding > 0 {
+			str = strings.Repeat("\n", topPadding) + str
+		}
+
+		if bottomPadding > 0 {
+			str += strings.Repeat("\n", bottomPadding)
+		}
 	}
 
 	// Height
@@ -332,9 +335,10 @@ func (s Style) Render(str string) string {
 		}
 	}
 
-	str = s.applyBorder(str)
-
-	str = s.applyMargins(str, inline)
+	if !inline {
+		str = s.applyBorder(str)
+		str = s.applyMargins(str, inline)
+	}
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {

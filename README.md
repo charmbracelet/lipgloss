@@ -210,7 +210,7 @@ definitions respect their indended purpose in the UI. This is where `Inline`
 and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
-// Force rendering onto a single line
+// Force rendering onto a single line, ignoring margins, padding, and borders.
 someStyle.Inline().Render("yadda yadda")
 
 // Also limit rendering to five cells

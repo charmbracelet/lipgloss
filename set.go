@@ -427,9 +427,10 @@ func (s Style) BorderLeftBackgroundColor(c TerminalColor) Style {
 	return s
 }
 
-// Inline makes rendering output one line. This is useful for enforcing that
-// rendering occurs on a single line at render time, particularly with styles
-// and strings you may not have control of. Works well with MaxWidth().
+// Inline makes rendering output one line and disables the rendering of
+// margins, padding and borders. This is useful when you need a style to apply
+// only to font rendering and don't want it to change any physical dimensions.
+// It works well with Style.MaxWidth.
 //
 // Because this in intended to be used at the time of render, this method will
 // not mutate the style and instead return a copy.
