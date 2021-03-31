@@ -35,9 +35,7 @@ var (
 		Foreground(subtle).
 		String()
 
-	url = lipgloss.NewStyle().
-		Foreground(special).
-		Render
+	url = lipgloss.NewStyle().Foreground(special).Render
 
 	// Tabs
 
@@ -68,8 +66,7 @@ var (
 		BorderForegroundColor(highlight).
 		Padding(0, 1)
 
-	activeTab = tab.Copy().
-			Border(activeTabBorder, true)
+	activeTab = tab.Copy().Border(activeTabBorder, true)
 
 	tabGap = tab.Copy().
 		BorderTop(false).
@@ -86,8 +83,7 @@ var (
 			Foreground(lipgloss.Color("#FFF7DB")).
 			SetString("Lip Gloss")
 
-	descStyle = lipgloss.NewStyle().
-			MarginTop(1)
+	descStyle = lipgloss.NewStyle().MarginTop(1)
 
 	infoStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
@@ -179,11 +175,9 @@ var (
 			Background(lipgloss.Color("#A550DF")).
 			Align(lipgloss.Right)
 
-	statusText = lipgloss.NewStyle().
-			Inherit(statusBarStyle)
+	statusText = lipgloss.NewStyle().Inherit(statusBarStyle)
 
-	fishCakeStyle = statusNugget.Copy().
-			Background(lipgloss.Color("#6124DF"))
+	fishCakeStyle = statusNugget.Copy().Background(lipgloss.Color("#6124DF"))
 
 	// Page
 
@@ -192,8 +186,7 @@ var (
 
 func main() {
 	physicalWidth, _, _ := terminal.GetSize(int(os.Stdout.Fd()))
-
-	var doc strings.Builder
+	doc := strings.Builder{}
 
 	// Tabs
 	{
@@ -212,9 +205,10 @@ func main() {
 
 	// Title
 	{
-		var title strings.Builder
-
-		colors := colorGrid(1, 5)
+		var (
+			colors = colorGrid(1, 5)
+			title  strings.Builder
+		)
 
 		for i, v := range colors {
 			const offset = 2
@@ -255,7 +249,7 @@ func main() {
 	}
 
 	// Color grid
-	grid := func() string {
+	colors := func() string {
 		colors := colorGrid(14, 8)
 
 		b := strings.Builder{}
@@ -293,7 +287,7 @@ func main() {
 		),
 	)
 
-	doc.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, lists, grid))
+	doc.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, lists, colors))
 
 	// Marmalade history
 	{
@@ -318,8 +312,7 @@ func main() {
 		w := lipgloss.Width
 
 		statusKey := statusStyle.Render("STATUS")
-		encoding := encodingStyle.
-			Render("UTF-8")
+		encoding := encodingStyle.Render("UTF-8")
 		fishCake := fishCakeStyle.Render("🍥 Fish Cake")
 		statusVal := statusText.Copy().
 			Width(width - w(statusKey) - w(encoding) - w(fishCake)).
@@ -339,7 +332,7 @@ func main() {
 		docStyle = docStyle.MaxWidth(physicalWidth)
 	}
 
-	// Print it
+	// Okay, let's print it
 	fmt.Println(docStyle.Render(doc.String()))
 }
 
