@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
 )
 
@@ -38,9 +39,11 @@ func (n NoColor) color() termenv.Color {
 
 // RGBA returns the RGBA value of this color. Because we have to return
 // something, despite this color being the absence of color, we're returning
-// defaults for all values.
+// the same value that go-colorful returns on error:
+//
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
-	return 0, 0, 0, 0
+	return 0x0, 0x0, 0x0, 0xFFFF
 }
 
 var noColor = NoColor{}
@@ -60,9 +63,21 @@ func (c Color) color() termenv.Color {
 	return color(string(c))
 }
 
-// RGBA returns the RGBA value of this color.
+// RGBA returns the RGBA value of this color. This satisfies the Go Color
+// interface. Note that on error we return black with 100% opacity, or:
+//
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+//
+// This is inline with go-colorful's default behavior.
 func (c Color) RGBA() (r, g, b, a uint32) {
-	return c.RGBA()
+	cf, err := colorful.Hex(c.value())
+	if err != nil {
+		// If we ignore the return behavior and simply return what go-colorful
+		// give us for the color value we'd be returning exactly this, however
+		// we're being explicit here for the sake of clarity.
+		return colorful.Color{}.RGBA()
+	}
+	return cf.RGBA()
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -89,7 +104,16 @@ func (ac AdaptiveColor) color() termenv.Color {
 	return color(ac.value())
 }
 
-// RGBA returns the RGBA value of this color.
+// RGBA returns the RGBA value of this color. This satisfies the Go Color
+// interface. Note that on error we return black with 100% opacity, or:
+//
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+//
+// This is inline with go-colorful's default behavior.
 func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
-	return ac.RGBA()
+	cf, err := colorful.Hex(ac.value())
+	if err != nil {
+		return colorful.Color{}.RGBA()
+	}
+	return cf.RGBA()
 }
