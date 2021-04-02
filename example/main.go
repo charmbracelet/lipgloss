@@ -237,8 +237,7 @@ func main() {
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
-		dialog := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
-		dialog = lipgloss.Place(width, 9,
+		dialog := lipgloss.Place(width, 9,
 			lipgloss.Center, lipgloss.Center,
 			dialogBoxStyle.Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
