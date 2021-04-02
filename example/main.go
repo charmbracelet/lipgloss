@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 const (
@@ -185,7 +185,7 @@ var (
 )
 
 func main() {
-	physicalWidth, _, _ := terminal.GetSize(int(os.Stdout.Fd()))
+	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
 	doc := strings.Builder{}
 
 	// Tabs
