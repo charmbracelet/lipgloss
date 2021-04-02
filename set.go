@@ -222,6 +222,7 @@ func (s Style) MarginBottom(i int) Style {
 	return s
 }
 
+// marginBackground sets the background color of the margin.
 func (s Style) marginBackground(c TerminalColor) Style {
 	s.set(marginBackgroundKey, c)
 	return s
@@ -503,7 +504,7 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 // 2 args:  top -> bottom
 // 3 args:  top -> horizontal -> bottom
 // 4 args:  top -> right -> bottom -> left
-// 5+ args: do nothing
+// 5+ args: do nothing.
 func whichSidesInt(i ...int) (top, right, bottom, left int, ok bool) {
 	switch len(i) {
 	case 1:

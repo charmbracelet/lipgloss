@@ -21,7 +21,6 @@ func alignText(str string, pos Position, width int, style *termenv.Style) string
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
 
 		if shortAmount > 0 {
-
 			switch pos {
 			case Right:
 				s := strings.Repeat(" ", shortAmount)
@@ -54,7 +53,6 @@ func alignText(str string, pos Position, width int, style *termenv.Style) string
 		if i < len(lines)-1 {
 			b.WriteRune('\n')
 		}
-
 	}
 
 	return b.String()

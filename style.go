@@ -27,7 +27,7 @@ const (
 	heightKey
 	alignKey
 
-	// Padding
+	// Padding.
 	paddingTopKey
 	paddingRightKey
 	paddingBottomKey
@@ -35,29 +35,29 @@ const (
 
 	colorWhitespaceKey
 
-	// Margins
+	// Margins.
 	marginTopKey
 	marginRightKey
 	marginBottomKey
 	marginLeftKey
 	marginBackgroundKey
 
-	// Border runes
+	// Border runes.
 	borderStyleKey
 
-	// Border edges
+	// Border edges.
 	borderTopKey
 	borderRightKey
 	borderBottomKey
 	borderLeftKey
 
-	// Border foreground colors
+	// Border foreground colors.
 	borderTopFGColorKey
 	borderRightFGColorKey
 	borderBottomFGColorKey
 	borderLeftFGColorKey
 
-	// Border background colors
+	// Border background colors.
 	borderTopBGColorKey
 	borderRightBGColorKey
 	borderBottomBGColorKey

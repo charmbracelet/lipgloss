@@ -20,10 +20,10 @@ const (
 	columnWidth = 30
 )
 
-// Style definitions
+// Style definitions.
 var (
 
-	// General
+	// General.
 
 	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
@@ -37,7 +37,7 @@ var (
 
 	url = lipgloss.NewStyle().Foreground(special).Render
 
-	// Tabs
+	// Tabs.
 
 	activeTabBorder = lipgloss.Border{
 		Top:         "─",
@@ -73,7 +73,7 @@ var (
 		BorderLeft(false).
 		BorderRight(false)
 
-	// Title
+	// Title.
 
 	titleStyle = lipgloss.NewStyle().
 			MarginLeft(1).
@@ -90,7 +90,7 @@ var (
 			BorderTop(true).
 			BorderForegroundColor(subtle)
 
-	// Dialog
+	// Dialog.
 
 	dialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -113,7 +113,7 @@ var (
 				MarginRight(2).
 				Underline(true)
 
-	// List
+	// List.
 
 	list = lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, true, false, false).
@@ -143,7 +143,7 @@ var (
 			Render(s)
 	}
 
-	// Paragraphs/History
+	// Paragraphs/History.
 
 	historyStyle = lipgloss.NewStyle().
 			Align(lipgloss.Left).
@@ -154,7 +154,7 @@ var (
 			Height(19).
 			Width(columnWidth)
 
-	// Status Bar
+	// Status Bar.
 
 	statusNugget = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FFFDF5")).
@@ -179,7 +179,7 @@ var (
 
 	fishCakeStyle = statusNugget.Copy().Background(lipgloss.Color("#6124DF"))
 
-	// Page
+	// Page.
 
 	docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
 )
