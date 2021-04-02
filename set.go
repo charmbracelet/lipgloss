@@ -222,8 +222,10 @@ func (s Style) MarginBottom(i int) Style {
 	return s
 }
 
-// marginBackground sets the background color of the margin.
-func (s Style) marginBackground(c TerminalColor) Style {
+// MarginBackground sets the background color of the margin. Note that this is
+// also set when inheriting from a style with a background color. In that case
+// the background color on that style will set the margin color on this style.
+func (s Style) MarginBackground(c TerminalColor) Style {
 	s.set(marginBackgroundKey, c)
 	return s
 }
