@@ -212,7 +212,7 @@ whereas unset values will not.
 ## Enforcing Rules
 
 Sometimes, such as when developing a component, you want to make sure style
-definitions respect their indended purpose in the UI. This is where `Inline`
+definitions respect their intended purpose in the UI. This is where `Inline`
 and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
