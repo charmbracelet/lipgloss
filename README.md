@@ -8,7 +8,7 @@ Lip Gloss
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
 </p>
 
-Style definitions for nice terminal layouts.
+Style definitions for nice terminal layouts. Built with TUIs in mind.
 
 ![Lip Gloss example](https://stuff.charm.sh/lipgloss/lipgloss-example.png)
 
@@ -283,16 +283,16 @@ You can also style the whitespace. For details, see [the docs][docs].
 ***
 
 
-## What about Bubble Tea?
+## What about [Bubble Tea][tea]?
 
-Lip Gloss compliments [Bubble Tea][tea]. Bubble Tea (and [Bubbles][bubbles])
-are are concerned with user interface logic, whereas Lip Gloss works well as an
-aid for building the views that Bubble Tea will render. Lip Gloss, in fact, was
-built after studying patterns we saw emerging as we built user interfaces with
-Bubble Tea.
+Lip Gloss doesn’t replace Bubble Tea. Rather, it is an excellent Bubble Tea
+companion. It was designed to make assembling terminal user interface views as
+simple and fun as possible so that you to focus on building your application
+instead of concerning yourself with low-level layout details.
+
+In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
 
 [tea]: https://github.com/charmbracelet/tea
-[bubbles]: https://github.com/charmbracelet/bubbles
 
 
 ## Under the Hood
