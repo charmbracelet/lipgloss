@@ -12,8 +12,8 @@ Style definitions for nice terminal layouts. Built with TUIs in mind.
 
 ![Lip Gloss example](https://stuff.charm.sh/lipgloss/lipgloss-example.png)
 
-
-Lip Gloss takes an expressive, declarative approach to terminal rendering. Users familiar with CSS will feel at home with Lip Gloss.
+Lip Gloss takes an expressive, declarative approach to terminal rendering.
+Users familiar with CSS will feel at home with Lip Gloss.
 
 ```go
 
@@ -287,7 +287,7 @@ You can also style the whitespace. For details, see [the docs][docs].
 
 Lip Gloss doesn’t replace Bubble Tea. Rather, it is an excellent Bubble Tea
 companion. It was designed to make assembling terminal user interface views as
-simple and fun as possible so that you to focus on building your application
+simple and fun as possible so that you can focus on building your application
 instead of concerning yourself with low-level layout details.
 
 In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
