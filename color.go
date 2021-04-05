@@ -1,15 +1,36 @@
 package lipgloss
 
 import (
+	"sync"
+
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
 )
 
 var (
-	ColorProfile      termenv.Profile            = termenv.ColorProfile()
-	color             func(string) termenv.Color = ColorProfile.Color
-	hasDarkBackground bool                       = termenv.HasDarkBackground()
+	colorProfile        termenv.Profile
+	getColorProfile     sync.Once
+	hasDarkBackground   bool
+	checkDarkBackground sync.Once
 )
+
+// ColorProfile returns the detected termenv color profile. It will perform the
+// actual check only once.
+func ColorProfile() termenv.Profile {
+	getColorProfile.Do(func() {
+		colorProfile = termenv.ColorProfile()
+	})
+	return colorProfile
+}
+
+// HadDarkBackground returns whether or not the terminal has a dark background.
+// It will perform the actual check only once.
+func HasDarkBackground() bool {
+	checkDarkBackground.Do(func() {
+		hasDarkBackground = termenv.HasDarkBackground()
+	})
+	return hasDarkBackground
+}
 
 // TerminalColor is a color intended to be rendered in the terminal. It
 // satisfies the Go color.Color interface.
@@ -34,7 +55,7 @@ func (n NoColor) value() string {
 }
 
 func (n NoColor) color() termenv.Color {
-	return color("")
+	return ColorProfile().Color("")
 }
 
 // RGBA returns the RGBA value of this color. Because we have to return
@@ -60,7 +81,7 @@ func (c Color) value() string {
 }
 
 func (c Color) color() termenv.Color {
-	return color(string(c))
+	return ColorProfile().Color(string(c))
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
@@ -94,14 +115,14 @@ type AdaptiveColor struct {
 }
 
 func (ac AdaptiveColor) value() string {
-	if hasDarkBackground {
+	if HasDarkBackground() {
 		return ac.Dark
 	}
 	return ac.Light
 }
 
 func (ac AdaptiveColor) color() termenv.Color {
-	return color(ac.value())
+	return ColorProfile().Color(ac.value())
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
