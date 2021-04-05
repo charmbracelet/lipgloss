@@ -442,7 +442,7 @@ func (s Style) BorderLeftBackgroundColor(c TerminalColor) Style {
 //
 //     var userInput string = "..."
 //     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.Inline().Render(userInput))
+//     fmt.Println(userStyle.Inline(true).Render(userInput))
 //
 func (s Style) Inline(v bool) Style {
 	o := s.Copy()
