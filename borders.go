@@ -227,10 +227,10 @@ func styleBorder(border string, fg, bg TerminalColor) string {
 	var style = termenv.Style{}
 
 	if fg != noColor {
-		style = style.Foreground(color(fg.value()))
+		style = style.Foreground(ColorProfile().Color(fg.value()))
 	}
 	if bg != noColor {
-		style = style.Background(color(bg.value()))
+		style = style.Background(ColorProfile().Color(bg.value()))
 	}
 
 	return style.Styled(border)
