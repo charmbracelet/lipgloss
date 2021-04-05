@@ -213,10 +213,10 @@ and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
 // Force rendering onto a single line, ignoring margins, padding, and borders.
-someStyle.Inline().Render("yadda yadda")
+someStyle.Inline(true).Render("yadda yadda")
 
 // Also limit rendering to five cells
-someStyle.Inline().MaxWidth(5).Render("yadda yadda")
+someStyle.Inline(true).MaxWidth(5).Render("yadda yadda")
 
 // Limit rendering to a 5x5 cell block
 someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
