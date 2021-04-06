@@ -119,8 +119,8 @@ func (s Style) Copy() Style {
 // style in argument will be applied.
 //
 // Margins, padding, and underlying string values are not inherited.
-func (o Style) Inherit(i Style) Style {
-	o.init()
+func (s Style) Inherit(i Style) Style {
+	s.init()
 
 	for k, v := range i.rules {
 		switch k {
@@ -131,20 +131,20 @@ func (o Style) Inherit(i Style) Style {
 			// Padding is not inherited
 			continue
 		case backgroundKey:
-			o.rules[k] = v
+			s.rules[k] = v
 
 			// The margins also inherit the background color
-			if !o.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
-				o.rules[marginBackgroundKey] = v
+			if !s.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
+				s.rules[marginBackgroundKey] = v
 			}
 		}
 
-		if _, exists := o.rules[k]; exists {
+		if _, exists := s.rules[k]; exists {
 			continue
 		}
-		o.rules[k] = v
+		s.rules[k] = v
 	}
-	return o
+	return s
 }
 
 // Render applies the defined style formatting to a given string.
