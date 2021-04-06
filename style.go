@@ -182,7 +182,7 @@ func (s Style) Render(str string) string {
 		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
 		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
 
-		// Do we need to style whitespace (padding and space outsode
+		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
@@ -215,7 +215,6 @@ func (s Style) Render(str string) string {
 	if fg != noColor {
 		fgc := fg.color()
 		te = te.Foreground(fgc)
-		te.Foreground(fgc)
 		if styleWhitespace {
 			teWhitespace = teWhitespace.Foreground(fgc)
 		}
