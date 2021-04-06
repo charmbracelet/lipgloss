@@ -13,7 +13,7 @@ import (
 // at the bottom.
 //
 // If you just want to align to the left, right or center you may as well just
-// use the helper constants JoinTop, JoinCenter, and JoinBottom.
+// use the helper constants Top, Center, and Bottom.
 //
 // Example:
 //
@@ -24,7 +24,7 @@ import (
 //     str := lipgloss.JoinHorizontal(0.2, blockA, blockB)
 //
 //     // Join on the top edge
-//     str := lipgloss.JoinHorizontal(lipgloss.JoinTop, blockA, blockB)
+//     str := lipgloss.JoinHorizontal(lipgloss.Top, blockA, blockB)
 //
 func JoinHorizontal(pos Position, strs ...string) string {
 	if len(strs) == 0 {
@@ -102,7 +102,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 // the right.
 //
 // If you just want to align to the left, right or center you may as well just
-// use the helper constants JoinLeft, JoinCenter, and JoinRight.
+// use the helper constants Left, Center, and Right.
 //
 // Example:
 //
@@ -113,7 +113,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 //     str := lipgloss.JoinVertical(0.2, blockA, blockB)
 //
 //     // Join on the right edge
-//     str := lipgloss.JoinVertical(lipgloss.JoinRight, blockA, blockB)
+//     str := lipgloss.JoinVertical(lipgloss.Right, blockA, blockB)
 //
 func JoinVertical(pos Position, strs ...string) string {
 	if len(strs) == 0 {
