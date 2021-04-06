@@ -37,7 +37,7 @@ func (s Style) Italic(v bool) Style {
 	return s
 }
 
-// Underine sets an underline rule. By default, underlines will not be drawn on
+// Underline sets an underline rule. By default, underlines will not be drawn on
 // whitespace like margins and padding. To change this behavior set
 // renderUnderlinesOnSpaces.
 func (s Style) Underline(v bool) Style {
@@ -59,7 +59,7 @@ func (s Style) Reverse(v bool) Style {
 	return s
 }
 
-// Blink sets a rule for blinking forground text.
+// Blink sets a rule for blinking foreground text.
 func (s Style) Blink(v bool) Style {
 	s.set(blinkKey, v)
 	return s
@@ -138,25 +138,25 @@ func (s Style) Padding(i ...int) Style {
 	return s
 }
 
-// LeftPadding adds padding on the left.
+// PaddingLeft adds padding on the left.
 func (s Style) PaddingLeft(i int) Style {
 	s.set(paddingLeftKey, i)
 	return s
 }
 
-// Right Padding adds padding on the right.
+// PaddingRight adds padding on the right.
 func (s Style) PaddingRight(i int) Style {
 	s.set(paddingRightKey, i)
 	return s
 }
 
-// TopPadding addds padding to the top of the block.
+// PaddingTop adds padding to the top of the block.
 func (s Style) PaddingTop(i int) Style {
 	s.set(paddingTopKey, i)
 	return s
 }
 
-// BottomPadding adds padding to the bottom of the block.
+// PaddingBottom adds padding to the bottom of the block.
 func (s Style) PaddingBottom(i int) Style {
 	s.set(paddingBottomKey, i)
 	return s
