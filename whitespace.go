@@ -13,7 +13,7 @@ type whitespace struct {
 	chars string
 }
 
-// Render spacespace.
+// Render whitespaces.
 func (w whitespace) render(width int) string {
 	if w.chars == "" {
 		w.chars = " "
