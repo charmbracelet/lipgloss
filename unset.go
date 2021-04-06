@@ -42,7 +42,7 @@ func (s Style) UnsetFaint() Style {
 	return s
 }
 
-// UnsetForegroundremoves the foreground style rule, if set.
+// UnsetForeground removes the foreground style rule, if set.
 func (s Style) UnsetForeground() Style {
 	delete(s.rules, foregroundKey)
 	return s
@@ -81,25 +81,25 @@ func (s Style) UnsetPadding() Style {
 	return s
 }
 
-// UnsetLeftPadding removes the left padding style rule, if set.
+// UnsetPaddingLeft removes the left padding style rule, if set.
 func (s Style) UnsetPaddingLeft() Style {
 	delete(s.rules, paddingLeftKey)
 	return s
 }
 
-// UnsetRightPadding removes the left padding style rule, if set.
+// UnsetPaddingRight removes the right padding style rule, if set.
 func (s Style) UnsetPaddingRight() Style {
 	delete(s.rules, paddingRightKey)
 	return s
 }
 
-// UnsetTopPadding removes the top padding style rule, if set.
+// UnsetPaddingTop removes the top padding style rule, if set.
 func (s Style) UnsetPaddingTop() Style {
 	delete(s.rules, paddingTopKey)
 	return s
 }
 
-// UnsetBottomPadding removes the bottom style rule, if set.
+// UnsetPaddingBottom removes the bottom style rule, if set.
 func (s Style) UnsetPaddingBottom() Style {
 	delete(s.rules, paddingBottomKey)
 	return s
@@ -120,25 +120,25 @@ func (s Style) UnsetMargins() Style {
 	return s
 }
 
-// UnsetLeftMargin removes the left margin style rule, if set.
+// UnsetMarginLeft removes the left margin style rule, if set.
 func (s Style) UnsetMarginLeft() Style {
 	delete(s.rules, marginLeftKey)
 	return s
 }
 
-// UnsetRightMargin removes the right margin style rule, if set.
+// UnsetMarginRight removes the right margin style rule, if set.
 func (s Style) UnsetMarginRight() Style {
 	delete(s.rules, marginRightKey)
 	return s
 }
 
-// UnsetTopMargin removes the top margin style rule, if set.
+// UnsetMarginTop removes the top margin style rule, if set.
 func (s Style) UnsetMarginTop() Style {
 	delete(s.rules, marginTopKey)
 	return s
 }
 
-// UnsetBottomMargin removes the bottom margin style rule, if set.
+// UnsetMarginBottom removes the bottom margin style rule, if set.
 func (s Style) UnsetMarginBottom() Style {
 	delete(s.rules, marginBottomKey)
 	return s
@@ -164,13 +164,13 @@ func (s Style) UnsetBorderTop() Style {
 	return s
 }
 
-// UnsetBorderTop removes the border right style rule, if set.
+// UnsetBorderRight removes the border right style rule, if set.
 func (s Style) UnsetBorderRight() Style {
 	delete(s.rules, borderRightKey)
 	return s
 }
 
-// UnsetBorderTop removes the border bottom style rule, if set.
+// UnsetBorderBottom removes the border bottom style rule, if set.
 func (s Style) UnsetBorderBottom() Style {
 	delete(s.rules, borderBottomKey)
 	return s
@@ -207,21 +207,21 @@ func (s Style) UnsetBorderTopForegroundColor() Style {
 	return s
 }
 
-// UnsetBorderRightForgroundColor removes the top border foreground color rule,
+// UnsetBorderRightForegroundColor removes the right border foreground color rule,
 // if set.
 func (s Style) UnsetBorderRightForegroundColor() Style {
 	delete(s.rules, borderRightFGColorKey)
 	return s
 }
 
-// UnsetBorderBottomForegroundColor removes the top border foreground color
+// UnsetBorderBottomForegroundColor removes the bottom border foreground color
 // rule, if set.
 func (s Style) UnsetBorderBottomForegroundColor() Style {
 	delete(s.rules, borderBottomFGColorKey)
 	return s
 }
 
-// UnsetBorderLeftForegroundColor removes the top border foreground color rule,
+// UnsetBorderLeftForegroundColor removes the left border foreground color rule,
 // if set.
 func (s Style) UnsetBorderLeftForegroundColor() Style {
 	delete(s.rules, borderLeftFGColorKey)
@@ -245,21 +245,21 @@ func (s Style) UnsetBorderTopBackgroundColor() Style {
 	return s
 }
 
-// UnsetBorderRightBackgroundColor removes the top border background color
+// UnsetBorderRightBackgroundColor removes the right border background color
 // rule, if set.
 func (s Style) UnsetBorderRightBackgroundColor() Style {
 	delete(s.rules, borderRightBGColorKey)
 	return s
 }
 
-// UnsetBorderBottomBackgroundColor removes the top border background color
+// UnsetBorderBottomBackgroundColor removes the bottom border background color
 // rule, if set.
 func (s Style) UnsetBorderBottomBackgroundColor() Style {
 	delete(s.rules, borderBottomBGColorKey)
 	return s
 }
 
-// UnsetBorderLeftBackgroundColor removes the top border color rule, if set.
+// UnsetBorderLeftBackgroundColor removes the left border color rule, if set.
 func (s Style) UnsetBorderLeftBackgroundColor() Style {
 	delete(s.rules, borderLeftBGColorKey)
 	return s
@@ -277,7 +277,7 @@ func (s Style) UnsetMaxWidth() Style {
 	return s
 }
 
-// UnsetMaxHeight removes the max width style rule, if set.
+// UnsetMaxHeight removes the max height style rule, if set.
 func (s Style) UnsetMaxHeight() Style {
 	delete(s.rules, maxHeightKey)
 	return s
