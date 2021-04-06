@@ -18,7 +18,6 @@ var (
 // actual check only once.
 func ColorProfile() termenv.Profile {
 	getColorProfile.Do(func() {
-		enableANSIColors()
 		colorProfile = termenv.ColorProfile()
 	})
 	return colorProfile

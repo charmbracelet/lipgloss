@@ -2,5 +2,5 @@
 
 package lipgloss
 
-// enableANSIColors is only needed on Windows.
-func enableANSIColors() {}
+// enableLegacyWindowsANSI is only needed on Windows.
+func enableLegacyWindowsANSI() {}
