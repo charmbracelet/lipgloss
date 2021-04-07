@@ -52,16 +52,16 @@ const (
 	borderLeftKey
 
 	// Border foreground colors.
-	borderTopFGColorKey
-	borderRightFGColorKey
-	borderBottomFGColorKey
-	borderLeftFGColorKey
+	borderTopForegroundKey
+	borderRightForegroundKey
+	borderBottomForegroundKey
+	borderLeftForegroundKey
 
 	// Border background colors.
-	borderTopBGColorKey
-	borderRightBGColorKey
-	borderBottomBGColorKey
-	borderLeftBGColorKey
+	borderTopBackgroundKey
+	borderRightBackgroundKey
+	borderBottomBackgroundKey
+	borderLeftBackgroundKey
 
 	inlineKey
 	maxWidthKey

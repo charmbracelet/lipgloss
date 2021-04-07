@@ -182,86 +182,78 @@ func (s Style) UnsetBorderLeft() Style {
 	return s
 }
 
-// UnsetBorderColor removes all border foreground and background colors, if
+// UnsetBorderForeground removes all border foreground colors styles, if
 // set.
-func (s Style) UnsetBorderColor() Style {
-	s.UnsetBorderForegroundColor()
-	s.UnsetBorderBackgroundColor()
+func (s Style) UnsetBorderForeground() Style {
+	delete(s.rules, borderTopForegroundKey)
+	delete(s.rules, borderRightForegroundKey)
+	delete(s.rules, borderBottomForegroundKey)
+	delete(s.rules, borderLeftForegroundKey)
 	return s
 }
 
-// UnsetBorderForegroundColor removes all border foreground colors styles, if
-// set.
-func (s Style) UnsetBorderForegroundColor() Style {
-	delete(s.rules, borderTopFGColorKey)
-	delete(s.rules, borderRightFGColorKey)
-	delete(s.rules, borderBottomFGColorKey)
-	delete(s.rules, borderLeftFGColorKey)
-	return s
-}
-
-// UnsetBorderTopForegroundColor removes the top border foreground color rule,
+// UnsetBorderTopForeground removes the top border foreground color rule,
 // if set.
-func (s Style) UnsetBorderTopForegroundColor() Style {
-	delete(s.rules, borderTopFGColorKey)
+func (s Style) UnsetBorderTopForeground() Style {
+	delete(s.rules, borderTopForegroundKey)
 	return s
 }
 
-// UnsetBorderRightForegroundColor removes the right border foreground color rule,
+// UnsetBorderRightForeground removes the right border foreground color rule,
 // if set.
-func (s Style) UnsetBorderRightForegroundColor() Style {
-	delete(s.rules, borderRightFGColorKey)
+func (s Style) UnsetBorderRightForeground() Style {
+	delete(s.rules, borderRightForegroundKey)
 	return s
 }
 
-// UnsetBorderBottomForegroundColor removes the bottom border foreground color
+// UnsetBorderBottomForeground removes the bottom border foreground color
 // rule, if set.
-func (s Style) UnsetBorderBottomForegroundColor() Style {
-	delete(s.rules, borderBottomFGColorKey)
+func (s Style) UnsetBorderBottomForeground() Style {
+	delete(s.rules, borderBottomForegroundKey)
 	return s
 }
 
-// UnsetBorderLeftForegroundColor removes the left border foreground color rule,
+// UnsetBorderLeftForeground removes the left border foreground color rule,
 // if set.
-func (s Style) UnsetBorderLeftForegroundColor() Style {
-	delete(s.rules, borderLeftFGColorKey)
+func (s Style) UnsetBorderLeftForeground() Style {
+	delete(s.rules, borderLeftForegroundKey)
 	return s
 }
 
-// UnsetBorderBackgroundColor removes all border background color styles, if
+// UnsetBorderBackground removes all border background color styles, if
 // set.
-func (s Style) UnsetBorderBackgroundColor() Style {
-	delete(s.rules, borderTopBGColorKey)
-	delete(s.rules, borderRightBGColorKey)
-	delete(s.rules, borderBottomBGColorKey)
-	delete(s.rules, borderLeftBGColorKey)
+func (s Style) UnsetBorderBackground() Style {
+	delete(s.rules, borderTopBackgroundKey)
+	delete(s.rules, borderRightBackgroundKey)
+	delete(s.rules, borderBottomBackgroundKey)
+	delete(s.rules, borderLeftBackgroundKey)
 	return s
 }
 
-// UnsetBorderTopBackgroundColor removes the top border background color rule,
+// UnsetBorderTopBackground removes the top border background color rule,
 // if set.
 func (s Style) UnsetBorderTopBackgroundColor() Style {
-	delete(s.rules, borderTopBGColorKey)
+	delete(s.rules, borderTopBackgroundKey)
 	return s
 }
 
-// UnsetBorderRightBackgroundColor removes the right border background color
+// UnsetBorderRightBackground removes the right border background color
 // rule, if set.
-func (s Style) UnsetBorderRightBackgroundColor() Style {
-	delete(s.rules, borderRightBGColorKey)
+func (s Style) UnsetBorderRightBackground() Style {
+	delete(s.rules, borderRightBackgroundKey)
 	return s
 }
 
-// UnsetBorderBottomBackgroundColor removes the bottom border background color
+// UnsetBorderBottomBackground removes the bottom border background color
 // rule, if set.
-func (s Style) UnsetBorderBottomBackgroundColor() Style {
-	delete(s.rules, borderBottomBGColorKey)
+func (s Style) UnsetBorderBottomBackground() Style {
+	delete(s.rules, borderBottomBackgroundKey)
 	return s
 }
 
-// UnsetBorderLeftBackgroundColor removes the left border color rule, if set.
-func (s Style) UnsetBorderLeftBackgroundColor() Style {
-	delete(s.rules, borderLeftBGColorKey)
+// UnsetBorderLeftBackground removes the left border color rule, if set.
+func (s Style) UnsetBorderLeftBackground() Style {
+	delete(s.rules, borderLeftBackgroundKey)
 	return s
 }
 
