@@ -63,7 +63,7 @@ var (
 
 	tab = lipgloss.NewStyle().
 		Border(tabBorder, true).
-		BorderForegroundColor(highlight).
+		BorderForeground(highlight).
 		Padding(0, 1)
 
 	activeTab = tab.Copy().Border(activeTabBorder, true)
@@ -88,13 +88,13 @@ var (
 	infoStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderTop(true).
-			BorderForegroundColor(subtle)
+			BorderForeground(subtle)
 
 	// Dialog.
 
 	dialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForegroundColor(lipgloss.Color("#874BFD")).
+			BorderForeground(lipgloss.Color("#874BFD")).
 			Padding(1, 0).
 			BorderTop(true).
 			BorderLeft(true).
@@ -117,7 +117,7 @@ var (
 
 	list = lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, true, false, false).
-		BorderForegroundColor(subtle).
+		BorderForeground(subtle).
 		MarginRight(2).
 		Height(8).
 		Width(columnWidth + 1)
@@ -125,7 +125,7 @@ var (
 	listHeader = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
-			BorderForegroundColor(subtle).
+			BorderForeground(subtle).
 			MarginRight(2).
 			Render
 

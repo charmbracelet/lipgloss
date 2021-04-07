@@ -316,7 +316,7 @@ func (s Style) BorderLeft(v bool) Style {
 	return s
 }
 
-// BorderForegroundColor is a shorthand function for setting all of the
+// BorderForeground is a shorthand function for setting all of the
 // foreground colors of the borders at once. The arguments work as follows:
 //
 // With one argument, the argument is applied to all sides.
@@ -331,7 +331,7 @@ func (s Style) BorderLeft(v bool) Style {
 // top side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments nothing will be set.
-func (s Style) BorderForegroundColor(c ...TerminalColor) Style {
+func (s Style) BorderForeground(c ...TerminalColor) Style {
 	if len(c) == 0 {
 		return s
 	}
@@ -341,35 +341,35 @@ func (s Style) BorderForegroundColor(c ...TerminalColor) Style {
 		return s
 	}
 
-	s.set(borderTopFGColorKey, top)
-	s.set(borderRightFGColorKey, right)
-	s.set(borderBottomFGColorKey, bottom)
-	s.set(borderLeftFGColorKey, left)
+	s.set(borderTopForegroundKey, top)
+	s.set(borderRightForegroundKey, right)
+	s.set(borderBottomForegroundKey, bottom)
+	s.set(borderLeftForegroundKey, left)
 
 	return s
 }
 
 // BorderTopForegroundColor set the top color of the border.
-func (s Style) BorderTopForegroundColor(c TerminalColor) Style {
-	s.set(borderTopFGColorKey, c)
+func (s Style) BorderTopForeground(c TerminalColor) Style {
+	s.set(borderTopForegroundKey, c)
 	return s
 }
 
 // BorderRightForegroundColor set the top color of the border.
-func (s Style) BorderRightForegroundColor(c TerminalColor) Style {
-	s.set(borderRightFGColorKey, c)
+func (s Style) BorderRightForeground(c TerminalColor) Style {
+	s.set(borderRightForegroundKey, c)
 	return s
 }
 
 // BorderBottomForegroundColor set the top color of the border.
-func (s Style) BorderBottomForegroundColor(c TerminalColor) Style {
-	s.set(borderBottomFGColorKey, c)
+func (s Style) BorderBottomForeground(c TerminalColor) Style {
+	s.set(borderBottomForegroundKey, c)
 	return s
 }
 
 // BorderLeftForegroundColor set the top color of the border.
-func (s Style) BorderLeftForegroundColor(c TerminalColor) Style {
-	s.set(borderLeftFGColorKey, c)
+func (s Style) BorderLeftForeground(c TerminalColor) Style {
+	s.set(borderLeftForegroundKey, c)
 	return s
 }
 
@@ -388,7 +388,7 @@ func (s Style) BorderLeftForegroundColor(c TerminalColor) Style {
 // top side, followed by the right side, then the bottom, and finally the left.
 //
 // With more than four arguments nothing will be set.
-func (s Style) BorderBackgroundColor(c ...TerminalColor) Style {
+func (s Style) BorderBackground(c ...TerminalColor) Style {
 	if len(c) == 0 {
 		return s
 	}
@@ -398,35 +398,35 @@ func (s Style) BorderBackgroundColor(c ...TerminalColor) Style {
 		return s
 	}
 
-	s.set(borderTopBGColorKey, top)
-	s.set(borderRightBGColorKey, right)
-	s.set(borderBottomBGColorKey, bottom)
-	s.set(borderLeftBGColorKey, left)
+	s.set(borderTopBackgroundKey, top)
+	s.set(borderRightBackgroundKey, right)
+	s.set(borderBottomBackgroundKey, bottom)
+	s.set(borderLeftBackgroundKey, left)
 
 	return s
 }
 
 // BorderTopBackgroundColor set the top color of the border.
-func (s Style) BorderTopBackgroundColor(c TerminalColor) Style {
-	s.set(borderTopBGColorKey, c)
+func (s Style) BorderTopBackground(c TerminalColor) Style {
+	s.set(borderTopBackgroundKey, c)
 	return s
 }
 
 // BorderRightBackgroundColor set the top color of the border.
-func (s Style) BorderRightBackgroundColor(c TerminalColor) Style {
-	s.set(borderRightBGColorKey, c)
+func (s Style) BorderRightBackground(c TerminalColor) Style {
+	s.set(borderRightBackgroundKey, c)
 	return s
 }
 
 // BorderBottomBackgroundColor set the top color of the border.
-func (s Style) BorderBottomBackgroundColor(c TerminalColor) Style {
-	s.set(borderBottomBGColorKey, c)
+func (s Style) BorderBottomBackground(c TerminalColor) Style {
+	s.set(borderBottomBackgroundKey, c)
 	return s
 }
 
 // BorderLeftBackgroundColor set the top color of the border.
-func (s Style) BorderLeftBackgroundColor(c TerminalColor) Style {
-	s.set(borderLeftBGColorKey, c)
+func (s Style) BorderLeftBackground(c TerminalColor) Style {
+	s.set(borderLeftBackgroundKey, c)
 	return s
 }
 

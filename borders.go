@@ -103,15 +103,15 @@ func (s Style) applyBorder(str string) string {
 		hasBottom = s.getAsBool(borderBottomKey, false)
 		hasLeft   = s.getAsBool(borderLeftKey, false)
 
-		topFGColor    = s.getAsColor(borderTopFGColorKey)
-		rightFGColor  = s.getAsColor(borderRightFGColorKey)
-		bottomFGColor = s.getAsColor(borderBottomFGColorKey)
-		leftFGColor   = s.getAsColor(borderLeftFGColorKey)
+		topFG    = s.getAsColor(borderTopForegroundKey)
+		rightFG  = s.getAsColor(borderRightForegroundKey)
+		bottomFG = s.getAsColor(borderBottomForegroundKey)
+		leftFG   = s.getAsColor(borderLeftForegroundKey)
 
-		topBGColor    = s.getAsColor(borderTopBGColorKey)
-		rightBGColor  = s.getAsColor(borderRightBGColorKey)
-		bottomBGColor = s.getAsColor(borderBottomBGColorKey)
-		leftBGColor   = s.getAsColor(borderLeftBGColorKey)
+		topBG    = s.getAsColor(borderTopBackgroundKey)
+		rightBG  = s.getAsColor(borderRightBackgroundKey)
+		bottomBG = s.getAsColor(borderBottomBackgroundKey)
+		leftBG   = s.getAsColor(borderLeftBackgroundKey)
 	)
 
 	// If a border is set and no sides have been specifically turned on or off
@@ -164,7 +164,7 @@ func (s Style) applyBorder(str string) string {
 	// Render top
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
-		top = styleBorder(top, topFGColor, topBGColor)
+		top = styleBorder(top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
 	}
@@ -172,11 +172,11 @@ func (s Style) applyBorder(str string) string {
 	// Render sides
 	for i, l := range lines {
 		if hasLeft {
-			out.WriteString(styleBorder(border.Left, leftFGColor, leftBGColor))
+			out.WriteString(styleBorder(border.Left, leftFG, leftBG))
 		}
 		out.WriteString(l)
 		if hasRight {
-			out.WriteString(styleBorder(border.Right, rightFGColor, rightBGColor))
+			out.WriteString(styleBorder(border.Right, rightFG, rightBG))
 		}
 		if i < len(lines)-1 {
 			out.WriteRune('\n')
@@ -186,7 +186,7 @@ func (s Style) applyBorder(str string) string {
 	// Render bottom
 	if hasBottom {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
-		bottom = styleBorder(bottom, bottomFGColor, bottomBGColor)
+		bottom = styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
