@@ -93,7 +93,7 @@ func (s Style) Background(c TerminalColor) Style {
 // Width sets the width of the block before applying margins. The width, if
 // set, also determines where text will wrap.
 func (s Style) Width(i int) Style {
-	s.set(widthKey, max(0, i))
+	s.set(widthKey, i)
 	return s
 }
 
@@ -101,7 +101,7 @@ func (s Style) Width(i int) Style {
 // the text block is less than this value after applying padding (or not), the
 // block will be set to this height.
 func (s Style) Height(i int) Style {
-	s.set(heightKey, max(0, i))
+	s.set(heightKey, i)
 	return s
 }
 
@@ -131,34 +131,34 @@ func (s Style) Padding(i ...int) Style {
 		return s
 	}
 
-	s.set(paddingTopKey, max(0, top))
-	s.set(paddingRightKey, max(0, right))
-	s.set(paddingBottomKey, max(0, bottom))
-	s.set(paddingLeftKey, max(0, left))
+	s.set(paddingTopKey, top)
+	s.set(paddingRightKey, right)
+	s.set(paddingBottomKey, bottom)
+	s.set(paddingLeftKey, left)
 	return s
 }
 
 // PaddingLeft adds padding on the left.
 func (s Style) PaddingLeft(i int) Style {
-	s.set(paddingLeftKey, max(0, i))
+	s.set(paddingLeftKey, i)
 	return s
 }
 
 // PaddingRight adds padding on the right.
 func (s Style) PaddingRight(i int) Style {
-	s.set(paddingRightKey, max(0, i))
+	s.set(paddingRightKey, i)
 	return s
 }
 
 // PaddingTop adds padding to the top of the block.
 func (s Style) PaddingTop(i int) Style {
-	s.set(paddingTopKey, max(0, i))
+	s.set(paddingTopKey, i)
 	return s
 }
 
 // PaddingBottom adds padding to the bottom of the block.
 func (s Style) PaddingBottom(i int) Style {
-	s.set(paddingBottomKey, max(0, i))
+	s.set(paddingBottomKey, i)
 	return s
 }
 
@@ -191,34 +191,34 @@ func (s Style) Margin(i ...int) Style {
 		return s
 	}
 
-	s.set(marginTopKey, max(0, top))
-	s.set(marginRightKey, max(0, right))
-	s.set(marginBottomKey, max(0, bottom))
-	s.set(marginLeftKey, max(0, left))
+	s.set(marginTopKey, top)
+	s.set(marginRightKey, right)
+	s.set(marginBottomKey, bottom)
+	s.set(marginLeftKey, left)
 	return s
 }
 
 // MarginLeft sets the value of the left margin.
 func (s Style) MarginLeft(i int) Style {
-	s.set(marginLeftKey, max(0, i))
+	s.set(marginLeftKey, i)
 	return s
 }
 
 // MarginRight sets the value of the right margin.
 func (s Style) MarginRight(i int) Style {
-	s.set(marginRightKey, max(0, i))
+	s.set(marginRightKey, i)
 	return s
 }
 
 // MarginTop sets the value of the top margin.
 func (s Style) MarginTop(i int) Style {
-	s.set(marginTopKey, max(0, i))
+	s.set(marginTopKey, i)
 	return s
 }
 
 // MarginBottom sets the value of the bottom margin.
 func (s Style) MarginBottom(i int) Style {
-	s.set(marginBottomKey, max(0, i))
+	s.set(marginBottomKey, i)
 	return s
 }
 
@@ -465,7 +465,7 @@ func (s Style) Inline(v bool) Style {
 //
 func (s Style) MaxWidth(n int) Style {
 	o := s.Copy()
-	o.set(maxWidthKey, max(0, n))
+	o.set(maxWidthKey, n)
 	return o
 }
 
@@ -477,7 +477,7 @@ func (s Style) MaxWidth(n int) Style {
 // not mutate the style and instead return a copy.
 func (s Style) MaxHeight(n int) Style {
 	o := s.Copy()
-	o.set(maxHeightKey, max(0, n))
+	o.set(maxHeightKey, n)
 	return o
 }
 
