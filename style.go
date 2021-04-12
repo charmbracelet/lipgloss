@@ -190,6 +190,10 @@ func (s Style) Render(str string) string {
 		useSpaceStyler = underlineSpaces || strikethroughSpaces
 	)
 
+	if len(s.rules) == 0 {
+		return str
+	}
+
 	// Enable support for ANSI on the legacy Windows cmd.exe console. This is a
 	// no-op on non-Windows systems and on Windows runs only once.
 	enableLegacyWindowsANSI()
