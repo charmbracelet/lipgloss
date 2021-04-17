@@ -8,10 +8,13 @@ import (
 )
 
 var (
-	colorProfile        termenv.Profile
-	getColorProfile     sync.Once
-	hasDarkBackground   bool
-	checkDarkBackground sync.Once
+	colorProfile    termenv.Profile
+	getColorProfile sync.Once
+
+	// Because it's a potentially long operation (relatively speaking), we
+	// check the background color on initialization rather than at the last
+	// possible second.
+	hasDarkBackground = termenv.HasDarkBackground()
 )
 
 // ColorProfile returns the detected termenv color profile. It will perform the
@@ -24,11 +27,7 @@ func ColorProfile() termenv.Profile {
 }
 
 // HadDarkBackground returns whether or not the terminal has a dark background.
-// It will perform the actual check only once.
 func HasDarkBackground() bool {
-	checkDarkBackground.Do(func() {
-		hasDarkBackground = termenv.HasDarkBackground()
-	})
 	return hasDarkBackground
 }
 
