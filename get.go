@@ -6,6 +6,273 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
+// GetBold returns the style's bold value It no value is set false is returned.
+func (s Style) GetBold() bool {
+	return s.getAsBool(boldKey, false)
+}
+
+// GetItalic returns the style's italic value. It no value is set false is
+// returned.
+func (s Style) GetItalic() bool {
+	return s.getAsBool(italicKey, false)
+}
+
+// GetUnderline returns the style's underline value. It no value is set false is
+// returned.
+func (s Style) GetUnderline() bool {
+	return s.getAsBool(underlineKey, false)
+}
+
+// GetStrikethrough returns the style's strikethrough value. It no value is set false
+// is returned.
+func (s Style) GetStrikethrough() bool {
+	return s.getAsBool(strikethroughKey, false)
+}
+
+// GetReverse returns the style's reverse value. It no value is set false is
+// returned.
+func (s Style) GetReverse() bool {
+	return s.getAsBool(reverseKey, false)
+}
+
+// GetBlink returns the style's blink value. It no value is set false is
+// returned.
+func (s Style) GetBlink() bool {
+	return s.getAsBool(blinkKey, false)
+}
+
+// GetFaint returns the style's faint value. It no value is set false is
+// returned.
+func (s Style) GetFaint() bool {
+	return s.getAsBool(faintKey, false)
+}
+
+// GetForeground returns the style's foreground color. If no value is set
+// NoColor{} is returned.
+func (s Style) GetForeground() TerminalColor {
+	return s.getAsColor(foregroundKey)
+}
+
+// GetBackground returns the style's back color. If no value is set
+// NoColor{} is returned.
+func (s Style) GetBackground() TerminalColor {
+	return s.getAsColor(backgroundKey)
+}
+
+// GetWidth returns the style's width setting. If no width is set 0 is
+// returned.
+func (s Style) GetWidth() int {
+	return s.getAsInt(widthKey)
+}
+
+// GetHeight returns the style's height setting. If no height is set 0 is
+// returned.
+func (s Style) GetHeight() int {
+	return s.getAsInt(heightKey)
+}
+
+// GetAlign returns the style's implicit alignment setting. If no alignment is
+// set Position.AlignLeft is returned.
+func (s Style) GetAlign() Position {
+	v := s.getAsPosition(alignKey)
+	if v == Position(0) {
+		return Left
+	}
+	return v
+}
+
+// GetPadding returns the style's top, right, bottom, and left padding values,
+// in that order. 0 is returned for unset values.
+func (s Style) GetPadding() (top, right, bottom, left int) {
+	return s.getAsInt(paddingTopKey),
+		s.getAsInt(paddingRightKey),
+		s.getAsInt(paddingBottomKey),
+		s.getAsInt(paddingLeftKey)
+}
+
+// GetPaddingTop returns the style's top padding. If no value is set 0 is
+// returned.
+func (s Style) GetPaddingTop() int {
+	return s.getAsInt(paddingTopKey)
+}
+
+// GetPaddingRight returns the style's right padding. If no value is set 0 is
+// returned.
+func (s Style) GetPaddingRight() int {
+	return s.getAsInt(paddingRightKey)
+}
+
+// GetPaddingBottom returns the style's bottom padding. If no value is set 0 is
+// returned.
+func (s Style) GetPaddingBottom() int {
+	return s.getAsInt(paddingBottomKey)
+}
+
+// GetPaddingLeft returns the style's left padding. If no value is set 0 is
+// returned.
+func (s Style) GetPaddingLeft() int {
+	return s.getAsInt(paddingLeftKey)
+}
+
+// GetColorWhitespace returns the style's whitespace coloring setting. If no
+// value is set false is returned.
+func (s Style) GetColorWhitespace() bool {
+	return s.getAsBool(colorWhitespaceKey, false)
+}
+
+// GetMargin returns the style's top, right, bottom, and left margins, in that
+// order. 0 is returned for unset values.
+func (s Style) GetMargin() (top, right, bottom, left int) {
+	return s.getAsInt(marginTopKey),
+		s.getAsInt(marginRightKey),
+		s.getAsInt(marginBottomKey),
+		s.getAsInt(marginLeftKey)
+}
+
+// GetMarginTop returns the style's top margin. If no value is set 0 is
+// returned.
+func (s Style) GetMarginTop() int {
+	return s.getAsInt(marginTopKey)
+}
+
+// GetMarginRight returns the style's right margin. If no value is set 0 is
+// returned.
+func (s Style) GetMarginRight() int {
+	return s.getAsInt(marginRightKey)
+}
+
+// GetMarginBottom returns the style's bottom margin. If no value is set 0 is
+// returned.
+func (s Style) GetMarginBottom() int {
+	return s.getAsInt(marginBottomKey)
+}
+
+// GetMarginLeft returns the style's left margin. If no value is set 0 is
+// returned.
+func (s Style) GetMarginLeft() int {
+	return s.getAsInt(marginLeftKey)
+}
+
+// GetBorder returns the style's border style (type Border) and value for the
+// top, right, bottom, and left in that order. If no value is set for the
+// border style, Border{} is returned. For all other unset values false is
+// returend.
+func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
+	return s.getAsBorderStyle(borderStyleKey),
+		s.getAsBool(borderTopKey, false),
+		s.getAsBool(borderRightKey, false),
+		s.getAsBool(borderBottomKey, false),
+		s.getAsBool(borderLeftKey, false)
+}
+
+// GetBorderStyle returns the style's border style (type Border). If no value
+// is set Border{} is returned.
+func (s Style) GetBorderStyle() Border {
+	return s.getAsBorderStyle(borderStyleKey)
+}
+
+// GetBorderTop returns the style's top border setting. If no value is set
+// false is returned.
+func (s Style) GetBorderTop() bool {
+	return s.getAsBool(borderTopKey, false)
+}
+
+// GetBorderRight returns the style's right border setting. If no value is set
+// false is returned.
+func (s Style) GetBorderRight() bool {
+	return s.getAsBool(borderRightKey, false)
+}
+
+// GetBorderBottom returns the style's bottom border setting. If no value is
+// set false is returned.
+func (s Style) GetBorderBottom() bool {
+	return s.getAsBool(borderBottomKey, false)
+}
+
+// GetBorderLeft returns the style's left border setting. If no value is
+// set false is returned.
+func (s Style) GetBorderLeft() bool {
+	return s.getAsBool(borderLeftKey, false)
+}
+
+// GetBorderTopForeground returns the style's border top foreground color. If
+// no value is set NoColor{} is returned.
+func (s Style) GetBorderTopForeground() TerminalColor {
+	return s.getAsColor(borderTopForegroundKey)
+}
+
+// GetBorderRightForeground returns the style's border right foreground color.
+// If no value is set NoColor{} is returned.
+func (s Style) GetBorderRightForeground() TerminalColor {
+	return s.getAsColor(borderRightForegroundKey)
+}
+
+// GetBorderBottomForeground returns the style's border bottom foreground
+// color.  If no value is set NoColor{} is returned.
+func (s Style) GetBorderBottomForeground() TerminalColor {
+	return s.getAsColor(borderBottomForegroundKey)
+}
+
+// GetBorderLeftForeground returns the style's border bottom foreground
+// color.  If no value is set NoColor{} is returned.
+func (s Style) GetBorderLeftForeground() TerminalColor {
+	return s.getAsColor(borderLeftForegroundKey)
+}
+
+// GetBorderTopBackground returns the style's border top background color. If
+// no value is set NoColor{} is returned.
+func (s Style) GetBorderTopBackground() TerminalColor {
+	return s.getAsColor(borderTopBackgroundKey)
+}
+
+// GetBorderRightBackground returns the style's border right background color.
+// If no value is set NoColor{} is returned.
+func (s Style) GetBorderRightBackground() TerminalColor {
+	return s.getAsColor(borderRightBackgroundKey)
+}
+
+// GetBorderBottomBackground returns the style's border bottom background
+// color.  If no value is set NoColor{} is returned.
+func (s Style) GetBorderBottomBackground() TerminalColor {
+	return s.getAsColor(borderBottomBackgroundKey)
+}
+
+// GetBorderLeftBackground returns the style's border bottom background
+// color.  If no value is set NoColor{} is returned.
+func (s Style) GetBorderLeftBackground() TerminalColor {
+	return s.getAsColor(borderLeftBackgroundKey)
+}
+
+// GetInline returns the style's inline setting. If no value is set false is
+// returned.
+func (s Style) GetInline() bool {
+	return s.getAsBool(inlineKey, false)
+}
+
+// GetMaxWidth returns the style's max width setting. If no value is set 0 is
+// returned.
+func (s Style) GetMaxWidth() int {
+	return s.getAsInt(maxWidthKey)
+}
+
+// GetMaxHeight returns the style's max width setting. If no value is set 0 is
+// returned.
+func (s Style) GetMaxHeight() int {
+	return s.getAsInt(maxHeightKey)
+}
+
+// GetUnderlineSpaces returns whether or not the style is set to underline
+// spaces. If not value is set false is returned.
+func (s Style) GetUnderlineSpaces() bool {
+	return s.getAsBool(underlineSpacesKey, false)
+}
+
+// GetStrikethroughSpaces returns whether or not the style is set to underline
+// spaces. If not value is set false is returned.
+func (s Style) GetStrikethroughSpaces() bool {
+	return s.getAsBool(strikethroughSpacesKey, false)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	_, exists := s.rules[k]
