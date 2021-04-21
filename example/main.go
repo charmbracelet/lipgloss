@@ -267,7 +267,7 @@ func main() {
 		list.Render(
 			lipgloss.JoinVertical(lipgloss.Left,
 				listHeader("Citrus Fruits to Try"),
-				listDone("Quince"),
+				listDone("Grapefruit"),
 				listDone("Yuzu"),
 				listItem("Citron"),
 				listItem("Kumquat"),
