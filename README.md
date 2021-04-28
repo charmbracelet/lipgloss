@@ -27,7 +27,7 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-    fmt.Println(style.Render("Hello, kitty."))
+fmt.Println(style.Render("Hello, kitty."))
 ```
 
 
@@ -159,19 +159,19 @@ var str = lipgloss.NewStyle().
 
 ## Borders
 
-You can add borders to things, too:
+Adding borders is easy:
 
 ```go
 // Add a purple, regtangular border
 var style = lipgloss.NewStyle().
     BorderStyle(lipgloss.NormalBorder()).
-    BorderForeground(lipgloss.Color("#7D56F4"))
+    BorderForeground(lipgloss.Color("63"))
 
-// Add a rounded, yellow-on-purple border to the top and left
+// Set a rounded, yellow-on-purple border to the top and left
 var anotherStyle = lipgloss.NewStyle().
     BorderStyle(lipgloss.RoundedBorder()).
-    BorderForeground(lipgloss.Color("#FFF738")).
-    BorderBackground(lipgloss.Color("#7D56F4")).
+    BorderForeground(lipgloss.Color("228")).
+    BorderBackground(lipgloss.Color("63")).
     BorderTop(true).
     BorderLeft(true)
 
@@ -188,16 +188,18 @@ var myCuteBorder = lipgloss.Border{
 }
 ```
 
-There are also shorthand functions, which follow a similar pattern to the
-margin and padding shorthand functions.
+There are also shorthand functions for defining borders, which follow a similar
+pattern to the margin and padding shorthand functions.
 
 ```go
 // Add a thick border to the top and bottom
-lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true, false)
+lipgloss.NewStyle().
+    Border(lipgloss.ThickBorder(), true, false)
 
 // Add a thick border to the right and bottom sides. Rules are set clockwise
 // from top.
-lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true, false, false, true)
+lipgloss.NewStyle().
+    Border(lipgloss.DoubleBorder(), true, false, false, true)
 ```
 
 For more on borders see [the docs][docs].
@@ -284,15 +286,16 @@ var style = lipgloss.NewStyle().String("你好，猫咪。").Bold(true)
 fmt.Printf("%s\n", style)
 ```
 
+
 ## Utilities
 
-In addition to pure styling Lip Gloss also ships with some layout utilties.
+In addition to pure styling, Lip Gloss also ships with some utilties to help
+assemble your layouts.
 
 
 ### Joining Paragraphs
 
-There are also some utility functions for horizontally and vertically joining
-paragraphs of text.
+Horizontally and vertically joining paragraphs is a cinch.
 
 ```go
 // Horizontally join three paragraphs along their bottom edges
@@ -310,7 +313,7 @@ lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
 ### Measuring Width and Height
 
 Sometimes you’ll want to know the width and height of text blocks when building
-your layouts:
+your layouts.
 
 ```go
 var block string = lipgloss.NewStyle().
