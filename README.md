@@ -261,9 +261,29 @@ lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
 ```
 
 
+### Measuring Width and Height
+
+Sometimes you’ll want to know the width and height of text blocks when building
+your layouts:
+
+```go
+var block string = lipgloss.NewStyle().
+    Width(40).
+    Padding(2).
+    Render(someLongString)
+
+// Get the actual, phsical dimensions of the text block.
+width := lipgloss.Width(block)
+height := lipgloss.Height(block)
+
+// Here's a shorthand function.
+w, h := lipgloss.Size(block)
+```
+
+
 ### Placing Text in Whitespace
 
-Sometimes you simply want to place a block of text in whitespace.
+Sometimes you’ll simply want to place a block of text in whitespace.
 
 ```go
 // Center a paragraph horizontally in a space 80 cells wide. The height of
