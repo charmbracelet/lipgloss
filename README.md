@@ -238,8 +238,12 @@ var style = lipgloss.NewStyle().String("你好，猫咪。").Bold(true)
 fmt.Printf("%s\n", style)
 ```
 
+## Utilities
 
-## Joining Paragraphs
+In addition to pure styling Lip Gloss also ships with some layout utilties.
+
+
+### Joining Paragraphs
 
 There are also some utility functions for horizontally and vertically joining
 paragraphs of text.
@@ -257,7 +261,7 @@ lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
 ```
 
 
-## Placing Text in Whitespace
+### Placing Text in Whitespace
 
 Sometimes you simply want to place a block of text in whitespace.
 
@@ -275,6 +279,7 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 ```
 
 You can also style the whitespace. For details, see [the docs][docs].
+
 
 ***
 
