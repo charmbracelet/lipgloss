@@ -177,14 +177,14 @@ var anotherStyle = lipgloss.NewStyle().
 
 // Make your own border
 var myCuteBorder = lipgloss.Border{
-    Top:         "._.:*:._",
-    Bottom:      "._.:*:._",
-    Left:        "|",
-    Right:       "|",
-    TopLeft:     "+",
-    TopRight:    "+",
-    BottomLeft:  "+",
-    BottomRight: "+",
+    Top:         "._.:*:",
+    Bottom:      "._.:*:",
+    Left:        "|*",
+    Right:       "|*",
+    TopLeft:     "*",
+    TopRight:    "*",
+    BottomLeft:  "*",
+    BottomRight: "*",
 }
 ```
 

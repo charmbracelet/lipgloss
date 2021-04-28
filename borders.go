@@ -3,6 +3,7 @@ package lipgloss
 import (
 	"strings"
 
+	"github.com/mattn/go-runewidth"
 	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/termenv"
 )
@@ -131,7 +132,29 @@ func (s Style) applyBorder(str string) string {
 	lines, width := getLines(str)
 
 	if hasLeft {
-		width += ansi.PrintableRuneWidth(border.Left)
+		if border.Left == "" {
+			border.Left = " "
+		}
+		width += maxRuneWidth(border.Left)
+	}
+
+	if hasRight && border.Right == "" {
+		border.Right = " "
+	}
+
+	// If corners should be render but are set with the empty string, fill them
+	// with a single space.
+	if hasTop && hasLeft && border.TopLeft == "" {
+		border.TopLeft = " "
+	}
+	if hasTop && hasRight && border.TopRight == "" {
+		border.TopRight = " "
+	}
+	if hasBottom && hasLeft && border.BottomLeft == "" {
+		border.BottomLeft = " "
+	}
+	if hasBottom && hasRight && border.BottomRight == "" {
+		border.BottomRight = " "
 	}
 
 	// Figure out which corners we should actually be using based on which
@@ -169,14 +192,30 @@ func (s Style) applyBorder(str string) string {
 		out.WriteRune('\n')
 	}
 
+	leftRunes := []rune(border.Left)
+	leftIndex := 0
+
+	rightRunes := []rune(border.Right)
+	rightIndex := 0
+
 	// Render sides
 	for i, l := range lines {
 		if hasLeft {
-			out.WriteString(styleBorder(border.Left, leftFG, leftBG))
+			r := string(leftRunes[leftIndex])
+			leftIndex++
+			if leftIndex >= len(leftRunes) {
+				leftIndex = 0
+			}
+			out.WriteString(styleBorder(r, leftFG, leftBG))
 		}
 		out.WriteString(l)
 		if hasRight {
-			out.WriteString(styleBorder(border.Right, rightFG, rightBG))
+			r := string(rightRunes[rightIndex])
+			rightIndex++
+			if rightIndex >= len(rightRunes) {
+				rightIndex = 0
+			}
+			out.WriteString(styleBorder(r, rightFG, rightBG))
 		}
 		if i < len(lines)-1 {
 			out.WriteRune('\n')
@@ -205,13 +244,20 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 	}
 
 	leftWidth := ansi.PrintableRuneWidth(left)
-	midWidth := ansi.PrintableRuneWidth(middle)
 	rightWidth := ansi.PrintableRuneWidth(right)
+
+	runes := []rune(middle)
+	j := 0
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i < width+rightWidth; i += midWidth {
-		out.WriteString(middle)
+	for i := leftWidth + rightWidth; i < width+rightWidth; {
+		out.WriteRune(runes[j])
+		j++
+		if j >= len(runes) {
+			j = 0
+		}
+		i += ansi.PrintableRuneWidth(string(runes[j]))
 	}
 	out.WriteString(right)
 
@@ -234,4 +280,14 @@ func styleBorder(border string, fg, bg TerminalColor) string {
 	}
 
 	return style.Styled(border)
+}
+
+func maxRuneWidth(str string) (width int) {
+	for _, r := range str {
+		w := runewidth.RuneWidth(r)
+		if w > width {
+			width = w
+		}
+	}
+	return width
 }
