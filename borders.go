@@ -182,6 +182,12 @@ func (s Style) applyBorder(str string) string {
 		}
 	}
 
+	// For now, limit corners to one rune.
+	border.TopLeft = getFirstRuneAsString(border.TopLeft)
+	border.TopRight = getFirstRuneAsString(border.TopRight)
+	border.BottomRight = getFirstRuneAsString(border.BottomRight)
+	border.BottomLeft = getFirstRuneAsString(border.BottomLeft)
+
 	var out strings.Builder
 
 	// Render top
@@ -290,4 +296,12 @@ func maxRuneWidth(str string) (width int) {
 		}
 	}
 	return width
+}
+
+func getFirstRuneAsString(str string) string {
+	if str == "" {
+		return str
+	}
+	r := []rune(str)
+	return string(r[0])
 }
