@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	colorProfile    termenv.Profile
-	getColorProfile sync.Once
+	colorProfile         termenv.Profile
+	getColorProfile      sync.Once
+	explicitColorProfile bool
+	colorProfileMtx      sync.Mutex
 
 	// Because it's a potentially long operation (relatively speaking), we
 	// check the background color on initialization rather than at the last
@@ -20,10 +22,35 @@ var (
 // ColorProfile returns the detected termenv color profile. It will perform the
 // actual check only once.
 func ColorProfile() termenv.Profile {
-	getColorProfile.Do(func() {
-		colorProfile = termenv.ColorProfile()
-	})
+	if !explicitColorProfile {
+		getColorProfile.Do(func() {
+			colorProfile = termenv.ColorProfile()
+		})
+	}
 	return colorProfile
+}
+
+// SetColorProfile sets the color profile on a package-wide context. This
+// function exists mostly for testing purposes so that you can assure you're
+// testing against a specific profile.
+//
+// Outside of testing you likely won't want to use this function as
+// ColorProfile() will detect and cache the terminal's color capabilities
+// and choose the best available profile.
+//
+// Available color profiles are:
+//
+// termenv.Ascii (no color, 1-bit)
+// termenv.ANSI (16 colors, 4-bit)
+// termenv.ANSI256 (256 colors, 8-bit)
+// termenv.TrueColor (16,777,216 colors, 24-bit)
+//
+// This function is thread-safe.
+func SetColorProfile(p termenv.Profile) {
+	colorProfileMtx.Lock()
+	defer colorProfileMtx.Unlock()
+	colorProfile = p
+	explicitColorProfile = true
 }
 
 // HadDarkBackground returns whether or not the terminal has a dark background.

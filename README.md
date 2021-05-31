@@ -51,13 +51,15 @@ lipgloss.Color("201") // hot pink
 lipgloss.Color("202") // orange
 ```
 
-### True Color (24-bit)
+### True Color (16,777,216 colors; 24-bit)
 
 ```go
 lipgloss.Color("#0000FF") // good ol' 100% blue
 lipgloss.Color("#04B575") // a green
 lipgloss.Color("#3C3C3C") // a dark gray
 ```
+
+...as well as a 1-bit Ascii profile, which is black and white only.
 
 The terminal's color profile will be automatically detected, and colors outside
 the gamut of the current palette will be automatically coerced to their closest
