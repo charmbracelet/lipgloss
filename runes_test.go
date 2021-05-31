@@ -58,13 +58,5 @@ func TestStyleRunes(t *testing.T) {
 }
 
 func formatEscapes(str string) string {
-	var b strings.Builder
-	for _, r := range str {
-		if r == '\x1b' {
-			b.WriteString("\\x1b")
-			continue
-		}
-		b.WriteRune(r)
-	}
-	return b.String()
+	return strings.ReplaceAll(str, "\x1b", "\\x1b")
 }
