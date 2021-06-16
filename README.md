@@ -283,7 +283,7 @@ fmt.Println(lipgloss.NewStyle().Bold(true).Render("Hello, kitty."))
 But you could also use the Stringer interface:
 
 ```go
-var style = lipgloss.NewStyle().String("你好，猫咪。").Bold(true)
+var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 
 fmt.Printf("%s\n", style)
 ```
