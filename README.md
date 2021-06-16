@@ -301,14 +301,14 @@ Horizontally and vertically joining paragraphs is a cinch.
 
 ```go
 // Horizontally join three paragraphs along their bottom edges
-lipgloss.HorizontalJoin(lipgloss.Bottom, paragraphA, paragraphB, paragraphC)
+lipgloss.JoinHorizontal(lipgloss.Bottom, paragraphA, paragraphB, paragraphC)
 
 // Vertically join two paragraphs along their center axes
-lipgloss.VerticalJoin(lipgloss.Center, paragraphA, paragraphB)
+lipgloss.JoinVertical(lipgloss.Center, paragraphA, paragraphB)
 
 // Horizontally join three paragraphs, with the shorter ones aligning 20%
 // from the top of the tallest
-lipgloss.HorizontalJoin(0.2, paragraphA, paragraphB, paragraphC)
+lipgloss.JoinHorizontal(0.2, paragraphA, paragraphB, paragraphC)
 ```
 
 
