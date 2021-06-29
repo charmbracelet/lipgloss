@@ -25,7 +25,7 @@ func TestSetColorProfile(t *testing.T) {
 			termenv.ANSI,
 			"hello",
 			NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[34mhello\x1b[0m",
+			"\x1b[94mhello\x1b[0m",
 		},
 		{
 			termenv.ANSI256,
