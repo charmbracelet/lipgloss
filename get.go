@@ -243,6 +243,50 @@ func (s Style) GetBorderLeftBackground() TerminalColor {
 	return s.getAsColor(borderLeftBackgroundKey)
 }
 
+// GetBorderTopWidth returns the width of the top border. If borders contain
+// runes of varying widths, the widest rune is returned. If no border exists on
+// the top edge, 0 is returned.
+func (s Style) GetBorderTopWidth() int {
+	return s.getAsBorderStyle(borderStyleKey).GetTopWidth()
+}
+
+// GetBorderLeftWidth returns the width of the left border. If borders contain
+// runes of varying widths, the widest rune is returned. If no border exists on
+// the left edge, 0 is returned.
+func (s Style) GetBorderLeftWidth() int {
+	return s.getAsBorderStyle(borderStyleKey).GetLeftWidth()
+}
+
+// GetBorderLeftWidth returns the width of the bottom border. If borders
+// contain runes of varying widths, the widest rune is returned. If no border
+// exists on the left edge, 0 is returned.
+func (s Style) GetBorderBottomWidth() int {
+	return s.getAsBorderStyle(borderStyleKey).GetBottomWidth()
+}
+
+// GetBorderRightWidth returns the width of the right border. If borders
+// contain runes of varying widths, the widest rune is returned. If no border
+// exists on the right edge, 0 is returned.
+func (s Style) GetBorderRightWidth() int {
+	return s.getAsBorderStyle(borderStyleKey).GetBottomWidth()
+}
+
+// GetHorizontalBorderWidth returns the width of the horizontal borders. If
+// borders contain runes of varying widths, the widest rune is returned. If no
+// border exists on the horizontal edges, 0 is returned.
+func (s Style) GetHorizontalBorderWidth() int {
+	b := s.getAsBorderStyle(borderStyleKey)
+	return b.GetLeftWidth() + b.GetRightWidth()
+}
+
+// GetVerticalBorderWidth returns the width of the horizontal borders. If
+// borders contain runes of varying widths, the widest rune is returned. If no
+// border exists on the horizontal edges, 0 is returned.
+func (s Style) GetVerticalBorderWidth() int {
+	b := s.getAsBorderStyle(borderStyleKey)
+	return b.GetTopWidth() + b.GetBottomWidth()
+}
+
 // GetInline returns the style's inline setting. If no value is set false is
 // returned.
 func (s Style) GetInline() bool {
