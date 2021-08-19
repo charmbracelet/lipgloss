@@ -271,6 +271,9 @@ func (s Style) GetBorderLeftBackground() TerminalColor {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopWidth() int {
+	if !s.getAsBool(borderTopKey, false) {
+		return 0
+	}
 	return s.getBorderStyle().GetTopWidth()
 }
 
@@ -278,6 +281,9 @@ func (s Style) GetBorderTopWidth() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftWidth() int {
+	if !s.getAsBool(borderLeftKey, false) {
+		return 0
+	}
 	return s.getBorderStyle().GetLeftWidth()
 }
 
@@ -285,6 +291,9 @@ func (s Style) GetBorderLeftWidth() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomWidth() int {
+	if !s.getAsBool(borderBottomKey, false) {
+		return 0
+	}
 	return s.getBorderStyle().GetBottomWidth()
 }
 
@@ -292,6 +301,9 @@ func (s Style) GetBorderBottomWidth() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightWidth() int {
+	if !s.getAsBool(borderRightKey, false) {
+		return 0
+	}
 	return s.getBorderStyle().GetBottomWidth()
 }
 
