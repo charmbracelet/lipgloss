@@ -67,6 +67,17 @@ var (
 		BottomLeft:  "╚",
 		BottomRight: "╝",
 	}
+
+	hiddenBorder = Border{
+		Top:         " ",
+		Bottom:      " ",
+		Left:        " ",
+		Right:       " ",
+		TopLeft:     " ",
+		TopRight:    " ",
+		BottomLeft:  " ",
+		BottomRight: " ",
+	}
 )
 
 // NormalBorder returns a standard-type border with a normal weight and 90
@@ -89,6 +100,14 @@ func ThickBorder() Border {
 // DoubleBorder returns a border comprised of two thin strokes.
 func DoubleBorder() Border {
 	return doubleBorder
+}
+
+// HiddenBorder returns a border that renders as a series of single-cell
+// spaces. It's useful for cases when you want to remove a standard border but
+// maintain layout positioning. This said, you can still apply a background
+// color to a hidden border.
+func HiddenBorder() Border {
+	return hiddenBorder
 }
 
 func (s Style) applyBorder(str string) string {
