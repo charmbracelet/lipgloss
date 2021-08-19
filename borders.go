@@ -21,6 +21,44 @@ type Border struct {
 	BottomLeft  string
 }
 
+// GetTopWidth returns the width of the top border. If borders contain runes of
+// varying widths, the widest rune is returned. If no border exists on the top
+// edge, 0 is returned.
+func (b Border) GetTopWidth() int {
+	return getBorderEdgeWidth(b.TopLeft, b.Top, b.TopRight)
+}
+
+// GetRightWidth returns the width of the right border. If borders contain
+// runes of varying widths, the widest rune is returned. If no border exists on
+// the right edge, 0 is returned.
+func (b Border) GetRightWidth() int {
+	return getBorderEdgeWidth(b.TopRight, b.Top, b.BottomRight)
+}
+
+// GetBottomWidth returns the width of the bottom border. If borders contain
+// runes of varying widths, the widest rune is returned. If no border exists on
+// the bottom edge, 0 is returned.
+func (b Border) GetBottomWidth() int {
+	return getBorderEdgeWidth(b.BottomLeft, b.Bottom, b.BottomRight)
+}
+
+// GetLeftWidth returns the width of the left border. If borders contain runes
+// of varying widths, the widest rune is returned. If no border exists on the
+// left edge, 0 is returned.
+func (b Border) GetLeftWidth() int {
+	return getBorderEdgeWidth(b.TopLeft, b.Left, b.TopRight)
+}
+
+func getBorderEdgeWidth(borderParts ...string) (maxWidth int) {
+	for _, piece := range borderParts {
+		w := maxRuneWidth(piece)
+		if w > maxWidth {
+			maxWidth = w
+		}
+	}
+	return maxWidth
+}
+
 var (
 	noBorder = Border{}
 
