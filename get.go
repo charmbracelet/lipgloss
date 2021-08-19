@@ -123,7 +123,7 @@ func (s Style) GetHorizontalPadding() int {
 // GetVerticalPadding returns the style's top and bottom padding. Unset values
 // are measured as 0.
 func (s Style) GetVerticalPadding() int {
-	return s.getAsInt(paddingLeftKey) + s.getAsInt(paddingRightKey)
+	return s.getAsInt(paddingTopKey) + s.getAsInt(paddingBottomKey)
 }
 
 // GetColorWhitespace returns the style's whitespace coloring setting. If no
@@ -274,53 +274,53 @@ func (s Style) GetBorderTopWidth() int {
 	if !s.getAsBool(borderTopKey, false) {
 		return 0
 	}
-	return s.getBorderStyle().GetTopWidth()
+	return s.getBorderStyle().GetTopSize()
 }
 
-// GetBorderLeftWidth returns the width of the left border. If borders contain
+// GetBorderLeftSize returns the width of the left border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
-func (s Style) GetBorderLeftWidth() int {
+func (s Style) GetBorderLeftSize() int {
 	if !s.getAsBool(borderLeftKey, false) {
 		return 0
 	}
-	return s.getBorderStyle().GetLeftWidth()
+	return s.getBorderStyle().GetLeftSize()
 }
 
 // GetBorderLeftWidth returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
-func (s Style) GetBorderBottomWidth() int {
+func (s Style) GetBorderBottomSize() int {
 	if !s.getAsBool(borderBottomKey, false) {
 		return 0
 	}
-	return s.getBorderStyle().GetBottomWidth()
+	return s.getBorderStyle().GetBottomSize()
 }
 
-// GetBorderRightWidth returns the width of the right border. If borders
+// GetBorderRightSize returns the width of the right border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
-func (s Style) GetBorderRightWidth() int {
+func (s Style) GetBorderRightSize() int {
 	if !s.getAsBool(borderRightKey, false) {
 		return 0
 	}
-	return s.getBorderStyle().GetBottomWidth()
+	return s.getBorderStyle().GetBottomSize()
 }
 
-// GetHorizontalBorderWidth returns the width of the horizontal borders. If
+// GetHorizontalBorderSize returns the width of the horizontal borders. If
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the horizontal edges, 0 is returned.
-func (s Style) GetHorizontalBorderWidth() int {
+func (s Style) GetHorizontalBorderSize() int {
 	b := s.getBorderStyle()
-	return b.GetLeftWidth() + b.GetRightWidth()
+	return b.GetLeftSize() + b.GetRightSize()
 }
 
-// GetVerticalBorderWidth returns the width of the horizontal borders. If
+// GetVerticalBorderSize returns the width of the horizontal borders. If
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the horizontal edges, 0 is returned.
-func (s Style) GetVerticalBorderWidth() int {
+func (s Style) GetVerticalBorderSize() int {
 	b := s.getBorderStyle()
-	return b.GetTopWidth() + b.GetBottomWidth()
+	return b.GetTopSize() + b.GetBottomSize()
 }
 
 // GetInline returns the style's inline setting. If no value is set false is
@@ -353,16 +353,26 @@ func (s Style) GetStrikethroughSpaces() bool {
 	return s.getAsBool(strikethroughSpacesKey, false)
 }
 
-// GetHorizontalGaps returns the sum of the style's horizontal margins, padding
+// GetHorizontalFrameSize returns the sum of the style's horizontal margins, padding
 // and border widths.
-func (s Style) GetHorizontalGaps() int {
-	return s.GetHorizontalMargins() + s.GetHorizontalPadding() + s.GetHorizontalBorderWidth()
+//
+// Provisional: this method may be renamed.
+func (s Style) GetHorizontalFrameSize() int {
+	return s.GetHorizontalMargins() + s.GetHorizontalPadding() + s.GetHorizontalBorderSize()
 }
 
-// GetVerticalGaps returns the sum of the style's horizontal margins, padding
+// GetVerticalFrameSize returns the sum of the style's horizontal margins, padding
 // and border widths.
-func (s Style) GetVerticalGaps() int {
-	return s.GetVerticalMargins() + s.GetVerticalPadding() + s.GetVerticalBorderWidth()
+//
+// Provisional: this method may be renamed.
+func (s Style) GetVerticalFrameSize() int {
+	return s.GetVerticalMargins() + s.GetVerticalPadding() + s.GetVerticalBorderSize()
+}
+
+// GetFrameSize returns the sum of the margins, padding and border width for
+// both the horizontal and vertical margins.
+func (s Style) GetFrameSize() (x, y int) {
+	return s.GetHorizontalFrameSize(), s.GetVerticalFrameSize()
 }
 
 // Returns whether or not the given property is set.
