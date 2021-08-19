@@ -136,7 +136,7 @@ func (s Style) applyBorder(str string) string {
 		bottomSet = s.isSet(borderBottomKey)
 		leftSet   = s.isSet(borderLeftKey)
 
-		border    = s.getAsBorderStyle(borderStyleKey)
+		border    = s.getBorderStyle()
 		hasTop    = s.getAsBool(borderTopKey, false)
 		hasRight  = s.getAsBool(borderRightKey, false)
 		hasBottom = s.getAsBool(borderBottomKey, false)
