@@ -182,7 +182,7 @@ func (s Style) GetVerticalMargins() int {
 // border style, Border{} is returned. For all other unset values false is
 // returend.
 func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
-	return s.getAsBorderStyle(borderStyleKey),
+	return s.getBorderStyle(),
 		s.getAsBool(borderTopKey, false),
 		s.getAsBool(borderRightKey, false),
 		s.getAsBool(borderBottomKey, false),
@@ -192,7 +192,7 @@ func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
 // GetBorderStyle returns the style's border style (type Border). If no value
 // is set Border{} is returned.
 func (s Style) GetBorderStyle() Border {
-	return s.getAsBorderStyle(borderStyleKey)
+	return s.getBorderStyle()
 }
 
 // GetBorderTop returns the style's top border setting. If no value is set
@@ -271,35 +271,35 @@ func (s Style) GetBorderLeftBackground() TerminalColor {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopWidth() int {
-	return s.getAsBorderStyle(borderStyleKey).GetTopWidth()
+	return s.getBorderStyle().GetTopWidth()
 }
 
 // GetBorderLeftWidth returns the width of the left border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftWidth() int {
-	return s.getAsBorderStyle(borderStyleKey).GetLeftWidth()
+	return s.getBorderStyle().GetLeftWidth()
 }
 
 // GetBorderLeftWidth returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomWidth() int {
-	return s.getAsBorderStyle(borderStyleKey).GetBottomWidth()
+	return s.getBorderStyle().GetBottomWidth()
 }
 
 // GetBorderRightWidth returns the width of the right border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightWidth() int {
-	return s.getAsBorderStyle(borderStyleKey).GetBottomWidth()
+	return s.getBorderStyle().GetBottomWidth()
 }
 
 // GetHorizontalBorderWidth returns the width of the horizontal borders. If
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the horizontal edges, 0 is returned.
 func (s Style) GetHorizontalBorderWidth() int {
-	b := s.getAsBorderStyle(borderStyleKey)
+	b := s.getBorderStyle()
 	return b.GetLeftWidth() + b.GetRightWidth()
 }
 
@@ -307,7 +307,7 @@ func (s Style) GetHorizontalBorderWidth() int {
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the horizontal edges, 0 is returned.
 func (s Style) GetVerticalBorderWidth() int {
-	b := s.getAsBorderStyle(borderStyleKey)
+	b := s.getBorderStyle()
 	return b.GetTopWidth() + b.GetBottomWidth()
 }
 
@@ -403,8 +403,8 @@ func (s Style) getAsPosition(k propKey) Position {
 	return Position(0)
 }
 
-func (s Style) getAsBorderStyle(k propKey) Border {
-	v, ok := s.rules[k]
+func (s Style) getBorderStyle() Border {
+	v, ok := s.rules[borderStyleKey]
 	if !ok {
 		return noBorder
 	}
