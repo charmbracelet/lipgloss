@@ -114,6 +114,18 @@ func (s Style) GetPaddingLeft() int {
 	return s.getAsInt(paddingLeftKey)
 }
 
+// GetHorizontalPadding returns the style's left and right padding. Unset
+// values are measured as 0.
+func (s Style) GetHorizontalPadding() int {
+	return s.getAsInt(paddingLeftKey) + s.getAsInt(paddingRightKey)
+}
+
+// GetVerticalPadding returns the style's top and bottom padding. Unset values
+// are measured as 0.
+func (s Style) GetVerticalPadding() int {
+	return s.getAsInt(paddingLeftKey) + s.getAsInt(paddingRightKey)
+}
+
 // GetColorWhitespace returns the style's whitespace coloring setting. If no
 // value is set false is returned.
 func (s Style) GetColorWhitespace() bool {
@@ -151,6 +163,18 @@ func (s Style) GetMarginBottom() int {
 // returned.
 func (s Style) GetMarginLeft() int {
 	return s.getAsInt(marginLeftKey)
+}
+
+// GetHorizontalMargins returns the style's left and right margins. Unset
+// values are measured as 0.
+func (s Style) GetHorizontalMargins() int {
+	return s.getAsInt(marginLeftKey) + s.getAsInt(marginRightKey)
+}
+
+// GetVerticalMargins returns the style's top and bottom padding. Unset values
+// are measured as 0.
+func (s Style) GetVerticalMargins() int {
+	return s.getAsInt(marginTopKey) + s.getAsInt(marginBottomKey)
 }
 
 // GetBorder returns the style's border style (type Border) and value for the
@@ -315,6 +339,18 @@ func (s Style) GetUnderlineSpaces() bool {
 // spaces. If not value is set false is returned.
 func (s Style) GetStrikethroughSpaces() bool {
 	return s.getAsBool(strikethroughSpacesKey, false)
+}
+
+// GetHorizontalGaps returns the sum of the style's horizontal margins, padding
+// and border widths.
+func (s Style) GetHorizontalGaps() int {
+	return s.GetHorizontalMargins() + s.GetHorizontalPadding() + s.GetHorizontalBorderWidth()
+}
+
+// GetVerticalGaps returns the sum of the style's horizontal margins, padding
+// and border widths.
+func (s Style) GetVerticalGaps() int {
+	return s.GetVerticalMargins() + s.GetVerticalPadding() + s.GetVerticalBorderWidth()
 }
 
 // Returns whether or not the given property is set.
