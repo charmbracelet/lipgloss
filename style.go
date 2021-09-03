@@ -6,6 +6,7 @@ import (
 
 	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/reflow/wordwrap"
+	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
 )
 
@@ -263,7 +264,9 @@ func (s Style) Render(str string) string {
 
 	// Word wrap
 	if !inline && width > 0 {
-		str = wordwrap.String(str, width-leftPadding-rightPadding)
+		wrapAt := width - leftPadding - rightPadding
+		str = wordwrap.String(str, wrapAt)
+		str = wrap.String(str, wrapAt) // force-wrap long strings
 	}
 
 	// Render core text
