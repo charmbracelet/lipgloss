@@ -157,8 +157,8 @@ func JoinVertical(pos Position, strs ...string) string {
 				}
 
 				split := int(math.Round(float64(w) * pos.value()))
-				left := w - split
-				right := w - left
+				right := w - split
+				left := w - right
 
 				b.WriteString(strings.Repeat(" ", left))
 				b.WriteString(line)
