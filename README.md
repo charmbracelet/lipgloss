@@ -148,7 +148,7 @@ var style = lipgloss.NewStyle().
 
 ## Width and Height
 
-Setting a minimim width and height is simple and straightforward.
+Setting a minimum width and height is simple and straightforward.
 
 ```go
 var str = lipgloss.NewStyle().
@@ -164,7 +164,7 @@ var str = lipgloss.NewStyle().
 Adding borders is easy:
 
 ```go
-// Add a purple, regtangular border
+// Add a purple, rectangular border
 var style = lipgloss.NewStyle().
     BorderStyle(lipgloss.NormalBorder()).
     BorderForeground(lipgloss.Color("63"))
@@ -291,7 +291,7 @@ fmt.Printf("%s\n", style)
 
 ## Utilities
 
-In addition to pure styling, Lip Gloss also ships with some utilties to help
+In addition to pure styling, Lip Gloss also ships with some utilities to help
 assemble your layouts.
 
 
@@ -323,7 +323,7 @@ var block string = lipgloss.NewStyle().
     Padding(2).
     Render(someLongString)
 
-// Get the actual, phsical dimensions of the text block.
+// Get the actual, physical dimensions of the text block.
 width := lipgloss.Width(block)
 height := lipgloss.Height(block)
 
