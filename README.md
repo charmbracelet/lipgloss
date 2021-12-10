@@ -109,7 +109,7 @@ var style = lipgloss.NewStyle().
 // Margins
 var style = lipgloss.NewStyle().
     MarginTop(2).
-    RightMarginRight(4).
+    MarginRight(4).
     MarginBottom(2).
     MarginLeft(4)
 ```
