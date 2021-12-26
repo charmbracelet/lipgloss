@@ -24,11 +24,12 @@ func (p Position) value() float64 {
 
 // Position aliases.
 const (
-	Top    Position = 0.0
-	Bottom Position = 1.0
-	Center Position = 0.5
-	Left   Position = 0.0
-	Right  Position = 1.0
+	Top        Position = 0.0
+	Bottom     Position = 1.0
+	Center     Position = 0.5
+	Left       Position = 0.0
+	Right      Position = 1.0
+	NotAligned Position = -1.0
 )
 
 // Place places a string or text block vertically in an unstyled box of a given

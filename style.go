@@ -333,7 +333,7 @@ func (s Style) Render(str string) string {
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
-	{
+	if align != NotAligned {
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
