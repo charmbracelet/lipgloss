@@ -1,12 +1,12 @@
+//go:build windows
 // +build windows
 
 package lipgloss
 
 import (
-	"os"
 	"sync"
 
-	"golang.org/x/sys/windows"
+	"github.com/muesli/termenv"
 )
 
 var enableANSI sync.Once
@@ -17,10 +17,6 @@ var enableANSI sync.Once
 // by default.
 func enableLegacyWindowsANSI() {
 	enableANSI.Do(func() {
-		stdout := windows.Handle(os.Stdout.Fd())
-		var originalMode uint32
-
-		windows.GetConsoleMode(stdout, &originalMode)
-		windows.SetConsoleMode(stdout, originalMode|windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+		_, _ = termenv.EnableWindowsANSIConsole()
 	})
 }
