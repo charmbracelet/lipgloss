@@ -16,12 +16,15 @@ var (
 	getBackgroundColor      sync.Once
 	explicitBackgroundColor bool
 
-	colorProfileMtx sync.Mutex
+	colorProfileMtx sync.RWMutex
 )
 
 // ColorProfile returns the detected termenv color profile. It will perform the
 // actual check only once.
 func ColorProfile() termenv.Profile {
+	colorProfileMtx.RLock()
+	defer colorProfileMtx.RUnlock()
+
 	if !explicitColorProfile {
 		getColorProfile.Do(func() {
 			colorProfile = termenv.EnvColorProfile()
@@ -49,12 +52,16 @@ func ColorProfile() termenv.Profile {
 func SetColorProfile(p termenv.Profile) {
 	colorProfileMtx.Lock()
 	defer colorProfileMtx.Unlock()
+
 	colorProfile = p
 	explicitColorProfile = true
 }
 
 // HasDarkBackground returns whether or not the terminal has a dark background.
 func HasDarkBackground() bool {
+	colorProfileMtx.RLock()
+	defer colorProfileMtx.RUnlock()
+
 	if !explicitBackgroundColor {
 		getBackgroundColor.Do(func() {
 			hasDarkBackground = termenv.HasDarkBackground()
@@ -77,6 +84,7 @@ func HasDarkBackground() bool {
 func SetHasDarkBackground(b bool) {
 	colorProfileMtx.Lock()
 	defer colorProfileMtx.Unlock()
+
 	hasDarkBackground = b
 	explicitBackgroundColor = true
 }
