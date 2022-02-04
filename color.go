@@ -11,12 +11,12 @@ var (
 	colorProfile         termenv.Profile
 	getColorProfile      sync.Once
 	explicitColorProfile bool
-	colorProfileMtx      sync.Mutex
 
-	// Because it's a potentially long operation (relatively speaking), we
-	// check the background color on initialization rather than at the last
-	// possible second.
-	hasDarkBackground = termenv.HasDarkBackground()
+	hasDarkBackground       bool
+	getBackgroundColor      sync.Once
+	explicitBackgroundColor bool
+
+	colorProfileMtx sync.Mutex
 )
 
 // ColorProfile returns the detected termenv color profile. It will perform the
@@ -53,9 +53,32 @@ func SetColorProfile(p termenv.Profile) {
 	explicitColorProfile = true
 }
 
-// HadDarkBackground returns whether or not the terminal has a dark background.
+// HasDarkBackground returns whether or not the terminal has a dark background.
 func HasDarkBackground() bool {
+	if !explicitBackgroundColor {
+		getBackgroundColor.Do(func() {
+			hasDarkBackground = termenv.HasDarkBackground()
+		})
+	}
+
 	return hasDarkBackground
+}
+
+// SetHasDarkBackground sets the value of the background color detection on a
+// package-wide context. This function exists mostly for testing purposes so
+// that you can assure you're testing against a specific background color
+// setting.
+//
+// Outside of testing you likely won't want to use this function as
+// HasDarkBackground() will detect and cache the terminal's current background
+// color setting.
+//
+// This function is thread-safe.
+func SetHasDarkBackground(b bool) {
+	colorProfileMtx.Lock()
+	defer colorProfileMtx.Unlock()
+	hasDarkBackground = b
+	explicitBackgroundColor = true
 }
 
 // TerminalColor is a color intended to be rendered in the terminal. It
