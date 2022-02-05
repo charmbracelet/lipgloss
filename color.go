@@ -151,7 +151,7 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
-// appropriate color with be returned at runtime based on the darkness of the
+// appropriate color will be returned at runtime based on the darkness of the
 // terminal background color.
 //
 // Example usage:
