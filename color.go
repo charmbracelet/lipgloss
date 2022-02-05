@@ -24,7 +24,7 @@ var (
 func ColorProfile() termenv.Profile {
 	if !explicitColorProfile {
 		getColorProfile.Do(func() {
-			colorProfile = termenv.ColorProfile()
+			colorProfile = termenv.EnvColorProfile()
 		})
 	}
 	return colorProfile
