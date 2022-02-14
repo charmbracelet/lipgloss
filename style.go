@@ -97,6 +97,11 @@ func (s Style) SetString(str string) Style {
 	return s
 }
 
+// Value returns the raw, unformatted, underlying value for this style.
+func (s Style) Value() string {
+	return s.value
+}
+
 // String implements stringer for a Style, returning the rendered result based
 // on the rules in this style. An underlying string value must be set with
 // Style.SetString prior to using this method.
