@@ -129,7 +129,7 @@ func RoundedBorder() Border {
 	return roundedBorder
 }
 
-// Thick border returns a border that's thicker than the one returned by
+// ThickBorder returns a border that's thicker than the one returned by
 // NormalBorder.
 func ThickBorder() Border {
 	return thickBorder

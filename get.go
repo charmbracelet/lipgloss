@@ -287,7 +287,7 @@ func (s Style) GetBorderLeftSize() int {
 	return s.getBorderStyle().GetLeftSize()
 }
 
-// GetBorderLeftWidth returns the width of the bottom border. If borders
+// GetBorderBottomSize returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomSize() int {

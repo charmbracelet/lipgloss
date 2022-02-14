@@ -97,7 +97,7 @@ func (s Style) SetString(str string) Style {
 	return s
 }
 
-// Value returns the raw, unformatted, underlying value for this style.
+// Value returns the raw, unformatted, underlying string value for this style.
 func (s Style) Value() string {
 	return s.value
 }

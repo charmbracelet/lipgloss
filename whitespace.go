@@ -43,7 +43,7 @@ func (w whitespace) render(width int) string {
 	return w.style.Styled(b.String())
 }
 
-// WhiteSpaceOption sets a styling rule for rendering whitespace.
+// WhitespaceOption sets a styling rule for rendering whitespace.
 type WhitespaceOption func(*whitespace)
 
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
@@ -53,7 +53,7 @@ func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	}
 }
 
-// WithWhiteSpaceBackground sets the background color of the whitespace.
+// WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
 		w.style = w.style.Background(c.color())
