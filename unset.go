@@ -12,7 +12,7 @@ func (s Style) UnsetItalic() Style {
 	return s
 }
 
-// UnsetItalic removes the underline style rule, if set.
+// UnsetUnderline removes the underline style rule, if set.
 func (s Style) UnsetUnderline() Style {
 	delete(s.rules, underlineKey)
 	return s
@@ -229,7 +229,7 @@ func (s Style) UnsetBorderBackground() Style {
 	return s
 }
 
-// UnsetBorderTopBackground removes the top border background color rule,
+// UnsetBorderTopBackgroundColor removes the top border background color rule,
 // if set.
 func (s Style) UnsetBorderTopBackgroundColor() Style {
 	delete(s.rules, borderTopBackgroundKey)
@@ -280,7 +280,7 @@ func (s Style) UnsetUnderlineSpaces() Style {
 	return s
 }
 
-// UnsetUnderlineSpaces removes the value set by UnsetStrikethroughSpaces.
+// UnsetStrikethroughSpaces removes the value set by StrikethroughSpaces.
 func (s Style) UnsetStrikethroughSpaces() Style {
 	delete(s.rules, strikethroughSpacesKey)
 	return s

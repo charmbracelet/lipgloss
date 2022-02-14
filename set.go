@@ -349,31 +349,34 @@ func (s Style) BorderForeground(c ...TerminalColor) Style {
 	return s
 }
 
-// BorderTopForegroundColor set the top color of the border.
+// BorderTopForeground set the foreground color for the top of the border.
 func (s Style) BorderTopForeground(c TerminalColor) Style {
 	s.set(borderTopForegroundKey, c)
 	return s
 }
 
-// BorderRightForegroundColor set the top color of the border.
+// BorderRightForeground sets the foreground color for the right side of the
+// border.
 func (s Style) BorderRightForeground(c TerminalColor) Style {
 	s.set(borderRightForegroundKey, c)
 	return s
 }
 
-// BorderBottomForegroundColor set the top color of the border.
+// BorderBottomForeground sets the foreground color for the bottom of the
+// border.
 func (s Style) BorderBottomForeground(c TerminalColor) Style {
 	s.set(borderBottomForegroundKey, c)
 	return s
 }
 
-// BorderLeftForegroundColor set the top color of the border.
+// BorderLeftForeground sets the foreground color for the left side of the
+// border.
 func (s Style) BorderLeftForeground(c TerminalColor) Style {
 	s.set(borderLeftForegroundKey, c)
 	return s
 }
 
-// BorderBackgroundColor is a shorthand function for setting all of the
+// BorderBackground is a shorthand function for setting all of the
 // background colors of the borders at once. The arguments work as follows:
 //
 // With one argument, the argument is applied to all sides.
@@ -406,25 +409,27 @@ func (s Style) BorderBackground(c ...TerminalColor) Style {
 	return s
 }
 
-// BorderTopBackgroundColor set the top color of the border.
+// BorderTopBackground sets the background color of the top of the border.
 func (s Style) BorderTopBackground(c TerminalColor) Style {
 	s.set(borderTopBackgroundKey, c)
 	return s
 }
 
-// BorderRightBackgroundColor set the top color of the border.
+// BorderRightBackground sets the background color of right side the border.
 func (s Style) BorderRightBackground(c TerminalColor) Style {
 	s.set(borderRightBackgroundKey, c)
 	return s
 }
 
-// BorderBottomBackgroundColor set the top color of the border.
+// BorderBottomBackground sets the background color of the bottom of the
+// border.
 func (s Style) BorderBottomBackground(c TerminalColor) Style {
 	s.set(borderBottomBackgroundKey, c)
 	return s
 }
 
-// BorderLeftBackgroundColor set the top color of the border.
+// BorderLeftBackground set the background color of the left side of the
+// border.
 func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	s.set(borderLeftBackgroundKey, c)
 	return s
