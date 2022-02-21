@@ -137,6 +137,9 @@ func (s Style) Inherit(i Style) Style {
 			// Padding is not inherited
 			continue
 		case backgroundKey:
+			if _, exists := s.rules[k]; exists {
+				continue
+			}
 			s.rules[k] = v
 
 			// The margins also inherit the background color
