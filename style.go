@@ -120,9 +120,9 @@ func (s Style) Copy() Style {
 	return o
 }
 
-// Inherit takes values from the style in the argument applies them to this
-// style, overwriting existing definitions. Only values explicitly set on the
-// style in argument will be applied.
+// Inherit overlays the style in the argument onto this style by copying each explicitly
+// set value from the argument style onto this style if it is not already explicitly set.
+// Existing set values are kept intact and not overwritten.
 //
 // Margins, padding, and underlying string values are not inherited.
 func (s Style) Inherit(i Style) Style {
