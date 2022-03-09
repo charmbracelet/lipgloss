@@ -5,7 +5,6 @@ import (
 	"unicode"
 
 	"github.com/muesli/reflow/truncate"
-	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
 )
@@ -178,6 +177,9 @@ func (s Style) Render(str string) string {
 		bottomPadding = s.getAsInt(paddingBottomKey)
 		leftPadding   = s.getAsInt(paddingLeftKey)
 
+		rightMargin = s.getAsInt(marginRightKey)
+		leftMargin  = s.getAsInt(marginLeftKey)
+
 		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 		inline          = s.getAsBool(inlineKey, false)
 		maxWidth        = s.getAsInt(maxWidthKey)
@@ -267,8 +269,7 @@ func (s Style) Render(str string) string {
 
 	// Word wrap
 	if !inline && width > 0 {
-		wrapAt := width - leftPadding - rightPadding
-		str = wordwrap.String(str, wrapAt)
+		wrapAt := width - leftPadding - rightPadding - leftMargin - rightMargin
 		str = wrap.String(str, wrapAt) // force-wrap long strings
 	}
 
