@@ -397,12 +397,12 @@ func (s Style) GetFrameSize() (x, y int) {
 
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
-	_, exists := s.rules[k]
+	_, exists := s.rules.Load(k)
 	return exists
 }
 
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
-	v, ok := s.rules[k]
+	v, ok := s.rules.Load(k)
 	if !ok {
 		return defaultVal
 	}
@@ -413,7 +413,7 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 }
 
 func (s Style) getAsColor(k propKey) TerminalColor {
-	v, ok := s.rules[k]
+	v, ok := s.rules.Load(k)
 	if !ok {
 		return noColor
 	}
@@ -424,7 +424,7 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 }
 
 func (s Style) getAsInt(k propKey) int {
-	v, ok := s.rules[k]
+	v, ok := s.rules.Load(k)
 	if !ok {
 		return 0
 	}
@@ -435,7 +435,7 @@ func (s Style) getAsInt(k propKey) int {
 }
 
 func (s Style) getAsPosition(k propKey) Position {
-	v, ok := s.rules[k]
+	v, ok := s.rules.Load(k)
 	if !ok {
 		return Position(0)
 	}
@@ -446,7 +446,7 @@ func (s Style) getAsPosition(k propKey) Position {
 }
 
 func (s Style) getBorderStyle() Border {
-	v, ok := s.rules[borderStyleKey]
+	v, ok := s.rules.Load(borderStyleKey)
 	if !ok {
 		return noBorder
 	}

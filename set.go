@@ -1,10 +1,12 @@
 package lipgloss
 
+import "sync"
+
 // This could (should) probably just be moved into NewStyle(). We've broken it
 // out, so we can call it in a lazy way.
 func (s *Style) init() {
 	if s.rules == nil {
-		s.rules = make(rules)
+		s.rules = &sync.Map{}
 	}
 }
 
@@ -18,9 +20,9 @@ func (s *Style) set(key propKey, value interface{}) {
 		// them at zero or above. We could use uints instead, but the
 		// conversions are a little tedious, so we're sticking with ints for
 		// sake of usability.
-		s.rules[key] = max(0, v)
+		s.rules.Store(key, max(0, v))
 	default:
-		s.rules[key] = v
+		s.rules.Store(key, v)
 	}
 }
 
