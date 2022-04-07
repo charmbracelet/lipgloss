@@ -6,4 +6,5 @@ require (
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68
 	github.com/muesli/termenv v0.13.0
+	github.com/stretchr/testify v1.7.1
 )
