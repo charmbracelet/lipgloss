@@ -6,64 +6,120 @@ import (
 	"testing"
 )
 
+const (
+	topRight uint = iota
+	topLeft
+	bottomRight
+	bottomLeft
+)
+
 func TestPlace(t *testing.T) {
-	// use bytes to compare strings
-	defaultSize := 3
+	// TODO: make tests with word len that changes
 	word := "Hello"
-	var cols string
-	var stringLineWidth string
-	if len(word) < defaultSize {
-		cols = strings.Repeat(" ", defaultSize)
-		stringLineWidth = strings.Repeat(" ", defaultSize-len(word))
-	} else {
-		cols = strings.Repeat(" ", len(word))
-		stringLineWidth = ""
-	}
-	leftFiller := strings.Repeat(cols+"\n", defaultSize-1)
-	rightFiller := strings.Repeat("\n"+cols, defaultSize-1)
 
 	tests := []struct {
 		name               string
 		size               int
 		horizontalPosition Position
 		verticalPosition   Position
-		want               string
+		want               uint
 	}{
 		{
 			name:               "top left, no padding",
 			size:               1,
 			horizontalPosition: Top,
 			verticalPosition:   Top,
-			want:               word,
+			want:               topLeft,
+		},
+		{
+			name:               "top left, some padding",
+			size:               3,
+			horizontalPosition: Left,
+			verticalPosition:   Top,
+			want:               topLeft,
 		},
 		{
 			name:               "top right, some padding",
-			size:               defaultSize,
+			size:               3,
 			horizontalPosition: Right,
 			verticalPosition:   Top,
-			want:               stringLineWidth + word + rightFiller,
+			want:               topRight,
 		},
 		{
 			name:               "bottom left, some padding",
-			size:               defaultSize,
+			size:               3,
 			horizontalPosition: Left,
 			verticalPosition:   Bottom,
-			want:               leftFiller + word + stringLineWidth,
-		}, {
+			want:               bottomLeft,
+		},
+		{
 			name:               "bottom right, some padding",
-			size:               defaultSize,
+			size:               3,
 			horizontalPosition: Right,
 			verticalPosition:   Bottom,
-			want:               leftFiller + stringLineWidth + word,
+			want:               bottomRight,
+		},
+		{
+			name:               "top left, padding gt word",
+			size:               7,
+			horizontalPosition: Left,
+			verticalPosition:   Top,
+			want:               topLeft,
+		},
+		{
+			name:               "top right, padding gt word",
+			size:               7,
+			horizontalPosition: Right,
+			verticalPosition:   Top,
+			want:               topRight,
+		},
+		{
+			name:               "bottom left, padding gt word",
+			size:               7,
+			horizontalPosition: Left,
+			verticalPosition:   Bottom,
+			want:               bottomLeft,
+		},
+		{
+			name:               "bottom right, padding gt word",
+			size:               7,
+			horizontalPosition: Right,
+			verticalPosition:   Bottom,
+			want:               bottomRight,
 		},
 	}
-
 	for _, tc := range tests {
 		got := Place(tc.size, tc.size, tc.horizontalPosition, tc.verticalPosition, word, WithWhitespaceForeground(NoColor{}))
-		if got != tc.want {
+		want := manualFormatString(tc.want, tc.size, word)
+		if got != want {
 			fmt.Println([]byte(got))
-			fmt.Println([]byte(tc.want))
-			t.Errorf("%s\ngot: %s\nwant: %s", tc.name, []byte(got), []byte(tc.want))
+			fmt.Println([]byte(want))
+			t.Errorf("%s\ngot: %s\nwant: %s", tc.name, []byte(got), []byte(want))
 		}
+	}
+}
+
+func manualFormatString(choice uint, size int, word string) string {
+	var cols string
+	var linewithword string
+
+	if len(word) < size {
+		cols = strings.Repeat(" ", size)
+		linewithword = strings.Repeat(" ", size-len(word))
+	} else {
+		cols = strings.Repeat(" ", len(word))
+		linewithword = ""
+	}
+	leftFiller := strings.Repeat(cols+"\n", size-1)
+	rightFiller := strings.Repeat("\n"+cols, size-1)
+	switch choice {
+	case topRight:
+		return linewithword + word + rightFiller
+	case bottomRight:
+		return leftFiller + linewithword + word
+	case bottomLeft:
+		return leftFiller + word + linewithword
+	default:
+		return word + linewithword + rightFiller
 	}
 }
