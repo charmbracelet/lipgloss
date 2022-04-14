@@ -71,6 +71,19 @@ const (
 	strikethroughSpacesKey
 )
 
+// ANSI-related styling properties.
+var ansiProps = map[propKey]struct{}{
+	boldKey:          {},
+	italicKey:        {},
+	underlineKey:     {},
+	strikethroughKey: {},
+	reverseKey:       {},
+	blinkKey:         {},
+	faintKey:         {},
+	foregroundKey:    {},
+	backgroundKey:    {},
+}
+
 // A set of properties.
 type rules map[propKey]interface{}
 
@@ -169,20 +182,6 @@ func (s Style) Render(str string) string {
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
 
-		width  = s.getAsInt(widthKey)
-		height = s.getAsInt(heightKey)
-		align  = s.getAsPosition(alignKey)
-
-		topPadding    = s.getAsInt(paddingTopKey)
-		rightPadding  = s.getAsInt(paddingRightKey)
-		bottomPadding = s.getAsInt(paddingBottomKey)
-		leftPadding   = s.getAsInt(paddingLeftKey)
-
-		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
-		inline          = s.getAsBool(inlineKey, false)
-		maxWidth        = s.getAsInt(maxWidthKey)
-		maxHeight       = s.getAsInt(maxHeightKey)
-
 		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
 		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
 
@@ -192,6 +191,8 @@ func (s Style) Render(str string) string {
 
 		// Do we need to style spaces separately?
 		useSpaceStyler = underlineSpaces || strikethroughSpaces
+
+		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 	)
 
 	if len(s.rules) == 0 {
@@ -253,12 +254,42 @@ func (s Style) Render(str string) string {
 		te = te.CrossOut()
 	}
 
+	// Short circuit if we only need to render ANSI styling.
+	if len(s.rules) <= len(ansiProps) {
+		var continueRender bool
+		for k := range s.rules {
+			if _, found := ansiProps[k]; !found {
+				// We found a style rule that is not a basic ANSI style.
+				continueRender = true
+				break
+			}
+		}
+		if !continueRender {
+			return te.Styled(str)
+		}
+	}
+
 	if underlineSpaces {
 		teSpace = teSpace.Underline()
 	}
 	if strikethroughSpaces {
 		teSpace = teSpace.CrossOut()
 	}
+
+	var (
+		width  = s.getAsInt(widthKey)
+		height = s.getAsInt(heightKey)
+		align  = s.getAsPosition(alignKey)
+
+		topPadding    = s.getAsInt(paddingTopKey)
+		rightPadding  = s.getAsInt(paddingRightKey)
+		bottomPadding = s.getAsInt(paddingBottomKey)
+		leftPadding   = s.getAsInt(paddingLeftKey)
+
+		inline    = s.getAsBool(inlineKey, false)
+		maxWidth  = s.getAsInt(maxWidthKey)
+		maxHeight = s.getAsInt(maxHeightKey)
+	)
 
 	// Strip newlines in single line mode
 	if inline {
