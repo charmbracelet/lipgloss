@@ -6,8 +6,6 @@ import (
 )
 
 func TestStyleRunes(t *testing.T) {
-	t.Parallel()
-
 	matchedStyle := NewStyle().Reverse(true)
 	unmatchedStyle := NewStyle()
 

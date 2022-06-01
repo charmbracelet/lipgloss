@@ -7,8 +7,6 @@ import (
 )
 
 func TestSetColorProfile(t *testing.T) {
-	t.Parallel()
-
 	input := "hello"
 
 	tt := []struct {
