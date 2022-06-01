@@ -155,15 +155,9 @@ func (s Style) Inherit(i Style) Style {
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
-		te = termenv.Style{
-			Profile: ColorProfile(),
-		}
-		teSpace = termenv.Style{
-			Profile: ColorProfile(),
-		}
-		teWhitespace = termenv.Style{
-			Profile: ColorProfile(),
-		}
+		te           = ColorProfile().String()
+		teSpace      = ColorProfile().String()
+		teWhitespace = ColorProfile().String()
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)
