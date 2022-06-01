@@ -9,39 +9,32 @@ import (
 func TestSetColorProfile(t *testing.T) {
 	t.Parallel()
 
+	style := NewStyle().Foreground(Color("#5A56E0"))
+	input := "hello"
+
 	tt := []struct {
 		name     string
 		profile  termenv.Profile
-		input    string
-		style    Style
 		expected string
 	}{
 		{
-			"anscii",
+			"ascii",
 			termenv.Ascii,
-			"hello",
-			NewStyle().Foreground(Color("#5A56E0")),
 			"hello",
 		},
 		{
 			"ansi",
 			termenv.ANSI,
-			"hello",
-			NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[94mhello\x1b[0m",
 		},
 		{
 			"ansi256",
 			termenv.ANSI256,
-			"hello",
-			NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[38;5;62mhello\x1b[0m",
 		},
 		{
 			"truecolor",
 			termenv.TrueColor,
-			"hello",
-			NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 	}
@@ -49,7 +42,7 @@ func TestSetColorProfile(t *testing.T) {
 	for i, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			SetColorProfile(tc.profile)
-			res := tc.style.Render(tc.input)
+			res := style.Render(input)
 			if res != tc.expected {
 				t.Log(res, "vs", tc.expected)
 				t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
