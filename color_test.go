@@ -9,7 +9,6 @@ import (
 func TestSetColorProfile(t *testing.T) {
 	t.Parallel()
 
-	style := NewStyle().Foreground(Color("#5A56E0"))
 	input := "hello"
 
 	tt := []struct {
@@ -42,7 +41,9 @@ func TestSetColorProfile(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			SetColorProfile(tc.profile)
+			style := NewStyle().Foreground(Color("#5A56E0"))
 			res := style.Render(input)
+
 			if res != tc.expected {
 				t.Errorf("Expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
 					tc.expected, formatEscapes(tc.expected),
