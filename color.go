@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	output               *termenv.Output
 	colorProfile         termenv.Profile
 	getColorProfile      sync.Once
 	explicitColorProfile bool
@@ -26,7 +27,11 @@ func ColorProfile() termenv.Profile {
 
 	if !explicitColorProfile {
 		getColorProfile.Do(func() {
-			colorProfile = termenv.EnvColorProfile()
+			if output != nil {
+				colorProfile = output.EnvColorProfile()
+			} else {
+				colorProfile = termenv.EnvColorProfile()
+			}
 		})
 	}
 	return colorProfile
@@ -56,6 +61,11 @@ func SetColorProfile(p termenv.Profile) {
 	explicitColorProfile = true
 }
 
+// SetOutput sets the output to use for adaptive color detection.
+func SetOutput(o *termenv.Output) {
+	output = o
+}
+
 // HasDarkBackground returns whether or not the terminal has a dark background.
 func HasDarkBackground() bool {
 	colorProfileMtx.RLock()
@@ -63,7 +73,11 @@ func HasDarkBackground() bool {
 
 	if !explicitBackgroundColor {
 		getBackgroundColor.Do(func() {
-			hasDarkBackground = termenv.HasDarkBackground()
+			if output != nil {
+				hasDarkBackground = output.HasDarkBackground()
+			} else {
+				hasDarkBackground = termenv.HasDarkBackground()
+			}
 		})
 	}
 
