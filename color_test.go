@@ -39,14 +39,13 @@ func TestSetColorProfile(t *testing.T) {
 		},
 	}
 
-	for i, tc := range tt {
+	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			SetColorProfile(tc.profile)
 			res := style.Render(input)
 			if res != tc.expected {
-				t.Log(res, "vs", tc.expected)
-				t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-					i, tc.expected, formatEscapes(tc.expected),
+				t.Errorf("Expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+					tc.expected, formatEscapes(tc.expected),
 					res, formatEscapes(res))
 			}
 		})
