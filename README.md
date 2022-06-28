@@ -27,7 +27,7 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-fmt.Println(style.Render("Hello, kitty."))
+fmt.Println(lipgloss.Render(style, "Hello, kitty."))
 ```
 
 
@@ -151,11 +151,12 @@ var style = lipgloss.NewStyle().
 Setting a minimum width and height is simple and straightforward.
 
 ```go
-var str = lipgloss.NewStyle().
+var style = lipgloss.NewStyle().
     Width(24).
     Height(32).
-    Foreground(lipgloss.Color("63")).
-    Render("What’s for lunch?")
+    Foreground(lipgloss.Color("63"))
+
+var str = lipgloss.Render(style, "What’s for lunch?")
 ```
 
 
@@ -263,29 +264,35 @@ and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
 // Force rendering onto a single line, ignoring margins, padding, and borders.
-someStyle.Inline(true).Render("yadda yadda")
+lipgloss.Render(someStyle.Inline(true), "yadda yadda")
 
 // Also limit rendering to five cells
-someStyle.Inline(true).MaxWidth(5).Render("yadda yadda")
+lipgloss.Render(someStyle.Inline(true).MaxWidth(5), "yadda yadda")
 
 // Limit rendering to a 5x5 cell block
-someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
+lipgloss.Render(someStyle.MaxWidth(5).MaxHeight(5), "yadda yadda")
 ```
 
 ## Rendering
 
-Generally, you just call the `Render(string)` method on a `lipgloss.Style`:
+Generally, you just pass a style and string to the default renderer:
 
 ```go
-fmt.Println(lipgloss.NewStyle().Bold(true).Render("Hello, kitty."))
+style := lipgloss.NewStyle().Bold(true)
+fmt.Println(lipgloss.Render(style, "Hello, kitty."))
 ```
 
-But you could also use the Stringer interface:
+But you can also use a custom renderer:
 
 ```go
+// Render to stdout and force dark background mode.
+var r = lipgloss.NewRenderer(
+    lipgloss.WithOutput(termenv.NewOutput(os.Stdout)),
+    lipgloss.WithDarkBackground(),
+)
 var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 
-fmt.Printf("%s\n", style)
+fmt.Println(r.Render(style))
 ```
 
 
@@ -318,10 +325,11 @@ Sometimes you’ll want to know the width and height of text blocks when buildin
 your layouts.
 
 ```go
-var block string = lipgloss.NewStyle().
+// Render a block of text.
+var style = lipgloss.NewStyle().
     Width(40).
-    Padding(2).
-    Render(someLongString)
+    Padding(2)
+var block string = lipgloss.Render(style, someLongString)
 
 // Get the actual, physical dimensions of the text block.
 width := lipgloss.Width(block)

@@ -7,14 +7,26 @@ import (
 	"github.com/muesli/termenv"
 )
 
-// whitespace is a whitespace renderer.
-type whitespace struct {
+// Whitespace is a whitespace renderer.
+type Whitespace struct {
+	re    *Renderer
 	style termenv.Style
 	chars string
 }
 
+// NewWhitespace creates a new whitespace renderer. The order of the options
+// matters, it you'r using WithWhitespaceRenderer, make sure it comes first as
+// other options might depend on it.
+func NewWhitespace(opts ...WhitespaceOption) *Whitespace {
+	w := &Whitespace{re: renderer}
+	for _, opt := range opts {
+		opt(w)
+	}
+	return w
+}
+
 // Render whitespaces.
-func (w whitespace) render(width int) string {
+func (w Whitespace) render(width int) string {
 	if w.chars == "" {
 		w.chars = " "
 	}
@@ -44,25 +56,32 @@ func (w whitespace) render(width int) string {
 }
 
 // WhitespaceOption sets a styling rule for rendering whitespace.
-type WhitespaceOption func(*whitespace)
+type WhitespaceOption func(*Whitespace)
 
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
 func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
-	return func(w *whitespace) {
-		w.style = w.style.Foreground(c.color())
+	return func(w *Whitespace) {
+		w.style = w.style.Foreground(w.re.color(c))
 	}
 }
 
 // WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
-	return func(w *whitespace) {
-		w.style = w.style.Background(c.color())
+	return func(w *Whitespace) {
+		w.style = w.style.Background(w.re.color(c))
 	}
 }
 
 // WithWhitespaceChars sets the characters to be rendered in the whitespace.
 func WithWhitespaceChars(s string) WhitespaceOption {
-	return func(w *whitespace) {
+	return func(w *Whitespace) {
 		w.chars = s
+	}
+}
+
+// WithWhitespaceRenderer sets the lipgloss renderer to be used for rendering.
+func WithWhitespaceRenderer(r *Renderer) WhitespaceOption {
+	return func(w *Whitespace) {
+		w.re = r
 	}
 }
