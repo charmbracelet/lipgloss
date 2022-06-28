@@ -48,11 +48,7 @@ func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOpti
 		return str
 	}
 
-	ws := &whitespace{}
-	for _, opt := range opts {
-		opt(ws)
-	}
-
+	ws := NewWhitespace(opts...)
 	var b strings.Builder
 	for i, l := range lines {
 		// Is this line shorter than the longest line?
@@ -98,11 +94,7 @@ func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOptio
 		return str
 	}
 
-	ws := &whitespace{}
-	for _, opt := range opts {
-		opt(ws)
-	}
-
+	ws := NewWhitespace(opts...)
 	_, width := getLines(str)
 	emptyLine := ws.render(width)
 	b := strings.Builder{}

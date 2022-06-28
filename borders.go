@@ -148,7 +148,7 @@ func HiddenBorder() Border {
 	return hiddenBorder
 }
 
-func (s Style) applyBorder(str string) string {
+func (s Style) applyBorder(re *Renderer, str string) string {
 	var (
 		topSet    = s.isSet(borderTopKey)
 		rightSet  = s.isSet(borderRightKey)
@@ -250,7 +250,7 @@ func (s Style) applyBorder(str string) string {
 	// Render top
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
-		top = styleBorder(top, topFG, topBG)
+		top = styleBorder(re, top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
 	}
@@ -269,7 +269,7 @@ func (s Style) applyBorder(str string) string {
 			if leftIndex >= len(leftRunes) {
 				leftIndex = 0
 			}
-			out.WriteString(styleBorder(r, leftFG, leftBG))
+			out.WriteString(styleBorder(re, r, leftFG, leftBG))
 		}
 		out.WriteString(l)
 		if hasRight {
@@ -278,7 +278,7 @@ func (s Style) applyBorder(str string) string {
 			if rightIndex >= len(rightRunes) {
 				rightIndex = 0
 			}
-			out.WriteString(styleBorder(r, rightFG, rightBG))
+			out.WriteString(styleBorder(re, r, rightFG, rightBG))
 		}
 		if i < len(lines)-1 {
 			out.WriteRune('\n')
@@ -288,7 +288,7 @@ func (s Style) applyBorder(str string) string {
 	// Render bottom
 	if hasBottom {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
-		bottom = styleBorder(bottom, bottomFG, bottomBG)
+		bottom = styleBorder(re, bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
@@ -328,7 +328,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 }
 
 // Apply foreground and background styling to a border.
-func styleBorder(border string, fg, bg TerminalColor) string {
+func styleBorder(re *Renderer, border string, fg, bg TerminalColor) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}
@@ -336,10 +336,10 @@ func styleBorder(border string, fg, bg TerminalColor) string {
 	var style = termenv.Style{}
 
 	if fg != noColor {
-		style = style.Foreground(ColorProfile().Color(fg.value()))
+		style = style.Foreground(re.Color(fg))
 	}
 	if bg != noColor {
-		style = style.Background(ColorProfile().Color(bg.value()))
+		style = style.Background(re.Color(bg))
 	}
 
 	return style.Styled(border)
