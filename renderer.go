@@ -11,9 +11,7 @@ import (
 	"github.com/muesli/termenv"
 )
 
-var (
-	renderer = NewRenderer()
-)
+var renderer = NewRenderer()
 
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
@@ -144,7 +142,7 @@ func SetHasDarkBackground(b bool) {
 	renderer.SetHasDarkBackground(b)
 }
 
-// Render applies the defined style formatting to a given style.
+// Render formats a string according to the given style.
 func (r *Renderer) Render(s Style, str string) string {
 	var (
 		te           = r.ColorProfile().String()
@@ -364,7 +362,8 @@ func (r *Renderer) Render(s Style, str string) string {
 	return str
 }
 
-// Render applies the defined style formatting to a given style.
+// Render formats a string according to the given style using the default
+// renderer.
 func Render(s Style, str string) string {
 	return renderer.Render(s, str)
 }
