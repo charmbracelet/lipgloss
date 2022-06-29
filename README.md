@@ -274,25 +274,23 @@ lipgloss.Render(someStyle.MaxWidth(5).MaxHeight(5), "yadda yadda")
 
 ## Rendering
 
-Generally, you just call the `lipgloss.Render(style, string)` method:
+Generally, you just pass a style and string to the default renderer:
 
 ```go
 style := lipgloss.NewStyle().Bold(true)
 fmt.Println(lipgloss.Render(style, "Hello, kitty."))
 ```
 
-You could also use a custom renderer:
+But you can also use a custom renderer:
 
 ```go
-re := lipgloss.NewRenderer(
-    lipgloss.WithOutput(
-        termenv.NewOutput(os.Stdout),
-    ),
+var r = lipgloss.NewRenderer(
+    lipgloss.WithOutput(termenv.NewOutput(os.Stdout)),
     lipgloss.WithDarkBackground(),
 )
 var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 
-fmt.Println(re.Render(style))
+fmt.Println(r.Render(style))
 ```
 
 
@@ -325,7 +323,8 @@ Sometimes you’ll want to know the width and height of text blocks when buildin
 your layouts.
 
 ```go
-var style string = lipgloss.NewStyle().
+// Render a block of text.
+var style = lipgloss.NewStyle().
     Width(40).
     Padding(2)
 var block string = lipgloss.Render(style, someLongString)
