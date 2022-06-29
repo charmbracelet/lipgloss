@@ -155,6 +155,7 @@ var style = lipgloss.NewStyle().
     Width(24).
     Height(32).
     Foreground(lipgloss.Color("63"))
+
 var str = lipgloss.Render(style, "What’s for lunch?")
 ```
 
@@ -401,7 +402,7 @@ the stylesheet-based Markdown renderer.
 
 Part of [Charm](https://charm.sh).
 
-<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge-unrounded.jpg" width="400"></a>
+<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
 
