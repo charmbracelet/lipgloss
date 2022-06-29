@@ -336,10 +336,10 @@ func styleBorder(re *Renderer, border string, fg, bg TerminalColor) string {
 	var style = termenv.Style{}
 
 	if fg != noColor {
-		style = style.Foreground(re.Color(fg))
+		style = style.Foreground(re.color(fg))
 	}
 	if bg != noColor {
-		style = style.Background(re.Color(bg))
+		style = style.Background(re.color(bg))
 	}
 
 	return style.Styled(border)

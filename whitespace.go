@@ -61,14 +61,14 @@ type WhitespaceOption func(*Whitespace)
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
 func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	return func(w *Whitespace) {
-		w.style = w.style.Foreground(w.re.Color(c))
+		w.style = w.style.Foreground(w.re.color(c))
 	}
 }
 
 // WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *Whitespace) {
-		w.style = w.style.Background(w.re.Color(c))
+		w.style = w.style.Background(w.re.color(c))
 	}
 }
 

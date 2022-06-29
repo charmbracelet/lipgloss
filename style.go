@@ -169,7 +169,7 @@ func (s Style) applyMargins(re *Renderer, str string, inline bool) string {
 
 	bgc := s.getAsColor(marginBackgroundKey)
 	if bgc != noColor {
-		styler = styler.Background(re.Color(bgc))
+		styler = styler.Background(re.color(bgc))
 	}
 
 	// Add left and right margin

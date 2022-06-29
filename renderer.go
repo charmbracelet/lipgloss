@@ -217,7 +217,7 @@ func (r *Renderer) Render(s Style, str string) string {
 	}
 
 	if fg != noColor {
-		fgc := r.Color(fg)
+		fgc := r.color(fg)
 		te = te.Foreground(fgc)
 		if styleWhitespace {
 			teWhitespace = teWhitespace.Foreground(fgc)
@@ -228,7 +228,7 @@ func (r *Renderer) Render(s Style, str string) string {
 	}
 
 	if bg != noColor {
-		bgc := r.Color(bg)
+		bgc := r.color(bg)
 		te = te.Background(bgc)
 		if colorWhitespace {
 			teWhitespace = teWhitespace.Background(bgc)
@@ -411,7 +411,7 @@ func (r *Renderer) colorValue(c TerminalColor) string {
 	}
 }
 
-// Color returns a termenv.Color for the given TerminalColor.
-func (r *Renderer) Color(c TerminalColor) termenv.Color {
+// color returns a termenv.color for the given TerminalColor.
+func (r *Renderer) color(c TerminalColor) termenv.Color {
 	return r.ColorProfile().Color(r.colorValue(c))
 }
