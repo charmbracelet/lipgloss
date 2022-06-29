@@ -28,7 +28,16 @@ type Color string
 
 func (Color) colorType() {}
 
-// ANSIColor is a color specified by an ANSI color value.
+// ANSIColor is a color specified by an ANSI color value. It's merely syntactic
+// sugar for the more general Color function. Invalid colors will render as
+// black.
+//
+// Example usage:
+//
+//    // These two statements are equivalent.
+//    colorA := lipgloss.ANSIColor(21)
+//    colorB := lipgloss.Color("21")
+//
 type ANSIColor uint
 
 func (ANSIColor) colorType() {}
