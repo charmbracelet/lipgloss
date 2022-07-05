@@ -51,3 +51,37 @@ func TestSetColorProfile(t *testing.T) {
 		}
 	}
 }
+
+func TestHexToColor(t *testing.T) {
+	t.Parallel()
+
+	tt := []struct {
+		input    string
+		expected uint
+	}{
+		{
+			"#FF0000",
+			0xFF0000,
+		},
+		{
+			"#00F",
+			0x0000FF,
+		},
+		{
+			"#6B50FF",
+			0x6B50FF,
+		},
+		{
+			"invalid color",
+			0x0,
+		},
+	}
+
+	for i, tc := range tt {
+		h := hexToColor(tc.input)
+		o := uint(h.R)<<16 + uint(h.G)<<8 + uint(h.B)
+		if o != tc.expected {
+			t.Errorf("expected %X, got %X (test #%d)", o, tc.expected, i+1)
+		}
+	}
+}
