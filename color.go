@@ -197,12 +197,18 @@ func hexToColor(hex string) (c color.RGBA) {
 		return c
 	}
 
+	const (
+		fullFormat  = 7 // #RRGGBB
+		shortFormat = 4 // #RGB
+	)
+
 	switch len(hex) {
-	case 7: // #RRGGBB
-		c.R = hexToByte(hex[1])<<4 + hexToByte(hex[2])
-		c.G = hexToByte(hex[3])<<4 + hexToByte(hex[4])
-		c.B = hexToByte(hex[5])<<4 + hexToByte(hex[6])
-	case 4: // #RGB
+	case fullFormat:
+		const offset = 4
+		c.R = hexToByte(hex[1])<<offset + hexToByte(hex[2])
+		c.G = hexToByte(hex[3])<<offset + hexToByte(hex[4])
+		c.B = hexToByte(hex[5])<<offset + hexToByte(hex[6])
+	case shortFormat:
 		const offset = 0x11
 		c.R = hexToByte(hex[1]) * offset
 		c.G = hexToByte(hex[2]) * offset
@@ -213,13 +219,14 @@ func hexToColor(hex string) (c color.RGBA) {
 }
 
 func hexToByte(b byte) byte {
+	const offset = 10
 	switch {
 	case b >= '0' && b <= '9':
 		return b - '0'
 	case b >= 'a' && b <= 'f':
-		return b - 'a' + 10
+		return b - 'a' + offset
 	case b >= 'A' && b <= 'F':
-		return b - 'A' + 10
+		return b - 'A' + offset
 	}
 	// Invalid, but just return 0.
 	return 0
