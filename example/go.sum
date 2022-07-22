@@ -1,6 +1,4 @@
-github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
-github.com/lucasb-eyer/go-colorful v1.0.2/go.mod h1:0MS4r+7BZKSJ5mw4/S5MPN+qHFF1fYclkSPilDOKW0s=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
@@ -11,10 +9,10 @@ github.com/mattn/go-runewidth v0.0.13/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh
 github.com/muesli/clusters v0.0.0-20180605185049-a07a36e67d36/go.mod h1:mw5KDqUj0eLj/6DUNINLVJNoPTFkEuGMHtJsXLviLkY=
 github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762 h1:p4A2Jx7Lm3NV98VRMKlyWd3nqf8obft8NfXlAUmqd3I=
 github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762/go.mod h1:mw5KDqUj0eLj/6DUNINLVJNoPTFkEuGMHtJsXLviLkY=
-github.com/muesli/gamut v0.3.0 h1:ZL6bOudh1oBQjh5S+9lHZIZ/aodhn9V0F+RtSTb+HOQ=
-github.com/muesli/gamut v0.3.0/go.mod h1:28EAV1OoUHPOE9e4EgSfi4seod9CaSJMPlT1Q7ufB/I=
-github.com/muesli/kmeans v0.3.0 h1:cI2cpeS8m3pm+gTOdzl+7SlzZYSe+x0XoqXUyUvb1ro=
-github.com/muesli/kmeans v0.3.0/go.mod h1:eNyybq0tX9/iBEP6EMU4Y7dpmGK0uEhODdZpnG1a/iQ=
+github.com/muesli/gamut v0.3.1 h1:8hozovcrDBWLLAwuOXC+UDyO0/uNroIdXAmY/lQOMHo=
+github.com/muesli/gamut v0.3.1/go.mod h1:BED0DN21PXU1YaYNwaTmX9700SRHPcWWd6Llj0zsz5k=
+github.com/muesli/kmeans v0.3.1 h1:KshLQ8wAETfLWOJKMuDCVYHnafddSa1kwGh/IypGIzY=
+github.com/muesli/kmeans v0.3.1/go.mod h1:8/OvJW7cHc1BpRf8URb43m+vR105DDe+Kj1WcFXYDqc=
 github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68 h1:y1p/ycavWjGT9FnmSjdbWUlLGvcxrY0Rw3ATltrxOhk=
 github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68/go.mod h1:Xk+z4oIWdQqJzsxyjgl3P22oYZnHdZ8FFTHAQQt5BMQ=
 github.com/muesli/termenv v0.11.1-0.20220204035834-5ac8409525e0 h1:STjmj0uFfRryL9fzRA/OupNppeAID6QJYPMavTL7jtY=
