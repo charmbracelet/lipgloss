@@ -414,6 +414,17 @@ func (s Style) getAsInt(k propKey) int {
 	return 0
 }
 
+func (s Style) getAsString(k propKey) string {
+
+	if v, ok := s.rules[k]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+
+}
+
 func (s Style) getAsPosition(k propKey) Position {
 	v, ok := s.rules[k]
 	if !ok {
@@ -434,6 +445,18 @@ func (s Style) getBorderStyle() Border {
 		return b
 	}
 	return noBorder
+}
+
+func (s Style) GetBorderTitle() string {
+	return s.getAsString(borderTitleKey)
+}
+
+func (s Style) GetBorderTitleBackground() TerminalColor {
+	return s.getAsColor(borderTitleBackgroundKey)
+}
+
+func (s Style) GetBorderTitleForeground() TerminalColor {
+	return s.getAsColor(borderTitleForegroundKey)
 }
 
 // Split a string into lines, additionally returning the size of the widest

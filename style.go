@@ -64,6 +64,11 @@ const (
 	borderBottomBackgroundKey
 	borderLeftBackgroundKey
 
+	// Border title
+	borderTitleKey
+	borderTitleBackgroundKey
+	borderTitleForegroundKey
+
 	inlineKey
 	maxWidthKey
 	maxHeightKey

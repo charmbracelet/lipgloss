@@ -435,6 +435,24 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	return s
 }
 
+// BorderTitle set border title, which is displayed as part of the top border
+func (s Style) BorderTitle(title string) Style {
+	s.set(borderTitleKey, title)
+	return s
+}
+
+// BorderTitleBackground set border title background color
+func (s Style) BorderTitleBackground(color TerminalColor) Style {
+	s.set(borderTitleBackgroundKey, color)
+	return s
+}
+
+// BorderTitleForeground set border title background color
+func (s Style) BorderTitleForeground(color TerminalColor) Style {
+	s.set(borderTitleForegroundKey, color)
+	return s
+}
+
 // Inline makes rendering output one line and disables the rendering of
 // margins, padding and borders. This is useful when you need a style to apply
 // only to font rendering and don't want it to change any physical dimensions.
