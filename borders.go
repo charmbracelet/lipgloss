@@ -250,23 +250,27 @@ func (s Style) applyBorder(str string) string {
 	// Render top
 	if hasTop {
 
+		top := ""
 		title := s.GetBorderTitle()
 		if len(strings.TrimSpace(title)) > 0 {
-			//title = styleBorder(title, s.GetBorderTitleForeground(), s.GetBorderTitleBackground())
 
 			if len(title) > width {
 				title = title[0 : width-1]
 			}
 
-			title = NewStyle().
-				Foreground(s.GetBorderTitleForeground()).
-				Background(s.GetBorderTitleBackground()).Render(title)
+			//TODO title alignment
+			topBeforeTitle := border.TopLeft
+			topAfterTitle := strings.Repeat(border.Top, width-1-len(title)) + border.TopRight
+
+			top = styleBorder(topBeforeTitle, topFG, topBG) +
+				styleBorder(title, s.GetBorderTitleForeground(), s.GetBorderTitleBackground()) +
+				styleBorder(topAfterTitle, topFG, topBG)
+
+		} else {
+
+			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+			top = styleBorder(top, topFG, topBG)
 		}
-
-		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, title, width)
-
-		//TODO border style gets lost as its taken over by title style
-		top = styleBorder(top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
 	}
@@ -303,7 +307,7 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, "", width)
+		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
 		bottom = styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
@@ -313,7 +317,7 @@ func (s Style) applyBorder(str string) string {
 }
 
 // Render the horizontal (top or bottom) portion of a border.
-func renderHorizontalEdge(left, middle, right, title string, width int) string {
+func renderHorizontalEdge(left, middle, right string, width int) string {
 	if width < 1 {
 		return ""
 	}
@@ -325,24 +329,13 @@ func renderHorizontalEdge(left, middle, right, title string, width int) string {
 	leftWidth := ansi.PrintableRuneWidth(left)
 	rightWidth := ansi.PrintableRuneWidth(right)
 
-	if len(strings.TrimSpace(title)) == 0 {
-		title = ""
-	}
-
 	runes := []rune(middle)
 	j := 0
 
 	out := strings.Builder{}
 	out.WriteString(left)
 
-	middleBorderStart := leftWidth + rightWidth
-	if len(title) > 0 {
-		// title truncation happens outside
-		out.WriteString(title)
-		middleBorderStart += ansi.PrintableRuneWidth(title)
-	}
-
-	for i := middleBorderStart; i < width+rightWidth; {
+	for i := leftWidth + rightWidth; i < width+rightWidth; {
 		out.WriteRune(runes[j])
 		j++
 		if j >= len(runes) {
