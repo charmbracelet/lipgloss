@@ -451,6 +451,10 @@ func (s Style) GetBorderTitle() string {
 	return s.getAsString(borderTitleKey)
 }
 
+func (s Style) GetBorderTitleAlignment() Position {
+	return s.getAsPosition(borderTitleAlignmentKey)
+}
+
 func (s Style) GetBorderTitleBackground() TerminalColor {
 	return s.getAsColor(borderTitleBackgroundKey)
 }

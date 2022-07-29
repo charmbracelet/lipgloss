@@ -255,12 +255,24 @@ func (s Style) applyBorder(str string) string {
 		if len(strings.TrimSpace(title)) > 0 {
 
 			if len(title) > width {
+				// the truncation algorithm can be provided through the API in the future
 				title = title[0 : width-1]
 			}
 
-			//TODO title alignment
 			topBeforeTitle := border.TopLeft
-			topAfterTitle := strings.Repeat(border.Top, width-1-len(title)) + border.TopRight
+			topAfterTitle := border.TopRight
+			switch s.GetBorderTitleAlignment() {
+			case Right:
+				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, width-1-len(title))
+			case Center:
+				noTitleLen := width - 1 - len(title)
+				noTitleLen2 := noTitleLen / 2
+				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, noTitleLen2)
+				topAfterTitle = strings.Repeat(border.Top, noTitleLen-noTitleLen2) + border.TopRight
+
+			default:
+				topAfterTitle = strings.Repeat(border.Top, width-1-len(title)) + border.TopRight
+			}
 
 			top = styleBorder(topBeforeTitle, topFG, topBG) +
 				styleBorder(title, s.GetBorderTitleForeground(), s.GetBorderTitleBackground()) +

@@ -96,6 +96,7 @@ var (
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#874BFD")).
 			BorderTitleForeground(lipgloss.Color("#FFFFFF")).
+			BorderTitleAlignment(lipgloss.Center).
 			Padding(1, 0).
 			BorderTop(true).
 			BorderLeft(true).

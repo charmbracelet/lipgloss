@@ -441,6 +441,12 @@ func (s Style) BorderTitle(title string) Style {
 	return s
 }
 
+// BorderTitleAlignment set border title aligment
+func (s Style) BorderTitleAlignment(alignment Position) Style {
+	s.set(borderTitleAlignmentKey, alignment)
+	return s
+}
+
 // BorderTitleBackground set border title background color
 func (s Style) BorderTitleBackground(color TerminalColor) Style {
 	s.set(borderTitleBackgroundKey, color)
