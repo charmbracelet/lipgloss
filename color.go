@@ -117,7 +117,7 @@ func (n NoColor) color() termenv.Color {
 
 // RGBA returns the RGBA value of this color. Because we have to return
 // something, despite this color being the absence of color, we're returning
-// the same value that go-colorful returns on error:
+// black with 100% opacity.
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
@@ -145,11 +145,8 @@ func (c Color) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
-//
-// This is inline with go-colorful's default behavior.
 func (c Color) RGBA() (r, g, b, a uint32) {
-	cf := hexToColor(c.value())
-	return cf.RGBA()
+	return hexToColor(c.value()).RGBA()
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -180,8 +177,6 @@ func (ac AdaptiveColor) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
-//
-// This is inline with go-colorful's default behavior.
 func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
 	cf := hexToColor(ac.value())
 	return cf.RGBA()
@@ -216,8 +211,6 @@ func (c CompleteColor) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
-//
-// This is inline with go-colorful's default behavior.
 func (c CompleteColor) RGBA() (r, g, b, a uint32) {
 	return hexToColor(c.value()).RGBA()
 }
@@ -245,8 +238,6 @@ func (cac CompleteAdaptiveColor) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
-//
-// This is inline with go-colorful's default behavior.
 func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
 	return hexToColor(cac.value()).RGBA()
 }
