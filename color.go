@@ -103,8 +103,7 @@ type TerminalColor interface {
 //
 // Example usage:
 //
-//     var style = someStyle.Copy().Background(lipgloss.NoColor{})
-//
+//	var style = someStyle.Copy().Background(lipgloss.NoColor{})
 type NoColor struct{}
 
 func (n NoColor) value() string {
@@ -128,9 +127,8 @@ var noColor = NoColor{}
 
 // Color specifies a color by hex or ANSI value. For example:
 //
-//     ansiColor := lipgloss.Color("21")
-//     hexColor := lipgloss.Color("#0000ff")
-//
+//	ansiColor := lipgloss.Color("21")
+//	hexColor := lipgloss.Color("#0000ff")
 type Color string
 
 func (c Color) value() string {
@@ -155,8 +153,7 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 //
 // Example usage:
 //
-//     color := lipgloss.AdaptiveColor{Light: "#0000ff", Dark: "#000099"}
-//
+//	color := lipgloss.AdaptiveColor{Light: "#0000ff", Dark: "#000099"}
 type AdaptiveColor struct {
 	Light string
 	Dark  string
