@@ -64,7 +64,7 @@ const (
 	borderBottomBackgroundKey
 	borderLeftBackgroundKey
 
-	// Border title
+	// Border title.
 	borderTitleKey
 	borderTitleAlignmentKey
 	borderTitleBackgroundKey

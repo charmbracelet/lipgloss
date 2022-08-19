@@ -415,14 +415,12 @@ func (s Style) getAsInt(k propKey) int {
 }
 
 func (s Style) getAsString(k propKey) string {
-
 	if v, ok := s.rules[k]; ok {
 		if s, ok := v.(string); ok {
 			return s
 		}
 	}
 	return ""
-
 }
 
 func (s Style) getAsPosition(k propKey) Position {
@@ -447,23 +445,27 @@ func (s Style) getBorderStyle() Border {
 	return noBorder
 }
 
+// GetBorderTitle returns border title if set, otherwise returns empty string.
 func (s Style) GetBorderTitle() string {
 	return s.getAsString(borderTitleKey)
 }
 
+// GetBorderTitleAlignment returns border title  alignment.
 func (s Style) GetBorderTitleAlignment() Position {
 	return s.getAsPosition(borderTitleAlignmentKey)
 }
 
+// GetBorderTitleBackground returns border title background  color.
 func (s Style) GetBorderTitleBackground() TerminalColor {
 	return s.getAsColor(borderTitleBackgroundKey)
 }
 
+// GetBorderTitleForeground returns border title foreground  color.
 func (s Style) GetBorderTitleForeground() TerminalColor {
 	return s.getAsColor(borderTitleForegroundKey)
 }
 
-// Split a string into lines, additionally returning the size of the widest
+// Split a string into lines, additionally returning the size of the widest.
 // line.
 func getLines(s string) (lines []string, widest int) {
 	lines = strings.Split(s, "\n")

@@ -73,12 +73,11 @@ func (s Style) Faint(v bool) Style {
 
 // Foreground sets a foreground color.
 //
-//     // Sets the foreground to blue
-//     s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
+//	// Sets the foreground to blue
+//	s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
 //
-//     // Removes the foreground color
-//     s.Foreground(lipgloss.NoColor)
-//
+//	// Removes the foreground color
+//	s.Foreground(lipgloss.NoColor)
 func (s Style) Foreground(c TerminalColor) Style {
 	s.set(foregroundKey, c)
 	return s
@@ -248,12 +247,11 @@ func (s Style) MarginBackground(c TerminalColor) Style {
 //
 // Examples:
 //
-//     // Applies borders to the top and bottom only
-//     lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true, false)
+//	// Applies borders to the top and bottom only
+//	lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true, false)
 //
-//     // Applies rounded borders to the right and bottom only
-//     lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
-//
+//	// Applies rounded borders to the right and bottom only
+//	lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
 func (s Style) Border(b Border, sides ...bool) Style {
 	s.set(borderStyleKey, b)
 
@@ -285,8 +283,7 @@ func (s Style) Border(b Border, sides ...bool) Style {
 //
 // Example:
 //
-//     lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
-//
+//	lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
 func (s Style) BorderStyle(b Border) Style {
 	s.set(borderStyleKey, b)
 	return s
@@ -435,25 +432,25 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	return s
 }
 
-// BorderTitle set border title, which is displayed as part of the top border
+// BorderTitle set border title, which is displayed as part of the top border.
 func (s Style) BorderTitle(title string) Style {
 	s.set(borderTitleKey, title)
 	return s
 }
 
-// BorderTitleAlignment set border title aligment
+// BorderTitleAlignment set border title alignment.
 func (s Style) BorderTitleAlignment(alignment Position) Style {
 	s.set(borderTitleAlignmentKey, alignment)
 	return s
 }
 
-// BorderTitleBackground set border title background color
+// BorderTitleBackground set border title background color.
 func (s Style) BorderTitleBackground(color TerminalColor) Style {
 	s.set(borderTitleBackgroundKey, color)
 	return s
 }
 
-// BorderTitleForeground set border title background color
+// BorderTitleForeground set border title background color.
 func (s Style) BorderTitleForeground(color TerminalColor) Style {
 	s.set(borderTitleForegroundKey, color)
 	return s
@@ -469,10 +466,9 @@ func (s Style) BorderTitleForeground(color TerminalColor) Style {
 //
 // Example:
 //
-//     var userInput string = "..."
-//     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.Inline(true).Render(userInput))
-//
+//	var userInput string = "..."
+//	var userStyle = text.Style{ /* ... */ }
+//	fmt.Println(userStyle.Inline(true).Render(userInput))
 func (s Style) Inline(v bool) Style {
 	o := s.Copy()
 	o.set(inlineKey, v)
@@ -488,10 +484,9 @@ func (s Style) Inline(v bool) Style {
 //
 // Example:
 //
-//     var userInput string = "..."
-//     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.MaxWidth(16).Render(userInput))
-//
+//	var userInput string = "..."
+//	var userStyle = text.Style{ /* ... */ }
+//	fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 func (s Style) MaxWidth(n int) Style {
 	o := s.Copy()
 	o.set(maxWidthKey, n)

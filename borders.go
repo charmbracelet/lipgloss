@@ -246,14 +246,13 @@ func (s Style) applyBorder(str string) string {
 	border.BottomLeft = getFirstRuneAsString(border.BottomLeft)
 
 	var out strings.Builder
+	const sideCount = 2
 
 	// Render top
 	if hasTop {
-
 		top := ""
 		title := s.GetBorderTitle()
 		if len(strings.TrimSpace(title)) > 0 {
-
 			if len(title) > width {
 				// the truncation algorithm can be provided through the API in the future
 				title = title[0 : width-1]
@@ -266,20 +265,17 @@ func (s Style) applyBorder(str string) string {
 				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, width-1-len(title))
 			case Center:
 				noTitleLen := width - 1 - len(title)
-				noTitleLen2 := noTitleLen / 2
+				noTitleLen2 := noTitleLen / sideCount
 				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, noTitleLen2)
 				topAfterTitle = strings.Repeat(border.Top, noTitleLen-noTitleLen2) + border.TopRight
-
-			default:
+			case Left:
 				topAfterTitle = strings.Repeat(border.Top, width-1-len(title)) + border.TopRight
 			}
 
 			top = styleBorder(topBeforeTitle, topFG, topBG) +
 				styleBorder(title, s.GetBorderTitleForeground(), s.GetBorderTitleBackground()) +
 				styleBorder(topAfterTitle, topFG, topBG)
-
 		} else {
-
 			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
 			top = styleBorder(top, topFG, topBG)
 		}
