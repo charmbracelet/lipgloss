@@ -1,9 +1,9 @@
 package lipgloss
 
 import (
+	"image/color"
 	"sync"
 
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
 )
 
@@ -144,17 +144,11 @@ func (c Color) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
 //
 // This is inline with go-colorful's default behavior.
 func (c Color) RGBA() (r, g, b, a uint32) {
-	cf, err := colorful.Hex(c.value())
-	if err != nil {
-		// If we ignore the return behavior and simply return what go-colorful
-		// give us for the color value we'd be returning exactly this, however
-		// we're being explicit here for the sake of clarity.
-		return colorful.Color{}.RGBA()
-	}
+	cf := hexToColor(c.value())
 	return cf.RGBA()
 }
 
@@ -185,13 +179,55 @@ func (ac AdaptiveColor) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
 //
 // This is inline with go-colorful's default behavior.
 func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
-	cf, err := colorful.Hex(ac.value())
-	if err != nil {
-		return colorful.Color{}.RGBA()
-	}
+	cf := hexToColor(ac.value())
 	return cf.RGBA()
+}
+
+// hexToColor translates a hex color string (#RRGGBB or #RGB) into a color.RGB,
+// which satisfies the color.Color interface. If an invalid string is passed
+// black with 100% opacity will be returned: or, in hex format, 0x000000FF.
+func hexToColor(hex string) (c color.RGBA) {
+	c.A = 0xFF
+
+	if hex == "" || hex[0] != '#' {
+		return c
+	}
+
+	const (
+		fullFormat  = 7 // #RRGGBB
+		shortFormat = 4 // #RGB
+	)
+
+	switch len(hex) {
+	case fullFormat:
+		const offset = 4
+		c.R = hexToByte(hex[1])<<offset + hexToByte(hex[2])
+		c.G = hexToByte(hex[3])<<offset + hexToByte(hex[4])
+		c.B = hexToByte(hex[5])<<offset + hexToByte(hex[6])
+	case shortFormat:
+		const offset = 0x11
+		c.R = hexToByte(hex[1]) * offset
+		c.G = hexToByte(hex[2]) * offset
+		c.B = hexToByte(hex[3]) * offset
+	}
+
+	return c
+}
+
+func hexToByte(b byte) byte {
+	const offset = 10
+	switch {
+	case b >= '0' && b <= '9':
+		return b - '0'
+	case b >= 'a' && b <= 'f':
+		return b - 'a' + offset
+	case b >= 'A' && b <= 'F':
+		return b - 'A' + offset
+	}
+	// Invalid, but just return 0.
+	return 0
 }
