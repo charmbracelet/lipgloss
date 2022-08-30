@@ -104,9 +104,19 @@ func (s Style) Height(i int) Style {
 	return s
 }
 
-// Align sets a horizontal text alignment rule.
-func (s Style) Align(p Position) Style {
-	s.set(alignHorizontalKey, p)
+// Align is a shorthand method for setting horizontal and vertical alignment.
+//
+// With one argument, the position value is applied to the horizontal alignment.
+//
+// With two arguments, the value is applied to the vertical and horizontal
+// alignments, in that order.
+func (s Style) Align(p ...Position) Style {
+	if len(p) > 0 {
+		s.set(alignHorizontalKey, p[0])
+	}
+	if len(p) > 1 {
+		s.set(alignVerticalKey, p[1])
+	}
 	return s
 }
 
