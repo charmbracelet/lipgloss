@@ -116,7 +116,7 @@ func (n NoColor) color() termenv.Color {
 
 // RGBA returns the RGBA value of this color. Because we have to return
 // something, despite this color being the absence of color, we're returning
-// the same value that go-colorful returns on error:
+// black with 100% opacity.
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
@@ -143,11 +143,8 @@ func (c Color) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
-//
-// This is inline with go-colorful's default behavior.
 func (c Color) RGBA() (r, g, b, a uint32) {
-	cf := hexToColor(c.value())
-	return cf.RGBA()
+	return hexToColor(c.value()).RGBA()
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -177,11 +174,69 @@ func (ac AdaptiveColor) color() termenv.Color {
 // interface. Note that on error we return black with 100% opacity, or:
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
-//
-// This is inline with go-colorful's default behavior.
 func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
 	cf := hexToColor(ac.value())
 	return cf.RGBA()
+}
+
+// CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+// profiles. Automatic color degredation will not be performed.
+type CompleteColor struct {
+	TrueColor string
+	ANSI256   string
+	ANSI      string
+}
+
+func (c CompleteColor) value() string {
+	switch ColorProfile() {
+	case termenv.TrueColor:
+		return c.TrueColor
+	case termenv.ANSI256:
+		return c.ANSI256
+	case termenv.ANSI:
+		return c.ANSI
+	default:
+		return ""
+	}
+}
+
+func (c CompleteColor) color() termenv.Color {
+	return colorProfile.Color(c.value())
+}
+
+// RGBA returns the RGBA value of this color. This satisfies the Go Color
+// interface. Note that on error we return black with 100% opacity, or:
+//
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+func (c CompleteColor) RGBA() (r, g, b, a uint32) {
+	return hexToColor(c.value()).RGBA()
+}
+
+// CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+// profiles, with separate options for light and dark backgrounds. Automatic
+// color degredation will not be performed.
+type CompleteAdaptiveColor struct {
+	Light CompleteColor
+	Dark  CompleteColor
+}
+
+func (cac CompleteAdaptiveColor) value() string {
+	if HasDarkBackground() {
+		return cac.Dark.value()
+	}
+	return cac.Light.value()
+}
+
+func (cac CompleteAdaptiveColor) color() termenv.Color {
+	return ColorProfile().Color(cac.value())
+}
+
+// RGBA returns the RGBA value of this color. This satisfies the Go Color
+// interface. Note that on error we return black with 100% opacity, or:
+//
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
+	return hexToColor(cac.value()).RGBA()
 }
 
 // hexToColor translates a hex color string (#RRGGBB or #RGB) into a color.RGB,
