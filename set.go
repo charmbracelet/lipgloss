@@ -104,9 +104,21 @@ func (s Style) Height(i int) Style {
 	return s
 }
 
-// Align sets a text alignment rule.
+// Align sets a horizontal text alignment rule.
 func (s Style) Align(p Position) Style {
-	s.set(alignKey, p)
+	s.set(alignHorizontalKey, p)
+	return s
+}
+
+// HorizontalAlign sets a horizontal text alignment rule.
+func (s Style) AlignHorizontal(p Position) Style {
+	s.set(alignHorizontalKey, p)
+	return s
+}
+
+// VerticalAlign sets a text alignment rule.
+func (s Style) AlignVertical(p Position) Style {
+	s.set(alignVerticalKey, p)
 	return s
 }
 
