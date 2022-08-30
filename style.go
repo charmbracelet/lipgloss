@@ -26,7 +26,8 @@ const (
 	backgroundKey
 	widthKey
 	heightKey
-	alignKey
+	alignHorizontalKey
+	alignVerticalKey
 
 	// Padding.
 	paddingTopKey
@@ -169,9 +170,10 @@ func (s Style) Render(str string) string {
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
 
-		width  = s.getAsInt(widthKey)
-		height = s.getAsInt(heightKey)
-		align  = s.getAsPosition(alignKey)
+		width           = s.getAsInt(widthKey)
+		height          = s.getAsInt(heightKey)
+		horizontalAlign = s.getAsPosition(alignHorizontalKey)
+		verticalAlign   = s.getAsPosition(alignVerticalKey)
 
 		topPadding    = s.getAsInt(paddingTopKey)
 		rightPadding  = s.getAsInt(paddingRightKey)
@@ -327,10 +329,7 @@ func (s Style) Render(str string) string {
 
 	// Height
 	if height > 0 {
-		h := strings.Count(str, "\n") + 1
-		if height > h {
-			str += strings.Repeat("\n", height-h)
-		}
+		str = alignTextVertical(str, verticalAlign, height, nil)
 	}
 
 	// Set alignment. This will also pad short lines with spaces so that all
@@ -344,7 +343,7 @@ func (s Style) Render(str string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = alignText(str, align, width, st)
+			str = alignTextHorizontal(str, horizontalAlign, width, st)
 		}
 	}
 
