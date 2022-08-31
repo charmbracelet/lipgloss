@@ -97,7 +97,7 @@ func (s Style) Width(i int) Style {
 	return s
 }
 
-// Height sets the width of the block before applying margins. If the height of
+// Height sets the height of the block before applying margins. If the height of
 // the text block is less than this value after applying padding (or not), the
 // block will be set to this height.
 func (s Style) Height(i int) Style {
