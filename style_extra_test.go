@@ -221,6 +221,11 @@ func TestStyleMethod(t *testing.T) {
 		{func(s S) S { return s.BorderBackground(g, r) }, `border-bottom-background: #0f0; border-left-background: #f00; border-right-background: #f00; border-top-background: #0f0;`},
 		{func(s S) S { return s.BorderBackground() }, ``},
 		{func(s S) S { return s.BorderBackground(g, r, b, w, g) }, ``},
+		{func(s S) S { return s.BorderForeground(g, r, b, w) }, `border-bottom-foreground: #00f; border-left-foreground: #fff; border-right-foreground: #f00; border-top-foreground: #0f0;`},
+		{func(s S) S { return s.BorderForeground(g, r, b) }, `border-bottom-foreground: #00f; border-left-foreground: #f00; border-right-foreground: #f00; border-top-foreground: #0f0;`},
+		{func(s S) S { return s.BorderForeground(g, r) }, `border-bottom-foreground: #0f0; border-left-foreground: #f00; border-right-foreground: #f00; border-top-foreground: #0f0;`},
+		{func(s S) S { return s.BorderForeground() }, ``},
+		{func(s S) S { return s.BorderForeground(g, r, b, w, g) }, ``},
 	}
 
 	for _, tc := range td {
