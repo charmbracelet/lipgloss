@@ -1,6 +1,7 @@
 package lipgloss_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -8,8 +9,103 @@ import (
 	lipglossc "github.com/knz/lipgloss-convert"
 )
 
+// Example_padding exercises the computed padding getters.
+func Example_padding() {
+	s := lipgloss.NewStyle().Padding(10001, 10010, 10100, 11000)
+
+	fmt.Println(s.GetPadding())
+	fmt.Println(s.GetHorizontalPadding())
+	fmt.Println(s.GetVerticalPadding())
+
+	// Output:
+	// 10001 10010 10100 11000
+	// 21010
+	// 20101
+}
+
+// Example_margin exercises the computed margin getters.
+func Example_margin() {
+	s := lipgloss.NewStyle().Margin(10001, 10010, 10100, 11000)
+
+	fmt.Println(s.GetMargin())
+	fmt.Println(s.GetHorizontalMargins())
+	fmt.Println(s.GetVerticalMargins())
+
+	// Output:
+	// 10001 10010 10100 11000
+	// 21010
+	// 20101
+}
+
+// Example_border exercises the computed border getters.
+func Example_border() {
+	fmt.Println(lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).GetBorderStyle())
+	fmt.Println(lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).GetBorderStyle())
+	fmt.Println(lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder()).GetBorderStyle())
+	fmt.Println(lipgloss.NewStyle().BorderStyle(lipgloss.DoubleBorder()).GetBorderStyle())
+	fmt.Println(lipgloss.NewStyle().BorderStyle(lipgloss.HiddenBorder()).GetBorderStyle())
+
+	for _, b := range []bool{false, true} {
+		fmt.Println("border-enabed:", b)
+		s := lipgloss.NewStyle().Border(
+			lipgloss.Border{"x", "xx", "xxx", "xxxx", "a", "a", "a", "a"},
+			b,
+		)
+
+		fmt.Println(s.GetBorder())
+
+		// Note: the border size computations seem to be wrong.
+		// The top/bottom borders should be size 1 (just 1 line)
+		// and the left/right borders should _add_ the rune sizes,
+		// not compute the maximum.
+		// See: https://github.com/charmbracelet/lipgloss/issues/112
+		fmt.Println(s.GetBorderTopSize(), s.GetBorderBottomSize())
+		fmt.Println(s.GetBorderLeftSize(), s.GetBorderRightSize())
+
+		fmt.Println(s.GetHorizontalBorderSize())
+		fmt.Println(s.GetVerticalBorderSize())
+	}
+
+	// Output:
+	// {─ ─ │ │ ┌ ┐ ┘ └}
+	// {─ ─ │ │ ╭ ╮ ╯ ╰}
+	// {━ ━ ┃ ┃ ┏ ┓ ┛ ┗}
+	// {═ ═ ║ ║ ╔ ╗ ╝ ╚}
+	// {               }
+	// border-enabed: false
+	// {x xx xxx xxxx a a a a} false false false false
+	// 0 0
+	// 0 0
+	// 2
+	// 2
+	// border-enabed: true
+	// {x xx xxx xxxx a a a a} true true true true
+	// 1 1
+	// 1 1
+	// 2
+	// 2
+}
+
+// Example_frame exercises the computed frame size getters.
+func Example_frame() {
+	s := lipgloss.NewStyle().
+		Margin(10001, 10010, 10100, 11000).
+		Padding(10001, 10010, 10100, 11000).
+		Border(lipgloss.NormalBorder(), true)
+
+	fmt.Println(s.GetFrameSize())
+	fmt.Println(s.GetHorizontalFrameSize())
+	fmt.Println(s.GetVerticalFrameSize())
+
+	// Output:
+	// 42022 40204
+	// 42022
+	// 40204
+}
+
 type S = lipgloss.Style
 
+// TestStyle validates most of the Get, Set and Unset methods.
 func TestStyle(t *testing.T) {
 	td := []struct {
 		changeStyle func(S) S
@@ -56,7 +152,6 @@ func TestStyle(t *testing.T) {
 		{func(s S) S { return s.MarginBackground(lipgloss.Color("#0f0")) }, `margin-background: #0f0;`},
 		{func(s S) S { return s.MaxHeight(3) }, `max-height: 3;`},
 		{func(s S) S { return s.MaxWidth(3) }, `max-width: 3;`},
-		{func(s S) S { return s.Padding(1, 2, 3, 4) }, `padding-bottom: 3; padding-left: 4; padding-right: 2; padding-top: 1;`},
 		{func(s S) S { return s.PaddingBottom(3) }, `padding-bottom: 3;`},
 		{func(s S) S { return s.PaddingLeft(3) }, `padding-left: 3;`},
 		{func(s S) S { return s.PaddingRight(3) }, `padding-right: 3;`},
@@ -67,6 +162,17 @@ func TestStyle(t *testing.T) {
 		{func(s S) S { return s.Underline(true) }, `underline: true;`},
 		{func(s S) S { return s.UnderlineSpaces(true) }, `underline-spaces: true;`},
 		{func(s S) S { return s.Width(3) }, `width: 3;`},
+		// Variable size setters.
+		{func(s S) S { return s.Padding(1, 2, 3, 4) }, `padding-bottom: 3; padding-left: 4; padding-right: 2; padding-top: 1;`},
+		{func(s S) S { return s.Padding(1, 2, 3) }, `padding-bottom: 3; padding-left: 2; padding-right: 2; padding-top: 1;`},
+		{func(s S) S { return s.Padding(1, 2) }, `padding-bottom: 1; padding-left: 2; padding-right: 2; padding-top: 1;`},
+		{func(s S) S { return s.Padding() }, ``},
+		{func(s S) S { return s.Padding(1, 2, 3, 4, 5) }, ``},
+		{func(s S) S { return s.Margin(1, 2, 3, 4) }, `margin-bottom: 3; margin-left: 4; margin-right: 2; margin-top: 1;`},
+		{func(s S) S { return s.Margin(1, 2, 3) }, `margin-bottom: 3; margin-left: 2; margin-right: 2; margin-top: 1;`},
+		{func(s S) S { return s.Margin(1, 2) }, `margin-bottom: 1; margin-left: 2; margin-right: 2; margin-top: 1;`},
+		{func(s S) S { return s.Margin() }, ``},
+		{func(s S) S { return s.Margin(1, 2, 3, 4, 5) }, ``},
 	}
 
 	for _, tc := range td {
@@ -76,6 +182,10 @@ func TestStyle(t *testing.T) {
 		repr := lipglossc.Export(s)
 		if repr != tc.repr {
 			t.Errorf("expected %q, got %q", tc.repr, repr)
+			continue
+		}
+
+		if tc.repr == `` {
 			continue
 		}
 
