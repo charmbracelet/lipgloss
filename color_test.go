@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"fmt"
 	"image/color"
 	"testing"
 
@@ -64,6 +65,10 @@ func TestHexToColor(t *testing.T) {
 			0xFF0000,
 		},
 		{
+			"#ff0000",
+			0xFF0000,
+		},
+		{
 			"#00F",
 			0x0000FF,
 		},
@@ -73,6 +78,10 @@ func TestHexToColor(t *testing.T) {
 		},
 		{
 			"invalid color",
+			0x0,
+		},
+		{
+			"",
 			0x0,
 		},
 	}
@@ -271,4 +280,51 @@ func hexToByte(b byte) byte {
 	}
 	// Invalid, but just return 0.
 	return 0
+}
+
+func Example_colors() {
+	colors := []struct {
+		name string
+		c    TerminalColor
+	}{
+		{"none", NoColor{}},
+		{"ansi", Color("2")},
+		{"rgb", Color("#abc")},
+		{"adapt", AdaptiveColor{"#abc", "#def"}},
+	}
+
+	// We'll change terminal settings, so save the current settings
+	// to recover them afterwards.
+	curProfile := ColorProfile()
+	darkBg := HasDarkBackground()
+	defer SetColorProfile(curProfile)
+	defer SetHasDarkBackground(darkBg)
+
+	// Force color output.
+	SetColorProfile(termenv.TrueColor)
+
+	for _, b := range []bool{false, true} {
+		fmt.Println("dark:", b)
+		SetHasDarkBackground(b)
+		for _, c := range colors {
+			r, g, b, a := c.c.RGBA()
+			fmt.Printf("%s: %v / #%04x-%04x-%04x-%04x\n", c.name, c.c.color(), r, g, b, a)
+		}
+	}
+
+	// Note: RGBA output for lipgloss.Color("12")
+	// (ANSI colors) does not work yet.
+	// See issue: https://github.com/charmbracelet/lipgloss/issues/110
+
+	// Output:
+	// dark: false
+	// none: <nil> / #0000-0000-0000-ffff
+	// ansi: #008000 / #0000-8080-0000-ffff
+	// rgb: #abc / #aaaa-bbbb-cccc-ffff
+	// adapt: #abc / #aaaa-bbbb-cccc-ffff
+	// dark: true
+	// none: <nil> / #0000-0000-0000-ffff
+	// ansi: #008000 / #0000-8080-0000-ffff
+	// rgb: #abc / #aaaa-bbbb-cccc-ffff
+	// adapt: #def / #dddd-eeee-ffff-ffff
 }
