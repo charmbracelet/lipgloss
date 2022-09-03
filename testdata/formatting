@@ -1,0 +1,101 @@
+# Use a text with a space, to show space styling.
+text
+hello    world!
+----
+ok
+
+# Toggle display of spaces.
+spvis
+----
+ok
+
+set
+clear; width: 20;
+underline: true
+----
+[4;4mh[0m[4;4me[0m[4;4ml[0m[4;4ml[0m[4;4mo[0m[4m [0m[4m [0m[4m [0m[4m [0m[4;4mw[0m[4;4mo[0m[4;4mr[0m[4;4ml[0m[4;4md[0m[4;4m![0m     🛇
+
+# Seemingly no difference!
+# See issue: https://github.com/charmbracelet/lipgloss/issues/113
+set
+clear; width: 20;
+underline: true; underline-spaces: true
+----
+[4;4mh[0m[4;4me[0m[4;4ml[0m[4;4ml[0m[4;4mo[0m[4m [0m[4m [0m[4m [0m[4m [0m[4;4mw[0m[4;4mo[0m[4;4mr[0m[4;4ml[0m[4;4md[0m[4;4m![0m     🛇
+
+# Weird output.
+# See issue: https://github.com/charmbracelet/lipgloss/issues/113
+set
+clear; width: 20;
+underline: true; underline-spaces: false
+----
+[4;4mhello    world![0m     🛇
+
+# If underline is not set, underline-spaces does nothing.
+set
+clear; width: 20;
+underline-spaces: true
+----
+hello    world!     🛇
+
+set
+clear; width: 20;
+italic: true
+----
+[3mhello    world![0m     🛇
+
+
+set
+clear; width: 20;
+bold: true
+----
+[1mhello    world![0m     🛇
+
+
+set
+clear; width: 20;
+strikethrough: true
+----
+[9mh[0m[9me[0m[9ml[0m[9ml[0m[9mo[0m[9m [0m[9m [0m[9m [0m[9m [0m[9mw[0m[9mo[0m[9mr[0m[9ml[0m[9md[0m[9m![0m     🛇
+
+# Seemingly no difference!
+# See issue: https://github.com/charmbracelet/lipgloss/issues/113
+set
+clear; width: 20;
+strikethrough: true; strikethrough-spaces: true
+----
+[9mh[0m[9me[0m[9ml[0m[9ml[0m[9mo[0m[9m [0m[9m [0m[9m [0m[9m [0m[9mw[0m[9mo[0m[9mr[0m[9ml[0m[9md[0m[9m![0m     🛇
+
+# Weird output.
+# See issue: https://github.com/charmbracelet/lipgloss/issues/113
+set
+clear; width: 20;
+strikethrough: true; strikethrough-spaces: false
+----
+[9mhello    world![0m     🛇
+
+# If strikethrough is not set, strikethrough-spaces does nothing.
+set
+clear; width: 20;
+strikethrough-spaces: true
+----
+hello    world!     🛇
+
+set
+clear; width: 20;
+reverse: true
+----
+[7mhello    world![0m[7m     [0m🛇
+
+
+set
+clear; width: 20;
+blink: true
+----
+[5mhello    world![0m     🛇
+
+set
+clear; width: 20;
+faint: true
+----
+[2mhello    world![0m     🛇

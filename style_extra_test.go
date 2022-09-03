@@ -6,7 +6,9 @@ import (
 	"testing"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/cockroachdb/datadriven"
 	lipglossc "github.com/knz/lipgloss-convert"
+	"github.com/muesli/termenv"
 )
 
 // Example_padding exercises the computed padding getters.
@@ -105,8 +107,8 @@ func Example_frame() {
 
 type S = lipgloss.Style
 
-// TestStyle validates most of the Get, Set and Unset methods.
-func TestStyle(t *testing.T) {
+// TestStyleMethods validates most of the Get, Set and Unset methods.
+func TestStyleMethod(t *testing.T) {
 	g := lipgloss.Color("#0f0")
 	r := lipgloss.Color("#f00")
 	b := lipgloss.Color("#00f")
@@ -243,5 +245,65 @@ func TestStyle(t *testing.T) {
 		if repr != "" {
 			t.Errorf("expected empty style, got %q", repr)
 		}
+	}
+}
+
+func TestRender(t *testing.T) {
+	curProfile := lipgloss.ColorProfile()
+	defer lipgloss.SetColorProfile(curProfile)
+
+	lipgloss.SetColorProfile(termenv.TrueColor)
+
+	datadriven.Walk(t, "testdata", func(t *testing.T, path string) {
+		d := driver{
+			s:    lipgloss.NewStyle(),
+			text: "hello!",
+		}
+		datadriven.RunTest(t, path, func(t *testing.T, td *datadriven.TestData) string {
+			return d.renderTest(t, td)
+		})
+	})
+}
+
+type driver struct {
+	s      lipgloss.Style
+	text   string
+	spaces bool
+}
+
+func (d *driver) renderTest(t *testing.T, td *datadriven.TestData) string {
+	switch td.Cmd {
+	case "text":
+		d.text = td.Input
+		return "ok"
+
+	case "spvis":
+		d.spaces = !d.spaces
+		return "ok"
+
+	case "show":
+		return lipglossc.Export(d.s)
+
+	case "set":
+		newStyle, err := lipglossc.Import(d.s, td.Input)
+		if err != nil {
+			t.Fatalf("%s: invalid style: %v", td.Pos, err)
+		}
+		d.s = newStyle
+
+		o := d.s.Render(d.text)
+		o = strings.ReplaceAll(o, "\n", "␤\n")
+		if !d.spaces {
+			o = strings.ReplaceAll(o, " ", "·")
+		}
+		// Add a "no newline at end" marker if there was no newline at the end.
+		if len(o) == 0 || o[len(o)-1] != '\n' {
+			o += "🛇"
+		}
+		return o
+
+	default:
+		t.Fatalf("%s: unknown command: %q", td.Pos, td.Cmd)
+		return "" // unreachable
 	}
 }
