@@ -107,40 +107,45 @@ type S = lipgloss.Style
 
 // TestStyle validates most of the Get, Set and Unset methods.
 func TestStyle(t *testing.T) {
+	g := lipgloss.Color("#0f0")
+	r := lipgloss.Color("#f00")
+	b := lipgloss.Color("#00f")
+	w := lipgloss.Color("#fff")
+
 	td := []struct {
 		changeStyle func(S) S
 		repr        string
 	}{
 		{func(s S) S { return s.AlignHorizontal(0.5) }, `align-horizontal: 0.5;`},
-		{func(s S) S { return s.Background(lipgloss.Color("#0f0")) }, `background: #0f0;`},
+		{func(s S) S { return s.Background(g) }, `background: #0f0;`},
 		{func(s S) S { return s.Blink(true) }, `blink: true;`},
 		{func(s S) S { return s.Bold(true) }, `bold: true;`},
 		{func(s S) S { return s.BorderBottom(true) }, `border-bottom: true;`},
-		{func(s S) S { return s.BorderBottomBackground(lipgloss.Color("#0f0")) }, `border-bottom-background: #0f0;`},
-		{func(s S) S { return s.BorderBottomForeground(lipgloss.Color("#0f0")) }, `border-bottom-foreground: #0f0;`},
+		{func(s S) S { return s.BorderBottomBackground(g) }, `border-bottom-background: #0f0;`},
+		{func(s S) S { return s.BorderBottomForeground(g) }, `border-bottom-foreground: #0f0;`},
 		{func(s S) S { return s.BorderLeft(true) }, `border-left: true;`},
-		{func(s S) S { return s.BorderLeftBackground(lipgloss.Color("#0f0")) }, `border-left-background: #0f0;`},
-		{func(s S) S { return s.BorderLeftForeground(lipgloss.Color("#0f0")) }, `border-left-foreground: #0f0;`},
+		{func(s S) S { return s.BorderLeftBackground(g) }, `border-left-background: #0f0;`},
+		{func(s S) S { return s.BorderLeftForeground(g) }, `border-left-foreground: #0f0;`},
 		{func(s S) S { return s.BorderRight(true) }, `border-right: true;`},
-		{func(s S) S { return s.BorderRightBackground(lipgloss.Color("#0f0")) }, `border-right-background: #0f0;`},
-		{func(s S) S { return s.BorderRightForeground(lipgloss.Color("#0f0")) }, `border-right-foreground: #0f0;`},
+		{func(s S) S { return s.BorderRightBackground(g) }, `border-right-background: #0f0;`},
+		{func(s S) S { return s.BorderRightForeground(g) }, `border-right-foreground: #0f0;`},
 		{func(s S) S {
 			return s.BorderStyle(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h"})
 		}, `border-style: border("a","b","c","d","e","f","g","h");`},
 		{func(s S) S { return s.BorderTop(true) }, `border-top: true;`},
-		{func(s S) S { return s.BorderTopBackground(lipgloss.Color("#0f0")) }, `border-top-background: #0f0;`},
-		{func(s S) S { return s.BorderTopForeground(lipgloss.Color("#0f0")) }, `border-top-foreground: #0f0;`},
+		{func(s S) S { return s.BorderTopBackground(g) }, `border-top-background: #0f0;`},
+		{func(s S) S { return s.BorderTopForeground(g) }, `border-top-foreground: #0f0;`},
 		{func(s S) S {
 			return s.Border(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h"}, true)
 		}, `border-bottom: true; border-left: true; border-right: true; ` +
 			`border-style: border("a","b","c","d","e","f","g","h"); ` +
 			`border-top: true;`},
-		{func(s S) S { return s.BorderBackground(lipgloss.Color("#0f0")) }, `border-bottom-background: #0f0; border-left-background: #0f0; border-right-background: #0f0; border-top-background: #0f0;`},
-		{func(s S) S { return s.BorderForeground(lipgloss.Color("#0f0")) }, `border-bottom-foreground: #0f0; border-left-foreground: #0f0; border-right-foreground: #0f0; border-top-foreground: #0f0;`},
+		{func(s S) S { return s.BorderBackground(g) }, `border-bottom-background: #0f0; border-left-background: #0f0; border-right-background: #0f0; border-top-background: #0f0;`},
+		{func(s S) S { return s.BorderForeground(g) }, `border-bottom-foreground: #0f0; border-left-foreground: #0f0; border-right-foreground: #0f0; border-top-foreground: #0f0;`},
 
 		{func(s S) S { return s.ColorWhitespace(true) }, `color-whitespace: true;`},
 		{func(s S) S { return s.Faint(true) }, `faint: true;`},
-		{func(s S) S { return s.Foreground(lipgloss.Color("#0f0")) }, `foreground: #0f0;`},
+		{func(s S) S { return s.Foreground(g) }, `foreground: #0f0;`},
 		{func(s S) S { return s.Height(3) }, `height: 3;`},
 		{func(s S) S { return s.Inline(true) }, `inline: true;`},
 		{func(s S) S { return s.Italic(true) }, `italic: true;`},
@@ -149,7 +154,7 @@ func TestStyle(t *testing.T) {
 		{func(s S) S { return s.MarginLeft(3) }, `margin-left: 3;`},
 		{func(s S) S { return s.MarginRight(3) }, `margin-right: 3;`},
 		{func(s S) S { return s.MarginTop(3) }, `margin-top: 3;`},
-		{func(s S) S { return s.MarginBackground(lipgloss.Color("#0f0")) }, `margin-background: #0f0;`},
+		{func(s S) S { return s.MarginBackground(g) }, `margin-background: #0f0;`},
 		{func(s S) S { return s.MaxHeight(3) }, `max-height: 3;`},
 		{func(s S) S { return s.MaxWidth(3) }, `max-width: 3;`},
 		{func(s S) S { return s.PaddingBottom(3) }, `padding-bottom: 3;`},
@@ -166,13 +171,40 @@ func TestStyle(t *testing.T) {
 		{func(s S) S { return s.Padding(1, 2, 3, 4) }, `padding-bottom: 3; padding-left: 4; padding-right: 2; padding-top: 1;`},
 		{func(s S) S { return s.Padding(1, 2, 3) }, `padding-bottom: 3; padding-left: 2; padding-right: 2; padding-top: 1;`},
 		{func(s S) S { return s.Padding(1, 2) }, `padding-bottom: 1; padding-left: 2; padding-right: 2; padding-top: 1;`},
+		{func(s S) S { return s.Padding(1) }, `padding-bottom: 1; padding-left: 1; padding-right: 1; padding-top: 1;`},
 		{func(s S) S { return s.Padding() }, ``},
 		{func(s S) S { return s.Padding(1, 2, 3, 4, 5) }, ``},
 		{func(s S) S { return s.Margin(1, 2, 3, 4) }, `margin-bottom: 3; margin-left: 4; margin-right: 2; margin-top: 1;`},
 		{func(s S) S { return s.Margin(1, 2, 3) }, `margin-bottom: 3; margin-left: 2; margin-right: 2; margin-top: 1;`},
 		{func(s S) S { return s.Margin(1, 2) }, `margin-bottom: 1; margin-left: 2; margin-right: 2; margin-top: 1;`},
+		{func(s S) S { return s.Margin(1) }, `margin-bottom: 1; margin-left: 1; margin-right: 1; margin-top: 1;`},
 		{func(s S) S { return s.Margin() }, ``},
 		{func(s S) S { return s.Margin(1, 2, 3, 4, 5) }, ``},
+		{func(s S) S {
+			return s.Border(lipgloss.Border{}, true, true, true, true)
+		}, `border-bottom: true; border-left: true; border-right: true; ` +
+			`border-top: true;`},
+		{func(s S) S {
+			return s.Border(lipgloss.Border{}, true, true, true)
+		}, `border-bottom: true; border-left: true; border-right: true; ` +
+			`border-top: true;`},
+		{func(s S) S {
+			return s.Border(lipgloss.Border{}, true, true)
+		}, `border-bottom: true; border-left: true; border-right: true; ` +
+			`border-top: true;`},
+		{func(s S) S {
+			return s.Border(lipgloss.Border{})
+		}, `border-bottom: true; border-left: true; border-right: true; ` +
+			`border-top: true;`},
+		{func(s S) S {
+			return s.Border(lipgloss.Border{}, true, true, true, true, true)
+		}, `border-bottom: true; border-left: true; border-right: true; ` +
+			`border-top: true;`},
+		{func(s S) S { return s.BorderBackground(g, r, b, w) }, `border-bottom-background: #00f; border-left-background: #fff; border-right-background: #f00; border-top-background: #0f0;`},
+		{func(s S) S { return s.BorderBackground(g, r, b) }, `border-bottom-background: #00f; border-left-background: #f00; border-right-background: #f00; border-top-background: #0f0;`},
+		{func(s S) S { return s.BorderBackground(g, r) }, `border-bottom-background: #0f0; border-left-background: #f00; border-right-background: #f00; border-top-background: #0f0;`},
+		{func(s S) S { return s.BorderBackground() }, ``},
+		{func(s S) S { return s.BorderBackground(g, r, b, w, g) }, ``},
 	}
 
 	for _, tc := range td {
