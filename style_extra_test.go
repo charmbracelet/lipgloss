@@ -11,6 +11,20 @@ import (
 	"github.com/muesli/termenv"
 )
 
+func Example_string() {
+	s := lipgloss.NewStyle().
+		Width(10).
+		Align(lipgloss.Right).
+		SetString("hello")
+
+	fmt.Println(s.Value())
+	fmt.Println(s.String())
+
+	// Output:
+	// hello
+	//      hello
+}
+
 // Example_padding exercises the computed padding getters.
 func Example_padding() {
 	s := lipgloss.NewStyle().Padding(10001, 10010, 10100, 11000)
