@@ -124,13 +124,19 @@ func (s Style) UnsetColorWhitespace() Style {
 	return s
 }
 
-// UnsetMargins removes all margin style rules.
-func (s Style) UnsetMargins() Style {
+// UnsetMargin removes all margin style rules.
+func (s Style) UnsetMargin() Style {
 	delete(s.rules, marginLeftKey)
 	delete(s.rules, marginRightKey)
 	delete(s.rules, marginTopKey)
 	delete(s.rules, marginBottomKey)
 	return s
+}
+
+// UnsetMargins is the old name for UnsetMargin.
+// Preserved for compatibility.
+func (s Style) UnsetMargins() Style {
+	return s.UnsetMargin()
 }
 
 // UnsetMarginLeft removes the left margin style rule, if set.
@@ -162,6 +168,16 @@ func (s Style) UnsetMarginBottom() Style {
 // style during inheritance.
 func (s Style) UnsetMarginBackground() Style {
 	delete(s.rules, marginBackgroundKey)
+	return s
+}
+
+// UnsetBorder removes the border properties, if set.
+func (s Style) UnsetBorder() Style {
+	delete(s.rules, borderTopKey)
+	delete(s.rules, borderBottomKey)
+	delete(s.rules, borderLeftKey)
+	delete(s.rules, borderRightKey)
+	delete(s.rules, borderStyleKey)
 	return s
 }
 
@@ -242,11 +258,17 @@ func (s Style) UnsetBorderBackground() Style {
 	return s
 }
 
-// UnsetBorderTopBackgroundColor removes the top border background color rule,
+// UnsetBorderTopBackground removes the top border background color rule,
 // if set.
-func (s Style) UnsetBorderTopBackgroundColor() Style {
+func (s Style) UnsetBorderTopBackground() Style {
 	delete(s.rules, borderTopBackgroundKey)
 	return s
+}
+
+// UnsetBorderTopBackgroundColor is an old name for UnsetBorderTopBackground.
+// Preserved for compatibility.
+func (s Style) UnsetBorderTopBackgroundColor() Style {
+	return s.UnsetBorderTopBackground()
 }
 
 // UnsetBorderRightBackground removes the right border background color

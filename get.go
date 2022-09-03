@@ -185,6 +185,11 @@ func (s Style) GetMarginLeft() int {
 	return s.getAsInt(marginLeftKey)
 }
 
+// GetMarginBackground returns the style's margin background color.
+func (s Style) GetMarginBackground() TerminalColor {
+	return s.getAsColor(marginBackgroundKey)
+}
+
 // GetHorizontalMargins returns the style's left and right margins. Unset
 // values are measured as 0.
 func (s Style) GetHorizontalMargins() int {
