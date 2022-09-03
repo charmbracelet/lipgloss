@@ -281,8 +281,14 @@ func (d *driver) renderTest(t *testing.T, td *datadriven.TestData) string {
 		d.spaces = !d.spaces
 		return "ok"
 
-	case "show":
-		return lipglossc.Export(d.s)
+	case "inherit":
+		// Make the current style inherit from the specified parent style.
+		parentStyle, err := lipglossc.Import(lipgloss.NewStyle(), td.Input)
+		if err != nil {
+			t.Fatalf("%s: invalid style: %v", td.Pos, err)
+		}
+		d.s = d.s.Inherit(parentStyle)
+		return lipglossc.Export(d.s, lipglossc.WithSeparator("\n"))
 
 	case "set":
 		newStyle, err := lipglossc.Import(d.s, td.Input)
