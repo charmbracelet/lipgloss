@@ -54,8 +54,6 @@ func TestSetColorProfile(t *testing.T) {
 }
 
 func TestHexToColor(t *testing.T) {
-	t.Parallel()
-
 	tt := []struct {
 		input    string
 		expected uint
