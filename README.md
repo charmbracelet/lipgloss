@@ -6,6 +6,7 @@ Lip Gloss
     <a href="https://github.com/charmbracelet/lipgloss/releases"><img src="https://img.shields.io/github/release/charmbracelet/lipgloss.svg" alt="Latest Release"></a>
     <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
+    <a href="https://coveralls.io/github/charmbracelet/lipgloss"><img src="https://coveralls.io/repos/github/charmbracelet/lipgloss/badge.svg" alt="Coverage Status"></a>
 </p>
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
