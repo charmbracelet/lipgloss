@@ -71,6 +71,80 @@ border: hidden
 
 subtest end
 
+subtest border_sides
+
+set
+border: normal true false false false
+----
+────────␤
+hello···␤
+universe␤
+!!······␤
+········🛇
+
+set
+border: normal false true false false
+----
+hello···│␤
+universe│␤
+!!······│␤
+········│🛇
+
+set
+border: normal false false true false
+----
+hello···␤
+universe␤
+!!······␤
+········␤
+────────🛇
+
+set
+border: normal false false false true
+----
+│hello···␤
+│universe␤
+│!!······␤
+│········🛇
+
+set
+border: normal true false
+----
+────────␤
+hello···␤
+universe␤
+!!······␤
+········␤
+────────🛇
+
+set
+border: normal false true
+----
+│hello···│␤
+│universe│␤
+│!!······│␤
+│········│🛇
+
+set
+border: normal true true false false
+----
+────────┐␤
+hello···│␤
+universe│␤
+!!······│␤
+········│🛇
+
+set
+border: normal false false true true
+----
+│hello···␤
+│universe␤
+│!!······␤
+│········␤
+└────────🛇
+
+subtest end
+
 subtest border_parts
 
 set
