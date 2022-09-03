@@ -19,10 +19,12 @@ func Example_string() {
 
 	fmt.Println(s.Value())
 	fmt.Println(s.String())
+	fmt.Println(s.UnsetString().Value())
 
 	// Output:
 	// hello
 	//      hello
+	//
 }
 
 // Example_padding exercises the computed padding getters.
