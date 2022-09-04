@@ -84,6 +84,17 @@ var (
 		BottomRight: "╯",
 	}
 
+	innerBorder = Border{
+		Top:         "▄",
+		Bottom:      "▀",
+		Left:        "▐",
+		Right:       "▌",
+		TopLeft:     "▗",
+		TopRight:    "▖",
+		BottomLeft:  "▝",
+		BottomRight: "▘",
+	}
+
 	thickBorder = Border{
 		Top:         "━",
 		Bottom:      "━",
@@ -127,6 +138,11 @@ func NormalBorder() Border {
 // RoundedBorder returns a border with rounded corners.
 func RoundedBorder() Border {
 	return roundedBorder
+}
+
+// InnerBorder returns a border that is inside the frame.
+func InnerBorder() Border {
+	return innerBorder
 }
 
 // ThickBorder returns a border that's thicker than the one returned by

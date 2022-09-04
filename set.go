@@ -278,8 +278,8 @@ func (s Style) Border(b Border, sides ...bool) Style {
 // the border style, the border will be enabled for all sides during rendering.
 //
 // You can define border characters as you'd like, though several default
-// styles are included: NormalBorder(), RoundedBorder(), ThickBorder(), and
-// DoubleBorder().
+// styles are included: NormalBorder(), RoundedBorder(), InnerBorder(),
+// ThickBorder(), and DoubleBorder().
 //
 // Example:
 //
