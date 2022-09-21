@@ -96,7 +96,7 @@ func (s Style) Width(i int) Style {
 	return s
 }
 
-// Height sets the width of the block before applying margins. If the height of
+// Height sets the height of the block before applying margins. If the height of
 // the text block is less than this value after applying padding (or not), the
 // block will be set to this height.
 func (s Style) Height(i int) Style {
@@ -104,9 +104,31 @@ func (s Style) Height(i int) Style {
 	return s
 }
 
-// Align sets a text alignment rule.
-func (s Style) Align(p Position) Style {
-	s.set(alignKey, p)
+// Align is a shorthand method for setting horizontal and vertical alignment.
+//
+// With one argument, the position value is applied to the horizontal alignment.
+//
+// With two arguments, the value is applied to the vertical and horizontal
+// alignments, in that order.
+func (s Style) Align(p ...Position) Style {
+	if len(p) > 0 {
+		s.set(alignHorizontalKey, p[0])
+	}
+	if len(p) > 1 {
+		s.set(alignVerticalKey, p[1])
+	}
+	return s
+}
+
+// HorizontalAlign sets a horizontal text alignment rule.
+func (s Style) AlignHorizontal(p Position) Style {
+	s.set(alignHorizontalKey, p)
+	return s
+}
+
+// VerticalAlign sets a text alignment rule.
+func (s Style) AlignVertical(p Position) Style {
+	s.set(alignVerticalKey, p)
 	return s
 }
 
