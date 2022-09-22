@@ -253,11 +253,17 @@ func (s Style) applyBorder(str string) string {
 		top := ""
 
 		// sanitize title style
-		titleStyle := s.GetBorderTitleStyle().Copy().Inline(true).MaxWidth(width)
+		titleStyle := s.GetBorderTitleStyle().Copy().MaxWidth(width)
+
+		// set default padding if one is not set
+		if titleStyle.GetHorizontalPadding() == 0 {
+			titleStyle = titleStyle.Padding(0, 1)
+		}
+
 		title := s.GetBorderTitle()
 
 		if len(strings.TrimSpace(title)) > 0 {
-			titleLen := len(title)
+			titleLen := titleStyle.GetHorizontalFrameSize() + len(title)
 			topBeforeTitle := border.TopLeft
 			topAfterTitle := border.TopRight
 			switch titleStyle.GetAlignHorizontal() {
