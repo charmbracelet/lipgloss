@@ -454,23 +454,18 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	return s
 }
 
-// BorderTitle set border title, which is displayed as part of the top border.
+// BorderTitleStyle set border title style
 //
 // Example:
 //
-//	 title := lipgloss.NewStyle().
-//		    Background(lipgloss.Color("#6124DF")).
-//		    Align(lipgloss.Center).
-//		    Bold(true).
-//		    Italic(true).
-//		    SetString(" Question ")
-//		dialog := lipgloss.Place(width, 9,
-//		    lipgloss.Center, lipgloss.Center,
-//		    dialogBoxStyle.Copy().BorderTitle(title).Render(ui),
-//		    lipgloss.WithWhitespaceChars("猫咪"),
-//		    lipgloss.WithWhitespaceForeground(subtle),
-//		)
-func (s Style) BorderTitle(title Style) Style {
+// TODO example
+func (s Style) BorderTitleStyle(style Style) Style {
+	s.set(borderTitleStyleKey, style)
+	return s
+}
+
+// BorderTitle set border title
+func (s Style) BorderTitle(title string) Style {
 	s.set(borderTitleKey, title)
 	return s
 }

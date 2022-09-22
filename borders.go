@@ -253,8 +253,8 @@ func (s Style) applyBorder(str string) string {
 		top := ""
 
 		// sanitize title style
-		titleStyle := s.GetBorderTitle().Copy().Inline(true).MaxWidth(width)
-		title := titleStyle.Value()
+		titleStyle := s.GetBorderTitleStyle().Copy().Inline(true).MaxWidth(width)
+		title := s.GetBorderTitle()
 
 		if len(strings.TrimSpace(title)) > 0 {
 			titleLen := len(title)
@@ -273,7 +273,7 @@ func (s Style) applyBorder(str string) string {
 			}
 
 			top = styleBorder(topBeforeTitle, topFG, topBG) +
-				titleStyle.String() +
+				titleStyle.Render(title) +
 				styleBorder(topAfterTitle, topFG, topBG)
 		} else {
 			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
