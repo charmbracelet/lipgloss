@@ -203,24 +203,33 @@ lipgloss.NewStyle().
 lipgloss.NewStyle().
     Border(lipgloss.DoubleBorder(), true, false, false, true)
 ```
-Borders can have titles. Border title is defined as a `Style` to allow
-styling it independently of the border itself.
-
+It is also possible to set and style a border title
 ```go
    
    // create bold italic title horizontally aligned 
    // to center of the border 
-   title := lipgloss.NewStyle().
+   titleStyle := lipgloss.NewStyle().
         Background(lipgloss.Color("#6124DF")).
         Align(lipgloss.Center).
         Bold(true).
-        Italic(true).
-        SetString(" Question ")
+        Italic(true)
+
+   // dialog box style with its title styled
+   dialogBoxStyle := lipgloss.NewStyle().
+        Border(lipgloss.RoundedBorder()).
+        BorderForeground(lipgloss.Color("#874BFD")).
+	    BorderTitleStyle(titleStyle).
+        Padding(1, 0).
+        BorderTop(true).
+        BorderLeft(true).
+        BorderRight(true).
+        BorderBottom(true)
+        
    
-    // Use title within the dialog style
+    // Use the title with the dialog box style
     dialog := lipgloss.Place(width, 9,
         lipgloss.Center, lipgloss.Center,
-        dialogBoxStyle.Copy().BorderTitle(title).Render(ui),
+        dialogBoxStyle.Copy().BorderTitle(" Question ").Render(ui),
         lipgloss.WithWhitespaceChars("猫咪"),
         lipgloss.WithWhitespaceForeground(subtle),
     )
