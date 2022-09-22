@@ -434,15 +434,6 @@ func (s Style) getAsInt(k propKey) int {
 	return 0
 }
 
-func (s Style) getAsString(k propKey) string {
-	if v, ok := s.rules[k]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
 func (s Style) getAsStyle(k propKey) Style {
 	if v, ok := s.rules[k]; ok {
 		if s, ok := v.(Style); ok {
