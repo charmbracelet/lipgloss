@@ -443,6 +443,15 @@ func (s Style) getAsString(k propKey) string {
 	return ""
 }
 
+func (s Style) getAsStyle(k propKey) Style {
+	if v, ok := s.rules[k]; ok {
+		if s, ok := v.(Style); ok {
+			return s
+		}
+	}
+	return NewStyle()
+}
+
 func (s Style) getAsPosition(k propKey) Position {
 	v, ok := s.rules[k]
 	if !ok {
@@ -466,23 +475,8 @@ func (s Style) getBorderStyle() Border {
 }
 
 // GetBorderTitle returns border title if set, otherwise returns empty string.
-func (s Style) GetBorderTitle() string {
-	return s.getAsString(borderTitleKey)
-}
-
-// GetBorderTitleAlignment returns border title  alignment.
-func (s Style) GetBorderTitleAlignment() Position {
-	return s.getAsPosition(borderTitleAlignmentKey)
-}
-
-// GetBorderTitleBackground returns border title background  color.
-func (s Style) GetBorderTitleBackground() TerminalColor {
-	return s.getAsColor(borderTitleBackgroundKey)
-}
-
-// GetBorderTitleForeground returns border title foreground  color.
-func (s Style) GetBorderTitleForeground() TerminalColor {
-	return s.getAsColor(borderTitleForegroundKey)
+func (s Style) GetBorderTitle() Style {
+	return s.getAsStyle(borderTitleKey)
 }
 
 // Split a string into lines, additionally returning the size of the widest.

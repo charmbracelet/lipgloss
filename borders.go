@@ -251,29 +251,34 @@ func (s Style) applyBorder(str string) string {
 	// Render top
 	if hasTop {
 		top := ""
-		title := s.GetBorderTitle()
+
+		// sanitize title style
+		titleStyle := s.GetBorderTitle().Copy().Inline(true).MaxWidth(width)
+		title := titleStyle.Value()
+
 		if len(strings.TrimSpace(title)) > 0 {
-			if len(title) > width {
-				// the truncation algorithm can be provided through the API in the future
-				title = title[0 : width-1]
-			}
+			titleLen := len(title)
+			//if titleLen > width {
+			//	// the truncation algorithm can be provided through the API in the future
+			//	titleStyle.SetString(title[0 : width-1])
+			//}
 
 			topBeforeTitle := border.TopLeft
 			topAfterTitle := border.TopRight
-			switch s.GetBorderTitleAlignment() {
+			switch titleStyle.GetAlignHorizontal() {
 			case Right:
-				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, width-1-len(title))
+				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, width-1-titleLen)
 			case Center:
-				noTitleLen := width - 1 - len(title)
+				noTitleLen := width - 1 - titleLen
 				noTitleLen2 := noTitleLen / sideCount
 				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, noTitleLen2)
 				topAfterTitle = strings.Repeat(border.Top, noTitleLen-noTitleLen2) + border.TopRight
 			case Left:
-				topAfterTitle = strings.Repeat(border.Top, width-1-len(title)) + border.TopRight
+				topAfterTitle = strings.Repeat(border.Top, width-1-titleLen) + border.TopRight
 			}
 
 			top = styleBorder(topBeforeTitle, topFG, topBG) +
-				styleBorder(title, s.GetBorderTitleForeground(), s.GetBorderTitleBackground()) +
+				titleStyle.String() +
 				styleBorder(topAfterTitle, topFG, topBG)
 		} else {
 			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
