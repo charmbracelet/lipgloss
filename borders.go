@@ -262,14 +262,14 @@ func (s Style) applyBorder(str string) string {
 			topAfterTitle := border.TopRight
 			switch titleStyle.GetAlignHorizontal() {
 			case Right:
-				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, width-1-titleLen)
+				topBeforeTitle = border.TopLeft + repeatStr(border.Top, width-1-titleLen)
 			case Center:
 				noTitleLen := width - 1 - titleLen
 				noTitleLen2 := noTitleLen / sideCount
-				topBeforeTitle = border.TopLeft + strings.Repeat(border.Top, noTitleLen2)
-				topAfterTitle = strings.Repeat(border.Top, noTitleLen-noTitleLen2) + border.TopRight
+				topBeforeTitle = border.TopLeft + repeatStr(border.Top, noTitleLen2)
+				topAfterTitle = repeatStr(border.Top, noTitleLen-noTitleLen2) + border.TopRight
 			case Left:
-				topAfterTitle = strings.Repeat(border.Top, width-1-titleLen) + border.TopRight
+				topAfterTitle = repeatStr(border.Top, width-1-titleLen) + border.TopRight
 			}
 
 			top = styleBorder(topBeforeTitle, topFG, topBG) +
@@ -322,6 +322,13 @@ func (s Style) applyBorder(str string) string {
 	}
 
 	return out.String()
+}
+
+func repeatStr(s string, count int) string {
+	if count <= 0 {
+		return ""
+	}
+	return strings.Repeat(s, count)
 }
 
 // Render the horizontal (top or bottom) portion of a border.
