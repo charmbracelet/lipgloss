@@ -258,11 +258,6 @@ func (s Style) applyBorder(str string) string {
 
 		if len(strings.TrimSpace(title)) > 0 {
 			titleLen := len(title)
-			//if titleLen > width {
-			//	// the truncation algorithm can be provided through the API in the future
-			//	titleStyle.SetString(title[0 : width-1])
-			//}
-
 			topBeforeTitle := border.TopLeft
 			topAfterTitle := border.TopRight
 			switch titleStyle.GetAlignHorizontal() {
