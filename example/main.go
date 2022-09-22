@@ -96,7 +96,8 @@ var (
 				Background(lipgloss.Color("#6124DF")).
 				Align(lipgloss.Center).
 				Bold(true).
-				Italic(true)
+				Italic(true).
+				Padding(0, 5)
 
 	dialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -246,7 +247,7 @@ func main() {
 
 		dialog := lipgloss.Place(width, 9,
 			lipgloss.Center, lipgloss.Center,
-			dialogBoxStyle.Copy().BorderTitle(" Question ").Render(ui),
+			dialogBoxStyle.Copy().BorderTitle("Question").Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
 			lipgloss.WithWhitespaceForeground(subtle),
 		)
