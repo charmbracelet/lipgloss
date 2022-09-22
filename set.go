@@ -455,10 +455,6 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 }
 
 // BorderTitleStyle set border title style
-//
-// Example:
-//
-// TODO example
 func (s Style) BorderTitleStyle(style Style) Style {
 	s.set(borderTitleStyleKey, style)
 	return s
