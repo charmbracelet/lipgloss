@@ -66,13 +66,13 @@ func ColorProfile() termenv.Profile {
 	return renderer.ColorProfile()
 }
 
-// SetColorProfile sets the color profile. This function exists mostly for
-// testing purposes so that you can assure you're testing against a specific
-// profile.
+// SetColorProfile sets the color profile on the renderer. This function exists
+// mostly for testing purposes so that you can assure you're testing against
+// a specific profile.
 //
-// Outside of testing you likely won't want to use this function as
-// ColorProfile() will detect and cache the terminal's color capabilities
-// and choose the best available profile.
+// Outside of testing you likely won't want to use this function as the color
+// profile will detect and cache the terminal's color capabilities and choose
+// the best available profile.
 //
 // Available color profiles are:
 //
@@ -86,13 +86,13 @@ func (r *Renderer) SetColorProfile(p termenv.Profile) {
 	r.output.Profile = p
 }
 
-// SetColorProfile sets the color profile. This function exists mostly for
-// testing purposes so that you can assure you're testing against a specific
-// profile.
+// SetColorProfile sets the color profile on the default renderer. This
+// function exists mostly for testing purposes so that you can assure you're
+// testing against a specific profile.
 //
-// Outside of testing you likely won't want to use this function as
-// ColorProfile() will detect and cache the terminal's color capabilities
-// and choose the best available profile.
+// Outside of testing you likely won't want to use this function as the color
+// profile will detect and cache the terminal's color capabilities and choose
+// the best available profile.
 //
 // Available color profiles are:
 //
@@ -116,26 +116,26 @@ func HasDarkBackground() bool {
 	return renderer.HasDarkBackground()
 }
 
-// SetHasDarkBackground sets the value of the background color detection. This
-// function exists mostly for testing purposes so that you can assure you're
-// testing against a specific background color setting.
+// SetHasDarkBackground sets the background color detection value on the
+// renderer. This function exists mostly for testing purposes so that you can
+// assure you're testing against a specific background color setting.
 //
-// Outside of testing you likely won't want to use this function as
-// HasDarkBackground() will detect and cache the terminal's current background
-// color setting.
+// Outside of testing you likely won't want to use this function as the
+// backgrounds value will be automatically detected and cached against the
+// terminal's current background color setting.
 //
 // This function is thread-safe.
 func (r *Renderer) SetHasDarkBackground(b bool) {
 	r.hasDarkBackground = b
 }
 
-// SetHasDarkBackground sets the value of the background color detection. This
-// function exists mostly for testing purposes so that you can assure you're
-// testing against a specific background color setting.
+// SetHasDarkBackground sets the background color detection value for the
+// default renderer. This function exists mostly for testing purposes so that
+// you can assure you're testing against a specific background color setting.
 //
-// Outside of testing you likely won't want to use this function as
-// HasDarkBackground() will detect and cache the terminal's current background
-// color setting.
+// Outside of testing you likely won't want to use this function as the
+// backgrounds value will be automatically detected and cached against the
+// terminal's current background color setting.
 //
 // This function is thread-safe.
 func SetHasDarkBackground(b bool) {
