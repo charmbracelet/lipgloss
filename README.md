@@ -285,6 +285,7 @@ fmt.Println(lipgloss.Render(style, "Hello, kitty."))
 But you can also use a custom renderer:
 
 ```go
+// Render to stdout and force dark background mode.
 var r = lipgloss.NewRenderer(
     lipgloss.WithOutput(termenv.NewOutput(os.Stdout)),
     lipgloss.WithDarkBackground(),
