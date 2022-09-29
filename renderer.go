@@ -363,7 +363,7 @@ func (r *Renderer) Render(s Style, str string) string {
 }
 
 // Render formats a string according to the given style using the default
-// renderer.
+// renderer. This is syntactic sugar for rendering with a DefaultRenderer.
 func Render(s Style, str string) string {
 	return renderer.Render(s, str)
 }
