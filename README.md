@@ -59,7 +59,7 @@ lipgloss.Color("#04B575") // a green
 lipgloss.Color("#3C3C3C") // a dark gray
 ```
 
-...as well as a 1-bit Ascii profile, which is black and white only.
+...as well as a 1-bit ASCII profile, which is black and white only.
 
 The terminal's color profile will be automatically detected, and colors outside
 the gamut of the current palette will be automatically coerced to their closest
