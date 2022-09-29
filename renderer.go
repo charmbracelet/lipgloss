@@ -56,6 +56,15 @@ func WithDarkBackground() RendererOption {
 	}
 }
 
+// WithColorProfile sets the color profile on the renderer. This function is
+// primarily intended for testing. For details, see the note on
+// [Renderer.SetColorProfile].
+func WithColorProfile(p termenv.Profile) RendererOption {
+	return func(r *Renderer) {
+		r.SetColorProfile(p)
+	}
+}
+
 // ColorProfile returns the detected termenv color profile.
 func (r *Renderer) ColorProfile() termenv.Profile {
 	return r.output.Profile
