@@ -81,7 +81,7 @@ func TestHexToColor(t *testing.T) {
 		h := hexToColor(tc.input)
 		o := uint(h.R)<<16 + uint(h.G)<<8 + uint(h.B)
 		if o != tc.expected {
-			t.Errorf("expected %X, got %X (test #%d)", o, tc.expected, i+1)
+			t.Errorf("expected %X, got %X (test #%d)", tc.expected, o, i+1)
 		}
 	}
 }
