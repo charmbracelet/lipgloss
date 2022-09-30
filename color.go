@@ -141,7 +141,7 @@ func (c Color) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (c Color) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(c.color()).RGBA()
 }
@@ -172,7 +172,7 @@ func (ac AdaptiveColor) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFF.
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(ac.color()).RGBA()
 }
@@ -205,7 +205,7 @@ func (c CompleteColor) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (c CompleteColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(c.color()).RGBA()
 }
@@ -232,7 +232,7 @@ func (cac CompleteAdaptiveColor) color() termenv.Color {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface. Note that on error we return black with 100% opacity, or:
 //
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF
+// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(cac.color()).RGBA()
 }
