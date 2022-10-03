@@ -19,7 +19,7 @@ Users familiar with CSS will feel at home with Lip Gloss.
 
 import "github.com/charmbracelet/lipgloss"
 
-var style = lipgloss.NewStyle().
+var style = lipgloss.NewStyle("Hello, kitty.").
     Bold(true).
     Foreground(lipgloss.Color("#FAFAFA")).
     Background(lipgloss.Color("#7D56F4")).
@@ -27,9 +27,8 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-fmt.Println(lipgloss.Render(style, "Hello, kitty."))
+fmt.Println(style)
 ```
-
 
 ## Colors
 
@@ -77,6 +76,29 @@ lipgloss.AdaptiveColor{Light: "236", Dark: "248"}
 The terminal's background color will automatically be detected and the
 appropriate color will be chosen at runtime.
 
+### Complete Colors
+
+CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+profiles.
+
+```go
+lipgloss.CompleteColor{True: "#0000FF", ANSI256: "86", ANSI: "5"}
+```
+
+Automatic color degradation will not be performed in this case and it will be
+based on the color specified.
+
+### Complete Adaptive Colors
+
+You can use CompleteColor with AdaptiveColor to specify the exact values for
+light and dark backgrounds without automatic color degradation.
+
+```go
+lipgloss.CompleteAdaptiveColor{
+    Light: CompleteColor{TrueColor: "#d7ffae", ANSI256: "193", ANSI: "11"},
+    Dark:  CompleteColor{TrueColor: "#d75fee", ANSI256: "163", ANSI: "5"},
+}
+```
 
 ## Inline Formatting
 
@@ -264,37 +286,51 @@ and `MaxWidth`, and `MaxHeight` come in:
 
 ```go
 // Force rendering onto a single line, ignoring margins, padding, and borders.
-lipgloss.Render(someStyle.Inline(true), "yadda yadda")
+someStyle.Inline(true).Render("yadda yadda")
 
 // Also limit rendering to five cells
-lipgloss.Render(someStyle.Inline(true).MaxWidth(5), "yadda yadda")
+someStyle.Inline(true).MaxWidth(5).Render("yadda yadda")
 
 // Limit rendering to a 5x5 cell block
-lipgloss.Render(someStyle.MaxWidth(5).MaxHeight(5), "yadda yadda")
+someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 ```
 
 ## Rendering
 
-Generally, you just pass a style and string to the default renderer:
+Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
 
 ```go
-style := lipgloss.NewStyle().Bold(true)
-fmt.Println(lipgloss.Render(style, "Hello, kitty."))
+style := lipgloss.NewStyle("Hello,").Bold(true)
+fmt.Println(style.Render("kitty.")) // Hello, kitty.
+fmt.Println(style.Render("puppy.")) // Hello, puppy.
 ```
 
-But you can also use a custom renderer:
+But you could also use the Stringer interface:
 
 ```go
-// Render to stdout and force dark background mode.
-var r = lipgloss.NewRenderer(
-    lipgloss.WithOutput(termenv.NewOutput(os.Stdout)),
-    lipgloss.WithDarkBackground(),
+var style = lipgloss.NewStyle("你好，猫咪。").Bold(true)
+
+fmt.Println(style)
+```
+
+### Custom Renderers
+
+Use custom renderers to enforce rendering your styles in a specific way. You can
+specify the color profile to use, True Color, ANSI 256, 8-bit ANSI, or good ol'
+ASCII. You can also specify whether or not to assume dark background colors.
+
+```go
+renderer := lipgloss.NewRenderer(
+    lipgloss.WithColorProfile(termenv.ANSI256),
+    lipgloss.WithDarkBackground(true),
 )
-var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 
-fmt.Println(r.Render(style))
+var style = renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+fmt.Println(style.Render("Lip Gloss")) // This will always use the dark background color
 ```
 
+This is also useful when using lipgloss with an SSH server like [Wish][wish].
+See the [ssh example][ssh-example] for more details.
 
 ## Utilities
 
@@ -329,7 +365,7 @@ your layouts.
 var style = lipgloss.NewStyle().
     Width(40).
     Padding(2)
-var block string = lipgloss.Render(style, someLongString)
+var block string = style.Render(someLongString)
 
 // Get the actual, physical dimensions of the text block.
 width := lipgloss.Width(block)
@@ -416,3 +452,5 @@ Charm热爱开源 • Charm loves open source
 
 
 [docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
+[wish]: https://github.com/charmbracelet/wish
+[ssh-example]: examples/ssh
