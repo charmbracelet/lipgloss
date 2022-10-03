@@ -196,7 +196,7 @@ func HiddenBorder() Border {
 	return hiddenBorder
 }
 
-func (s Style) applyBorder(re *Renderer, str string) string {
+func (s Style) applyBorder(str string) string {
 	var (
 		topSet    = s.isSet(borderTopKey)
 		rightSet  = s.isSet(borderRightKey)
@@ -298,7 +298,7 @@ func (s Style) applyBorder(re *Renderer, str string) string {
 	// Render top
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
-		top = styleBorder(re, top, topFG, topBG)
+		top = s.styleBorder(top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
 	}
@@ -317,7 +317,7 @@ func (s Style) applyBorder(re *Renderer, str string) string {
 			if leftIndex >= len(leftRunes) {
 				leftIndex = 0
 			}
-			out.WriteString(styleBorder(re, r, leftFG, leftBG))
+			out.WriteString(s.styleBorder(r, leftFG, leftBG))
 		}
 		out.WriteString(l)
 		if hasRight {
@@ -326,7 +326,7 @@ func (s Style) applyBorder(re *Renderer, str string) string {
 			if rightIndex >= len(rightRunes) {
 				rightIndex = 0
 			}
-			out.WriteString(styleBorder(re, r, rightFG, rightBG))
+			out.WriteString(s.styleBorder(r, rightFG, rightBG))
 		}
 		if i < len(lines)-1 {
 			out.WriteRune('\n')
@@ -336,7 +336,7 @@ func (s Style) applyBorder(re *Renderer, str string) string {
 	// Render bottom
 	if hasBottom {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
-		bottom = styleBorder(re, bottom, bottomFG, bottomBG)
+		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
@@ -376,7 +376,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 }
 
 // Apply foreground and background styling to a border.
-func styleBorder(re *Renderer, border string, fg, bg TerminalColor) string {
+func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}
@@ -384,10 +384,10 @@ func styleBorder(re *Renderer, border string, fg, bg TerminalColor) string {
 	var style = termenv.Style{}
 
 	if fg != noColor {
-		style = style.Foreground(re.color(fg))
+		style = style.Foreground(fg.color(s.r))
 	}
 	if bg != noColor {
-		style = style.Background(re.color(bg))
+		style = style.Background(bg.color(s.r))
 	}
 
 	return style.Styled(border)
