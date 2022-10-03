@@ -29,13 +29,12 @@ var (
 	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
 	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 
-	divider = lipgloss.Render(
-		lipgloss.NewStyle().
-			Padding(0, 1).
-			Foreground(subtle), "•")
+	divider = lipgloss.NewStyle().
+		Padding(0, 1).
+		Foreground(subtle).Render("•")
 
 	url = func(s string) string {
-		return lipgloss.Render(lipgloss.NewStyle().Foreground(special), s)
+		return lipgloss.NewStyle().Foreground(special).Render(s)
 	}
 
 	// Tabs.
@@ -124,15 +123,15 @@ var (
 		Width(columnWidth + 1)
 
 	listHeader = func(s string) string {
-		return lipgloss.Render(lipgloss.NewStyle().
+		return lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
 			BorderForeground(subtle).
-			MarginRight(2), s)
+			MarginRight(2).Render(s)
 	}
 
 	listItem = func(s string) string {
-		return lipgloss.Render(lipgloss.NewStyle().PaddingLeft(2), s)
+		return lipgloss.NewStyle().PaddingLeft(2).Render(s)
 	}
 
 	checkMark = lipgloss.NewStyle().SetString("✓").
@@ -141,11 +140,10 @@ var (
 			String()
 
 	listDone = func(s string) string {
-		return checkMark + lipgloss.
-			Render(lipgloss.NewStyle().
-				Strikethrough(true).
-				Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}),
-				s)
+		return checkMark + lipgloss.NewStyle().
+			Strikethrough(true).
+			Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
+			Render(s)
 	}
 
 	// Paragraphs/History.
@@ -197,13 +195,13 @@ func main() {
 	{
 		row := lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			lipgloss.Render(activeTab, "Lip Gloss"),
-			lipgloss.Render(tab, "Blush"),
-			lipgloss.Render(tab, "Eye Shadow"),
-			lipgloss.Render(tab, "Mascara"),
-			lipgloss.Render(tab, "Foundation"),
+			activeTab.Render("Lip Gloss"),
+			tab.Render("Blush"),
+			tab.Render("Eye Shadow"),
+			tab.Render("Mascara"),
+			tab.Render("Foundation"),
 		)
-		gap := lipgloss.Render(tabGap, strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
+		gap := tabGap.Render(strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
 		row = lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap)
 		doc.WriteString(row + "\n\n")
 	}
@@ -225,8 +223,8 @@ func main() {
 		}
 
 		desc := lipgloss.JoinVertical(lipgloss.Left,
-			lipgloss.Render(descStyle, "Style Definitions for Nice Terminal Layouts"),
-			lipgloss.Render(infoStyle, "From Charm"+divider+url("https://github.com/charmbracelet/lipgloss")),
+			descStyle.Render("Style Definitions for Nice Terminal Layouts"),
+			infoStyle.Render("From Charm"+divider+url("https://github.com/charmbracelet/lipgloss")),
 		)
 
 		row := lipgloss.JoinHorizontal(lipgloss.Top, title.String(), desc)
@@ -235,16 +233,16 @@ func main() {
 
 	// Dialog
 	{
-		okButton := lipgloss.Render(activeButtonStyle, "Yes")
-		cancelButton := lipgloss.Render(buttonStyle, "Maybe")
+		okButton := activeButtonStyle.Render("Yes")
+		cancelButton := buttonStyle.Render("Maybe")
 
-		question := lipgloss.Render(lipgloss.NewStyle().Width(50).Align(lipgloss.Center), "Are you sure you want to eat marmalade?")
+		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render("Are you sure you want to eat marmalade?")
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
 		dialog := lipgloss.Place(width, 9,
 			lipgloss.Center, lipgloss.Center,
-			lipgloss.Render(dialogBoxStyle, ui),
+			dialogBoxStyle.Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
 			lipgloss.WithWhitespaceForeground(subtle),
 		)
@@ -269,17 +267,16 @@ func main() {
 	}()
 
 	lists := lipgloss.JoinHorizontal(lipgloss.Top,
-		lipgloss.Render(list,
-			lipgloss.JoinVertical(lipgloss.Left,
-				listHeader("Citrus Fruits to Try"),
-				listDone("Grapefruit"),
-				listDone("Yuzu"),
-				listItem("Citron"),
-				listItem("Kumquat"),
-				listItem("Pomelo"),
-			),
+		list.Render(lipgloss.JoinVertical(lipgloss.Left,
+			listHeader("Citrus Fruits to Try"),
+			listDone("Grapefruit"),
+			listDone("Yuzu"),
+			listItem("Citron"),
+			listItem("Kumquat"),
+			listItem("Pomelo"),
 		),
-		lipgloss.Render(list.Copy().Width(columnWidth),
+		),
+		list.Copy().Width(columnWidth).Render(
 			lipgloss.JoinVertical(lipgloss.Left,
 				listHeader("Actual Lip Gloss Vendors"),
 				listItem("Glossier"),
@@ -303,9 +300,9 @@ func main() {
 
 		doc.WriteString(lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			lipgloss.Render(historyStyle.Copy().Align(lipgloss.Right), historyA),
-			lipgloss.Render(historyStyle.Copy().Align(lipgloss.Center), historyB),
-			lipgloss.Render(historyStyle.Copy().MarginRight(0), historyC),
+			historyStyle.Copy().Align(lipgloss.Right).Render(historyA),
+			historyStyle.Copy().Align(lipgloss.Center).Render(historyB),
+			historyStyle.Copy().MarginRight(0).Render(historyC),
 		))
 
 		doc.WriteString("\n\n")
@@ -315,13 +312,12 @@ func main() {
 	{
 		w := lipgloss.Width
 
-		statusKey := lipgloss.Render(statusStyle, "STATUS")
-		encoding := lipgloss.Render(encodingStyle, "UTF-8")
-		fishCake := lipgloss.Render(fishCakeStyle, "🍥 Fish Cake")
-		statusVal := lipgloss.Render(
-			statusText.Copy().
-				Width(width-w(statusKey)-w(encoding)-w(fishCake)),
-			"Ravishing")
+		statusKey := statusStyle.Render("STATUS")
+		encoding := encodingStyle.Render("UTF-8")
+		fishCake := fishCakeStyle.Render("🍥 Fish Cake")
+		statusVal := statusText.Copy().
+			Width(width - w(statusKey) - w(encoding) - w(fishCake)).
+			Render("Ravishing")
 
 		bar := lipgloss.JoinHorizontal(lipgloss.Top,
 			statusKey,
@@ -330,7 +326,7 @@ func main() {
 			fishCake,
 		)
 
-		doc.WriteString(lipgloss.Render(statusBarStyle.Width(width), bar))
+		doc.WriteString(statusBarStyle.Width(width).Render(bar))
 	}
 
 	if physicalWidth > 0 {
@@ -338,8 +334,8 @@ func main() {
 	}
 
 	// Okay, let's print it
-	fmt.Println(lipgloss.Render(docStyle, doc.String()))
-}
+	fmt.Println(docStyle.Render(doc.String()))
+} //
 
 func colorGrid(xSteps, ySteps int) [][]string {
 	x0y0, _ := colorful.Hex("#F25D94")

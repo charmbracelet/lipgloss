@@ -58,17 +58,24 @@ func (w Whitespace) render(width int) string {
 // WhitespaceOption sets a styling rule for rendering whitespace.
 type WhitespaceOption func(*Whitespace)
 
+// WithWhitespaceRenderer sets the lipgloss renderer to be used for rendering.
+func WithWhitespaceRenderer(r *Renderer) WhitespaceOption {
+	return func(w *Whitespace) {
+		w.re = r
+	}
+}
+
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
 func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	return func(w *Whitespace) {
-		w.style = w.style.Foreground(w.re.color(c))
+		w.style = w.style.Foreground(c.color(w.re))
 	}
 }
 
 // WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *Whitespace) {
-		w.style = w.style.Background(w.re.color(c))
+		w.style = w.style.Background(c.color(w.re))
 	}
 }
 
@@ -76,12 +83,5 @@ func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 func WithWhitespaceChars(s string) WhitespaceOption {
 	return func(w *Whitespace) {
 		w.chars = s
-	}
-}
-
-// WithWhitespaceRenderer sets the lipgloss renderer to be used for rendering.
-func WithWhitespaceRenderer(r *Renderer) WhitespaceOption {
-	return func(w *Whitespace) {
-		w.re = r
 	}
 }

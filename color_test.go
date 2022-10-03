@@ -42,7 +42,7 @@ func TestSetColorProfile(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r.SetColorProfile(tc.profile)
 			style := NewStyle().Foreground(Color("#5A56E0"))
-			res := Render(style, input)
+			res := style.Render(input)
 
 			if res != tc.expected {
 				t.Errorf("Expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -117,25 +117,25 @@ func TestRGBA(t *testing.T) {
 		{
 			termenv.TrueColor,
 			true,
-			AdaptiveColor{Dark: "#FF0000", Light: "#0000FF"},
+			AdaptiveColor{Light: "#0000FF", Dark: "#FF0000"},
 			0xFF0000,
 		},
 		{
 			termenv.TrueColor,
 			false,
-			AdaptiveColor{Dark: "#FF0000", Light: "#0000FF"},
+			AdaptiveColor{Light: "#0000FF", Dark: "#FF0000"},
 			0x0000FF,
 		},
 		{
 			termenv.TrueColor,
 			true,
-			AdaptiveColor{Dark: "9", Light: "21"},
+			AdaptiveColor{Light: "21", Dark: "9"},
 			0xFF0000,
 		},
 		{
 			termenv.TrueColor,
 			false,
-			AdaptiveColor{Dark: "9", Light: "21"},
+			AdaptiveColor{Light: "21", Dark: "9"},
 			0x0000FF,
 		},
 		// lipgloss.CompleteColor
@@ -163,8 +163,8 @@ func TestRGBA(t *testing.T) {
 			termenv.TrueColor,
 			true,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#0000FF", ANSI256: "231", ANSI: "12"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0xFF0000,
 		},
@@ -172,8 +172,8 @@ func TestRGBA(t *testing.T) {
 			termenv.ANSI256,
 			true,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "21", ANSI: "12"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0xFFFFFF,
 		},
@@ -181,8 +181,8 @@ func TestRGBA(t *testing.T) {
 			termenv.ANSI,
 			true,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "9"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0x0000FF,
 		},
@@ -191,8 +191,8 @@ func TestRGBA(t *testing.T) {
 			termenv.TrueColor,
 			false,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#0000FF", ANSI256: "231", ANSI: "12"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0x0000FF,
 		},
@@ -200,8 +200,8 @@ func TestRGBA(t *testing.T) {
 			termenv.ANSI256,
 			false,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "21", ANSI: "12"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0x0000FF,
 		},
@@ -209,18 +209,19 @@ func TestRGBA(t *testing.T) {
 			termenv.ANSI,
 			false,
 			CompleteAdaptiveColor{
-				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "9"},
+				Dark:  CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			},
 			0xFF0000,
 		},
 	}
 
+	r := DefaultRenderer()
 	for i, tc := range tt {
-		SetColorProfile(tc.profile)
-		SetHasDarkBackground(tc.darkBg)
+		r.SetColorProfile(tc.profile)
+		r.SetHasDarkBackground(tc.darkBg)
 
-		r, g, b, _ := tc.input.RGBA()
+		r, g, b, _ := termenv.ConvertToRGB(tc.input.color(r)).RGBA()
 		o := uint(r/256)<<16 + uint(g/256)<<8 + uint(b/256)
 
 		if o != tc.expected {

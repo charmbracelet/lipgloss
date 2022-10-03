@@ -8,6 +8,7 @@ import (
 )
 
 func TestStyleRender(t *testing.T) {
+	renderer.SetColorProfile(termenv.TrueColor)
 	t.Parallel()
 
 	tt := []struct {
@@ -40,9 +41,9 @@ func TestStyleRender(t *testing.T) {
 		},
 	}
 
-	SetColorProfile(termenv.TrueColor)
 	for i, tc := range tt {
-		res := tc.style.Render("hello")
+		s := tc.style.Copy().SetString("hello")
+		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
 				i, tc.expected, formatEscapes(tc.expected),
@@ -243,6 +244,47 @@ func TestStyleUnset(t *testing.T) {
 	requireTrue(t, s.GetBorderLeft())
 	s.UnsetBorderLeft()
 	requireFalse(t, s.GetBorderLeft())
+}
+
+func TestStyleValue(t *testing.T) {
+	t.Parallel()
+
+	tt := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "empty",
+			style:    NewStyle(),
+			expected: "foo",
+		},
+		{
+			name:     "set string",
+			style:    NewStyle().SetString("bar"),
+			expected: "bar foo",
+		},
+		{
+			name:     "set string with bold",
+			style:    NewStyle().SetString("bar").Bold(true),
+			expected: "\x1b[1mbar foo\x1b[0m",
+		},
+		{
+			name:     "new style with string",
+			style:    NewStyle("bar", "foobar"),
+			expected: "bar foobar foo",
+		},
+	}
+
+	for i, tc := range tt {
+		res := tc.style.Render("foo")
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+
 }
 
 func BenchmarkStyleRender(b *testing.B) {
