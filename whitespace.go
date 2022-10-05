@@ -18,7 +18,10 @@ type whitespace struct {
 // matters, it you'r using WithWhitespaceRenderer, make sure it comes first as
 // other options might depend on it.
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
-	w := &whitespace{re: r}
+	w := &whitespace{
+		re:    r,
+		style: r.ColorProfile().String(),
+	}
 	for _, opt := range opts {
 		opt(w)
 	}
