@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/muesli/reflow/truncate"
@@ -98,7 +99,10 @@ func NewStyle(opts ...StyleOption) Style {
 // in case the underlying implementation changes. It takes an optional string
 // value to be set as the underlying string value for this style.
 func (r *Renderer) NewStyle(opts ...StyleOption) Style {
-	s := Style{r: r}
+	s := Style{
+		mtx: &sync.RWMutex{},
+		r:   r,
+	}
 	for _, opt := range opts {
 		opt(&s)
 	}
@@ -106,9 +110,11 @@ func (r *Renderer) NewStyle(opts ...StyleOption) Style {
 }
 
 // Style contains a set of rules that comprise a style as a whole.
+// It is safe for concurrent use by multiple goroutines.
 type Style struct {
+	mtx   *sync.RWMutex
 	r     *Renderer
-	rules map[propKey]interface{}
+	rules rules
 	value string
 }
 
@@ -124,12 +130,18 @@ func joinString(strs ...string) string {
 // as when using fmt.Sprintf. You can also simply define a style and render out
 // strings directly with Style.Render.
 func (s Style) SetString(strs ...string) Style {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
 	s.value = joinString(strs...)
 	return s
 }
 
 // Value returns the raw, unformatted, underlying string value for this style.
 func (s Style) Value() string {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	return s.value
 }
 
@@ -142,6 +154,9 @@ func (s Style) String() string {
 
 // Copy returns a copy of this style, including any underlying string values.
 func (s Style) Copy() Style {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	o := NewStyle()
 	o.init()
 	for k, v := range s.rules {
@@ -158,6 +173,9 @@ func (s Style) Copy() Style {
 //
 // Margins, padding, and underlying string values are not inherited.
 func (s Style) Inherit(i Style) Style {
+	i.mtx.RLock()
+	defer i.mtx.RUnlock()
+
 	s.init()
 
 	for k, v := range i.rules {
@@ -185,6 +203,9 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	if s.r == nil {
 		s.r = DefaultRenderer()
 	}

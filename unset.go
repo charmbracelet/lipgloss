@@ -1,306 +1,271 @@
 package lipgloss
 
+func (s Style) unset(key propKey) Style {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	delete(s.rules, key)
+	return s
+}
+
 // UnsetBold removes the bold style rule, if set.
 func (s Style) UnsetBold() Style {
-	delete(s.rules, boldKey)
-	return s
+	return s.unset(boldKey)
 }
 
 // UnsetItalic removes the italic style rule, if set.
 func (s Style) UnsetItalic() Style {
-	delete(s.rules, italicKey)
-	return s
+	return s.unset(italicKey)
 }
 
 // UnsetUnderline removes the underline style rule, if set.
 func (s Style) UnsetUnderline() Style {
-	delete(s.rules, underlineKey)
-	return s
+	return s.unset(underlineKey)
 }
 
 // UnsetStrikethrough removes the strikethrough style rule, if set.
 func (s Style) UnsetStrikethrough() Style {
-	delete(s.rules, strikethroughKey)
-	return s
+	return s.unset(strikethroughKey)
 }
 
 // UnsetReverse removes the reverse style rule, if set.
 func (s Style) UnsetReverse() Style {
-	delete(s.rules, reverseKey)
-	return s
+	return s.unset(reverseKey)
 }
 
 // UnsetBlink removes the bold style rule, if set.
 func (s Style) UnsetBlink() Style {
-	delete(s.rules, blinkKey)
-	return s
+	return s.unset(blinkKey)
 }
 
 // UnsetFaint removes the faint style rule, if set.
 func (s Style) UnsetFaint() Style {
-	delete(s.rules, faintKey)
-	return s
+	return s.unset(faintKey)
 }
 
 // UnsetForeground removes the foreground style rule, if set.
 func (s Style) UnsetForeground() Style {
-	delete(s.rules, foregroundKey)
-	return s
+	return s.unset(foregroundKey)
 }
 
 // UnsetBackground removes the background style rule, if set.
 func (s Style) UnsetBackground() Style {
-	delete(s.rules, backgroundKey)
-	return s
+	return s.unset(backgroundKey)
 }
 
 // UnsetWidth removes the width style rule, if set.
 func (s Style) UnsetWidth() Style {
-	delete(s.rules, widthKey)
-	return s
+	return s.unset(widthKey)
 }
 
 // UnsetHeight removes the height style rule, if set.
 func (s Style) UnsetHeight() Style {
-	delete(s.rules, heightKey)
-	return s
+	return s.unset(heightKey)
 }
 
 // UnsetAlign removes the horizontal and vertical text alignment style rule, if set.
 func (s Style) UnsetAlign() Style {
-	delete(s.rules, alignHorizontalKey)
-	delete(s.rules, alignVerticalKey)
-	return s
+	s = s.unset(alignHorizontalKey)
+	return s.unset(alignVerticalKey)
 }
 
 // UnsetAlignHorizontal removes the horizontal text alignment style rule, if set.
 func (s Style) UnsetAlignHorizontal() Style {
-	delete(s.rules, alignHorizontalKey)
-	return s
+	return s.unset(alignHorizontalKey)
 }
 
 // UnsetAlignVertical removes the vertical text alignment style rule, if set.
 func (s Style) UnsetAlignVertical() Style {
-	delete(s.rules, alignVerticalKey)
-	return s
+	return s.unset(alignVerticalKey)
 }
 
 // UnsetPadding removes all padding style rules.
 func (s Style) UnsetPadding() Style {
-	delete(s.rules, paddingLeftKey)
-	delete(s.rules, paddingRightKey)
-	delete(s.rules, paddingTopKey)
-	delete(s.rules, paddingBottomKey)
-	return s
+	s = s.unset(paddingLeftKey)
+	s = s.unset(paddingRightKey)
+	s = s.unset(paddingTopKey)
+	return s.unset(paddingBottomKey)
 }
 
 // UnsetPaddingLeft removes the left padding style rule, if set.
 func (s Style) UnsetPaddingLeft() Style {
-	delete(s.rules, paddingLeftKey)
-	return s
+	return s.unset(paddingLeftKey)
 }
 
 // UnsetPaddingRight removes the right padding style rule, if set.
 func (s Style) UnsetPaddingRight() Style {
-	delete(s.rules, paddingRightKey)
-	return s
+	return s.unset(paddingRightKey)
 }
 
 // UnsetPaddingTop removes the top padding style rule, if set.
 func (s Style) UnsetPaddingTop() Style {
-	delete(s.rules, paddingTopKey)
-	return s
+	return s.unset(paddingTopKey)
 }
 
 // UnsetPaddingBottom removes the bottom style rule, if set.
 func (s Style) UnsetPaddingBottom() Style {
-	delete(s.rules, paddingBottomKey)
-	return s
+	return s.unset(paddingBottomKey)
 }
 
 // UnsetColorWhitespace removes the rule for coloring padding, if set.
 func (s Style) UnsetColorWhitespace() Style {
-	delete(s.rules, colorWhitespaceKey)
-	return s
+	return s.unset(colorWhitespaceKey)
 }
 
 // UnsetMargins removes all margin style rules.
 func (s Style) UnsetMargins() Style {
-	delete(s.rules, marginLeftKey)
-	delete(s.rules, marginRightKey)
-	delete(s.rules, marginTopKey)
-	delete(s.rules, marginBottomKey)
-	return s
+	s = s.unset(marginLeftKey)
+	s = s.unset(marginRightKey)
+	s = s.unset(marginTopKey)
+	return s.unset(marginBottomKey)
 }
 
 // UnsetMarginLeft removes the left margin style rule, if set.
 func (s Style) UnsetMarginLeft() Style {
-	delete(s.rules, marginLeftKey)
-	return s
+	return s.unset(marginLeftKey)
 }
 
 // UnsetMarginRight removes the right margin style rule, if set.
 func (s Style) UnsetMarginRight() Style {
-	delete(s.rules, marginRightKey)
-	return s
+	return s.unset(marginRightKey)
 }
 
 // UnsetMarginTop removes the top margin style rule, if set.
 func (s Style) UnsetMarginTop() Style {
-	delete(s.rules, marginTopKey)
-	return s
+	return s.unset(marginTopKey)
 }
 
 // UnsetMarginBottom removes the bottom margin style rule, if set.
 func (s Style) UnsetMarginBottom() Style {
-	delete(s.rules, marginBottomKey)
-	return s
+	return s.unset(marginBottomKey)
 }
 
 // UnsetMarginBackground removes the margin's background color. Note that the
 // margin's background color can be set from the background color of another
 // style during inheritance.
 func (s Style) UnsetMarginBackground() Style {
-	delete(s.rules, marginBackgroundKey)
-	return s
+	return s.unset(marginBackgroundKey)
 }
 
 // UnsetBorderStyle removes the border style rule, if set.
 func (s Style) UnsetBorderStyle() Style {
-	delete(s.rules, borderStyleKey)
-	return s
+	return s.unset(borderStyleKey)
 }
 
 // UnsetBorderTop removes the border top style rule, if set.
 func (s Style) UnsetBorderTop() Style {
-	delete(s.rules, borderTopKey)
-	return s
+	return s.unset(borderTopKey)
 }
 
 // UnsetBorderRight removes the border right style rule, if set.
 func (s Style) UnsetBorderRight() Style {
-	delete(s.rules, borderRightKey)
-	return s
+	return s.unset(borderRightKey)
 }
 
 // UnsetBorderBottom removes the border bottom style rule, if set.
 func (s Style) UnsetBorderBottom() Style {
-	delete(s.rules, borderBottomKey)
-	return s
+	return s.unset(borderBottomKey)
 }
 
 // UnsetBorderLeft removes the border left style rule, if set.
 func (s Style) UnsetBorderLeft() Style {
-	delete(s.rules, borderLeftKey)
-	return s
+	return s.unset(borderLeftKey)
 }
 
 // UnsetBorderForeground removes all border foreground color styles, if set.
 func (s Style) UnsetBorderForeground() Style {
-	delete(s.rules, borderTopForegroundKey)
-	delete(s.rules, borderRightForegroundKey)
-	delete(s.rules, borderBottomForegroundKey)
-	delete(s.rules, borderLeftForegroundKey)
-	return s
+	s = s.unset(borderTopForegroundKey)
+	s = s.unset(borderRightForegroundKey)
+	s = s.unset(borderBottomForegroundKey)
+	return s.unset(borderLeftForegroundKey)
 }
 
 // UnsetBorderTopForeground removes the top border foreground color rule,
 // if set.
 func (s Style) UnsetBorderTopForeground() Style {
-	delete(s.rules, borderTopForegroundKey)
-	return s
+	return s.unset(borderTopForegroundKey)
 }
 
 // UnsetBorderRightForeground removes the right border foreground color rule,
 // if set.
 func (s Style) UnsetBorderRightForeground() Style {
-	delete(s.rules, borderRightForegroundKey)
-	return s
+	return s.unset(borderRightForegroundKey)
 }
 
 // UnsetBorderBottomForeground removes the bottom border foreground color
 // rule, if set.
 func (s Style) UnsetBorderBottomForeground() Style {
-	delete(s.rules, borderBottomForegroundKey)
-	return s
+	return s.unset(borderBottomForegroundKey)
 }
 
 // UnsetBorderLeftForeground removes the left border foreground color rule,
 // if set.
 func (s Style) UnsetBorderLeftForeground() Style {
-	delete(s.rules, borderLeftForegroundKey)
-	return s
+	return s.unset(borderLeftForegroundKey)
 }
 
 // UnsetBorderBackground removes all border background color styles, if
 // set.
 func (s Style) UnsetBorderBackground() Style {
-	delete(s.rules, borderTopBackgroundKey)
-	delete(s.rules, borderRightBackgroundKey)
-	delete(s.rules, borderBottomBackgroundKey)
-	delete(s.rules, borderLeftBackgroundKey)
-	return s
+	s = s.unset(borderTopBackgroundKey)
+	s = s.unset(borderRightBackgroundKey)
+	s = s.unset(borderBottomBackgroundKey)
+	return s.unset(borderLeftBackgroundKey)
 }
 
 // UnsetBorderTopBackgroundColor removes the top border background color rule,
 // if set.
 func (s Style) UnsetBorderTopBackgroundColor() Style {
-	delete(s.rules, borderTopBackgroundKey)
-	return s
+	return s.unset(borderTopBackgroundKey)
 }
 
 // UnsetBorderRightBackground removes the right border background color
 // rule, if set.
 func (s Style) UnsetBorderRightBackground() Style {
-	delete(s.rules, borderRightBackgroundKey)
-	return s
+	return s.unset(borderRightBackgroundKey)
 }
 
 // UnsetBorderBottomBackground removes the bottom border background color
 // rule, if set.
 func (s Style) UnsetBorderBottomBackground() Style {
-	delete(s.rules, borderBottomBackgroundKey)
-	return s
+	return s.unset(borderBottomBackgroundKey)
 }
 
 // UnsetBorderLeftBackground removes the left border color rule, if set.
 func (s Style) UnsetBorderLeftBackground() Style {
-	delete(s.rules, borderLeftBackgroundKey)
-	return s
+	return s.unset(borderLeftBackgroundKey)
 }
 
 // UnsetInline removes the inline style rule, if set.
 func (s Style) UnsetInline() Style {
-	delete(s.rules, inlineKey)
-	return s
+	return s.unset(inlineKey)
 }
 
 // UnsetMaxWidth removes the max width style rule, if set.
 func (s Style) UnsetMaxWidth() Style {
-	delete(s.rules, maxWidthKey)
-	return s
+	return s.unset(maxWidthKey)
 }
 
 // UnsetMaxHeight removes the max height style rule, if set.
 func (s Style) UnsetMaxHeight() Style {
-	delete(s.rules, maxHeightKey)
-	return s
+	return s.unset(maxHeightKey)
 }
 
 // UnsetUnderlineSpaces removes the value set by UnderlineSpaces.
 func (s Style) UnsetUnderlineSpaces() Style {
-	delete(s.rules, underlineSpacesKey)
-	return s
+	return s.unset(underlineSpacesKey)
 }
 
 // UnsetStrikethroughSpaces removes the value set by StrikethroughSpaces.
 func (s Style) UnsetStrikethroughSpaces() Style {
-	delete(s.rules, strikethroughSpacesKey)
-	return s
+	return s.unset(strikethroughSpacesKey)
 }
 
 // UnsetString sets the underlying string value to the empty string.
 func (s Style) UnsetString() Style {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
 	s.value = ""
 	return s
 }

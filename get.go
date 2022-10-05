@@ -397,11 +397,17 @@ func (s Style) GetFrameSize() (x, y int) {
 
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	_, exists := s.rules[k]
 	return exists
 }
 
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	v, ok := s.rules[k]
 	if !ok {
 		return defaultVal
@@ -413,6 +419,9 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 }
 
 func (s Style) getAsColor(k propKey) TerminalColor {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	v, ok := s.rules[k]
 	if !ok {
 		return noColor
@@ -424,6 +433,9 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 }
 
 func (s Style) getAsInt(k propKey) int {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	v, ok := s.rules[k]
 	if !ok {
 		return 0
@@ -435,6 +447,9 @@ func (s Style) getAsInt(k propKey) int {
 }
 
 func (s Style) getAsPosition(k propKey) Position {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	v, ok := s.rules[k]
 	if !ok {
 		return Position(0)
@@ -446,6 +461,9 @@ func (s Style) getAsPosition(k propKey) Position {
 }
 
 func (s Style) getBorderStyle() Border {
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
+
 	v, ok := s.rules[borderStyleKey]
 	if !ok {
 		return noBorder
