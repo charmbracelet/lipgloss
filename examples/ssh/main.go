@@ -80,7 +80,7 @@ func main() {
 					}
 					w, _ := pty.Window.Width, pty.Window.Height
 
-					renderer := lipgloss.NewRenderer(lipgloss.WithOutput(output))
+					renderer := lipgloss.NewRenderer(lipgloss.WithTermenvOutput(output))
 					str := strings.Builder{}
 					fmt.Fprintf(&str, "\n%s %s %s %s %s",
 						renderer.NewStyle("bold").Bold(true),

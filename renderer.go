@@ -1,6 +1,8 @@
 package lipgloss
 
 import (
+	"io"
+
 	"github.com/muesli/termenv"
 )
 
@@ -21,7 +23,7 @@ func DefaultRenderer() *Renderer {
 }
 
 // NewRenderer creates a new Renderer.
-func NewRenderer(options ...func(r *Renderer)) *Renderer {
+func NewRenderer(options ...RendererOption) *Renderer {
 	r := &Renderer{
 		output: termenv.DefaultOutput(),
 	}
@@ -31,8 +33,13 @@ func NewRenderer(options ...func(r *Renderer)) *Renderer {
 	return r
 }
 
-// WithOutput sets the termenv Output to use for rendering.
-func WithOutput(output *termenv.Output) RendererOption {
+// WithOutput sets the io.Writer to be used for rendering.
+func WithOutput(w io.Writer) RendererOption {
+	return WithTermenvOutput(termenv.NewOutput(w))
+}
+
+// WithTermenvOutput sets the termenv Output to use for rendering.
+func WithTermenvOutput(output *termenv.Output) RendererOption {
 	return func(r *Renderer) {
 		r.output = output
 	}
