@@ -30,12 +30,12 @@ var (
 	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 
 	divider = lipgloss.NewStyle().
+		SetString("•").
 		Padding(0, 1).
-		Foreground(subtle).Render("•")
+		Foreground(subtle).
+		String()
 
-	url = func(s string) string {
-		return lipgloss.NewStyle().Foreground(special).Render(s)
-	}
+	url = lipgloss.NewStyle().Foreground(special).Render
 
 	// Tabs.
 
@@ -122,17 +122,14 @@ var (
 		Height(8).
 		Width(columnWidth + 1)
 
-	listHeader = func(s string) string {
-		return lipgloss.NewStyle().
+	listHeader = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
 			BorderForeground(subtle).
-			MarginRight(2).Render(s)
-	}
+			MarginRight(2).
+			Render
 
-	listItem = func(s string) string {
-		return lipgloss.NewStyle().PaddingLeft(2).Render(s)
-	}
+	listItem = lipgloss.NewStyle().PaddingLeft(2).Render
 
 	checkMark = lipgloss.NewStyle().SetString("✓").
 			Foreground(special).
@@ -267,14 +264,15 @@ func main() {
 	}()
 
 	lists := lipgloss.JoinHorizontal(lipgloss.Top,
-		list.Render(lipgloss.JoinVertical(lipgloss.Left,
-			listHeader("Citrus Fruits to Try"),
-			listDone("Grapefruit"),
-			listDone("Yuzu"),
-			listItem("Citron"),
-			listItem("Kumquat"),
-			listItem("Pomelo"),
-		),
+		list.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				listHeader("Citrus Fruits to Try"),
+				listDone("Grapefruit"),
+				listDone("Yuzu"),
+				listItem("Citron"),
+				listItem("Kumquat"),
+				listItem("Pomelo"),
+			),
 		),
 		list.Copy().Width(columnWidth).Render(
 			lipgloss.JoinVertical(lipgloss.Left,
@@ -335,7 +333,7 @@ func main() {
 
 	// Okay, let's print it
 	fmt.Println(docStyle.Render(doc.String()))
-} //
+}
 
 func colorGrid(xSteps, ySteps int) [][]string {
 	x0y0, _ := colorful.Hex("#F25D94")
