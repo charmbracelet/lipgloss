@@ -9,7 +9,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/wish"
-	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
 	"github.com/kr/pty"
@@ -71,14 +70,54 @@ func main() {
 		wish.WithAddress(addr),
 		wish.WithHostKeyPath("ssh_example"),
 		wish.WithMiddleware(
-			bm.Middleware(func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
-				output := outputFromSession(s)
-				renderer := lipgloss.NewRenderer(lipgloss.WithOutput(output))
-				return model{
-					detectedProfile: renderer.ColorProfile(),
-					renderer:        renderer,
-				}, nil
-			}),
+			func(sh ssh.Handler) ssh.Handler {
+				return func(s ssh.Session) {
+					output := outputFromSession(s)
+					pty, _, active := s.Pty()
+					if !active {
+						sh(s)
+						return
+					}
+					w, _ := pty.Window.Width, pty.Window.Height
+
+					renderer := lipgloss.NewRenderer(lipgloss.WithOutput(output))
+					str := strings.Builder{}
+					fmt.Fprintf(&str, "\n%s %s %s %s %s",
+						renderer.NewStyle("bold").Bold(true),
+						renderer.NewStyle("faint").Faint(true),
+						renderer.NewStyle("italic").Italic(true),
+						renderer.NewStyle("underline").Underline(true),
+						renderer.NewStyle("crossout").Strikethrough(true),
+					)
+
+					fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s",
+						renderer.NewStyle("red").Foreground(lipgloss.Color("#E88388")),
+						renderer.NewStyle("green").Foreground(lipgloss.Color("#A8CC8C")),
+						renderer.NewStyle("yellow").Foreground(lipgloss.Color("#DBAB79")),
+						renderer.NewStyle("blue").Foreground(lipgloss.Color("#71BEF2")),
+						renderer.NewStyle("magenta").Foreground(lipgloss.Color("#D290E4")),
+						renderer.NewStyle("cyan").Foreground(lipgloss.Color("#66C2CD")),
+						renderer.NewStyle("gray").Foreground(lipgloss.Color("#B9BFCA")),
+					)
+
+					fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s\n\n",
+						renderer.NewStyle("red").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#E88388")),
+						renderer.NewStyle("green").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#A8CC8C")),
+						renderer.NewStyle("yellow").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#DBAB79")),
+						renderer.NewStyle("blue").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#71BEF2")),
+						renderer.NewStyle("magenta").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#D290E4")),
+						renderer.NewStyle("cyan").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#66C2CD")),
+						renderer.NewStyle("gray").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#B9BFCA")),
+					)
+
+					fmt.Fprintf(&str, "%s %t\n", renderer.NewStyle("Has dark background?").Bold(true), renderer.HasDarkBackground())
+					fmt.Fprintln(&str)
+
+					wish.WriteString(s, renderer.Place(w, lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String()))
+
+					sh(s)
+				}
+			},
 			lm.Middleware(),
 		),
 	)
@@ -188,11 +227,4 @@ func colorProfile(p termenv.Profile) string {
 	default:
 		return "Unknown"
 	}
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

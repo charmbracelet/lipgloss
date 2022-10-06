@@ -1,8 +1,8 @@
-module ssh
+module examples
 
 go 1.16
 
-replace github.com/charmbracelet/lipgloss => ../..
+replace github.com/charmbracelet/lipgloss => ../
 
 require (
 	github.com/charmbracelet/bubbletea v0.20.0
@@ -12,4 +12,5 @@ require (
 	github.com/kr/pty v1.1.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/muesli/termenv v0.13.0
+	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 )
