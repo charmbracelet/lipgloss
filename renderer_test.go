@@ -26,7 +26,7 @@ func TestRendererWithOutput(t *testing.T) {
 	defer f.Close()
 	defer os.Remove(f.Name())
 	output := termenv.NewOutput(f, termenv.WithProfile(termenv.TrueColor))
-	r := NewRenderer(WithOutput(output))
+	r := NewRenderer(WithTermenvOutput(output))
 	if r.output.Profile != termenv.TrueColor {
 		t.Error("Expected renderer to use true color")
 	}
