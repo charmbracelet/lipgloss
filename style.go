@@ -264,7 +264,7 @@ func (s Style) Render(str string) string {
 
 	// Strip newlines in single line mode
 	if inline {
-		str = strings.ReplaceAll(str, "\n", "")
+		str = strings.ReplaceAll(str, "\n", " ")
 	}
 
 	// Word wrap
