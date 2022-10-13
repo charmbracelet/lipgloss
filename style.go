@@ -165,6 +165,9 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
+	if s.r == nil {
+		s.r = DefaultRenderer()
+	}
 	if s.value != "" {
 		strs = append([]string{s.value}, strs...)
 	}

@@ -157,6 +157,12 @@ func TestRGBA(t *testing.T) {
 			CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			0x0000FF,
 		},
+		{
+			termenv.TrueColor,
+			true,
+			CompleteColor{TrueColor: "", ANSI256: "231", ANSI: "12"},
+			0x000000,
+		},
 		// lipgloss.CompleteAdaptiveColor
 		// dark
 		{
@@ -221,7 +227,7 @@ func TestRGBA(t *testing.T) {
 		r.SetColorProfile(tc.profile)
 		r.SetHasDarkBackground(tc.darkBg)
 
-		r, g, b, _ := termenv.ConvertToRGB(tc.input.color(r)).RGBA()
+		r, g, b, _ := tc.input.RGBA()
 		o := uint(r/256)<<16 + uint(g/256)<<8 + uint(b/256)
 
 		if o != tc.expected {
