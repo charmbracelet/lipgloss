@@ -39,7 +39,7 @@ func (s Style) Italic(v bool) Style {
 
 // Underline sets an underline rule. By default, underlines will not be drawn on
 // whitespace like margins and padding. To change this behavior set
-// renderUnderlinesOnSpaces.
+// UnderlineSpaces.
 func (s Style) Underline(v bool) Style {
 	s.set(underlineKey, v)
 	return s
@@ -47,7 +47,7 @@ func (s Style) Underline(v bool) Style {
 
 // Strikethrough sets a strikethrough rule. By default, strikes will not be
 // drawn on whitespace like margins and padding. To change this behavior set
-// renderStrikethroughOnSpaces.
+// StrikethroughSpaces.
 func (s Style) Strikethrough(v bool) Style {
 	s.set(strikethroughKey, v)
 	return s

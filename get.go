@@ -6,42 +6,42 @@ import (
 	"github.com/muesli/reflow/ansi"
 )
 
-// GetBold returns the style's bold value It no value is set false is returned.
+// GetBold returns the style's bold value. If no value is set false is returned.
 func (s Style) GetBold() bool {
 	return s.getAsBool(boldKey, false)
 }
 
-// GetItalic returns the style's italic value. It no value is set false is
+// GetItalic returns the style's italic value. If no value is set false is
 // returned.
 func (s Style) GetItalic() bool {
 	return s.getAsBool(italicKey, false)
 }
 
-// GetUnderline returns the style's underline value. It no value is set false is
+// GetUnderline returns the style's underline value. If no value is set false is
 // returned.
 func (s Style) GetUnderline() bool {
 	return s.getAsBool(underlineKey, false)
 }
 
-// GetStrikethrough returns the style's strikethrough value. It no value is set false
+// GetStrikethrough returns the style's strikethrough value. If no value is set false
 // is returned.
 func (s Style) GetStrikethrough() bool {
 	return s.getAsBool(strikethroughKey, false)
 }
 
-// GetReverse returns the style's reverse value. It no value is set false is
+// GetReverse returns the style's reverse value. If no value is set false is
 // returned.
 func (s Style) GetReverse() bool {
 	return s.getAsBool(reverseKey, false)
 }
 
-// GetBlink returns the style's blink value. It no value is set false is
+// GetBlink returns the style's blink value. If no value is set false is
 // returned.
 func (s Style) GetBlink() bool {
 	return s.getAsBool(blinkKey, false)
 }
 
-// GetFaint returns the style's faint value. It no value is set false is
+// GetFaint returns the style's faint value. If no value is set false is
 // returned.
 func (s Style) GetFaint() bool {
 	return s.getAsBool(faintKey, false)
@@ -72,7 +72,7 @@ func (s Style) GetHeight() int {
 }
 
 // GetAlign returns the style's implicit horizontal alignment setting.
-// If no alignment is set Position.AlignLeft is returned.
+// If no alignment is set Position.Left is returned.
 func (s Style) GetAlign() Position {
 	v := s.getAsPosition(alignHorizontalKey)
 	if v == Position(0) {
@@ -82,7 +82,7 @@ func (s Style) GetAlign() Position {
 }
 
 // GetAlignHorizontal returns the style's implicit horizontal alignment setting.
-// If no alignment is set Position.AlignLeft is returned.
+// If no alignment is set Position.Left is returned.
 func (s Style) GetAlignHorizontal() Position {
 	v := s.getAsPosition(alignHorizontalKey)
 	if v == Position(0) {
@@ -92,7 +92,7 @@ func (s Style) GetAlignHorizontal() Position {
 }
 
 // GetAlignVertical returns the style's implicit vertical alignment setting.
-// If no alignment is set Position.AlignTop is returned.
+// If no alignment is set Position.Top is returned.
 func (s Style) GetAlignVertical() Position {
 	v := s.getAsPosition(alignVerticalKey)
 	if v == Position(0) {
