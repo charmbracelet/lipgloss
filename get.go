@@ -290,7 +290,16 @@ func (s Style) GetBorderLeftBackground() TerminalColor {
 // GetBorderTopWidth returns the width of the top border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
+//
+// Deprecated: This function simply calls Style.GetBorderTopSize.
 func (s Style) GetBorderTopWidth() int {
+	return s.GetBorderTopSize()
+}
+
+// GetBorderTopSize returns the width of the top border. If borders contain
+// runes of varying widths, the widest rune is returned. If no border exists on
+// the top edge, 0 is returned.
+func (s Style) GetBorderTopSize() int {
 	if !s.getAsBool(borderTopKey, false) {
 		return 0
 	}
