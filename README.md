@@ -386,19 +386,17 @@ the stylesheet-based Markdown renderer.
 [glamour]: https://github.com/charmbracelet/glamour
 
 
-## Whatcha think?
+## Feedback
 
-We’d love to hear your thoughts on this project. Feel free to drop us a note.
+We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
 * [Twitter](https://twitter.com/charmcli)
-* [The Fediverse](https://mastodon.technology/@charm)
-* [Slack](https://charm.sh/slack)
-
+* [The Fediverse](https://mastodon.social/@charmcli)
+* [Discord](https://charm.sh/chat)
 
 ## License
 
 [MIT](https://github.com/charmbracelet/lipgloss/raw/master/LICENSE)
-
 
 ***
 
