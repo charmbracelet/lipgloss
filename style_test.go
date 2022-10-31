@@ -19,6 +19,10 @@ func TestStyleRender(t *testing.T) {
 			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 		{
+			NewStyle().Background(GradientColour{Start: "#00FF00", End: "#FF00FF"}),
+			"\x1b[48;2;0;255;0mh\x1b[0m\x1b[48;2;51;204;51me\x1b[0m\x1b[48;2;102;153;102ml\x1b[0m\x1b[48;2;153;102;153ml\x1b[0m\x1b[48;2;204;51;204mo\x1b[0m",
+		},
+		{
 			NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[0m",
 		},

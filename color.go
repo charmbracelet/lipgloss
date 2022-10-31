@@ -236,3 +236,37 @@ func (cac CompleteAdaptiveColor) color() termenv.Color {
 func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(cac.color()).RGBA()
 }
+
+// GradientColour specifies the start and end hex values for a colour gradient.
+// The RGBA is blended based on the position/steps parameters. During render the
+// gradient will be applied to the string provided, and the Steps parameter
+// will be set to the Width() of the string provided to render.
+// Currently only right to left gradient is supported.
+//
+// TODO: Add option for multiline:
+//  - corner to corner
+//  - radial
+//  - inverse
+type GradientColour struct {
+	Start    string
+	End      string
+	Steps    int
+	Position int
+}
+
+func (gc GradientColour) value() string {
+	sc := termenv.ConvertToRGB(ColorProfile().Color(gc.Start))
+	ec := termenv.ConvertToRGB(ColorProfile().Color(gc.End))
+
+	n := sc.BlendRgb(ec, float64(gc.Position)/float64(gc.Steps))
+
+	return n.Hex()
+}
+
+func (gc GradientColour) color() termenv.Color {
+	return ColorProfile().Color(gc.value())
+}
+
+func (gc GradientColour) RGBA() (r, g, b, a uint32) {
+	return termenv.ConvertToRGB(gc.color()).RGBA()
+}

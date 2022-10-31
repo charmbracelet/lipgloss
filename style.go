@@ -167,8 +167,10 @@ func (s Style) Render(str string) string {
 		blink         = s.getAsBool(blinkKey, false)
 		faint         = s.getAsBool(faintKey, false)
 
-		fg = s.getAsColor(foregroundKey)
-		bg = s.getAsColor(backgroundKey)
+		fg                 = s.getAsColor(foregroundKey)
+		fggradient, fggrad = fg.(GradientColour)
+		bg                 = s.getAsColor(backgroundKey)
+		bggradient, bggrad = bg.(GradientColour)
 
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
@@ -227,24 +229,34 @@ func (s Style) Render(str string) string {
 	}
 
 	if fg != noColor {
-		fgc := fg.color()
-		te = te.Foreground(fgc)
-		if styleWhitespace {
-			teWhitespace = teWhitespace.Foreground(fgc)
-		}
-		if useSpaceStyler {
-			teSpace = teSpace.Foreground(fgc)
+		if fggrad {
+			fggradient.Position = 0
+			fggradient.Steps = Width(str)
+		} else {
+			fgc := fg.color()
+			te = te.Foreground(fgc)
+			if styleWhitespace {
+				teWhitespace = teWhitespace.Foreground(fgc)
+			}
+			if useSpaceStyler {
+				teSpace = teSpace.Foreground(fgc)
+			}
 		}
 	}
 
 	if bg != noColor {
-		bgc := bg.color()
-		te = te.Background(bgc)
-		if colorWhitespace {
-			teWhitespace = teWhitespace.Background(bgc)
-		}
-		if useSpaceStyler {
-			teSpace = teSpace.Background(bgc)
+		if bggrad {
+			bggradient.Position = 0
+			bggradient.Steps = Width(str)
+		} else {
+			bgc := bg.color()
+			te = te.Background(bgc)
+			if colorWhitespace {
+				teWhitespace = teWhitespace.Background(bgc)
+			}
+			if useSpaceStyler {
+				teSpace = teSpace.Background(bgc)
+			}
 		}
 	}
 
@@ -280,14 +292,36 @@ func (s Style) Render(str string) string {
 
 		l := strings.Split(str, "\n")
 		for i := range l {
-			if useSpaceStyler {
+			var fte, fteSpace termenv.Style
+			if i == 0 {
+				fte, fteSpace = te, teSpace
+			}
+			if useSpaceStyler || fggrad || bggrad {
 				// Look for spaces and apply a different styler
 				for _, r := range l[i] {
+					if fggrad {
+						te = fte.Foreground(fggradient.color())
+						teSpace = fteSpace.Foreground(fggradient.color())
+						fggradient.Position++
+					}
+					if bggrad {
+						te = fte.Background(bggradient.color())
+						teSpace = fteSpace.Background(bggradient.color())
+						bggradient.Position++
+					}
+
 					if unicode.IsSpace(r) {
 						b.WriteString(teSpace.Styled(string(r)))
 						continue
 					}
 					b.WriteString(te.Styled(string(r)))
+				}
+
+				if fggrad {
+					fggradient.Position = 0
+				}
+				if bggrad {
+					bggradient.Position = 0
 				}
 			} else {
 				b.WriteString(te.Styled(l[i]))

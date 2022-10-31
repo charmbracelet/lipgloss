@@ -213,6 +213,31 @@ func TestRGBA(t *testing.T) {
 			},
 			0xFF0000,
 		},
+		// lipgloss.GradientColour
+		{
+			termenv.TrueColor,
+			false,
+			GradientColour{Start: "#FF0000", End: "#0000FF", Steps: 10, Position: 0},
+			0xFF0000,
+		},
+		{
+			termenv.TrueColor,
+			true,
+			GradientColour{Start: "#FF0000", End: "#0000FF", Steps: 10, Position: 10},
+			0x0000FF,
+		},
+		{
+			termenv.TrueColor,
+			false,
+			GradientColour{Start: "#FF00FF", End: "#00FF00", Steps: 10, Position: 5},
+			0x808080,
+		},
+		{
+			termenv.TrueColor,
+			false,
+			GradientColour{Start: "#FF00FF", End: "#00FF00", Steps: 10, Position: 2},
+			0xCC33CC,
+		},
 	}
 
 	for i, tc := range tt {
