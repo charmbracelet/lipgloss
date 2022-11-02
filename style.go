@@ -436,7 +436,7 @@ func padLeft(str string, n int, style *termenv.Style) string {
 	return b.String()
 }
 
-// Apply right right padding.
+// Apply right padding.
 func padRight(str string, n int, style *termenv.Style) string {
 	if n == 0 || str == "" {
 		return str

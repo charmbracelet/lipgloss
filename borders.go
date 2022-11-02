@@ -84,6 +84,39 @@ var (
 		BottomRight: "╯",
 	}
 
+	blockBorder = Border{
+		Top:         "█",
+		Bottom:      "█",
+		Left:        "█",
+		Right:       "█",
+		TopLeft:     "█",
+		TopRight:    "█",
+		BottomLeft:  "█",
+		BottomRight: "█",
+	}
+
+	outerHalfBlockBorder = Border{
+		Top:         "▀",
+		Bottom:      "▄",
+		Left:        "▌",
+		Right:       "▐",
+		TopLeft:     "▛",
+		TopRight:    "▜",
+		BottomLeft:  "▙",
+		BottomRight: "▟",
+	}
+
+	innerHalfBlockBorder = Border{
+		Top:         "▄",
+		Bottom:      "▀",
+		Left:        "▐",
+		Right:       "▌",
+		TopLeft:     "▗",
+		TopRight:    "▖",
+		BottomLeft:  "▝",
+		BottomRight: "▘",
+	}
+
 	thickBorder = Border{
 		Top:         "━",
 		Bottom:      "━",
@@ -127,6 +160,21 @@ func NormalBorder() Border {
 // RoundedBorder returns a border with rounded corners.
 func RoundedBorder() Border {
 	return roundedBorder
+}
+
+// BlockBorder returns a border that takes the whole block.
+func BlockBorder() Border {
+	return blockBorder
+}
+
+// OuterHalfBlockBorder returns a half-block border that sits outside the frame.
+func OuterHalfBlockBorder() Border {
+	return outerHalfBlockBorder
+}
+
+// InnerHalfBlockBorder returns a half-block border that sits inside the frame.
+func InnerHalfBlockBorder() Border {
+	return innerHalfBlockBorder
 }
 
 // ThickBorder returns a border that's thicker than the one returned by
