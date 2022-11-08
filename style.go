@@ -77,7 +77,7 @@ type rules map[propKey]interface{}
 
 // NewStyle returns a new, empty Style.  While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
-// incase the underlying implementation changes.
+// in case the underlying implementation changes.
 func NewStyle() Style {
 	return Style{}
 }

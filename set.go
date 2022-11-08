@@ -1,7 +1,7 @@
 package lipgloss
 
 // This could (should) probably just be moved into NewStyle(). We've broken it
-// out so we can call it in a lazy way.
+// out, so we can call it in a lazy way.
 func (s *Style) init() {
 	if s.rules == nil {
 		s.rules = make(rules)
@@ -16,7 +16,7 @@ func (s *Style) set(key propKey, value interface{}) {
 	case int:
 		// We don't allow negative integers on any of our values, so just keep
 		// them at zero or above. We could use uints instead, but the
-		// conversions are a little tedious so we're sticking with ints for
+		// conversions are a little tedious, so we're sticking with ints for
 		// sake of usability.
 		s.rules[key] = max(0, v)
 	default:
@@ -120,13 +120,13 @@ func (s Style) Align(p ...Position) Style {
 	return s
 }
 
-// HorizontalAlign sets a horizontal text alignment rule.
+// AlignHorizontal sets a horizontal text alignment rule.
 func (s Style) AlignHorizontal(p Position) Style {
 	s.set(alignHorizontalKey, p)
 	return s
 }
 
-// VerticalAlign sets a text alignment rule.
+// AlignVertical sets a text alignment rule.
 func (s Style) AlignVertical(p Position) Style {
 	s.set(alignVerticalKey, p)
 	return s
@@ -251,7 +251,7 @@ func (s Style) MarginBackground(c TerminalColor) Style {
 	return s
 }
 
-// Border is shorthand for setting a the border style and which sides should
+// Border is shorthand for setting the border style and which sides should
 // have a border at once. The variadic argument sides works as follows:
 //
 // With one value, the value is applied to all sides.
@@ -505,7 +505,7 @@ func (s Style) MaxHeight(n int) Style {
 }
 
 // UnderlineSpaces determines whether to underline spaces between words. By
-// default this is true. Spaces can also be underlined without underlining the
+// default, this is true. Spaces can also be underlined without underlining the
 // text itself.
 func (s Style) UnderlineSpaces(v bool) Style {
 	s.set(underlineSpacesKey, v)
@@ -513,7 +513,7 @@ func (s Style) UnderlineSpaces(v bool) Style {
 }
 
 // StrikethroughSpaces determines whether to apply strikethroughs to spaces
-// between words. By default this is true. Spaces can also be struck without
+// between words. By default, this is true. Spaces can also be struck without
 // underlining the text itself.
 func (s Style) StrikethroughSpaces(v bool) Style {
 	s.set(strikethroughSpacesKey, v)

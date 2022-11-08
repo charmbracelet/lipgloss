@@ -79,7 +79,7 @@ func (s Style) UnsetAlignHorizontal() Style {
 	return s
 }
 
-// UnsetAlignHorizontal removes the vertical text alignment style rule, if set.
+// UnsetAlignVertical removes the vertical text alignment style rule, if set.
 func (s Style) UnsetAlignVertical() Style {
 	delete(s.rules, alignVerticalKey)
 	return s

@@ -200,7 +200,7 @@ func (s Style) GetVerticalMargins() int {
 // GetBorder returns the style's border style (type Border) and value for the
 // top, right, bottom, and left in that order. If no value is set for the
 // border style, Border{} is returned. For all other unset values false is
-// returend.
+// returned.
 func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
 	return s.getBorderStyle(),
 		s.getAsBool(borderTopKey, false),
