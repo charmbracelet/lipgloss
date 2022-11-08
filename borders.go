@@ -247,7 +247,7 @@ func (s Style) applyBorder(str string) string {
 		border.Right = " "
 	}
 
-	// If corners should be render but are set with the empty string, fill them
+	// If corners should be rendered but are set with the empty string, fill them
 	// with a single space.
 	if hasTop && hasLeft && border.TopLeft == "" {
 		border.TopLeft = " "

@@ -218,7 +218,7 @@ var wildStyle = style.Copy().Blink(true)
 ```
 
 `Copy()` performs a copy on the underlying data structure ensuring that you get
-a true, dereferenced copy of a style. Without copying it's possible to mutate
+a true, dereferenced copy of a style. Without copying, it's possible to mutate
 styles.
 
 
