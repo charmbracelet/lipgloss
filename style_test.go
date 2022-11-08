@@ -78,25 +78,133 @@ func TestStyleInherit(t *testing.T) {
 		Margin(1, 1, 1, 1).
 		Padding(1, 1, 1, 1)
 
-	i := NewStyle().Inherit(s)
+	t.Run("empty", func(t *testing.T) {
+		i := NewStyle()
+		i = i.Inherit(s)
 
-	require.Equal(t, s.GetBold(), i.GetBold())
-	require.Equal(t, s.GetItalic(), i.GetItalic())
-	require.Equal(t, s.GetUnderline(), i.GetUnderline())
-	require.Equal(t, s.GetStrikethrough(), i.GetStrikethrough())
-	require.Equal(t, s.GetBlink(), i.GetBlink())
-	require.Equal(t, s.GetFaint(), i.GetFaint())
-	require.Equal(t, s.GetForeground(), i.GetForeground())
-	require.Equal(t, s.GetBackground(), i.GetBackground())
+		require.Equal(t, s.GetBold(), i.GetBold())
+		require.Equal(t, s.GetItalic(), i.GetItalic())
+		require.Equal(t, s.GetUnderline(), i.GetUnderline())
+		require.Equal(t, s.GetStrikethrough(), i.GetStrikethrough())
+		require.Equal(t, s.GetBlink(), i.GetBlink())
+		require.Equal(t, s.GetFaint(), i.GetFaint())
+		require.Equal(t, s.GetForeground(), i.GetForeground())
+		require.Equal(t, s.GetBackground(), i.GetBackground())
 
-	require.NotEqual(t, s.GetMarginLeft(), i.GetMarginLeft())
-	require.NotEqual(t, s.GetMarginRight(), i.GetMarginRight())
-	require.NotEqual(t, s.GetMarginTop(), i.GetMarginTop())
-	require.NotEqual(t, s.GetMarginBottom(), i.GetMarginBottom())
-	require.NotEqual(t, s.GetPaddingLeft(), i.GetPaddingLeft())
-	require.NotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
-	require.NotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
-	require.NotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+		require.NotEqual(t, s.GetMarginLeft(), i.GetMarginLeft())
+		require.NotEqual(t, s.GetMarginRight(), i.GetMarginRight())
+		require.NotEqual(t, s.GetMarginTop(), i.GetMarginTop())
+		require.NotEqual(t, s.GetMarginBottom(), i.GetMarginBottom())
+		require.NotEqual(t, s.GetPaddingLeft(), i.GetPaddingLeft())
+		require.NotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
+		require.NotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
+		require.NotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+	})
+
+	t.Run("set", func(t *testing.T) {
+		i := NewStyle().
+			Bold(false).
+			Italic(false).
+			Underline(false).
+			Strikethrough(false).
+			Blink(false).
+			Faint(false).
+			Foreground(Color("#00000000")).
+			Background(Color("#22222222")).
+			Margin(2, 2, 2, 2).
+			Padding(2, 2, 2, 2)
+		i = i.Inherit(s)
+
+		require.NotEqual(t, s.GetBold(), i.GetBold())
+		require.NotEqual(t, s.GetItalic(), i.GetItalic())
+		require.NotEqual(t, s.GetUnderline(), i.GetUnderline())
+		require.NotEqual(t, s.GetStrikethrough(), i.GetStrikethrough())
+		require.NotEqual(t, s.GetBlink(), i.GetBlink())
+		require.NotEqual(t, s.GetFaint(), i.GetFaint())
+		require.NotEqual(t, s.GetForeground(), i.GetForeground())
+		require.NotEqual(t, s.GetBackground(), i.GetBackground())
+
+		require.NotEqual(t, s.GetMarginLeft(), i.GetMarginLeft())
+		require.NotEqual(t, s.GetMarginRight(), i.GetMarginRight())
+		require.NotEqual(t, s.GetMarginTop(), i.GetMarginTop())
+		require.NotEqual(t, s.GetMarginBottom(), i.GetMarginBottom())
+		require.NotEqual(t, s.GetPaddingLeft(), i.GetPaddingLeft())
+		require.NotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
+		require.NotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
+		require.NotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+	})
+}
+
+func TestStyleMerge(t *testing.T) {
+	t.Parallel()
+
+	s := NewStyle().
+		Bold(true).
+		Italic(true).
+		Underline(true).
+		Strikethrough(true).
+		Blink(true).
+		Faint(true).
+		Foreground(Color("#ffffff")).
+		Background(Color("#111111")).
+		Margin(1, 1, 1, 1).
+		Padding(1, 1, 1, 1)
+
+	t.Run("empty", func(t *testing.T) {
+		m := NewStyle()
+		m = m.Merge(s)
+
+		require.Equal(t, s.GetBold(), m.GetBold())
+		require.Equal(t, s.GetItalic(), m.GetItalic())
+		require.Equal(t, s.GetUnderline(), m.GetUnderline())
+		require.Equal(t, s.GetStrikethrough(), m.GetStrikethrough())
+		require.Equal(t, s.GetBlink(), m.GetBlink())
+		require.Equal(t, s.GetFaint(), m.GetFaint())
+		require.Equal(t, s.GetForeground(), m.GetForeground())
+		require.Equal(t, s.GetBackground(), m.GetBackground())
+
+		require.NotEqual(t, s.GetMarginLeft(), m.GetMarginLeft())
+		require.NotEqual(t, s.GetMarginRight(), m.GetMarginRight())
+		require.NotEqual(t, s.GetMarginTop(), m.GetMarginTop())
+		require.NotEqual(t, s.GetMarginBottom(), m.GetMarginBottom())
+		require.NotEqual(t, s.GetPaddingLeft(), m.GetPaddingLeft())
+		require.NotEqual(t, s.GetPaddingRight(), m.GetPaddingRight())
+		require.NotEqual(t, s.GetPaddingTop(), m.GetPaddingTop())
+		require.NotEqual(t, s.GetPaddingBottom(), m.GetPaddingBottom())
+	})
+
+	t.Run("set", func(t *testing.T) {
+		m := NewStyle().
+			Bold(false).
+			Italic(false).
+			Underline(false).
+			Strikethrough(false).
+			Blink(false).
+			Faint(false).
+			Foreground(Color("#00000000")).
+			Background(Color("#22222222")).
+			Margin(2, 2, 2, 2).
+			Padding(2, 2, 2, 2)
+		m = m.Merge(s)
+
+		require.Equal(t, s.GetBold(), m.GetBold())
+		require.Equal(t, s.GetItalic(), m.GetItalic())
+		require.Equal(t, s.GetUnderline(), m.GetUnderline())
+		require.Equal(t, s.GetStrikethrough(), m.GetStrikethrough())
+		require.Equal(t, s.GetBlink(), m.GetBlink())
+		require.Equal(t, s.GetFaint(), m.GetFaint())
+		require.Equal(t, s.GetForeground(), m.GetForeground())
+		require.Equal(t, s.GetBackground(), m.GetBackground())
+
+		require.NotEqual(t, s.GetMarginLeft(), m.GetMarginLeft())
+		require.NotEqual(t, s.GetMarginRight(), m.GetMarginRight())
+		require.NotEqual(t, s.GetMarginTop(), m.GetMarginTop())
+		require.NotEqual(t, s.GetMarginBottom(), m.GetMarginBottom())
+		require.NotEqual(t, s.GetPaddingLeft(), m.GetPaddingLeft())
+		require.NotEqual(t, s.GetPaddingRight(), m.GetPaddingRight())
+		require.NotEqual(t, s.GetPaddingTop(), m.GetPaddingTop())
+		require.NotEqual(t, s.GetPaddingBottom(), m.GetPaddingBottom())
+	})
 }
 
 func TestStyleCopy(t *testing.T) {
