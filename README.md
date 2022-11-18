@@ -351,6 +351,119 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 
 You can also style the whitespace. For details, see [the docs][docs].
 
+### String Conversion
+
+```go
+// Import reads style specifications from the input string
+// and sets the corresponding properties in the dst style.
+func Import(dst Style, input string) (Style, error)
+
+// Export emits style specifications that represent
+// the given style.
+func Export(s Style) string
+```
+
+#### Exporting Styles to Text
+
+For example:
+
+```go
+import (
+   "fmt"
+
+   "github.com/charmbracelet/lipgloss"
+   lipglossc "github.com/knz/lipgloss-convert"
+)
+
+func main() {
+    style := lipgloss.NewStyle().
+        Bold(true).
+        Align(lipgloss.Center).
+        Foreground(lipgloss.Color("#FAFAFA")).
+        Background(lipgloss.AdaptiveColor{"#7D56F4", "#112233"})).
+        BorderTopForeground(lipgloss.Color("12")).
+        BorderStyle(lipgloss.RoundedBorder()).
+        PaddingTop(2).
+        PaddingLeft(4).
+        Width(22)
+
+    fmt.Println(lipglossc.Export(s))
+}
+```
+
+Displays:
+
+``` css
+align: 0.5;
+background: adaptive(#7D56F4,#112233);
+bold: true;
+border-style: border("─","─","│","│","╭","╮","╯","╰");
+border-top-foreground: 12;
+foreground: #FAFAFA;
+padding-left: 4;
+padding-top: 2;
+width: 22;
+```
+
+#### Importing Styles from Text
+
+The `Import` function applies the text directives specified in its input
+argument to the style also provided as argument. Other properties already
+in the style remain unchanged.
+
+`Import` automatically supports all the lipgloss
+properties, as follows:
+
+- `Foreground` in lipgloss becomes `foreground` in the textual syntax.
+- `UnderlineSpaces` becomes `underline-spaces`.
+- etc.
+
+`Import` also supports the following special cases:
+
+- For colors:
+
+  ```
+  foreground: #abc;
+  foreground: #aabbcc;
+  foreground: 123;
+  foreground: adaptive(<color>,<color>);
+  foreground: complete(<truecolor>,<ansi256color>,<ansicolor>);
+  foreground: adaptive(<color>,<color>);
+  foreground: adaptive(complete(<truecolor>,<ansi256color>,<ansicolor>),complete(<truecolor>,<ansi256color>,<ansicolor>));
+  ```
+
+- Padding, margin, align etc which can take multiple values at once:
+
+  ```
+  margin: 10
+  margin: 10 20
+  margin: 10 20 10 20
+  ```
+
+- Border styles:
+
+  ```
+  border-style: rounded;
+  border-style: hidden;
+  border-style: normal;
+  border-style: thick;
+  border-style: double;
+  border-style: block;
+  border-style: inner-half;
+  border-style: outer-half;
+  ```
+
+- Border styles with top/bottom or left/right selection (see the doc
+  for `lipgloss.Style`'s `Border()` method):
+
+  ```
+  border: normal true false;
+  border: normal true false false true;
+  ```
+
+- Resetting a style with `clear`: this erases all the properties
+  in the style, to start with a fresh style.
+
 
 ***
 
