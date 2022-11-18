@@ -4,7 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: "08:00"
     labels:
       - "dependencies"
     commit-message:
@@ -14,7 +13,6 @@ updates:
     directory: "/example"
     schedule:
       interval: "daily"
-      time: "08:00"
     labels:
       - "dependencies"
     commit-message:
@@ -24,7 +22,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: "08:00"
     labels:
       - "dependencies"
     commit-message:
