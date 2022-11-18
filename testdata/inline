@@ -1,0 +1,75 @@
+text
+hello
+world
+----
+ok
+
+# We'd probably like inline to
+# translate newlines to spaces.
+# See: https://github.com/charmbracelet/lipgloss/issues/116
+set
+inline: true
+----
+helloworld🛇
+
+# No wrapping when inline.
+set
+clear; inline: true;
+width: 3
+----
+helloworld🛇
+
+# No padding when inline.
+set
+clear; inline: true;
+padding: 3;
+----
+helloworld🛇
+
+# No margin when inline.
+set
+clear; inline: true;
+margin: 3;
+----
+helloworld🛇
+
+# No border when inline.
+set
+clear; inline: true;
+border: normal;
+----
+helloworld🛇
+
+# Max width still honored.
+set
+clear; inline: true;
+max-width: 4;
+----
+hell🛇
+
+
+# Surprising: height padding when inline?
+# https://github.com/charmbracelet/lipgloss/issues/117
+set
+clear; inline: true;
+height: 3;
+----
+helloworld␤
+··········␤
+··········🛇
+
+# Surprising: alignment when inline?
+# https://github.com/charmbracelet/lipgloss/issues/118
+set
+clear; inline: true;
+width: 20;
+----
+helloworld··········🛇
+
+# Ditto.
+set
+clear; inline: true;
+width: 20;
+align: right;
+----
+··········helloworld🛇

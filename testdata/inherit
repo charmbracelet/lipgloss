@@ -1,0 +1,49 @@
+set
+width: 10
+----
+hello!····🛇
+
+inherit
+height: 3
+----
+height: 3;
+width: 10;
+
+# We don't inherit if we already have a value.
+inherit
+width: 20
+----
+height: 3;
+width: 10;
+
+set
+clear
+----
+hello!🛇
+
+# Margins are not inherited.
+inherit
+margin: 3;
+----
+
+# Padding is not inherited.
+inherit
+padding: 3;
+----
+
+# Margins inherit the parent's background color.
+# Surprising: we'd expect the border color to inherit
+# from the parent's background?
+# See issue: https://github.com/charmbracelet/lipgloss/issues/119
+inherit
+background: 33
+----
+background: 33;
+margin-background: 33;
+
+# But they don't inherit if they are already set.
+inherit
+background: 44
+----
+background: 33;
+margin-background: 33;

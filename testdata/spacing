@@ -1,0 +1,250 @@
+text
+hello
+world
+----
+ok
+
+# Show height fill.
+set
+width: 10;
+height: 4
+----
+hello·····␤
+world·····␤
+··········␤
+··········🛇
+
+# Data wider than style: the style does wrapping.
+set
+width: 3;
+----
+hel␤
+lo·␤
+wor␤
+ld·🛇
+
+# Data taller than style.
+# All lines in the input are rendered.
+set
+width: 10;
+height: 1
+----
+hello·····␤
+world·····🛇
+
+# Data both wider and taller than style.
+# All lines in the input are rendered with wrapping.
+set
+width: 3;
+height: 1
+----
+hel␤
+lo·␤
+wor␤
+ld·🛇
+
+# Data wider than max width: data gets truncated.
+# Render not wider than max width.
+set
+clear;
+width: 10;
+height: 4;
+max-width: 3;
+----
+hel␤
+wor␤
+···␤
+···🛇
+
+# Data taller than max height: data gets truncated.
+# Render not taller than max height.
+set
+clear;
+width: 10;
+height: 4;
+max-height: 3;
+----
+hello·····␤
+world·····␤
+··········🛇
+
+set
+max-height: 1
+----
+hello·····🛇
+
+# If max-weight is larger than height,
+# and the input is smaller than height,
+# we don't get padding.
+set
+clear;
+height: 2;
+max-height: 4
+----
+hello␤
+world🛇
+
+# If we get wrapping due to limited width
+# max-height applies after the wrapping.
+set
+height: unset;
+width: 3;
+max-height: 3;
+----
+hel␤
+lo·␤
+wor🛇
+
+subtest padding
+
+set
+clear; border: normal;
+padding: 2;
+----
+┌─────────┐␤
+│·········│␤
+│·········│␤
+│··hello··│␤
+│··world··│␤
+│·········│␤
+│·········│␤
+└─────────┘🛇
+
+set
+clear; border: normal;
+padding: 1 2 3 4;
+----
+┌───────────┐␤
+│···········│␤
+│····hello··│␤
+│····world··│␤
+│···········│␤
+│···········│␤
+│···········│␤
+└───────────┘🛇
+
+set
+clear; border: normal;
+padding: 2 0 0 0;
+----
+┌─────┐␤
+│·····│␤
+│·····│␤
+│hello│␤
+│world│␤
+└─────┘🛇
+
+set
+clear; border: normal;
+padding: 0 2 0 0;
+----
+┌───────┐␤
+│hello··│␤
+│world··│␤
+└───────┘🛇
+
+set
+clear; border: normal;
+padding: 0 0 2 0;
+----
+┌─────┐␤
+│hello│␤
+│world│␤
+│·····│␤
+│·····│␤
+└─────┘🛇
+
+set
+clear; border: normal;
+padding: 0 0 0 2;
+----
+┌───────┐␤
+│··hello│␤
+│··world│␤
+└───────┘🛇
+
+subtest end
+
+subtest margin
+
+set
+clear; border: normal;
+margin: 2;
+----
+···········␤
+···········␤
+··┌─────┐··␤
+··│hello│··␤
+··│world│··␤
+··└─────┘··␤
+···········␤
+···········🛇
+
+set
+clear; border: normal;
+margin: 1 2 3 4;
+----
+·············␤
+····┌─────┐··␤
+····│hello│··␤
+····│world│··␤
+····└─────┘··␤
+·············␤
+·············␤
+·············🛇
+
+set
+clear; border: normal;
+margin: 2 0 0 0;
+----
+·······␤
+·······␤
+┌─────┐␤
+│hello│␤
+│world│␤
+└─────┘🛇
+
+set
+clear; border: normal;
+margin: 0 2 0 0;
+----
+┌─────┐··␤
+│hello│··␤
+│world│··␤
+└─────┘··🛇
+
+set
+clear; border: normal;
+margin: 0 0 2 0;
+----
+┌─────┐␤
+│hello│␤
+│world│␤
+└─────┘␤
+·······␤
+·······🛇
+
+set
+clear; border: normal;
+margin: 0 0 0 2;
+----
+··┌─────┐␤
+··│hello│␤
+··│world│␤
+··└─────┘🛇
+
+# Rendering bug?
+# See: https://github.com/charmbracelet/lipgloss/issues/115
+set
+clear; border: normal;
+margin: 1;
+margin-background: #0f0
+----
+[48;2;0;255;0m·········␤
+[0m[48;2;0;255;0m·[0m┌─────┐[48;2;0;255;0m·[0m␤
+[48;2;0;255;0m·[0m│hello│[48;2;0;255;0m·[0m␤
+[48;2;0;255;0m·[0m│world│[48;2;0;255;0m·[0m␤
+[48;2;0;255;0m·[0m└─────┘[48;2;0;255;0m·[0m[48;2;0;255;0m␤
+·········[0m🛇
+
+subtest end
