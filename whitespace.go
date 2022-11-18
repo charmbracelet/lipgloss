@@ -15,7 +15,7 @@ type whitespace struct {
 
 // Render whitespaces.
 func (w whitespace) render(width int) string {
-	if w.chars == "" {
+	if ansi.PrintableRuneWidth(w.chars) == 0 {
 		w.chars = " "
 	}
 
