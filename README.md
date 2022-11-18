@@ -19,7 +19,8 @@ Users familiar with CSS will feel at home with Lip Gloss.
 
 import "github.com/charmbracelet/lipgloss"
 
-var style = lipgloss.NewStyle("Hello, kitty.").
+var style = lipgloss.NewStyle().
+    SetString("Hello, kitty.").
     Bold(true).
     Foreground(lipgloss.Color("#FAFAFA")).
     Background(lipgloss.Color("#7D56F4")).
@@ -173,7 +174,8 @@ var style = lipgloss.NewStyle().
 Setting a minimum width and height is simple and straightforward.
 
 ```go
-var style = lipgloss.NewStyle("What’s for lunch?").
+var style = lipgloss.NewStyle().
+    SetString("What’s for lunch?").
     Width(24).
     Height(32).
     Foreground(lipgloss.Color("63"))
@@ -298,7 +300,7 @@ someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
 
 ```go
-style := lipgloss.NewStyle("Hello,").Bold(true)
+style := lipgloss.NewStyle(lipgloss.WithString("Hello,")).Bold(true)
 fmt.Println(style.Render("kitty.")) // Hello, kitty.
 fmt.Println(style.Render("puppy.")) // Hello, puppy.
 ```
@@ -306,7 +308,7 @@ fmt.Println(style.Render("puppy.")) // Hello, puppy.
 But you could also use the Stringer interface:
 
 ```go
-var style = lipgloss.NewStyle("你好，猫咪。").Bold(true)
+var style = lipgloss.NewStyle(lipgloss.WithString("你好，猫咪。")).Bold(true)
 
 fmt.Println(style)
 ```
