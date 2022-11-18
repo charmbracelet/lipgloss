@@ -152,6 +152,29 @@ func (s Style) Inherit(i Style) Style {
 	return s
 }
 
+// Merge overlays the style in the argument onto this style by copying each explicitly
+// set value from the argument style onto this style, even if it is already explicitly set.
+// Existing set values are overwritten.
+//
+// Margins, padding, and underlying string values are not merged.
+func (s Style) Merge(i Style) Style {
+	s.init()
+
+	for k, v := range i.rules {
+		switch k {
+		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
+			// Margins are not merged
+			continue
+		case paddingTopKey, paddingRightKey, paddingBottomKey, paddingLeftKey:
+			// Padding is not merged
+			continue
+		}
+
+		s.rules[k] = v
+	}
+	return s
+}
+
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(str string) string {
 	var (

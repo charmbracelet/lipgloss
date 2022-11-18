@@ -240,6 +240,23 @@ var styleB = lipgloss.NewStyle().
 ```
 
 
+## Merging
+
+Styles can merge rules from other styles. When merging, all rules
+on the receiver are merged.
+
+```go
+var styleA = lipgloss.NewStyle().
+    Foreground(lipgloss.Color("229")).
+    Background(lipgloss.Color("63"))
+
+// Both foreground and background colors will be merged:
+var styleB = lipgloss.NewStyle().
+    Foreground(lipgloss.Color("201")).
+    Merge(styleA)
+```
+
+
 ## Unsetting Rules
 
 All rules can be unset:
