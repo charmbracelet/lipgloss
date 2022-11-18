@@ -9,6 +9,7 @@ import (
 
 func TestStyleRender(t *testing.T) {
 	renderer.SetColorProfile(termenv.TrueColor)
+	renderer.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -17,6 +18,10 @@ func TestStyleRender(t *testing.T) {
 	}{
 		{
 			NewStyle().Foreground(Color("#5A56E0")),
+			"\x1b[38;2;89;86;224mhello\x1b[0m",
+		},
+		{
+			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
 			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 		{
@@ -37,6 +42,55 @@ func TestStyleRender(t *testing.T) {
 		},
 		{
 			NewStyle().Faint(true),
+			"\x1b[2mhello\x1b[0m",
+		},
+	}
+
+	for i, tc := range tt {
+		s := tc.style.Copy().SetString("hello")
+		res := s.Render()
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+}
+
+func TestStyleCustomRender(t *testing.T) {
+	t.Parallel()
+
+	r := NewRenderer(WithColorProfile(termenv.TrueColor), WithDarkBackground(false))
+	tt := []struct {
+		style    Style
+		expected string
+	}{
+		{
+			r.NewStyle().Foreground(Color("#5A56E0")),
+			"\x1b[38;2;89;86;224mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
+			"\x1b[38;2;255;254;18mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Bold(true),
+			"\x1b[1mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Italic(true),
+			"\x1b[3mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Underline(true),
+			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
+		},
+		{
+			r.NewStyle().Blink(true),
+			"\x1b[5mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[0m",
 		},
 	}
@@ -271,7 +325,7 @@ func TestStyleValue(t *testing.T) {
 		},
 		{
 			name:     "new style with string",
-			style:    NewStyle("bar", "foobar"),
+			style:    NewStyle(WithString("bar", "foobar")),
 			expected: "bar foobar foo",
 		},
 	}
