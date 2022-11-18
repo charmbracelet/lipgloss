@@ -173,12 +173,10 @@ var style = lipgloss.NewStyle().
 Setting a minimum width and height is simple and straightforward.
 
 ```go
-var style = lipgloss.NewStyle().
+var style = lipgloss.NewStyle("What’s for lunch?").
     Width(24).
     Height(32).
     Foreground(lipgloss.Color("63"))
-
-var str = lipgloss.Render(style, "What’s for lunch?")
 ```
 
 
