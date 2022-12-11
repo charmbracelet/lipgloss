@@ -3,8 +3,6 @@ package lipgloss
 import (
 	"math"
 	"strings"
-
-	"github.com/muesli/reflow/ansi"
 )
 
 // JoinHorizontal is a utility function for horizontally joining two
@@ -85,7 +83,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 			b.WriteString(block[i])
 
 			// Also make lines the same length
-			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.PrintableRuneWidth(block[i])))
+			b.WriteString(strings.Repeat(" ", maxWidths[j]-PrintableStringWidth(block[i])))
 		}
 		if i < len(blocks[0])-1 {
 			b.WriteRune('\n')
@@ -137,7 +135,7 @@ func JoinVertical(pos Position, strs ...string) string {
 	var b strings.Builder
 	for i, block := range blocks {
 		for j, line := range block {
-			w := maxWidth - ansi.PrintableRuneWidth(line)
+			w := maxWidth - PrintableStringWidth(line)
 
 			switch pos { //nolint:exhaustive
 			case Left:

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/mattn/go-runewidth"
-	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/termenv"
 )
 
@@ -384,8 +383,8 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 		middle = " "
 	}
 
-	leftWidth := ansi.PrintableRuneWidth(left)
-	rightWidth := ansi.PrintableRuneWidth(right)
+	leftWidth := PrintableStringWidth(left)
+	rightWidth := PrintableStringWidth(right)
 
 	runes := []rune(middle)
 	j := 0
@@ -398,7 +397,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 		if j >= len(runes) {
 			j = 0
 		}
-		i += ansi.PrintableRuneWidth(string(runes[j]))
+		i += PrintableStringWidth(string(runes[j]))
 	}
 	out.WriteString(right)
 

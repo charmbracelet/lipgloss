@@ -3,8 +3,10 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
+	"github.com/mattn/go-runewidth"
 )
+
+const marker = '\x1B'
 
 // GetBold returns the style's bold value. If no value is set false is returned.
 func (s Style) GetBold() bool {
@@ -492,11 +494,37 @@ func getLines(s string) (lines []string, widest int) {
 	lines = strings.Split(s, "\n")
 
 	for _, l := range lines {
-		w := ansi.PrintableRuneWidth(l)
+		w := PrintableStringWidth(l)
 		if widest < w {
 			widest = w
 		}
 	}
 
 	return lines, widest
+}
+
+// PrintableStringWidth returns the width of the given string.
+func PrintableStringWidth(s string) int {
+	var ansi bool
+	var sr []rune
+
+	for _, c := range s {
+		if c == marker {
+			// ANSI escape sequence
+			ansi = true
+		} else if ansi {
+			if isTerminator(c) {
+				// ANSI sequence terminated
+				ansi = false
+			}
+		} else {
+			sr = append(sr, c)
+		}
+	}
+
+	return runewidth.StringWidth(string(sr))
+}
+
+func isTerminator(c rune) bool {
+	return (c >= 0x40 && c <= 0x5a) || (c >= 0x61 && c <= 0x7a)
 }

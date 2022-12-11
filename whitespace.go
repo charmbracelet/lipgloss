@@ -3,7 +3,6 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/termenv"
 )
 
@@ -45,12 +44,12 @@ func (w whitespace) render(width int) string {
 		if j >= len(r) {
 			j = 0
 		}
-		i += ansi.PrintableRuneWidth(string(r[j]))
+		i += PrintableStringWidth(string(r[j]))
 	}
 
 	// Fill any extra gaps white spaces. This might be necessary if any runes
 	// are more than one cell wide, which could leave a one-rune gap.
-	short := width - ansi.PrintableRuneWidth(b.String())
+	short := width - PrintableStringWidth(b.String())
 	if short > 0 {
 		b.WriteString(strings.Repeat(" ", short))
 	}

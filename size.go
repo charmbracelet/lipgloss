@@ -2,8 +2,6 @@ package lipgloss
 
 import (
 	"strings"
-
-	"github.com/muesli/reflow/ansi"
 )
 
 // Width returns the cell width of characters in the string. ANSI sequences are
@@ -14,7 +12,7 @@ import (
 // will give you accurate results.
 func Width(str string) (width int) {
 	for _, l := range strings.Split(str, "\n") {
-		w := ansi.PrintableRuneWidth(l)
+		w := PrintableStringWidth(l)
 		if w > width {
 			width = w
 		}

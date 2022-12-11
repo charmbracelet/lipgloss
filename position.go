@@ -3,8 +3,6 @@ package lipgloss
 import (
 	"math"
 	"strings"
-
-	"github.com/muesli/reflow/ansi"
 )
 
 // Position represents a position along a horizontal or vertical axis. It's in
@@ -66,7 +64,7 @@ func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...
 	var b strings.Builder
 	for i, l := range lines {
 		// Is this line shorter than the longest line?
-		short := max(0, contentWidth-ansi.PrintableRuneWidth(l))
+		short := max(0, contentWidth-PrintableStringWidth(l))
 
 		switch pos { //nolint:exhaustive
 		case Left:
