@@ -395,6 +395,68 @@ func (s Style) GetFrameSize() (x, y int) {
 	return s.GetHorizontalFrameSize(), s.GetVerticalFrameSize()
 }
 
+// GetFlexDirection returns the flexbox flow direction, establishing the main
+// axis inside the container, as well as the direction along this axis.
+func (s Style) GetFlexDirection() FlexDirection {
+	v, ok := s.rules[flexDirectionKey]
+	if !ok {
+		return FlexDirRow
+	}
+	if d, ok := v.(FlexDirection); ok {
+		return d
+	}
+	return FlexDirRow
+}
+
+// GetFlexWrap returns the flexbox wrap setting, establishing how item within the
+// container wrap or not.
+func (s Style) GetFlexWrap() FlexWrap {
+	v, ok := s.rules[flexWrapKey]
+	if !ok {
+		return FlexWrapNoWrap
+	}
+	if w, ok := v.(FlexWrap); ok {
+		return w
+	}
+	return FlexWrapNoWrap
+}
+
+// GetFlexJustifyContent returns how items within a flexbox container are
+// distributed along the main axis.
+func (s Style) GetFlexJustifyContent() FlexJustifyContent {
+	v, ok := s.rules[flexJustifyContentKey]
+	if !ok {
+		return FlexJustifyContentFlexStart
+	}
+	if jc, ok := v.(FlexJustifyContent); ok {
+		return jc
+	}
+	return FlexJustifyContentFlexStart
+}
+
+// GetFlexAlignItems returns how items are laid out along the cross axis of the
+// flexbox container.
+func (s Style) GetFlexAlignItems() FlexAlignItems {
+	v, ok := s.rules[flexAlignItemKey]
+	if !ok {
+		return FlexAlignItemStretch
+	}
+	if ai, ok := v.(FlexAlignItems); ok {
+		return ai
+	}
+	return FlexAlignItemStretch
+}
+
+// GetFlexGrow returns the ability for a flex item to grow if necessary.
+func (s Style) GetFlexGrow() float32 {
+	return s.getAsFloat32(flexGrowKey)
+}
+
+// GetFlexShrink returns the ability for a flex item to shrink if necessary.
+func (s Style) GetFlexShrink() float32 {
+	return s.getAsFloat32(flexShrink)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	_, exists := s.rules[k]
@@ -430,6 +492,17 @@ func (s Style) getAsInt(k propKey) int {
 	}
 	if i, ok := v.(int); ok {
 		return i
+	}
+	return 0
+}
+
+func (s Style) getAsFloat32(k propKey) float32 {
+	v, ok := s.rules[k]
+	if !ok {
+		return 0
+	}
+	if f, ok := v.(float32); ok {
+		return f
 	}
 	return 0
 }

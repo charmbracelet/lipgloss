@@ -520,6 +520,58 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 	return s
 }
 
+// FlexDirection determines the flexbox flow direction, establishing the main
+// axis inside the container, as well as the direction along this axis.
+// Applies on the flexbox container.
+func (s Style) FlexDirection(d FlexDirection) Style {
+	s.set(flexDirectionKey, d)
+	return s
+}
+
+// FlexWrap determines the flexbox wrap setting, establishing how item within the
+// container wrap or not.
+// Applies on the flexbox container.
+func (s Style) FlexWrap(w FlexWrap) Style {
+	s.set(flexWrapKey, w)
+	return s
+}
+
+// FlexJustifyContent determines how items within a flexbox container are
+// distributed along the main axis.
+// Applies on the flexbox container.
+func (s Style) FlexJustifyContent(jc FlexJustifyContent) Style {
+	s.set(flexJustifyContentKey, jc)
+	return s
+}
+
+// FlexAlignItems determines how items are laid out along the cross axis of the
+// flexbox container.
+// Applies on the flexbox container.
+func (s Style) FlexAlignItems(ai FlexAlignItems) Style {
+	s.set(flexAlignItemKey, ai)
+	return s
+}
+
+// FlexGrow determines the ability for a flex item to grow if necessary.
+// Applies on a flexbox item.
+func (s Style) FlexGrow(f float32) Style {
+	if f < 0 {
+		f = 0
+	}
+	s.set(flexGrowKey, f)
+	return s
+}
+
+// FlexShrink determines the ability for a flex item to shrink if necessary.
+// Applies on a flexbox item.
+func (s Style) FlexShrink(f float32) Style {
+	if f < 0 {
+		f = 0
+	}
+	s.set(flexShrink, f)
+	return s
+}
+
 // whichSidesInt is a helper method for setting values on sides of a block based
 // on the number of arguments. It follows the CSS shorthand rules for blocks
 // like margin, padding. and borders. Here are how the rules work:

@@ -70,6 +70,14 @@ const (
 	maxHeightKey
 	underlineSpacesKey
 	strikethroughSpacesKey
+
+	// Flexbox.
+	flexDirectionKey
+	flexWrapKey
+	flexJustifyContentKey
+	flexAlignItemKey
+	flexGrowKey
+	flexShrink
 )
 
 // A set of properties.
@@ -469,4 +477,11 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
 }
