@@ -92,9 +92,17 @@ var (
 
 	// Dialog.
 
+	dialogTitleStyle = lipgloss.NewStyle().
+				Background(lipgloss.Color("#6124DF")).
+				Align(lipgloss.Center).
+				Bold(true).
+				Italic(true).
+				Padding(0, 5)
+
 	dialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#874BFD")).
+			BorderTitleStyle(dialogTitleStyle).
 			Padding(1, 0).
 			BorderTop(true).
 			BorderLeft(true).
@@ -239,7 +247,7 @@ func main() {
 
 		dialog := lipgloss.Place(width, 9,
 			lipgloss.Center, lipgloss.Center,
-			dialogBoxStyle.Render(ui),
+			dialogBoxStyle.Copy().BorderTitle("Question").Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
 			lipgloss.WithWhitespaceForeground(subtle),
 		)
