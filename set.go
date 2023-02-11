@@ -478,8 +478,8 @@ func (s Style) Inline(v bool) Style {
 // a certain width at render time, particularly with arbitrary strings and
 // styles.
 //
-// Because this in intended to be used at the time of render, this method will
-// not mutate the style and instead return a copy.
+// Note: this applies on the content width, which includes padding, but not
+// borders and margin.
 //
 // Example:
 //
@@ -487,21 +487,19 @@ func (s Style) Inline(v bool) Style {
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 func (s Style) MaxWidth(n int) Style {
-	o := s.Copy()
-	o.set(maxWidthKey, n)
-	return o
+	s.set(maxWidthKey, n)
+	return s
 }
 
 // MaxHeight applies a max width to a given style. This is useful in enforcing
 // a certain width at render time, particularly with arbitrary strings and
 // styles.
 //
-// Because this in intended to be used at the time of render, this method will
-// not mutate the style and instead return a copy.
+// Note: this applies on the content height, which includes padding, but not
+// borders and margin.
 func (s Style) MaxHeight(n int) Style {
-	o := s.Copy()
-	o.set(maxHeightKey, n)
-	return o
+	s.set(maxHeightKey, n)
+	return s
 }
 
 // UnderlineSpaces determines whether to underline spaces between words. By
@@ -568,7 +566,7 @@ func (s Style) FlexShrink(f float32) Style {
 	if f < 0 {
 		f = 0
 	}
-	s.set(flexShrink, f)
+	s.set(flexShrinkKey, f)
 	return s
 }
 

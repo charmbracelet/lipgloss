@@ -454,7 +454,7 @@ func (s Style) GetFlexGrow() float32 {
 
 // GetFlexShrink returns the ability for a flex item to shrink if necessary.
 func (s Style) GetFlexShrink() float32 {
-	return s.getAsFloat32(flexShrink)
+	return s.getAsFloat32(flexShrinkKey)
 }
 
 // Returns whether or not the given property is set.

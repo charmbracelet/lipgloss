@@ -299,6 +299,42 @@ func (s Style) UnsetStrikethroughSpaces() Style {
 	return s
 }
 
+// UnsetFlexDirection removes the value set by FlexDirection.
+func (s Style) UnsetFlexDirection() Style {
+	delete(s.rules, flexDirectionKey)
+	return s
+}
+
+// UnsetFlexWrap removes the value set by FlexWrap.
+func (s Style) UnsetFlexWrap() Style {
+	delete(s.rules, flexWrapKey)
+	return s
+}
+
+// UnsetJustifyContent removes the value set by FlexJustifyContent.
+func (s Style) UnsetJustifyContent() Style {
+	delete(s.rules, flexJustifyContentKey)
+	return s
+}
+
+// UnsetAlignItems removes the value set by FlexAlignItems.
+func (s Style) UnsetAlignItems() Style {
+	delete(s.rules, flexAlignItemKey)
+	return s
+}
+
+// UnsetFlexGrow removes the value set by FlexGrow.
+func (s Style) UnsetFlexGrow() Style {
+	delete(s.rules, flexGrowKey)
+	return s
+}
+
+// UnsetFlexShrink removes the value set by FlexShrink.
+func (s Style) UnsetFlexShrink() Style {
+	delete(s.rules, flexShrinkKey)
+	return s
+}
+
 // UnsetString sets the underlying string value to the empty string.
 func (s Style) UnsetString() Style {
 	s.value = ""

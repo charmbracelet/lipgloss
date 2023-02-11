@@ -77,7 +77,7 @@ const (
 	flexJustifyContentKey
 	flexAlignItemKey
 	flexGrowKey
-	flexShrink
+	flexShrinkKey
 )
 
 // A set of properties.
