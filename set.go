@@ -492,8 +492,8 @@ func (s Style) MaxWidth(n int) Style {
 	return o
 }
 
-// MaxHeight applies a max width to a given style. This is useful in enforcing
-// a certain width at render time, particularly with arbitrary strings and
+// MaxHeight applies a max height to a given style. This is useful in enforcing
+// a certain height at render time, particularly with arbitrary strings and
 // styles.
 //
 // Because this in intended to be used at the time of render, this method will
