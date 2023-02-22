@@ -58,8 +58,6 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	t.Parallel()
-
 	r := NewRenderer(WithColorProfile(termenv.TrueColor), WithDarkBackground(false))
 	tt := []struct {
 		style    Style
