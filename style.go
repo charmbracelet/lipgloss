@@ -96,7 +96,10 @@ func NewStyle(opts ...StyleOption) Style {
 // in case the underlying implementation changes. It takes an optional string
 // value to be set as the underlying string value for this style.
 func (r *Renderer) NewStyle(opts ...StyleOption) Style {
-	s := Style{r: r}
+	s := Style{
+		r:     r,
+		rules: &sync.Map{},
+	}
 	for _, opt := range opts {
 		opt(&s)
 	}
@@ -141,9 +144,6 @@ func (s Style) String() string {
 // Copy returns a copy of this style, including any underlying string values.
 func (s Style) Copy() Style {
 	o := NewStyle()
-	o.init()
-
-	s.init()
 	s.rules.Range(func(k, v interface{}) bool {
 		o.rules.Store(k, v)
 		return true
@@ -160,8 +160,6 @@ func (s Style) Copy() Style {
 //
 // Margins, padding, and underlying string values are not inherited.
 func (s Style) Inherit(i Style) Style {
-	s.init()
-
 	i.rules.Range(func(k, v interface{}) bool {
 		switch k {
 		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
@@ -190,7 +188,6 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
-	s.init()
 	if s.r == nil {
 		s.r = DefaultRenderer()
 	}

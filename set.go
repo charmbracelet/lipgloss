@@ -1,19 +1,7 @@
 package lipgloss
 
-import "sync"
-
-// This could (should) probably just be moved into NewStyle(). We've broken it
-// out, so we can call it in a lazy way.
-func (s *Style) init() {
-	if s.rules == nil {
-		s.rules = &sync.Map{}
-	}
-}
-
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
-	s.init()
-
 	switch v := value.(type) {
 	case int:
 		// We don't allow negative integers on any of our values, so just keep
