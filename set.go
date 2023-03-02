@@ -520,6 +520,13 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 	return s
 }
 
+// Renderer sets the renderer for the style. This is useful for changing the
+// renderer for a style that is being used in a different context.
+func (s Style) Renderer(r *Renderer) Style {
+	s.r = r
+	return s
+}
+
 // whichSidesInt is a helper method for setting values on sides of a block based
 // on the number of arguments. It follows the CSS shorthand rules for blocks
 // like margin, padding. and borders. Here are how the rules work:

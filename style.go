@@ -75,33 +75,20 @@ const (
 // A set of properties.
 type rules map[propKey]interface{}
 
-// StyleOption is a function that applies a style option to a Style.
-type StyleOption func(*Style)
-
-// WithString sets the underlying string value for this style.
-func WithString(strs ...string) StyleOption {
-	return func(s *Style) {
-		s.value = joinString(strs...)
-	}
+// NewStyle returns a new, empty Style. While it's syntactic sugar for the
+// Style{} primitive, it's recommended to use this function for creating styles
+// in case the underlying implementation changes. It takes an optional string
+// value to be set as the underlying string value for this style.
+func NewStyle() Style {
+	return renderer.NewStyle()
 }
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes. It takes an optional string
 // value to be set as the underlying string value for this style.
-func NewStyle(opts ...StyleOption) Style {
-	return renderer.NewStyle(opts...)
-}
-
-// NewStyle returns a new, empty Style. While it's syntactic sugar for the
-// Style{} primitive, it's recommended to use this function for creating styles
-// in case the underlying implementation changes. It takes an optional string
-// value to be set as the underlying string value for this style.
-func (r *Renderer) NewStyle(opts ...StyleOption) Style {
+func (r *Renderer) NewStyle() Style {
 	s := Style{r: r}
-	for _, opt := range opts {
-		opt(&s)
-	}
 	return s
 }
 

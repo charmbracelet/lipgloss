@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"io/ioutil"
 	"reflect"
 	"testing"
 
@@ -58,7 +59,9 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(WithColorProfile(termenv.TrueColor), WithDarkBackground(false))
+	r := NewRenderer(ioutil.Discard)
+	r.SetHasDarkBackground(false)
+	r.SetColorProfile(termenv.TrueColor)
 	tt := []struct {
 		style    Style
 		expected string
@@ -91,6 +94,10 @@ func TestStyleCustomRender(t *testing.T) {
 			r.NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[0m",
 		},
+		{
+			NewStyle().Faint(true).Renderer(r),
+			"\x1b[2mhello\x1b[0m",
+		},
 	}
 
 	for i, tc := range tt {
@@ -101,6 +108,15 @@ func TestStyleCustomRender(t *testing.T) {
 				i, tc.expected, formatEscapes(tc.expected),
 				res, formatEscapes(res))
 		}
+	}
+}
+
+func TestStyleRenderer(t *testing.T) {
+	r := NewRenderer(ioutil.Discard)
+	s1 := NewStyle().Bold(true)
+	s2 := s1.Renderer(r)
+	if s1.r == s2.r {
+		t.Fatalf("expected different renderers")
 	}
 }
 
@@ -323,7 +339,7 @@ func TestStyleValue(t *testing.T) {
 		},
 		{
 			name:     "new style with string",
-			style:    NewStyle(WithString("bar", "foobar")),
+			style:    NewStyle().SetString("bar", "foobar"),
 			expected: "bar foobar foo",
 		},
 	}

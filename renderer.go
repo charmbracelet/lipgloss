@@ -2,11 +2,12 @@ package lipgloss
 
 import (
 	"io"
+	"os"
 
 	"github.com/muesli/termenv"
 )
 
-var renderer = NewRenderer()
+var renderer = NewRenderer(os.Stdout)
 
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
@@ -22,43 +23,29 @@ func DefaultRenderer() *Renderer {
 	return renderer
 }
 
+// SetDefaultRenderer sets the default global renderer.
+func SetDefaultRenderer(r *Renderer) {
+	renderer = r
+}
+
 // NewRenderer creates a new Renderer.
-func NewRenderer(options ...RendererOption) *Renderer {
+//
+// w will be used to determine the terminal's color capabilities.
+func NewRenderer(w io.Writer, opts ...termenv.OutputOption) *Renderer {
 	r := &Renderer{
-		output: termenv.DefaultOutput(),
-	}
-	for _, option := range options {
-		option(r)
+		output: termenv.NewOutput(w, opts...),
 	}
 	return r
 }
 
-// WithOutput sets the io.Writer to be used for rendering.
-func WithOutput(w io.Writer) RendererOption {
-	return WithTermenvOutput(termenv.NewOutput(w))
+// Output returns the termenv output.
+func (r *Renderer) Output() *termenv.Output {
+	return r.output
 }
 
-// WithTermenvOutput sets the termenv Output to use for rendering.
-func WithTermenvOutput(output *termenv.Output) RendererOption {
-	return func(r *Renderer) {
-		r.output = output
-	}
-}
-
-// WithDarkBackground can force the renderer to use a light/dark background.
-func WithDarkBackground(dark bool) RendererOption {
-	return func(r *Renderer) {
-		r.SetHasDarkBackground(dark)
-	}
-}
-
-// WithColorProfile sets the color profile on the renderer. This function is
-// primarily intended for testing. For details, see the note on
-// [Renderer.SetColorProfile].
-func WithColorProfile(p termenv.Profile) RendererOption {
-	return func(r *Renderer) {
-		r.SetColorProfile(p)
-	}
+// SetOutput sets the termenv output.
+func (r *Renderer) SetOutput(o *termenv.Output) {
+	r.output = o
 }
 
 // ColorProfile returns the detected termenv color profile.
