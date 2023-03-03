@@ -307,9 +307,8 @@ fmt.Println(style.Render("puppy.")) // Hello, puppy.
 But you could also use the Stringer interface:
 
 ```go
-var style = lipgloss.NewStyle(lipgloss.WithString("你好，猫咪。")).Bold(true)
-
-fmt.Println(style)
+var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
+fmt.Println(style) // 你好，猫咪。
 ```
 
 ### Custom Renderers
