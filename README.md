@@ -314,23 +314,26 @@ fmt.Println(style)
 
 ### Custom Renderers
 
-Use custom renderers to enforce rendering your styles in a specific way. You
-can specify the color profile to use: TrueColor, ANSI256, 8-bit ANSI, or good
-ol’ black and white ASCII. You can also specify whether or not to assume dark
-background colors.
+Custom renderers allow you to render to a specific outputs. This is
+particularly important when you want to render to different outputs and
+correctly detect the color profile and dark background status for each, such as
+in a server-client situation.
 
 ```go
-renderer := lipgloss.NewRenderer(
-    lipgloss.WithColorProfile(termenv.ANSI256),
-    lipgloss.WithDarkBackground(true),
-)
+func myLittleHandler(sess ssh.Session, pty ssh.Pty) {
+    // Create a renderer for the client.
+    renderer := lipgloss.NewRenderer(lipgloss.WithOutput(pty))
 
-var style = renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
-fmt.Println(style.Render("Black Lipstick")) // This will always use the dark background color
+    // Create a new style on the renderer.
+    style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+
+    // Render. The color profile and dark background state will be correctly detected.
+    io.WriteString(sess, style.Render("Heyyyyyyy"))
+}
 ```
 
-This is also useful when using lipgloss with an SSH server like [Wish][wish].
-See the [ssh example][ssh-example] for more details.
+For an example on using a custom renderer over SSH with [Wish][wish] see the
+[SSH example][ssh-example].
 
 ## Utilities
 
