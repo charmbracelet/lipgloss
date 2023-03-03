@@ -20,7 +20,6 @@ Users familiar with CSS will feel at home with Lip Gloss.
 import "github.com/charmbracelet/lipgloss"
 
 var style = lipgloss.NewStyle().
-    SetString("Hello, kitty.").
     Bold(true).
     Foreground(lipgloss.Color("#FAFAFA")).
     Background(lipgloss.Color("#7D56F4")).
@@ -28,7 +27,7 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-fmt.Println(style)
+fmt.Println(style.Render("Hello, kitty"))
 ```
 
 ## Colors
