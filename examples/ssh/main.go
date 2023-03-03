@@ -1,5 +1,10 @@
 package main
 
+// This example demonstrates how to use a custom Lip Gloss renderer with Wish,
+// a package for building custom SSH servers.
+//
+// For details on wish see: https://github.com/charmbracelet/wish/
+
 import (
 	"fmt"
 	"log"

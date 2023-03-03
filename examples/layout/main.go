@@ -1,5 +1,7 @@
 package main
 
+// This example demonstrates various Lip Gloss style and layout features.
+
 import (
 	"fmt"
 	"os"
