@@ -10,6 +10,9 @@ func (s *Style) init() {
 
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
 	s.init()
 
 	switch v := value.(type) {
