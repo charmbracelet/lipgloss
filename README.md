@@ -299,7 +299,7 @@ someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
 
 ```go
-style := lipgloss.NewStyle(lipgloss.WithString("Hello,")).Bold(true)
+style := lipgloss.NewStyle().Bold(true)
 fmt.Println(style.Render("kitty.")) // Hello, kitty.
 fmt.Println(style.Render("puppy.")) // Hello, puppy.
 ```
