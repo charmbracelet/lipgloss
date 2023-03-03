@@ -53,7 +53,7 @@ func outputFromSession(s ssh.Session) *termenv.Output {
 	sshPty, _, _ := s.Pty()
 	_, tty, err := pty.Open()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	o := &sshOutput{
 		Session: s,
@@ -68,9 +68,9 @@ func outputFromSession(s ssh.Session) *termenv.Output {
 }
 
 func main() {
-	addr := ":3456"
+	port := 3456
 	s, err := wish.NewServer(
-		wish.WithAddress(addr),
+		wish.WithAddress(fmt.Sprintf(":%d", port)),
 		wish.WithHostKeyPath("ssh_example"),
 		wish.WithMiddleware(
 			func(sh ssh.Handler) ssh.Handler {
@@ -81,11 +81,14 @@ func main() {
 						sh(s)
 						return
 					}
-					w, _ := pty.Window.Width, pty.Window.Height
+					width := pty.Window.Width
 
-					renderer := lipgloss.NewRenderer(lipgloss.WithTermenvOutput(output),
-						lipgloss.WithColorProfile(termenv.TrueColor))
+					// Initialize new renderer.
+					renderer := lipgloss.NewRenderer(lipgloss.WithTermenvOutput(output))
+
 					str := strings.Builder{}
+					fmt.Fprintln(&str)
+
 					fmt.Fprintf(&str, "\n%s %s %s %s %s",
 						renderer.NewStyle().SetString("bold").Bold(true),
 						renderer.NewStyle().SetString("faint").Faint(true),
@@ -117,7 +120,11 @@ func main() {
 					fmt.Fprintf(&str, "%s %t\n", renderer.NewStyle().SetString("Has dark background?").Bold(true), renderer.HasDarkBackground())
 					fmt.Fprintln(&str)
 
-					wish.WriteString(s, renderer.Place(w, lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String()))
+					final := renderer.Place(width, lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
+						lipgloss.WithWhitespaceChars("/"),
+						lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "250", Dark: "236"}),
+					)
+					wish.WriteString(s, final)
 
 					sh(s)
 				}
@@ -128,7 +135,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Listening on %s", addr)
+	log.Printf("SSH server listening on port %d", port)
+	log.Printf("To connect from your local machine run: ssh localhost -p %d", port)
 	if err := s.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
