@@ -314,9 +314,10 @@ fmt.Println(style)
 
 ### Custom Renderers
 
-Use custom renderers to enforce rendering your styles in a specific way. You can
-specify the color profile to use, True Color, ANSI 256, 8-bit ANSI, or good ol'
-ASCII. You can also specify whether or not to assume dark background colors.
+Use custom renderers to enforce rendering your styles in a specific way. You
+can specify the color profile to use: TrueColor, ANSI256, 8-bit ANSI, or good
+ol’ black and white ASCII. You can also specify whether or not to assume dark
+background colors.
 
 ```go
 renderer := lipgloss.NewRenderer(
@@ -325,7 +326,7 @@ renderer := lipgloss.NewRenderer(
 )
 
 var style = renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
-fmt.Println(style.Render("Lip Gloss")) // This will always use the dark background color
+fmt.Println(style.Render("Black Lipstick")) // This will always use the dark background color
 ```
 
 This is also useful when using lipgloss with an SSH server like [Wish][wish].
