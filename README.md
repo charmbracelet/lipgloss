@@ -319,7 +319,7 @@ correctly detect the color profile and dark background status for each, such as
 in a server-client situation.
 
 ```go
-func myLittleHandler(sess ssh.Session, pty ssh.Pty) {
+func myLittleHandler(sess ssh.Session) {
     // Create a renderer for the client.
     renderer := lipgloss.NewRenderer(sess)
 
