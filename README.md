@@ -321,7 +321,7 @@ in a server-client situation.
 ```go
 func myLittleHandler(sess ssh.Session, pty ssh.Pty) {
     // Create a renderer for the client.
-    renderer := lipgloss.NewRenderer(lipgloss.WithOutput(pty))
+    renderer := lipgloss.NewRenderer(sess)
 
     // Create a new style on the renderer.
     style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
