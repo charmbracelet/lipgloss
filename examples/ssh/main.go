@@ -67,6 +67,10 @@ func (s *sshOutput) Write(p []byte) (int, error) {
 	return s.Session.Write(p)
 }
 
+func (s *sshOutput) Read(p []byte) (int, error) {
+	return s.Session.Read(p)
+}
+
 func (s *sshOutput) Fd() uintptr {
 	return s.tty.Fd()
 }
@@ -102,7 +106,9 @@ func outputFromSession(sess ssh.Session) *termenv.Output {
 	environ := sess.Environ()
 	environ = append(environ, fmt.Sprintf("TERM=%s", sshPty.Term))
 	e := &sshEnviron{environ: environ}
-	return termenv.NewOutput(o, termenv.WithEnvironment(e))
+	// We need to use unsafe mode here because the ssh session is not running
+	// locally and we already know that the session is a TTY.
+	return termenv.NewOutput(o, termenv.WithUnsafe(), termenv.WithEnvironment(e))
 }
 
 // Handle SSH requests.
@@ -119,7 +125,8 @@ func handler(next ssh.Handler) ssh.Handler {
 		width := pty.Window.Width
 
 		// Initialize new renderer for the client.
-		renderer := lipgloss.NewRenderer(lipgloss.WithTermenvOutput(clientOutput))
+		renderer := lipgloss.NewRenderer(sess)
+		renderer.SetOutput(clientOutput)
 
 		// Initialize new styles against the renderer.
 		styles := makeStyles(renderer)
@@ -154,7 +161,9 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.gray,
 		)
 
-		fmt.Fprintf(&str, "%s %t\n\n", styles.bold.Copy().UnsetString().Render("Has dark background?"), renderer.HasDarkBackground())
+		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.Copy().UnsetString().Render("Has dark background?"),
+			renderer.HasDarkBackground(),
+			renderer.Output().BackgroundColor())
 
 		block := renderer.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
