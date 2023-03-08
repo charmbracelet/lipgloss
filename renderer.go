@@ -15,7 +15,7 @@ type Renderer struct {
 	hasDarkBackground *bool
 }
 
-// RendererOption is a function that can be used to configure a Renderer.
+// RendererOption is a function that can be used to configure a [Renderer].
 type RendererOption func(r *Renderer)
 
 // DefaultRenderer returns the default renderer.
@@ -68,10 +68,10 @@ func ColorProfile() termenv.Profile {
 //
 // Available color profiles are:
 //
-// termenv.Ascii (no color, 1-bit)
-// termenv.ANSI (16 colors, 4-bit)
-// termenv.ANSI256 (256 colors, 8-bit)
-// termenv.TrueColor (16,777,216 colors, 24-bit)
+//	termenv.Ascii     // no color, 1-bit
+//	termenv.ANSI      //16 colors, 4-bit
+//	termenv.ANSI256   // 256 colors, 8-bit
+//	termenv.TrueColor // 16,777,216 colors, 24-bit
 //
 // This function is thread-safe.
 func (r *Renderer) SetColorProfile(p termenv.Profile) {
@@ -88,10 +88,10 @@ func (r *Renderer) SetColorProfile(p termenv.Profile) {
 //
 // Available color profiles are:
 //
-// termenv.Ascii (no color, 1-bit)
-// termenv.ANSI (16 colors, 4-bit)
-// termenv.ANSI256 (256 colors, 8-bit)
-// termenv.TrueColor (16,777,216 colors, 24-bit)
+//	termenv.Ascii     // no color, 1-bit
+//	termenv.ANSI      //16 colors, 4-bit
+//	termenv.ANSI256   // 256 colors, 8-bit
+//	termenv.TrueColor // 16,777,216 colors, 24-bit
 //
 // This function is thread-safe.
 func SetColorProfile(p termenv.Profile) {
@@ -103,7 +103,9 @@ func HasDarkBackground() bool {
 	return renderer.HasDarkBackground()
 }
 
-// HasDarkBackground returns whether or not the terminal has a dark background.
+// HasDarkBackground returns whether or not the renderer will render to a dark
+// background. A dark background can either be auto-detected, or set explicitly
+// on the renderer.
 func (r *Renderer) HasDarkBackground() bool {
 	if r.hasDarkBackground != nil {
 		return *r.hasDarkBackground

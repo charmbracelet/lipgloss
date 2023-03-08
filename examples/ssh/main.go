@@ -1,5 +1,14 @@
 package main
 
+// This example demonstrates how to use a custom Lip Gloss renderer with Wish,
+// a package for building custom SSH servers.
+//
+// The big advantage to using custom renderers here is that we can accurately
+// detect the background color and color profile for each client and render
+// against that accordingly.
+//
+// For details on wish see: https://github.com/charmbracelet/wish/
+
 import (
 	"fmt"
 	"log"
@@ -14,6 +23,41 @@ import (
 	"github.com/muesli/termenv"
 )
 
+// Available styles.
+type styles struct {
+	bold          lipgloss.Style
+	faint         lipgloss.Style
+	italic        lipgloss.Style
+	underline     lipgloss.Style
+	strikethrough lipgloss.Style
+	red           lipgloss.Style
+	green         lipgloss.Style
+	yellow        lipgloss.Style
+	blue          lipgloss.Style
+	magenta       lipgloss.Style
+	cyan          lipgloss.Style
+	gray          lipgloss.Style
+}
+
+// Create new styles against a given renderer.
+func makeStyles(r *lipgloss.Renderer) styles {
+	return styles{
+		bold:          r.NewStyle().SetString("bold").Bold(true),
+		faint:         r.NewStyle().SetString("faint").Faint(true),
+		italic:        r.NewStyle().SetString("italic").Italic(true),
+		underline:     r.NewStyle().SetString("underline").Underline(true),
+		strikethrough: r.NewStyle().SetString("strikethrough").Strikethrough(true),
+		red:           r.NewStyle().SetString("red").Foreground(lipgloss.Color("#E88388")),
+		green:         r.NewStyle().SetString("green").Foreground(lipgloss.Color("#A8CC8C")),
+		yellow:        r.NewStyle().SetString("yellow").Foreground(lipgloss.Color("#DBAB79")),
+		blue:          r.NewStyle().SetString("blue").Foreground(lipgloss.Color("#71BEF2")),
+		magenta:       r.NewStyle().SetString("magenta").Foreground(lipgloss.Color("#D290E4")),
+		cyan:          r.NewStyle().SetString("cyan").Foreground(lipgloss.Color("#66C2CD")),
+		gray:          r.NewStyle().SetString("gray").Foreground(lipgloss.Color("#B9BFCA")),
+	}
+}
+
+// Bridge Wish and Termenv so we can query for a user's terminal capabilities.
 type sshOutput struct {
 	ssh.Session
 	tty *os.File
@@ -21,6 +65,10 @@ type sshOutput struct {
 
 func (s *sshOutput) Write(p []byte) (int, error) {
 	return s.Session.Write(p)
+}
+
+func (s *sshOutput) Read(p []byte) (int, error) {
+	return s.Session.Read(p)
 }
 
 func (s *sshOutput) Fd() uintptr {
@@ -44,86 +92,104 @@ func (s *sshEnviron) Environ() []string {
 	return s.environ
 }
 
-func outputFromSession(s ssh.Session) *termenv.Output {
-	sshPty, _, _ := s.Pty()
+// Create a termenv.Output from the session.
+func outputFromSession(sess ssh.Session) *termenv.Output {
+	sshPty, _, _ := sess.Pty()
 	_, tty, err := pty.Open()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	o := &sshOutput{
-		Session: s,
+		Session: sess,
 		tty:     tty,
 	}
-	environ := s.Environ()
+	environ := sess.Environ()
 	environ = append(environ, fmt.Sprintf("TERM=%s", sshPty.Term))
-	e := &sshEnviron{
-		environ: environ,
+	e := &sshEnviron{environ: environ}
+	// We need to use unsafe mode here because the ssh session is not running
+	// locally and we already know that the session is a TTY.
+	return termenv.NewOutput(o, termenv.WithUnsafe(), termenv.WithEnvironment(e))
+}
+
+// Handle SSH requests.
+func handler(next ssh.Handler) ssh.Handler {
+	return func(sess ssh.Session) {
+		// Get client's output.
+		clientOutput := outputFromSession(sess)
+
+		pty, _, active := sess.Pty()
+		if !active {
+			next(sess)
+			return
+		}
+		width := pty.Window.Width
+
+		// Initialize new renderer for the client.
+		renderer := lipgloss.NewRenderer(sess)
+		renderer.SetOutput(clientOutput)
+
+		// Initialize new styles against the renderer.
+		styles := makeStyles(renderer)
+
+		str := strings.Builder{}
+
+		fmt.Fprintf(&str, "\n\n%s %s %s %s %s",
+			styles.bold,
+			styles.faint,
+			styles.italic,
+			styles.underline,
+			styles.strikethrough,
+		)
+
+		fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s",
+			styles.red,
+			styles.green,
+			styles.yellow,
+			styles.blue,
+			styles.magenta,
+			styles.cyan,
+			styles.gray,
+		)
+
+		fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s\n\n",
+			styles.red,
+			styles.green,
+			styles.yellow,
+			styles.blue,
+			styles.magenta,
+			styles.cyan,
+			styles.gray,
+		)
+
+		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.Copy().UnsetString().Render("Has dark background?"),
+			renderer.HasDarkBackground(),
+			renderer.Output().BackgroundColor())
+
+		block := renderer.Place(width,
+			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
+			lipgloss.WithWhitespaceChars("/"),
+			lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "250", Dark: "236"}),
+		)
+
+		// Render to client.
+		wish.WriteString(sess, block)
+
+		next(sess)
 	}
-	return termenv.NewOutput(o, termenv.WithEnvironment(e))
 }
 
 func main() {
-	addr := ":3456"
+	port := 3456
 	s, err := wish.NewServer(
-		wish.WithAddress(addr),
+		wish.WithAddress(fmt.Sprintf(":%d", port)),
 		wish.WithHostKeyPath("ssh_example"),
-		wish.WithMiddleware(
-			func(sh ssh.Handler) ssh.Handler {
-				return func(s ssh.Session) {
-					output := outputFromSession(s)
-					pty, _, active := s.Pty()
-					if !active {
-						sh(s)
-						return
-					}
-					w, _ := pty.Window.Width, pty.Window.Height
-
-					renderer := lipgloss.NewRenderer(lipgloss.WithTermenvOutput(output),
-						lipgloss.WithColorProfile(termenv.TrueColor))
-					str := strings.Builder{}
-					fmt.Fprintf(&str, "\n%s %s %s %s %s",
-						renderer.NewStyle().SetString("bold").Bold(true),
-						renderer.NewStyle().SetString("faint").Faint(true),
-						renderer.NewStyle().SetString("italic").Italic(true),
-						renderer.NewStyle().SetString("underline").Underline(true),
-						renderer.NewStyle().SetString("crossout").Strikethrough(true),
-					)
-
-					fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s",
-						renderer.NewStyle().SetString("red").Foreground(lipgloss.Color("#E88388")),
-						renderer.NewStyle().SetString("green").Foreground(lipgloss.Color("#A8CC8C")),
-						renderer.NewStyle().SetString("yellow").Foreground(lipgloss.Color("#DBAB79")),
-						renderer.NewStyle().SetString("blue").Foreground(lipgloss.Color("#71BEF2")),
-						renderer.NewStyle().SetString("magenta").Foreground(lipgloss.Color("#D290E4")),
-						renderer.NewStyle().SetString("cyan").Foreground(lipgloss.Color("#66C2CD")),
-						renderer.NewStyle().SetString("gray").Foreground(lipgloss.Color("#B9BFCA")),
-					)
-
-					fmt.Fprintf(&str, "\n%s %s %s %s %s %s %s\n\n",
-						renderer.NewStyle().SetString("red").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#E88388")),
-						renderer.NewStyle().SetString("green").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#A8CC8C")),
-						renderer.NewStyle().SetString("yellow").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#DBAB79")),
-						renderer.NewStyle().SetString("blue").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#71BEF2")),
-						renderer.NewStyle().SetString("magenta").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#D290E4")),
-						renderer.NewStyle().SetString("cyan").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#66C2CD")),
-						renderer.NewStyle().SetString("gray").Foreground(lipgloss.Color("0")).Background(lipgloss.Color("#B9BFCA")),
-					)
-
-					fmt.Fprintf(&str, "%s %t\n", renderer.NewStyle().SetString("Has dark background?").Bold(true), renderer.HasDarkBackground())
-					fmt.Fprintln(&str)
-
-					wish.WriteString(s, renderer.Place(w, lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String()))
-
-					sh(s)
-				}
-			},
-			lm.Middleware(),
-		),
+		wish.WithMiddleware(handler, lm.Middleware()),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Listening on %s", addr)
+	log.Printf("SSH server listening on port %d", port)
+	log.Printf("To connect from your local machine run: ssh localhost -p %d", port)
 	if err := s.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

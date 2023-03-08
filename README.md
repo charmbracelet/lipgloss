@@ -20,7 +20,6 @@ Users familiar with CSS will feel at home with Lip Gloss.
 import "github.com/charmbracelet/lipgloss"
 
 var style = lipgloss.NewStyle().
-    SetString("Hello, kitty.").
     Bold(true).
     Foreground(lipgloss.Color("#FAFAFA")).
     Background(lipgloss.Color("#7D56F4")).
@@ -28,7 +27,7 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-fmt.Println(style)
+fmt.Println(style.Render("Hello, kitty"))
 ```
 
 ## Colors
@@ -300,7 +299,7 @@ someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
 
 ```go
-style := lipgloss.NewStyle(lipgloss.WithString("Hello,")).Bold(true)
+style := lipgloss.NewStyle().Bold(true).SetString("Hello,")
 fmt.Println(style.Render("kitty.")) // Hello, kitty.
 fmt.Println(style.Render("puppy.")) // Hello, puppy.
 ```
@@ -308,29 +307,32 @@ fmt.Println(style.Render("puppy.")) // Hello, puppy.
 But you could also use the Stringer interface:
 
 ```go
-var style = lipgloss.NewStyle(lipgloss.WithString("你好，猫咪。")).Bold(true)
-
-fmt.Println(style)
+var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
+fmt.Println(style) // 你好，猫咪。
 ```
 
 ### Custom Renderers
 
-Use custom renderers to enforce rendering your styles in a specific way. You can
-specify the color profile to use, True Color, ANSI 256, 8-bit ANSI, or good ol'
-ASCII. You can also specify whether or not to assume dark background colors.
+Custom renderers allow you to render to a specific outputs. This is
+particularly important when you want to render to different outputs and
+correctly detect the color profile and dark background status for each, such as
+in a server-client situation.
 
 ```go
-renderer := lipgloss.NewRenderer(
-    lipgloss.WithColorProfile(termenv.ANSI256),
-    lipgloss.WithDarkBackground(true),
-)
+func myLittleHandler(sess ssh.Session) {
+    // Create a renderer for the client.
+    renderer := lipgloss.NewRenderer(sess)
 
-var style = renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
-fmt.Println(style.Render("Lip Gloss")) // This will always use the dark background color
+    // Create a new style on the renderer.
+    style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+
+    // Render. The color profile and dark background state will be correctly detected.
+    io.WriteString(sess, style.Render("Heyyyyyyy"))
+}
 ```
 
-This is also useful when using lipgloss with an SSH server like [Wish][wish].
-See the [ssh example][ssh-example] for more details.
+For an example on using a custom renderer over SSH with [Wish][wish] see the
+[SSH example][ssh-example].
 
 ## Utilities
 
