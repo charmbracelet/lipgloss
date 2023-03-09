@@ -2,12 +2,15 @@ package lipgloss
 
 import (
 	"io"
-	"os"
 
 	"github.com/muesli/termenv"
 )
 
-var renderer = NewRenderer(os.Stdout)
+// We're manually creating the struct here to avoid initializing the output and
+// query the terminal multiple times.
+var renderer = &Renderer{
+	output: termenv.DefaultOutput(),
+}
 
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
