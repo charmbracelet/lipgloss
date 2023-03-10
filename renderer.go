@@ -33,7 +33,7 @@ func SetDefaultRenderer(r *Renderer) {
 
 // NewRenderer creates a new Renderer.
 //
-// w will be used to determine the terminal's color capabilities.
+// It will be used to determine the terminal's color capabilities.
 func NewRenderer(w io.Writer, opts ...termenv.OutputOption) *Renderer {
 	r := &Renderer{
 		output: termenv.NewOutput(w, opts...),

@@ -146,7 +146,7 @@ func (c CompleteColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(c.color(renderer)).RGBA()
 }
 
-// CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+// CompleteAdaptiveColor specifies exact values for truecolor, ANSI256, and ANSI color
 // profiles, with separate options for light and dark backgrounds. Automatic
 // color degradation will not be performed.
 type CompleteAdaptiveColor struct {
