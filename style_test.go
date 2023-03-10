@@ -1,7 +1,7 @@
 package lipgloss
 
 import (
-	"io/ioutil"
+	"io"
 	"reflect"
 	"testing"
 
@@ -59,7 +59,7 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(ioutil.Discard)
+	r := NewRenderer(io.Discard)
 	r.SetHasDarkBackground(false)
 	r.SetColorProfile(termenv.TrueColor)
 	tt := []struct {
@@ -112,7 +112,7 @@ func TestStyleCustomRender(t *testing.T) {
 }
 
 func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(ioutil.Discard)
+	r := NewRenderer(io.Discard)
 	s1 := NewStyle().Bold(true)
 	s2 := s1.Renderer(r)
 	if s1.r == s2.r {
