@@ -126,7 +126,7 @@ func (s Style) AlignHorizontal(p Position) Style {
 	return s
 }
 
-// AlignVertical sets a text alignment rule.
+// AlignVertical sets a vertical text alignment rule.
 func (s Style) AlignVertical(p Position) Style {
 	s.set(alignVerticalKey, p)
 	return s

@@ -9,7 +9,7 @@ func TestJoinVertical(t *testing.T) {
 		expected string
 	}
 	tests := []test{
-		{"por0", JoinVertical(0, "A", "BBBB"), "A   \nBBBB"},
+		{"pos0", JoinVertical(0, "A", "BBBB"), "A   \nBBBB"},
 		{"pos1", JoinVertical(1, "A", "BBBB"), "   A\nBBBB"},
 		{"pos0.25", JoinVertical(0.25, "A", "BBBB"), " A  \nBBBB"},
 	}

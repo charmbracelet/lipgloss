@@ -15,7 +15,7 @@ type whitespace struct {
 }
 
 // newWhitespace creates a new whitespace renderer. The order of the options
-// matters, it you'r using WithWhitespaceRenderer, make sure it comes first as
+// matters, if you're using WithWhitespaceRenderer, make sure it comes first as
 // other options might depend on it.
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 	w := &whitespace{

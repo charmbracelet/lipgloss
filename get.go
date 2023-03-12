@@ -53,7 +53,7 @@ func (s Style) GetForeground() TerminalColor {
 	return s.getAsColor(foregroundKey)
 }
 
-// GetBackground returns the style's back color. If no value is set
+// GetBackground returns the style's background color. If no value is set
 // NoColor{} is returned.
 func (s Style) GetBackground() TerminalColor {
 	return s.getAsColor(backgroundKey)
@@ -191,7 +191,7 @@ func (s Style) GetHorizontalMargins() int {
 	return s.getAsInt(marginLeftKey) + s.getAsInt(marginRightKey)
 }
 
-// GetVerticalMargins returns the style's top and bottom padding. Unset values
+// GetVerticalMargins returns the style's top and bottom margins. Unset values
 // are measured as 0.
 func (s Style) GetVerticalMargins() int {
 	return s.getAsInt(marginTopKey) + s.getAsInt(marginBottomKey)
@@ -257,7 +257,7 @@ func (s Style) GetBorderBottomForeground() TerminalColor {
 	return s.getAsColor(borderBottomForegroundKey)
 }
 
-// GetBorderLeftForeground returns the style's border bottom foreground
+// GetBorderLeftForeground returns the style's border left foreground
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderLeftForeground() TerminalColor {
 	return s.getAsColor(borderLeftForegroundKey)
@@ -281,7 +281,7 @@ func (s Style) GetBorderBottomBackground() TerminalColor {
 	return s.getAsColor(borderBottomBackgroundKey)
 }
 
-// GetBorderLeftBackground returns the style's border bottom background
+// GetBorderLeftBackground returns the style's border left background
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderLeftBackground() TerminalColor {
 	return s.getAsColor(borderLeftBackgroundKey)
@@ -344,9 +344,9 @@ func (s Style) GetHorizontalBorderSize() int {
 	return b.GetLeftSize() + b.GetRightSize()
 }
 
-// GetVerticalBorderSize returns the width of the horizontal borders. If
+// GetVerticalBorderSize returns the width of the vertical borders. If
 // borders contain runes of varying widths, the widest rune is returned. If no
-// border exists on the horizontal edges, 0 is returned.
+// border exists on the vertical edges, 0 is returned.
 func (s Style) GetVerticalBorderSize() int {
 	b := s.getBorderStyle()
 	return b.GetTopSize() + b.GetBottomSize()
@@ -364,7 +364,7 @@ func (s Style) GetMaxWidth() int {
 	return s.getAsInt(maxWidthKey)
 }
 
-// GetMaxHeight returns the style's max width setting. If no value is set 0 is
+// GetMaxHeight returns the style's max height setting. If no value is set 0 is
 // returned.
 func (s Style) GetMaxHeight() int {
 	return s.getAsInt(maxHeightKey)
@@ -376,7 +376,7 @@ func (s Style) GetUnderlineSpaces() bool {
 	return s.getAsBool(underlineSpacesKey, false)
 }
 
-// GetStrikethroughSpaces returns whether or not the style is set to underline
+// GetStrikethroughSpaces returns whether or not the style is set to strikethrough
 // spaces. If not value is set false is returned.
 func (s Style) GetStrikethroughSpaces() bool {
 	return s.getAsBool(strikethroughSpacesKey, false)
@@ -390,7 +390,7 @@ func (s Style) GetHorizontalFrameSize() int {
 	return s.GetHorizontalMargins() + s.GetHorizontalPadding() + s.GetHorizontalBorderSize()
 }
 
-// GetVerticalFrameSize returns the sum of the style's horizontal margins, padding
+// GetVerticalFrameSize returns the sum of the style's vertical margins, padding
 // and border widths.
 //
 // Provisional: this method may be renamed.
