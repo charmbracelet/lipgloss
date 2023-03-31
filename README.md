@@ -30,6 +30,36 @@ var style = lipgloss.NewStyle().
 fmt.Println(style.Render("Hello, kitty"))
 ```
 
+## FAQ
+<details>
+<summary>
+Why isn't my border rendering correctly?
+</summary>
+This is due to your encoding. If you aren't using UTF-8, you'll need to set an environment variable to be used by Lip Gloss.
+
+`export LC_CTYPE="en_US.UTF-8"`
+
+related: https://github.com/charmbracelet/lipgloss/issues/186
+</details>
+<details>
+<summary>
+Why isn't Lip Gloss displaying colors?
+</summary>
+In some cases, your Lip Gloss UI might not display colors. 
+The reason this happens is because Lip Gloss automatically degrades colors to the best available option in the given terminal. 
+For example, if you're running tests, they exist in a sub-process and are not attached to a TTY and thus Lip Gloss strips color output entirely.
+
+However! You can force a color profile in your tests with `SetColorProfile`.
+
+```go
+import (
+    "github.com/charmbracelet/lipgloss"
+    "github.com/muesli/termenv"
+)
+lipgloss.SetColorProfile(termenv.TrueColor)
+```
+</details>
+
 ## Colors
 
 Lip Gloss supports the following color profiles:
