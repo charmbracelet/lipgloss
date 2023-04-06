@@ -12,14 +12,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/wish"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
-	"github.com/kr/pty"
 	"github.com/muesli/termenv"
 )
 
@@ -57,24 +55,6 @@ func makeStyles(r *lipgloss.Renderer) styles {
 	}
 }
 
-// Bridge Wish and Termenv so we can query for a user's terminal capabilities.
-type sshOutput struct {
-	ssh.Session
-	tty *os.File
-}
-
-func (s *sshOutput) Write(p []byte) (int, error) {
-	return s.Session.Write(p)
-}
-
-func (s *sshOutput) Read(p []byte) (int, error) {
-	return s.Session.Read(p)
-}
-
-func (s *sshOutput) Fd() uintptr {
-	return s.tty.Fd()
-}
-
 type sshEnviron struct {
 	environ []string
 }
@@ -92,31 +72,9 @@ func (s *sshEnviron) Environ() []string {
 	return s.environ
 }
 
-// Create a termenv.Output from the session.
-func outputFromSession(sess ssh.Session) *termenv.Output {
-	sshPty, _, _ := sess.Pty()
-	_, tty, err := pty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	o := &sshOutput{
-		Session: sess,
-		tty:     tty,
-	}
-	environ := sess.Environ()
-	environ = append(environ, fmt.Sprintf("TERM=%s", sshPty.Term))
-	e := &sshEnviron{environ: environ}
-	// We need to use unsafe mode here because the ssh session is not running
-	// locally and we already know that the session is a TTY.
-	return termenv.NewOutput(o, termenv.WithUnsafe(), termenv.WithEnvironment(e))
-}
-
 // Handle SSH requests.
 func handler(next ssh.Handler) ssh.Handler {
 	return func(sess ssh.Session) {
-		// Get client's output.
-		clientOutput := outputFromSession(sess)
-
 		pty, _, active := sess.Pty()
 		if !active {
 			next(sess)
@@ -124,9 +82,16 @@ func handler(next ssh.Handler) ssh.Handler {
 		}
 		width := pty.Window.Width
 
+		// Bridge Wish and Termenv so we can query for a user's terminal capabilities.
+		environ := sess.Environ()
+		environ = append(environ, "TERM="+pty.Term)
+		e := &sshEnviron{environ: environ}
+
 		// Initialize new renderer for the client.
-		renderer := lipgloss.NewRenderer(sess)
-		renderer.SetOutput(clientOutput)
+		renderer := lipgloss.NewRenderer(sess,
+			termenv.WithUnsafe(),
+			termenv.WithEnvironment(e),
+		)
 
 		// Initialize new styles against the renderer.
 		styles := makeStyles(renderer)
