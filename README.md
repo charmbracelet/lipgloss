@@ -31,16 +31,17 @@ fmt.Println(style.Render("Hello, kitty"))
 ```
 
 ## FAQ
+
 <details>
 <summary>
-Why isn't my border rendering correctly?
+Why are things misaligning? Why are borders at the wrong widths?
 </summary>
-This is due to your encoding. If you aren't using UTF-8, you'll need to set an environment variable to be used by Lip Gloss.
+<p>This is most likely due to your locale and encoding, particularly with regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code> or <code>ja_JP.UTF-8</code>).
+The most direct way to fix this is to set <code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
 
-`export LC_CTYPE="en_US.UTF-8"`
-
-related: https://github.com/charmbracelet/lipgloss/issues/186
+<p>For details see https://github.com/charmbracelet/lipgloss/issues/40.</p>
 </details>
+
 <details>
 <summary>
 Why isn't Lip Gloss displaying colors?
