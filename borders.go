@@ -32,7 +32,7 @@ func (b Border) GetTopSize() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the right edge, 0 is returned.
 func (b Border) GetRightSize() int {
-	return getBorderEdgeWidth(b.TopRight, b.Top, b.BottomRight)
+	return getBorderEdgeWidth(b.TopRight, b.Right, b.BottomRight)
 }
 
 // GetBottomSize returns the width of the bottom border. If borders contain
@@ -46,7 +46,7 @@ func (b Border) GetBottomSize() int {
 // of varying widths, the widest rune is returned. If no border exists on the
 // left edge, 0 is returned.
 func (b Border) GetLeftSize() int {
-	return getBorderEdgeWidth(b.TopLeft, b.Left, b.TopRight)
+	return getBorderEdgeWidth(b.TopLeft, b.Left, b.BottomLeft)
 }
 
 func getBorderEdgeWidth(borderParts ...string) (maxWidth int) {
