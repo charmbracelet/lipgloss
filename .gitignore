@@ -1,1 +1,24 @@
 ssh_example_ed25519*
+
+# IntelliJ
+.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+*.vscode
+
+# Mac spotlight index files
+.DS_Store
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archive files
+*.tgz
+*.zip
