@@ -400,6 +400,45 @@ You can also style the whitespace. For details, see [the docs][docs].
 
 ***
 
+## FAQ
+
+<details>
+<summary>
+Why are things misaligning? Why are borders at the wrong widths?
+</summary>
+<p>This is most likely due to your locale and encoding, particularly with
+regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code>
+or <code>ja_JP.UTF-8</code>). The most direct way to fix this is to set
+<code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
+
+<p>For details see <a href="https://github.com/charmbracelet/lipgloss/issues/40">https://github.com/charmbracelet/lipgloss/issues/40.</a></p>
+</details>
+
+<details>
+<summary>
+Why isn't Lip Gloss displaying colors?
+</summary>
+<p>Lip Gloss automatically degrades colors to the best available option in the
+given terminal, and if output's not a TTY it will remove color output entirely.
+This is common when running tests, CI, or when piping output elsewhere.</p>
+
+<p>If necessary, you can force a color profile in your tests with
+<a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"><code>SetColorProfile</code></a>.</p>
+
+```go
+import (
+    "github.com/charmbracelet/lipgloss"
+    "github.com/muesli/termenv"
+)
+
+lipgloss.SetColorProfile(termenv.TrueColor)
+```
+
+*Note:* this option limits the flexibility of your application and can cause
+ANSI escape codes to be output in cases where that might not be desired. Take
+careful note of your use case and environment before choosing to force a color
+profile.
+</details>
 
 ## What about [Bubble Tea][tea]?
 
