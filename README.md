@@ -434,10 +434,10 @@ import (
 lipgloss.SetColorProfile(termenv.TrueColor)
 ```
 
-*Note that this option limits the flexibility of your application. It can cause
-ANSI escape codes to get output in cases where that might not be desired.
-Please take note of your environment before deciding to
-force a color profile.*
+*Note:* this option limits the flexibility of your application and can cause
+ANSI escape codes to be output in cases where that might not be desired. Take
+careful note of your use case and environment before choosing to force a color
+profile.
 </details>
 
 ## What about [Bubble Tea][tea]?
