@@ -423,7 +423,7 @@ given terminal, and if output's not a TTY it will remove color output entirely.
 This is common when running tests, CI, or when piping output elsewhere.</p>
 
 <p>If necessary, you can force a color profile in your tests with
-<a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile">SetColorProfile</code></a>.</p>
+<a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"><code>SetColorProfile</code></a>.</p>
 
 ```go
 import (
