@@ -30,37 +30,6 @@ var style = lipgloss.NewStyle().
 fmt.Println(style.Render("Hello, kitty"))
 ```
 
-## FAQ
-
-<details>
-<summary>
-Why are things misaligning? Why are borders at the wrong widths?
-</summary>
-<p>This is most likely due to your locale and encoding, particularly with regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code> or <code>ja_JP.UTF-8</code>).
-The most direct way to fix this is to set <code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
-
-<p>For details see https://github.com/charmbracelet/lipgloss/issues/40.</p>
-</details>
-
-<details>
-<summary>
-Why isn't Lip Gloss displaying colors?
-</summary>
-In some cases, your Lip Gloss UI might not display colors. 
-The reason this happens is because Lip Gloss automatically degrades colors to the best available option in the given terminal. 
-For example, if you're running tests, they exist in a sub-process and are not attached to a TTY and thus Lip Gloss strips color output entirely.
-
-However! You can force a color profile in your tests with `SetColorProfile`.
-
-```go
-import (
-    "github.com/charmbracelet/lipgloss"
-    "github.com/muesli/termenv"
-)
-lipgloss.SetColorProfile(termenv.TrueColor)
-```
-</details>
-
 ## Colors
 
 Lip Gloss supports the following color profiles:
@@ -431,6 +400,44 @@ You can also style the whitespace. For details, see [the docs][docs].
 
 ***
 
+## FAQ
+
+<details>
+<summary>
+Why are things misaligning? Why are borders at the wrong widths?
+</summary>
+<p>This is most likely due to your locale and encoding, particularly with regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code> or <code>ja_JP.UTF-8</code>).
+The most direct way to fix this is to set <code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
+
+<p>For details see <a href="https://github.com/charmbracelet/lipgloss/issues/40">https://github.com/charmbracelet/lipgloss/issues/40.</a></p>
+</details>
+
+<details>
+<summary>
+Why isn't Lip Gloss displaying colors?
+</summary>
+In some cases, your Lip Gloss UI might not display colors. The reason this
+happens is because Lip Gloss automatically degrades colors to the best
+available option in the given terminal. For example, if you're running tests,
+they exist in a sub-process and are not attached to a TTY and thus Lip Gloss
+strips color output entirely.
+
+However, as a last resort, you can force a color profile in your tests with `SetColorProfile`.
+
+```go
+import (
+    "github.com/charmbracelet/lipgloss"
+    "github.com/muesli/termenv"
+)
+
+lipgloss.SetColorProfile(termenv.TrueColor)
+```
+
+*Note that this option limits the flexibility of your application. It can cause
+ANSI escape codes to get output in cases where that might not be desired.
+Please take note of your environment before deciding to
+force a color profile.*
+</details>
 
 ## What about [Bubble Tea][tea]?
 
