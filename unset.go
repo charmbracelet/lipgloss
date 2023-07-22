@@ -287,6 +287,12 @@ func (s Style) UnsetMaxHeight() Style {
 	return s
 }
 
+// UnsetMaxHeight removes the max height style rule, if set.
+func (s Style) UnsetTabWidth() Style {
+	delete(s.rules, tabWidthKey)
+	return s
+}
+
 // UnsetUnderlineSpaces removes the value set by UnderlineSpaces.
 func (s Style) UnsetUnderlineSpaces() Style {
 	delete(s.rules, underlineSpacesKey)
