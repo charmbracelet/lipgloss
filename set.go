@@ -511,11 +511,15 @@ func (s Style) MaxHeight(n int) Style {
 	return o
 }
 
+// NoTabConversion can be passed to [Style.TabWidth] to disable the replacement
+// of tabs with spaces at render time.
+const NoTabConversion = -1
+
 // TabWidth sets the number of spaces that a tab (/t) should be rendered as.
 // When set to 0, tabs will be removed. To disable the replacement of tabs with
-// spaces entirely, set this to -1.
+// spaces entirely, set this to [NoTabConversion].
 //
-// By default, tabs will be removed and replaced with 4 spaces.
+// By default, tabs will be replaced with 4 spaces.
 func (s Style) TabWidth(n int) Style {
 	if n <= -1 {
 		n = -1
