@@ -151,7 +151,7 @@ func (s Style) Inherit(i Style) Style {
 	s.init()
 
 	for k, v := range i.rules {
-		switch k {
+		switch k { //nolint:exhaustive
 		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
 			// Margins are not inherited
 			continue

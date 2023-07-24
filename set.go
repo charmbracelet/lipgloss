@@ -569,19 +569,19 @@ func whichSidesInt(i ...int) (top, right, bottom, left int, ok bool) {
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]
@@ -602,19 +602,19 @@ func whichSidesBool(i ...bool) (top, right, bottom, left bool, ok bool) {
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]
@@ -635,19 +635,19 @@ func whichSidesColor(i ...TerminalColor) (top, right, bottom, left TerminalColor
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]

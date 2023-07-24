@@ -35,7 +35,7 @@ func (NoColor) color(*Renderer) termenv.Color {
 //
 // Deprecated.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
-	return 0x0, 0x0, 0x0, 0xFFFF
+	return 0x0, 0x0, 0x0, 0xFFFF //nolint:gomnd
 }
 
 // Color specifies a color by hex or ANSI value. For example:
@@ -123,7 +123,7 @@ type CompleteColor struct {
 
 func (c CompleteColor) color(r *Renderer) termenv.Color {
 	p := r.ColorProfile()
-	switch p {
+	switch p { //nolint:exhaustive
 	case termenv.TrueColor:
 		return p.Color(c.TrueColor)
 	case termenv.ANSI256:

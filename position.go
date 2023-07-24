@@ -68,7 +68,7 @@ func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...
 		// Is this line shorter than the longest line?
 		short := max(0, contentWidth-ansi.PrintableRuneWidth(l))
 
-		switch pos {
+		switch pos { //nolint:exhaustive
 		case Left:
 			b.WriteString(l)
 			b.WriteString(ws.render(gap + short))
@@ -121,7 +121,7 @@ func (r *Renderer) PlaceVertical(height int, pos Position, str string, opts ...W
 	emptyLine := ws.render(width)
 	b := strings.Builder{}
 
-	switch pos {
+	switch pos { //nolint:exhaustive
 	case Top:
 		b.WriteString(str)
 		b.WriteRune('\n')

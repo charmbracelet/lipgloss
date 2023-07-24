@@ -21,7 +21,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
 
 		if shortAmount > 0 {
-			switch pos {
+			switch pos { //nolint:exhaustive
 			case Right:
 				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
@@ -29,8 +29,9 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 				}
 				l = s + l
 			case Center:
-				left := shortAmount / 2
-				right := left + shortAmount%2 // note that we put the remainder on the right
+				// Note: remainder goes on the right.
+				left := shortAmount / 2       //nolint:gomnd
+				right := left + shortAmount%2 //nolint:gomnd
 
 				leftSpaces := strings.Repeat(" ", left)
 				rightSpaces := strings.Repeat(" ", right)
