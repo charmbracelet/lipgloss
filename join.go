@@ -60,7 +60,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 
 		extraLines := make([]string, maxHeight-len(blocks[i]))
 
-		switch pos {
+		switch pos { //nolint:exhaustive
 		case Top:
 			blocks[i] = append(blocks[i], extraLines...)
 
@@ -139,7 +139,7 @@ func JoinVertical(pos Position, strs ...string) string {
 		for j, line := range block {
 			w := maxWidth - ansi.PrintableRuneWidth(line)
 
-			switch pos {
+			switch pos { //nolint:exhaustive
 			case Left:
 				b.WriteString(line)
 				b.WriteString(strings.Repeat(" ", w))
