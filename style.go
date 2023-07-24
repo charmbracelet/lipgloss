@@ -10,6 +10,8 @@ import (
 	"github.com/muesli/termenv"
 )
 
+const tabWidthDefault = 4
+
 // Property for a key.
 type propKey int
 
@@ -68,6 +70,7 @@ const (
 	inlineKey
 	maxWidthKey
 	maxHeightKey
+	tabWidthKey
 	underlineSpacesKey
 	strikethroughSpacesKey
 )
@@ -224,7 +227,7 @@ func (s Style) Render(strs ...string) string {
 	)
 
 	if len(s.rules) == 0 {
-		return str
+		return s.maybeConvertTabs(str)
 	}
 
 	// Enable support for ANSI on the legacy Windows cmd.exe console. This is a
@@ -286,6 +289,9 @@ func (s Style) Render(strs ...string) string {
 	if strikethroughSpaces {
 		teSpace = teSpace.CrossOut()
 	}
+
+	// Potentially convert tabs to spaces
+	str = s.maybeConvertTabs(str)
 
 	// Strip newlines in single line mode
 	if inline {
@@ -395,6 +401,21 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	return str
+}
+
+func (s Style) maybeConvertTabs(str string) string {
+	tw := tabWidthDefault
+	if s.isSet(tabWidthKey) {
+		tw = s.getAsInt(tabWidthKey)
+	}
+	switch tw {
+	case -1:
+		return str
+	case 0:
+		return strings.ReplaceAll(str, "\t", "")
+	default:
+		return strings.ReplaceAll(str, "\t", strings.Repeat(" ", tw))
+	}
 }
 
 func (s Style) applyMargins(str string, inline bool) string {

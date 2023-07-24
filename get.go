@@ -370,6 +370,12 @@ func (s Style) GetMaxHeight() int {
 	return s.getAsInt(maxHeightKey)
 }
 
+// GetTabWidth returns the style's tab width setting. If no value is set 4 is
+// returned which is the implicit default.
+func (s Style) GetTabWidth() int {
+	return s.getAsInt(tabWidthKey)
+}
+
 // GetUnderlineSpaces returns whether or not the style is set to underline
 // spaces. If not value is set false is returned.
 func (s Style) GetUnderlineSpaces() bool {

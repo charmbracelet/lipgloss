@@ -181,7 +181,8 @@ func TestStyleCopy(t *testing.T) {
 		Foreground(Color("#ffffff")).
 		Background(Color("#111111")).
 		Margin(1, 1, 1, 1).
-		Padding(1, 1, 1, 1)
+		Padding(1, 1, 1, 1).
+		TabWidth(2)
 
 	i := s.Copy()
 
@@ -202,6 +203,7 @@ func TestStyleCopy(t *testing.T) {
 	requireEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
 	requireEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
 	requireEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+	requireEqual(t, s.GetTabWidth(), i.GetTabWidth())
 }
 
 func TestStyleUnset(t *testing.T) {
@@ -312,6 +314,12 @@ func TestStyleUnset(t *testing.T) {
 	requireTrue(t, s.GetBorderLeft())
 	s.UnsetBorderLeft()
 	requireFalse(t, s.GetBorderLeft())
+
+	// tab width
+	s = NewStyle().TabWidth(2)
+	requireEqual(t, s.GetTabWidth(), 2)
+	s.UnsetTabWidth()
+	requireNotEqual(t, s.GetTabWidth(), 4)
 }
 
 func TestStyleValue(t *testing.T) {
@@ -352,7 +360,17 @@ func TestStyleValue(t *testing.T) {
 				res, formatEscapes(res))
 		}
 	}
+}
 
+func TestTabConversion(t *testing.T) {
+	s := NewStyle()
+	requireEqual(t, "[    ]", s.Render("[\t]"))
+	s = NewStyle().TabWidth(2)
+	requireEqual(t, "[  ]", s.Render("[\t]"))
+	s = NewStyle().TabWidth(0)
+	requireEqual(t, "[]", s.Render("[\t]"))
+	s = NewStyle().TabWidth(-1)
+	requireEqual(t, "[\t]", s.Render("[\t]"))
 }
 
 func BenchmarkStyleRender(b *testing.B) {
