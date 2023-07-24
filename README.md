@@ -294,6 +294,20 @@ someStyle.Inline(true).MaxWidth(5).Render("yadda yadda")
 someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
 ```
 
+## Tabs
+
+The tab character (`\t`) is rendered differently in different terminals (often
+as 8 spaces, sometimes 4). Because of this inconsistency, Lip Gloss converts
+tabs to 4 spaces at render time. This behavior can be changed on a per-style
+basis, however:
+
+```go
+style := lipgloss.NewStyle() // tabs will render as 4 spaces, the default
+style = style.TabWidth(2)    // render tabs as 2 spaces
+style = style.TabWidth(0)    // remove tabs entirely
+style = style.TabWidth(lipgloss.NoTabConversion) // leave tabs intact
+```
+
 ## Rendering
 
 Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
