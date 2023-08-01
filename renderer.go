@@ -59,6 +59,8 @@ func (r *Renderer) SetOutput(o *termenv.Output) {
 
 // ColorProfile returns the detected termenv color profile.
 func (r *Renderer) ColorProfile() termenv.Profile {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	return r.output.Profile
 }
 
