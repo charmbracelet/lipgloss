@@ -9,8 +9,9 @@ import (
 )
 
 func TestStyleRender(t *testing.T) {
-	renderer.SetColorProfile(termenv.TrueColor)
-	renderer.SetHasDarkBackground(true)
+	r := NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.TrueColor)
+	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -18,31 +19,31 @@ func TestStyleRender(t *testing.T) {
 		expected string
 	}{
 		{
-			NewStyle().Foreground(Color("#5A56E0")),
+			r.NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 		{
-			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
+			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
 			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 		{
-			NewStyle().Bold(true),
+			r.NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[0m",
 		},
 		{
-			NewStyle().Italic(true),
+			r.NewStyle().Italic(true),
 			"\x1b[3mhello\x1b[0m",
 		},
 		{
-			NewStyle().Underline(true),
+			r.NewStyle().Underline(true),
 			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
 		},
 		{
-			NewStyle().Blink(true),
+			r.NewStyle().Blink(true),
 			"\x1b[5mhello\x1b[0m",
 		},
 		{
-			NewStyle().Faint(true),
+			r.NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[0m",
 		},
 	}

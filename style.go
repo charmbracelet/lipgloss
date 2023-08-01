@@ -185,9 +185,10 @@ func (s Style) Render(strs ...string) string {
 	var (
 		str = joinString(strs...)
 
-		te           = s.r.ColorProfile().String()
-		teSpace      = s.r.ColorProfile().String()
-		teWhitespace = s.r.ColorProfile().String()
+		p            = s.r.ColorProfile()
+		te           = p.String()
+		teSpace      = p.String()
+		teWhitespace = p.String()
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)

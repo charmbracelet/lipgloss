@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"io"
+	"sync"
 
 	"github.com/muesli/termenv"
 )
@@ -16,6 +17,7 @@ var renderer = &Renderer{
 type Renderer struct {
 	output            *termenv.Output
 	hasDarkBackground *bool
+	mtx               sync.RWMutex
 }
 
 // RendererOption is a function that can be used to configure a [Renderer].
@@ -43,11 +45,15 @@ func NewRenderer(w io.Writer, opts ...termenv.OutputOption) *Renderer {
 
 // Output returns the termenv output.
 func (r *Renderer) Output() *termenv.Output {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
 	return r.output
 }
 
 // SetOutput sets the termenv output.
 func (r *Renderer) SetOutput(o *termenv.Output) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	r.output = o
 }
 
@@ -78,6 +84,8 @@ func ColorProfile() termenv.Profile {
 //
 // This function is thread-safe.
 func (r *Renderer) SetColorProfile(p termenv.Profile) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	r.output.Profile = p
 }
 
@@ -110,6 +118,8 @@ func HasDarkBackground() bool {
 // background. A dark background can either be auto-detected, or set explicitly
 // on the renderer.
 func (r *Renderer) HasDarkBackground() bool {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
 	if r.hasDarkBackground != nil {
 		return *r.hasDarkBackground
 	}
@@ -139,5 +149,7 @@ func SetHasDarkBackground(b bool) {
 //
 // This function is thread-safe.
 func (r *Renderer) SetHasDarkBackground(b bool) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	r.hasDarkBackground = &b
 }
