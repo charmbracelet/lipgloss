@@ -72,6 +72,8 @@ func (r *Renderer) ColorProfile() termenv.Profile {
 
 	if !r.explicitColorProfile {
 		r.getColorProfile.Do(func() {
+			// NOTE: we don't need to lock here because sync.Once provides its
+			// own locking mechanism.
 			r.colorProfile = r.output.EnvColorProfile()
 		})
 	}
@@ -142,6 +144,8 @@ func (r *Renderer) HasDarkBackground() bool {
 
 	if !r.explicitBackgroundColor {
 		r.getBackgroundColor.Do(func() {
+			// NOTE: we don't need to lock here because sync.Once provides its
+			// own locking mechanism.
 			r.hasDarkBackground = r.output.HasDarkBackground()
 		})
 	}
