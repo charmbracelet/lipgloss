@@ -16,8 +16,16 @@ var renderer = &Renderer{
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
 	output            *termenv.Output
-	hasDarkBackground *bool
-	mtx               sync.RWMutex
+	colorProfile      termenv.Profile
+	hasDarkBackground bool
+
+	getColorProfile      sync.Once
+	explicitColorProfile bool
+
+	getBackgroundColor      sync.Once
+	explicitBackgroundColor bool
+
+	mtx sync.RWMutex
 }
 
 // RendererOption is a function that can be used to configure a [Renderer].
@@ -59,7 +67,18 @@ func (r *Renderer) SetOutput(o *termenv.Output) {
 
 // ColorProfile returns the detected termenv color profile.
 func (r *Renderer) ColorProfile() termenv.Profile {
-	return r.output.Profile
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+
+	if !r.explicitColorProfile {
+		r.getColorProfile.Do(func() {
+			// NOTE: we don't need to lock here because sync.Once provides its
+			// own locking mechanism.
+			r.colorProfile = r.output.EnvColorProfile()
+		})
+	}
+
+	return r.colorProfile
 }
 
 // ColorProfile returns the detected termenv color profile.
@@ -86,7 +105,9 @@ func ColorProfile() termenv.Profile {
 func (r *Renderer) SetColorProfile(p termenv.Profile) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	r.output.Profile = p
+
+	r.colorProfile = p
+	r.explicitColorProfile = true
 }
 
 // SetColorProfile sets the color profile on the default renderer. This
@@ -120,10 +141,16 @@ func HasDarkBackground() bool {
 func (r *Renderer) HasDarkBackground() bool {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-	if r.hasDarkBackground != nil {
-		return *r.hasDarkBackground
+
+	if !r.explicitBackgroundColor {
+		r.getBackgroundColor.Do(func() {
+			// NOTE: we don't need to lock here because sync.Once provides its
+			// own locking mechanism.
+			r.hasDarkBackground = r.output.HasDarkBackground()
+		})
 	}
-	return r.output.HasDarkBackground()
+
+	return r.hasDarkBackground
 }
 
 // SetHasDarkBackground sets the background color detection value for the
@@ -151,5 +178,7 @@ func SetHasDarkBackground(b bool) {
 func (r *Renderer) SetHasDarkBackground(b bool) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	r.hasDarkBackground = &b
+
+	r.hasDarkBackground = b
+	r.explicitBackgroundColor = true
 }
