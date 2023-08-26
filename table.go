@@ -196,7 +196,7 @@ func (t *Table) String() string {
 		for i := 0; i < len(headers); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
 			if i < len(headers)-1 {
-				s.WriteString(t.borderStyle.Render(t.border.TopMiddle))
+				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
 			}
 		}
 		s.WriteString(t.borderStyle.Render(t.border.TopRight))

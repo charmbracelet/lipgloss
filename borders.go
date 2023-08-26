@@ -11,19 +11,19 @@ import (
 // Border contains a series of values which comprise the various parts of a
 // border.
 type Border struct {
+	Top          string
 	Bottom       string
+	Left         string
+	Right        string
+	TopLeft      string
+	TopRight     string
 	BottomLeft   string
 	BottomRight  string
-	Left         string
-	Middle       string
-	MiddleBottom string
 	MiddleLeft   string
 	MiddleRight  string
-	Right        string
-	Top          string
-	TopLeft      string
-	TopMiddle    string
-	TopRight     string
+	Middle       string
+	MiddleTop    string
+	MiddleBottom string
 }
 
 // GetTopSize returns the width of the top border. If borders contain runes of
@@ -79,7 +79,7 @@ var (
 		MiddleLeft:   "├",
 		MiddleRight:  "┤",
 		Middle:       "┼",
-		TopMiddle:    "┬",
+		MiddleTop:    "┬",
 		MiddleBottom: "┴",
 	}
 
@@ -95,7 +95,7 @@ var (
 		MiddleLeft:   "├",
 		MiddleRight:  "┤",
 		Middle:       "┼",
-		TopMiddle:    "┬",
+		MiddleTop:    "┬",
 		MiddleBottom: "┴",
 	}
 
@@ -144,7 +144,7 @@ var (
 		MiddleLeft:   "┣",
 		MiddleRight:  "┫",
 		Middle:       "╋",
-		TopMiddle:    "┳",
+		MiddleTop:    "┳",
 		MiddleBottom: "┻",
 	}
 
@@ -160,7 +160,7 @@ var (
 		MiddleLeft:   "╠",
 		MiddleRight:  "╣",
 		Middle:       "╬",
-		TopMiddle:    "╦",
+		MiddleTop:    "╦",
 		MiddleBottom: "╩",
 	}
 
@@ -176,7 +176,7 @@ var (
 		MiddleLeft:   " ",
 		MiddleRight:  " ",
 		Middle:       " ",
-		TopMiddle:    " ",
+		MiddleTop:    " ",
 		MiddleBottom: " ",
 	}
 )
