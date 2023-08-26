@@ -11,14 +11,19 @@ import (
 // Border contains a series of values which comprise the various parts of a
 // border.
 type Border struct {
-	Top         string
-	Bottom      string
-	Left        string
-	Right       string
-	TopLeft     string
-	TopRight    string
-	BottomRight string
-	BottomLeft  string
+	Bottom       string
+	BottomLeft   string
+	BottomRight  string
+	Left         string
+	Middle       string
+	MiddleBottom string
+	MiddleLeft   string
+	MiddleRight  string
+	Right        string
+	Top          string
+	TopLeft      string
+	TopMiddle    string
+	TopRight     string
 }
 
 // GetTopSize returns the width of the top border. If borders contain runes of
@@ -63,25 +68,35 @@ var (
 	noBorder = Border{}
 
 	normalBorder = Border{
-		Top:         "─",
-		Bottom:      "─",
-		Left:        "│",
-		Right:       "│",
-		TopLeft:     "┌",
-		TopRight:    "┐",
-		BottomLeft:  "└",
-		BottomRight: "┘",
+		Top:          "─",
+		Bottom:       "─",
+		Left:         "│",
+		Right:        "│",
+		TopLeft:      "┌",
+		TopRight:     "┐",
+		BottomLeft:   "└",
+		BottomRight:  "┘",
+		MiddleLeft:   "├",
+		MiddleRight:  "┤",
+		Middle:       "┼",
+		TopMiddle:    "┬",
+		MiddleBottom: "┴",
 	}
 
 	roundedBorder = Border{
-		Top:         "─",
-		Bottom:      "─",
-		Left:        "│",
-		Right:       "│",
-		TopLeft:     "╭",
-		TopRight:    "╮",
-		BottomLeft:  "╰",
-		BottomRight: "╯",
+		Top:          "─",
+		Bottom:       "─",
+		Left:         "│",
+		Right:        "│",
+		TopLeft:      "╭",
+		TopRight:     "╮",
+		BottomLeft:   "╰",
+		BottomRight:  "╯",
+		MiddleLeft:   "├",
+		MiddleRight:  "┤",
+		Middle:       "┼",
+		TopMiddle:    "┬",
+		MiddleBottom: "┴",
 	}
 
 	blockBorder = Border{
@@ -118,36 +133,51 @@ var (
 	}
 
 	thickBorder = Border{
-		Top:         "━",
-		Bottom:      "━",
-		Left:        "┃",
-		Right:       "┃",
-		TopLeft:     "┏",
-		TopRight:    "┓",
-		BottomLeft:  "┗",
-		BottomRight: "┛",
+		Top:          "━",
+		Bottom:       "━",
+		Left:         "┃",
+		Right:        "┃",
+		TopLeft:      "┏",
+		TopRight:     "┓",
+		BottomLeft:   "┗",
+		BottomRight:  "┛",
+		MiddleLeft:   "┣",
+		MiddleRight:  "┫",
+		Middle:       "╋",
+		TopMiddle:    "┳",
+		MiddleBottom: "┻",
 	}
 
 	doubleBorder = Border{
-		Top:         "═",
-		Bottom:      "═",
-		Left:        "║",
-		Right:       "║",
-		TopLeft:     "╔",
-		TopRight:    "╗",
-		BottomLeft:  "╚",
-		BottomRight: "╝",
+		Top:          "═",
+		Bottom:       "═",
+		Left:         "║",
+		Right:        "║",
+		TopLeft:      "╔",
+		TopRight:     "╗",
+		BottomLeft:   "╚",
+		BottomRight:  "╝",
+		MiddleLeft:   "╠",
+		MiddleRight:  "╣",
+		Middle:       "╬",
+		TopMiddle:    "╦",
+		MiddleBottom: "╩",
 	}
 
 	hiddenBorder = Border{
-		Top:         " ",
-		Bottom:      " ",
-		Left:        " ",
-		Right:       " ",
-		TopLeft:     " ",
-		TopRight:    " ",
-		BottomLeft:  " ",
-		BottomRight: " ",
+		Top:          " ",
+		Bottom:       " ",
+		Left:         " ",
+		Right:        " ",
+		TopLeft:      " ",
+		TopRight:     " ",
+		BottomLeft:   " ",
+		BottomRight:  " ",
+		MiddleLeft:   " ",
+		MiddleRight:  " ",
+		Middle:       " ",
+		TopMiddle:    " ",
+		MiddleBottom: " ",
 	}
 )
 
