@@ -391,7 +391,6 @@ height := lipgloss.Height(block)
 w, h := lipgloss.Size(block)
 ```
 
-
 ### Placing Text in Whitespace
 
 Sometimes you’ll simply want to place a block of text in whitespace.
@@ -411,6 +410,58 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 
 You can also style the whitespace. For details, see [the docs][docs].
 
+### Rendering Tables
+
+Lip Gloss ships with a table rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/table"
+```
+
+Define some rows of data.
+
+```go
+rows := [][]any{
+    {"Chinese", "您好", "你好"},
+    {"Japanese", "こんにちは", "やあ"},
+    {"Arabic", "أهلين", "أهلا"},
+    {"Russian", "Здравствуйте", "Привет"},
+    {"Spanish", "Hola", "¿Qué tal?"},
+}
+```
+
+Use the table package to style and render the table.
+
+```go
+t := table.New().
+    Border(lipgloss.NormalBorder()).
+    BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+    StyleFunc(func(row, col int) lipgloss.Style {
+        switch {
+        case row == 0:
+            return HeaderStyle
+        case row%2 == 0:
+            return EvenRowStyle
+        default:
+            return OddRowStyle
+        }
+    }).
+    Headers("LANGUAGE", "FORMAL", "INFORMAL").
+    Rows(rows...)
+
+// You can also add tables row-by-row
+t.Row("English", "You look absolutely fabulous.", "How's it going?")
+```
+
+Print the table.
+
+```go
+fmt.Println(t)
+```
+
+![Table Example](https://stuff.charm.sh/lipgloss/lipgloss-example-table-2.png)
+
+For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc).
 
 ***
 
