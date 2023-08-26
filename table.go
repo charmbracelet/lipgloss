@@ -62,7 +62,7 @@ func (t *Table) StyleFunc(style TableStyleFunc) *Table {
 	return t
 }
 
-// Rows sets the table rows
+// Rows sets the table rows.
 func (t *Table) Rows(rows ...[]any) *Table {
 	t.rows = rows
 
