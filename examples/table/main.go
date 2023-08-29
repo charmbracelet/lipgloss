@@ -15,12 +15,12 @@ const (
 var (
 	// HeaderStyle is the lipgloss style used for the table headers.
 	HeaderStyle = lipgloss.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
-	// RowStyle is the base lipgloss style used for the table rows.
-	RowStyle = lipgloss.NewStyle().Padding(1)
+	// CellStyle is the base lipgloss style used for the table rows.
+	CellStyle = lipgloss.NewStyle().Padding(0, 1).Width(14)
 	// OddRowStyle is the lipgloss style used for odd-numbered table rows.
-	OddRowStyle = RowStyle.Copy().Foreground(gray)
+	OddRowStyle = CellStyle.Copy().Foreground(gray)
 	// EvenRowStyle is the lipgloss style used for even-numbered table rows.
-	EvenRowStyle = RowStyle.Copy().Foreground(lightGray)
+	EvenRowStyle = CellStyle.Copy().Foreground(lightGray).Padding(1)
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 			}
 		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("Chinese Chinese Chinese", "Nǐn hǎo", "Nǐ hǎo").
 		Row("French", "Bonjour", "Salut").
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").

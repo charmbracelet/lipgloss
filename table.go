@@ -30,8 +30,12 @@ type Table struct {
 	borderStyle Style
 	headers     []any
 	rows        [][]any
+
 	// widths tracks the width of each column.
 	widths []int
+
+	// heights tracks the height of each row.
+	heights []int
 }
 
 // NewTable returns a new Table that can be modified through different
@@ -62,60 +66,29 @@ func (t *Table) StyleFunc(style TableStyleFunc) *Table {
 	return t
 }
 
+// style returns the style for a cell based on it's position (row, column).
+func (t *Table) style(row, col int) Style {
+	if t.styleFunc == nil {
+		return NewStyle()
+	}
+	return t.styleFunc(row, col)
+}
+
 // Rows sets the table rows.
 func (t *Table) Rows(rows ...[]any) *Table {
 	t.rows = rows
-
-	if len(rows) == 0 {
-		return t
-	}
-
-	row := rows[0]
-
-	// Update the widths.
-	if t.widths == nil {
-		t.widths = make([]int, len(row))
-	}
-
-	// Update the widths.
-	for _, row := range rows {
-		for j, cell := range row {
-			t.widths[j] = max(t.widths[j], Width(fmt.Sprint(cell)))
-		}
-	}
-
 	return t
 }
 
 // Row appends a row of data to the table.
 func (t *Table) Row(row ...any) *Table {
 	t.rows = append(t.rows, row)
-
-	// Update the widths.
-	if t.widths == nil {
-		t.widths = make([]int, len(row))
-	}
-
-	for i, cell := range row {
-		t.widths[i] = max(t.widths[i], Width(fmt.Sprint(cell)))
-	}
-
 	return t
 }
 
 // Headers sets the table headers.
 func (t *Table) Headers(headers ...any) *Table {
 	t.headers = headers
-
-	// Update the widths.
-	if t.widths == nil {
-		t.widths = make([]int, len(headers))
-	}
-
-	for i, cell := range headers {
-		t.widths[i] = max(t.widths[i], Width(fmt.Sprint(cell)))
-	}
-
 	return t
 }
 
@@ -169,6 +142,16 @@ func (t *Table) String() string {
 
 	var s strings.Builder
 
+	hasHeaders := len(t.headers) > 0
+	headers := t.headers
+	if !hasHeaders {
+		headers = t.rows[0]
+	}
+
+	// Initialize the widths.
+	t.widths = make([]int, len(headers))
+	t.heights = make([]int, boolToInt(hasHeaders)+len(t.rows))
+
 	// It's possible that the styling affects the width of the table or rows.
 	//
 	// It's also possible that the styling function was set after the headers
@@ -176,23 +159,20 @@ func (t *Table) String() string {
 	//
 	// So let's update the widths one last time.
 	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], Width(t.styleFunc(0, i).Render(fmt.Sprint(cell))))
+		t.widths[i] = max(t.widths[i], Width(t.style(0, i).Render(fmt.Sprint(cell))))
+		t.heights[0] = max(t.heights[0], Height(t.style(0, i).Render(fmt.Sprint(cell))))
 	}
 	for r, row := range t.rows {
 		for i, cell := range row {
-			t.widths[i] = max(t.widths[i], Width(t.styleFunc(r+1, i).Render(fmt.Sprint(cell))))
+			rendered := t.style(r+1, i).Render(fmt.Sprint(cell))
+			t.heights[r+boolToInt(hasHeaders)] = max(t.heights[r+boolToInt(hasHeaders)], Height(rendered))
+			t.widths[i] = max(t.widths[i], Width(rendered))
 		}
 	}
-
-	hasHeaders := len(t.headers) > 0
-	headers := t.headers
 
 	// Write the top border.
 	if t.borderTop {
 		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
-		if !hasHeaders {
-			headers = t.rows[0]
-		}
 		for i := 0; i < len(headers); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
 			if i < len(headers)-1 {
@@ -208,11 +188,7 @@ func (t *Table) String() string {
 		s.WriteString(t.borderStyle.Render(t.border.Left))
 	}
 	for i, header := range t.headers {
-		s.WriteString(t.styleFunc(0, i).
-			UnsetPaddingTop().
-			UnsetPaddingBottom().
-			UnsetMarginTop().
-			UnsetMarginBottom().
+		s.WriteString(t.style(0, i).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
 			Render(fmt.Sprint(header)))
@@ -250,26 +226,38 @@ func (t *Table) String() string {
 
 	// Write the data.
 	for r, row := range t.rows {
+		height := t.heights[r+boolToInt(hasHeaders)]
+
+		left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
+		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
+
+		var cells []string
 		if t.borderLeft {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
+			cells = append(cells, left)
 		}
+
 		for c, cell := range row {
-			s.WriteString(t.styleFunc(r+1, c).
-				UnsetPaddingTop().
-				UnsetPaddingBottom().
-				UnsetMarginTop().
-				UnsetMarginBottom().
+			cells = append(cells, t.style(r+1, c).
+				Height(height).
+				MaxHeight(height).
 				Width(t.widths[c]).
 				MaxWidth(t.widths[c]).
 				Render(fmt.Sprint(cell)))
+
 			if c < len(row)-1 {
-				s.WriteString(t.borderStyle.Render(t.border.Left))
+				cells = append(cells, left)
 			}
 		}
+
 		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
+			cells = append(cells, right)
 		}
-		s.WriteString("\n")
+
+		for i, cell := range cells {
+			cells[i] = strings.TrimRight(cell, "\n")
+		}
+
+		s.WriteString(JoinHorizontal(Top, cells...) + "\n")
 	}
 
 	// Write the bottom border.
@@ -290,4 +278,11 @@ func (t *Table) String() string {
 // Render returns the table as a string.
 func (t *Table) Render() string {
 	return t.String()
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
