@@ -104,6 +104,38 @@ func TestTableSetRows(t *testing.T) {
 	}
 }
 
+func TestMoreCellsThanHeaders(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := NewTable().
+		Border(NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │           │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableNoHeaders(t *testing.T) {
 	table := NewTable().
 		Border(NormalBorder()).
