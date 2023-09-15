@@ -149,6 +149,17 @@ var (
 		BottomLeft:  " ",
 		BottomRight: " ",
 	}
+
+	triangleBorder = Border{
+		Top:         "▼",
+		Bottom:      "▲",
+		Left:        "▶",
+		Right:       "◀",
+		TopLeft:     "◤",
+		TopRight:    "◥",
+		BottomLeft:  "◣",
+		BottomRight: "◢",
+	}
 )
 
 // NormalBorder returns a standard-type border with a normal weight and 90
@@ -194,6 +205,11 @@ func DoubleBorder() Border {
 // color to a hidden border.
 func HiddenBorder() Border {
 	return hiddenBorder
+}
+
+// TriangleBorder returns a border made of triangles.
+func TriangleBorder() Border {
+	return triangleBorder
 }
 
 func (s Style) applyBorder(str string) string {
