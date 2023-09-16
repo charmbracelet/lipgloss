@@ -340,16 +340,14 @@ func (s Style) GetBorderRightSize() int {
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the horizontal edges, 0 is returned.
 func (s Style) GetHorizontalBorderSize() int {
-	b := s.getBorderStyle()
-	return b.GetLeftSize() + b.GetRightSize()
+	return s.GetBorderLeftSize() + s.GetBorderRightSize()
 }
 
 // GetVerticalBorderSize returns the width of the vertical borders. If
 // borders contain runes of varying widths, the widest rune is returned. If no
 // border exists on the vertical edges, 0 is returned.
 func (s Style) GetVerticalBorderSize() int {
-	b := s.getBorderStyle()
-	return b.GetTopSize() + b.GetBottomSize()
+	return s.GetBorderTopSize() + s.GetBorderBottomSize()
 }
 
 // GetInline returns the style's inline setting. If no value is set false is
