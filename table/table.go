@@ -1,25 +1,27 @@
-package lipgloss
+package table
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
-// TableStyleFunc is the style function that determines the style of a Cell.
+// StyleFunc is the style function that determines the style of a Cell.
 //
 // It takes the row and column of the cell as an input and determines the
 // lipgloss Style to use for that cell position.
-type TableStyleFunc func(row, col int) Style
+type StyleFunc func(row, col int) lipgloss.Style
 
 // NoTableStyle is a TableStyleFunc that returns a new Style with no attributes.
-func NoTableStyle(_, _ int) Style {
-	return NewStyle()
+func NoTableStyle(_, _ int) lipgloss.Style {
+	return lipgloss.NewStyle()
 }
 
 // Table is a type for rendering tables.
 type Table struct {
-	styleFunc TableStyleFunc
-	border    Border
+	styleFunc StyleFunc
+	border    lipgloss.Border
 
 	borderTop    bool
 	borderBottom bool
@@ -27,7 +29,7 @@ type Table struct {
 	borderRight  bool
 	borderHeader bool
 
-	borderStyle Style
+	borderStyle lipgloss.Style
 	headers     []any
 	rows        [][]any
 
@@ -38,14 +40,14 @@ type Table struct {
 	heights []int
 }
 
-// NewTable returns a new Table that can be modified through different
+// New returns a new Table that can be modified through different
 // attributes.
 //
 // By default, a table has no border, no styling, and no rows.
-func NewTable() *Table {
+func New() *Table {
 	return &Table{
 		styleFunc:    NoTableStyle,
-		border:       HiddenBorder(),
+		border:       lipgloss.HiddenBorder(),
 		borderTop:    true,
 		borderHeader: true,
 		borderBottom: true,
@@ -61,15 +63,15 @@ func (t *Table) ClearRows() *Table {
 }
 
 // StyleFunc sets the style for a cell based on it's position (row, column).
-func (t *Table) StyleFunc(style TableStyleFunc) *Table {
+func (t *Table) StyleFunc(style StyleFunc) *Table {
 	t.styleFunc = style
 	return t
 }
 
 // style returns the style for a cell based on it's position (row, column).
-func (t *Table) style(row, col int) Style {
+func (t *Table) style(row, col int) lipgloss.Style {
 	if t.styleFunc == nil {
-		return NewStyle()
+		return lipgloss.NewStyle()
 	}
 	return t.styleFunc(row, col)
 }
@@ -93,7 +95,7 @@ func (t *Table) Headers(headers ...any) *Table {
 }
 
 // Border sets the table border.
-func (t *Table) Border(border Border) *Table {
+func (t *Table) Border(border lipgloss.Border) *Table {
 	t.border = border
 	return t
 }
@@ -129,7 +131,7 @@ func (t *Table) BorderHeader(v bool) *Table {
 }
 
 // BorderStyle sets the style for the table border.
-func (t *Table) BorderStyle(style Style) *Table {
+func (t *Table) BorderStyle(style lipgloss.Style) *Table {
 	t.borderStyle = style
 	return t
 }
@@ -159,14 +161,14 @@ func (t *Table) String() string {
 	//
 	// So let's update the widths one last time.
 	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], Width(t.style(0, i).Render(fmt.Sprint(cell))))
-		t.heights[0] = max(t.heights[0], Height(t.style(0, i).Render(fmt.Sprint(cell))))
+		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(0, i).Render(fmt.Sprint(cell))))
+		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(fmt.Sprint(cell))))
 	}
 	for r, row := range t.rows {
 		for i, cell := range row {
 			rendered := t.style(r+1, i).Render(fmt.Sprint(cell))
-			t.heights[r+boolToInt(hasHeaders)] = max(t.heights[r+boolToInt(hasHeaders)], Height(rendered))
-			t.widths[i] = max(t.widths[i], Width(rendered))
+			t.heights[r+boolToInt(hasHeaders)] = max(t.heights[r+boolToInt(hasHeaders)], lipgloss.Height(rendered))
+			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
 	}
 
@@ -257,7 +259,7 @@ func (t *Table) String() string {
 			cells[i] = strings.TrimRight(cell, "\n")
 		}
 
-		s.WriteString(JoinHorizontal(Top, cells...) + "\n")
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 	}
 
 	// Write the bottom border.
@@ -285,4 +287,11 @@ func boolToInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

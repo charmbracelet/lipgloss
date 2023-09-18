@@ -1,24 +1,26 @@
-package lipgloss
+package table
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
-var TableStyle = func(row, col int) Style {
+var TableStyle = func(row, col int) lipgloss.Style {
 	switch {
 	case row == 0:
-		return NewStyle().Padding(0, 1).Align(Center)
+		return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
 	case row%2 == 0:
-		return NewStyle().Padding(0, 1)
+		return lipgloss.NewStyle().Padding(0, 1)
 	default:
-		return NewStyle().Padding(0, 1)
+		return lipgloss.NewStyle().Padding(0, 1)
 	}
 }
 
 func TestTable(t *testing.T) {
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -45,8 +47,8 @@ func TestTable(t *testing.T) {
 }
 
 func TestTableBorder(t *testing.T) {
-	table := NewTable().
-		Border(DoubleBorder()).
+	table := New().
+		Border(lipgloss.DoubleBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -81,8 +83,8 @@ func TestTableSetRows(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
@@ -113,8 +115,8 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
@@ -137,8 +139,8 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 }
 
 func TestTableNoHeaders(t *testing.T) {
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
 		Row("French", "Bonjour", "Salut").
@@ -161,8 +163,8 @@ func TestTableNoHeaders(t *testing.T) {
 	}
 }
 
-func TestNewTable(t *testing.T) {
-	table := NewTable()
+func TestNew(t *testing.T) {
+	table := New()
 	expected := ""
 	if table.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
@@ -170,8 +172,8 @@ func TestNewTable(t *testing.T) {
 }
 
 func TestTableUnsetBorders(t *testing.T) {
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -200,8 +202,8 @@ func TestTableUnsetBorders(t *testing.T) {
 }
 
 func TestTableUnsetHeaderSeparator(t *testing.T) {
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -230,8 +232,8 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
 }
 
 func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -258,18 +260,18 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 }
 
 func TestTableHeights(t *testing.T) {
-	styleFunc := func(row, col int) Style {
+	styleFunc := func(row, col int) lipgloss.Style {
 		if row == 0 {
-			return NewStyle().Bold(true).Padding(0, 1)
+			return lipgloss.NewStyle().Bold(true).Padding(0, 1)
 		}
 		if col == 0 {
-			return NewStyle().Width(18).Padding(1)
+			return lipgloss.NewStyle().Width(18).Padding(1)
 		}
-		return NewStyle().Width(25).Padding(1, 2)
+		return lipgloss.NewStyle().Width(25).Padding(1, 2)
 	}
 
-	table := NewTable().
-		Border(NormalBorder()).
+	table := New().
+		Border(lipgloss.NormalBorder()).
 		StyleFunc(styleFunc).
 		Headers("EXPRESSION", "MEANING").
 		Row("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
