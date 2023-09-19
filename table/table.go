@@ -145,13 +145,28 @@ func (t *Table) String() string {
 	var s strings.Builder
 
 	hasHeaders := len(t.headers) > 0
-	headers := t.headers
+	longestRow := t.headers
 	if !hasHeaders {
-		headers = t.rows[0]
+		longestRow = t.rows[0]
+	}
+
+	// Find longest row.
+	for _, row := range t.rows {
+		if len(row) > len(longestRow) {
+			longestRow = row
+		}
+	}
+
+	// Add empty cells to the headers, until it's the same length as the longest
+	// row (only if there are at headers in the first place).
+	if hasHeaders {
+		for i := len(t.headers); i < len(longestRow); i++ {
+			t.headers = append(t.headers, "")
+		}
 	}
 
 	// Initialize the widths.
-	t.widths = make([]int, len(headers))
+	t.widths = make([]int, len(longestRow))
 	t.heights = make([]int, boolToInt(hasHeaders)+len(t.rows))
 
 	// It's possible that the styling affects the width of the table or rows.
@@ -175,9 +190,9 @@ func (t *Table) String() string {
 	// Write the top border.
 	if t.borderTop {
 		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
-		for i := 0; i < len(headers); i++ {
+		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < len(headers)-1 {
+			if i < len(longestRow)-1 {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
 			}
 		}
@@ -233,6 +248,12 @@ func (t *Table) String() string {
 		left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
 
+		// Append empty cells to the row, until it's the same length as the
+		// longest row.
+		for i := len(row); i < len(longestRow); i++ {
+			row = append(row, "")
+		}
+
 		var cells []string
 		if t.borderLeft {
 			cells = append(cells, left)
@@ -265,9 +286,9 @@ func (t *Table) String() string {
 	// Write the bottom border.
 	if t.borderBottom {
 		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
-		for i := 0; i < len(headers); i++ {
+		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-			if i < len(headers)-1 {
+			if i < len(longestRow)-1 {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
 			}
 		}

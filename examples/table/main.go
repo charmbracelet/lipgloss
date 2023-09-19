@@ -39,7 +39,7 @@ func main() {
 			}
 		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese Chinese Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
 		Row("French", "Bonjour", "Salut").
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
