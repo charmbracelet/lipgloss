@@ -11,6 +11,24 @@ import (
 //
 // It takes the row and column of the cell as an input and determines the
 // lipgloss Style to use for that cell position.
+//
+// Example:
+//
+//	t := table.New().
+//	    Headers("Name", "Age").
+//	    Row("Kini", 4).
+//	    Row("Eli", 1).
+//	    Row("Iris", 102).
+//	    StyleFunc(func(row, col int) lipgloss.Style {
+//	        switch {
+//	           case row == 0:
+//	               return HeaderStyle
+//	           case row%2 == 0:
+//	               return EvenRowStyle
+//	           default:
+//	               return OddRowStyle
+//	           }
+//	    })
 type StyleFunc func(row, col int) lipgloss.Style
 
 // NoTableStyle is a TableStyleFunc that returns a new Style with no attributes.

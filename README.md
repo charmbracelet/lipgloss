@@ -391,16 +391,34 @@ height := lipgloss.Height(block)
 w, h := lipgloss.Size(block)
 ```
 
-### Tables
+### Placing Text in Whitespace
 
-When you need to render a table in the terminal, Lip Gloss ships with a table
-rendering sub-package.
+Sometimes you’ll simply want to place a block of text in whitespace.
+
+```go
+// Center a paragraph horizontally in a space 80 cells wide. The height of
+// the block returned will be as tall as the input paragraph.
+block := lipgloss.PlaceHorizontal(80, lipgloss.Center, fancyStyledParagraph)
+
+// Place a paragraph at the bottom of a space 30 cells tall. The width of
+// the text block returned will be as wide as the input paragraph.
+block := lipgloss.PlaceVertical(30, lipgloss.Bottom, fancyStyledParagraph)
+
+// Place a paragraph in the bottom right corner of a 30x80 cell space.
+block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledParagraph)
+```
+
+You can also style the whitespace. For details, see [the docs][docs].
+
+### Rendering Tables
+
+Lip Gloss ships with a table rendering sub-package.
 
 ```go
 import "github.com/charmbracelet/lipgloss/table"
 ```
 
-Define some table rows and data.
+Define some rows of data.
 
 ```go
 rows := [][]any{
@@ -409,7 +427,6 @@ rows := [][]any{
     {"Arabic", "أهلين", "أهلا"},
     {"Russian", "Здравствуйте", "Привет"},
     {"Spanish", "Hola", "¿Qué tal?"},
-    {"English", "You look absolutely fabulous.", "How's it going?"},
 }
 ```
 
@@ -431,35 +448,20 @@ t := table.New().
     }).
     Headers("LANGUAGE", "FORMAL", "INFORMAL").
     Rows(rows...)
+
+// You can also add tables row-by-row
+t.Row("English", "You look absolutely fabulous.", "How's it going?")
 ```
 
-Print out the table.
+Print the table.
 
 ```go
 fmt.Println(t)
 ```
 
-![Table Printed Example](https://stuff.charm.sh/lipgloss/lipgloss-example-table-2.png)
+![Table Example](https://stuff.charm.sh/lipgloss/lipgloss-example-table-2.png)
 
-### Placing Text in Whitespace
-
-Sometimes you’ll simply want to place a block of text in whitespace.
-
-```go
-// Center a paragraph horizontally in a space 80 cells wide. The height of
-// the block returned will be as tall as the input paragraph.
-block := lipgloss.PlaceHorizontal(80, lipgloss.Center, fancyStyledParagraph)
-
-// Place a paragraph at the bottom of a space 30 cells tall. The width of
-// the text block returned will be as wide as the input paragraph.
-block := lipgloss.PlaceVertical(30, lipgloss.Bottom, fancyStyledParagraph)
-
-// Place a paragraph in the bottom right corner of a 30x80 cell space.
-block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledParagraph)
-```
-
-You can also style the whitespace. For details, see [the docs][docs].
-
+For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc).
 
 ***
 
