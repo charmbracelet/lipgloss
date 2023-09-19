@@ -28,6 +28,7 @@ type Table struct {
 	borderLeft   bool
 	borderRight  bool
 	borderHeader bool
+	borderColumn bool
 
 	borderStyle lipgloss.Style
 	headers     []any
@@ -48,11 +49,12 @@ func New() *Table {
 	return &Table{
 		styleFunc:    NoTableStyle,
 		border:       lipgloss.HiddenBorder(),
-		borderTop:    true,
-		borderHeader: true,
 		borderBottom: true,
-		borderRight:  true,
+		borderColumn: true,
+		borderHeader: true,
 		borderLeft:   true,
+		borderRight:  true,
+		borderTop:    true,
 	}
 }
 
@@ -124,9 +126,15 @@ func (t *Table) BorderRight(v bool) *Table {
 	return t
 }
 
-// BorderHeader sets the right border.
+// BorderHeader sets the header separator border.
 func (t *Table) BorderHeader(v bool) *Table {
 	t.borderHeader = v
+	return t
+}
+
+// BorderColumn sets the column border.
+func (t *Table) BorderColumn(v bool) *Table {
+	t.borderColumn = v
 	return t
 }
 
@@ -192,7 +200,7 @@ func (t *Table) String() string {
 		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
 		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < len(longestRow)-1 {
+			if i < len(longestRow)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
 			}
 		}
@@ -209,7 +217,7 @@ func (t *Table) String() string {
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
 			Render(fmt.Sprint(header)))
-		if i < len(t.headers)-1 {
+		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
 	}
@@ -225,7 +233,7 @@ func (t *Table) String() string {
 	if t.borderHeader {
 		for i := 0; i < len(t.headers); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < len(t.headers)-1 {
+			if i < len(t.headers)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.Middle))
 			}
 		}
@@ -267,7 +275,7 @@ func (t *Table) String() string {
 				MaxWidth(t.widths[c]).
 				Render(fmt.Sprint(cell)))
 
-			if c < len(row)-1 {
+			if c < len(row)-1 && t.borderColumn {
 				cells = append(cells, left)
 			}
 		}
@@ -288,7 +296,7 @@ func (t *Table) String() string {
 		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
 		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-			if i < len(longestRow)-1 {
+			if i < len(longestRow)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
 			}
 		}

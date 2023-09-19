@@ -195,6 +195,61 @@ func TestTableNoHeaders(t *testing.T) {
 	}
 }
 
+func TestTableNoColumnSeparators(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌───────────────────────────────────┐
+│ Chinese   Nǐn hǎo       Nǐ hǎo    │
+│ French    Bonjour       Salut     │
+│ Japanese  こんにちは    やあ      │
+│ Russian   Zdravstvuyte  Privet    │
+│ Spanish   Hola          ¿Qué tal? │
+└───────────────────────────────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌───────────────────────────────────┐
+│ LANGUAGE     FORMAL     INFORMAL  │
+├───────────────────────────────────┤
+│ Chinese   Nǐn hǎo       Nǐ hǎo    │
+│ French    Bonjour       Salut     │
+│ Japanese  こんにちは    やあ      │
+│ Russian   Zdravstvuyte  Privet    │
+│ Spanish   Hola          ¿Qué tal? │
+└───────────────────────────────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestNew(t *testing.T) {
 	table := New()
 	expected := ""
