@@ -379,6 +379,39 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 	}
 }
 
+func TestTableRowSeparators(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		BorderRow(true).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+├──────────┼──────────────┼───────────┤
+│ French   │ Bonjour      │ Salut     │
+├──────────┼──────────────┼───────────┤
+│ Japanese │ こんにちは   │ やあ      │
+├──────────┼──────────────┼───────────┤
+│ Russian  │ Zdravstvuyte │ Privet    │
+├──────────┼──────────────┼───────────┤
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableHeights(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
 		if row == 0 {

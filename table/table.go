@@ -47,6 +47,7 @@ type Table struct {
 	borderRight  bool
 	borderHeader bool
 	borderColumn bool
+	borderRow    bool
 
 	borderStyle lipgloss.Style
 	headers     []any
@@ -150,9 +151,15 @@ func (t *Table) BorderHeader(v bool) *Table {
 	return t
 }
 
-// BorderColumn sets the column border.
+// BorderColumn sets the column border separator.
 func (t *Table) BorderColumn(v bool) *Table {
 	t.borderColumn = v
+	return t
+}
+
+// BorderRow sets the row border separator.
+func (t *Table) BorderRow(v bool) *Table {
+	t.borderRow = v
 	return t
 }
 
@@ -307,6 +314,17 @@ func (t *Table) String() string {
 		}
 
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
+
+		if t.borderRow && r < len(t.rows)-1 {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+			for i := 0; i < len(longestRow); i++ {
+				s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+				if i < len(longestRow)-1 && t.borderColumn {
+					s.WriteString(t.borderStyle.Render(t.border.Middle))
+				}
+			}
+			s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
+		}
 	}
 
 	// Write the bottom border.
