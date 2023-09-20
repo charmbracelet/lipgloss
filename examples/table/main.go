@@ -19,15 +19,15 @@ func main() {
 
 	var (
 		// HeaderStyle is the lipgloss style used for the table headers.
-		HeaderStyle = lipgloss.NewStyle().Renderer(re).Foreground(purple).Bold(true).Align(lipgloss.Center)
+		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
 		// CellStyle is the base lipgloss style used for the table rows.
-		CellStyle = lipgloss.NewStyle().Renderer(re).Padding(0, 1).Width(14)
+		CellStyle = re.NewStyle().Padding(0, 1).Width(14)
 		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
-		OddRowStyle = CellStyle.Copy().Renderer(re).Foreground(gray)
+		OddRowStyle = CellStyle.Copy().Foreground(gray)
 		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
-		EvenRowStyle = CellStyle.Copy().Renderer(re).Foreground(lightGray)
+		EvenRowStyle = CellStyle.Copy().Foreground(lightGray)
 		// BorderStyle is the lipgloss style used for the table border.
-		BorderStyle = lipgloss.NewStyle().Renderer(re).Foreground(purple)
+		BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
 
 	rows := [][]any{
