@@ -53,6 +53,8 @@ type Table struct {
 	headers     []any
 	rows        [][]any
 
+	width int
+
 	// widths tracks the width of each column.
 	widths []int
 
@@ -169,6 +171,14 @@ func (t *Table) BorderStyle(style lipgloss.Style) *Table {
 	return t
 }
 
+// Width sets the table width, this auto-sizes the columns to fit the width by
+// either expanding or contracting the widths of each column as a best effort
+// approach.
+func (t *Table) Width(w int) *Table {
+	t.width = w
+	return t
+}
+
 // String returns the table as a string.
 func (t *Table) String() string {
 	if (t.headers == nil || len(t.headers) <= 0) && len(t.rows) == 0 {
@@ -220,16 +230,47 @@ func (t *Table) String() string {
 		}
 	}
 
+	tableWidth := sum(t.widths)
+	if t.borderColumn {
+		tableWidth += (len(t.widths) - 1)
+	}
+	tableWidth += boolToInt(t.borderLeft)
+	tableWidth += boolToInt(t.borderRight)
+
+	if tableWidth < t.width && t.width > 0 {
+		// The table is too narrow, so we need to expand it.
+		for tableWidth < t.width {
+			// Add an equal amount to each column.
+			for i := range t.widths {
+				t.widths[i]++
+				tableWidth++
+			}
+		}
+	} else if tableWidth > t.width && t.width > 0 {
+		// The table is too wide, so we need to shrink it.
+		for tableWidth > t.width {
+			// Subtract an equal amount from each column.
+			for i := range t.widths {
+				t.widths[i]--
+				tableWidth--
+			}
+		}
+	}
+
 	// Write the top border.
 	if t.borderTop {
-		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
+		if t.borderLeft {
+			s.WriteString(t.borderStyle.Render(t.border.TopLeft))
+		}
 		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
 			if i < len(longestRow)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
 			}
 		}
-		s.WriteString(t.borderStyle.Render(t.border.TopRight))
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.TopRight))
+		}
 		s.WriteString("\n")
 	}
 
@@ -239,6 +280,7 @@ func (t *Table) String() string {
 	}
 	for i, header := range t.headers {
 		s.WriteString(t.style(0, i).
+			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
 			Render(fmt.Sprint(header)))
@@ -329,14 +371,18 @@ func (t *Table) String() string {
 
 	// Write the bottom border.
 	if t.borderBottom {
-		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
+		if t.borderLeft {
+			s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
+		}
 		for i := 0; i < len(longestRow); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 			if i < len(longestRow)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
 			}
 		}
-		s.WriteString(t.borderStyle.Render(t.border.BottomRight))
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.BottomRight))
+		}
 	}
 
 	return s.String()
@@ -359,4 +405,12 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func sum(n []int) int {
+	var sum int
+	for _, i := range n {
+		sum += i
+	}
+	return sum
 }

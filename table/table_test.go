@@ -522,3 +522,105 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
 	}
 }
+
+func TestTableWidthExpand(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Width(80).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┌────────────────────────┬────────────────────────────┬─────────────────────────┐
+│        LANGUAGE        │           FORMAL           │        INFORMAL         │
+├────────────────────────┼────────────────────────────┼─────────────────────────┤
+│ Chinese                │ Nǐn hǎo                    │ Nǐ hǎo                  │
+│ French                 │ Bonjour                    │ Salut                   │
+│ Japanese               │ こんにちは                 │ やあ                    │
+│ Russian                │ Zdravstvuyte               │ Privet                  │
+│ Spanish                │ Hola                       │ ¿Qué tal?               │
+└────────────────────────┴────────────────────────────┴─────────────────────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableWidthShrink(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Width(30).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┌───────┬───────────┬────────┐
+│ LANGU │  FORMAL   │ INFORM │
+├───────┼───────────┼────────┤
+│ Chine │ Nǐn hǎo   │ Nǐ hǎo │
+│ Frenc │ Bonjour   │ Salut  │
+│ Japan │ こんにち  │ やあ   │
+│ Russi │ Zdravstvu │ Privet │
+│ Spani │ Hola      │ ¿Qué   │
+└───────┴───────────┴────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableWidthShrinkNoBorders(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Width(30).
+		StyleFunc(TableStyle).
+		BorderLeft(false).
+		BorderRight(false).
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+─────────────────────────────
+ LANGUA    FORMAL    INFORMA 
+─────────────────────────────
+ Chines  Nǐn hǎo     Nǐ hǎo  
+ French  Bonjour     Salut   
+ Japane  こんにちは  やあ    
+ Russia  Zdravstvuy  Privet  
+ Spanis  Hola        ¿Qué    
+─────────────────────────────
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
