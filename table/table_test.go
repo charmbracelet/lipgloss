@@ -589,6 +589,35 @@ func TestTableWidthShrink(t *testing.T) {
 	}
 }
 
+func TestTableWidthSmartCrop(t *testing.T) {
+	rows := [][]any{
+		{"Kini", 40, "New York"},
+		{"Eli", 30, "London"},
+		{"Iris", 20, "Paris"},
+	}
+
+	table := New().
+		Width(24).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("Name", "Age of Person", "Location").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┌──────┬────┬──────────┐
+│ Name │ Ag │ Location │
+├──────┼────┼──────────┤
+│ Kini │ 40 │ New York │
+│ Eli  │ 30 │ London   │
+│ Iris │ 20 │ Paris    │
+└──────┴────┴──────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableWidthShrinkNoBorders(t *testing.T) {
 	rows := [][]any{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},

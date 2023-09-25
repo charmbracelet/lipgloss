@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-runewidth"
+	"golang.org/x/exp/slices"
 )
 
 // StyleFunc is the style function that determines the style of a Cell.
@@ -230,6 +232,42 @@ func (t *Table) String() string {
 		}
 	}
 
+	// Table Resizing Logic.
+	//
+	// Given a user defined table width, we must ensure the table is exactly that
+	// width. This must account for all borders, column, separators, and column
+	// data.
+	//
+	// In the case where the table is narrower than the specified table width,
+	// we simply expand the columns evenly to fit the width.
+	// For example, a table with 3 columns takes up 50 characters total, and the
+	// width specified is 80, we expand each column by 10 characters, adding 30
+	// to the total width.
+	//
+	// In the case where the table is wider than the specified table width, we
+	// _could_ simply shrink the columns evenly but this would result in data
+	// being truncated (perhaps unnecessarily). The naive approach could result
+	// in very poor cropping of the table data. So, instead of shrinking columns
+	// evenly, we calculate the median non-whitespace length of each column, and
+	// shrink the columns based on the largest median.
+	//
+	// For example,
+	//  ┌──────┬───────────────┬──────────┐
+	//  │ Name │ Age of Person │ Location │
+	//  ├──────┼───────────────┼──────────┤
+	//  │ Kini │ 40            │ New York │
+	//  │ Eli  │ 30            │ London   │
+	//  │ Iris │ 20            │ Paris    │
+	//  └──────┴───────────────┴──────────┘
+	//
+	// Median non-whitespace length  vs column width of each column:
+	//
+	// Name: 4 / 5
+	// Age of Person: 2 / 15
+	// Location: 6 / 10
+	//
+	// The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
+
 	tableWidth := sum(t.widths)
 	if t.borderColumn {
 		tableWidth += (len(t.widths) - 1)
@@ -247,12 +285,61 @@ func (t *Table) String() string {
 			}
 		}
 	} else if tableWidth > t.width && t.width > 0 {
+		// Calculate the median non-whitespace length of each column.
+		medians := make([]int, len(t.widths))
+		for c := range t.widths {
+			var trimmed []int
+			for r := range t.rows {
+				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(t.style(r+boolToInt(hasHeaders), c).Render(fmt.Sprint(t.rows[r][c])), " ")) + 1
+				trimmed = append(trimmed, nonWhitespaceChars+1) // +1 for some padding or truncation character
+			}
+			medians[c] = median(trimmed)
+		}
+
 		// The table is too wide, so we need to shrink it.
 		for tableWidth > t.width {
-			// Subtract an equal amount from each column.
+			// Find the column with the largest median.
+			largestDifference, largestDifferenceIndex := 0, 0
+			for i, median := range medians {
+				difference := (t.widths[i] - median)
+				if median > largestDifference {
+					largestDifference = difference
+					largestDifferenceIndex = i
+				}
+			}
+
+			if largestDifference <= 0 {
+				break
+			}
+
+			if tableWidth-largestDifference < t.width {
+				largestDifference = tableWidth - t.width
+			}
+
+			tableWidth -= largestDifference
+			// Set column width to the median.
+			newWidth := t.widths[largestDifferenceIndex] - largestDifference
+			t.widths[largestDifferenceIndex] = max(newWidth, 1)
+			medians[largestDifferenceIndex] = 0
+		}
+
+		// If the table is still too wide, we need to shrink it further. This
+		// time, we shrink the columns evenly.
+		for tableWidth > t.width {
+			// Is the width unreasonably small?
+			if t.width <= (len(t.widths) + (len(t.widths) * boolToInt(t.borderColumn)) + boolToInt(t.borderLeft) + boolToInt(t.borderRight)) {
+				// Give up.
+				break
+			}
+
 			for i := range t.widths {
-				t.widths[i]--
-				tableWidth--
+				if t.widths[i] > 1 {
+					t.widths[i]--
+					tableWidth--
+				}
+				if tableWidth <= t.width {
+					break
+				}
 			}
 		}
 	}
@@ -283,7 +370,7 @@ func (t *Table) String() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(fmt.Sprint(header)))
+			Render(runewidth.Truncate(fmt.Sprint(header), t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
@@ -340,7 +427,7 @@ func (t *Table) String() string {
 				MaxHeight(height).
 				Width(t.widths[c]).
 				MaxWidth(t.widths[c]).
-				Render(fmt.Sprint(cell)))
+				Render(runewidth.Truncate(fmt.Sprint(cell), t.widths[c]*height, "…")))
 
 			if c < len(row)-1 && t.borderColumn {
 				cells = append(cells, left)
@@ -393,6 +480,7 @@ func (t *Table) Render() string {
 	return t.String()
 }
 
+// boolToInt converts returns 1 if boolean value is true, otherwise 0.
 func boolToInt(b bool) int {
 	if b {
 		return 1
@@ -400,6 +488,7 @@ func boolToInt(b bool) int {
 	return 0
 }
 
+// max returns the greater of two integers.
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -407,10 +496,24 @@ func max(a, b int) int {
 	return b
 }
 
+// sum returns the sum of all integers in a slice.
 func sum(n []int) int {
 	var sum int
 	for _, i := range n {
 		sum += i
 	}
 	return sum
+}
+
+// median returns the median of a slice of integers.
+func median(n []int) int {
+	slices.Sort(n)
+
+	if len(n) <= 0 {
+		return 0
+	}
+	if len(n)%2 == 0 {
+		return (n[len(n)/2-1] + n[len(n)/2]) / 2
+	}
+	return n[len(n)/2]
 }
