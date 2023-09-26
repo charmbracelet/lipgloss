@@ -573,15 +573,15 @@ func TestTableWidthShrink(t *testing.T) {
 		Rows(rows...)
 
 	expected := strings.TrimSpace(`
-┌───────┬───────────┬────────┐
-│ LANGU │  FORMAL   │ INFORM │
-├───────┼───────────┼────────┤
-│ Chine │ Nǐn hǎo   │ Nǐ hǎo │
-│ Frenc │ Bonjour   │ Salut  │
-│ Japan │ こんにち  │ やあ   │
-│ Russi │ Zdravstvu │ Privet │
-│ Spani │ Hola      │ ¿Qué   │
-└───────┴───────────┴────────┘
+┌─────────┬─────────┬────────┐
+│ LANGUAG │ FORMAL  │ INFORM │
+├─────────┼─────────┼────────┤
+│ Chinese │ Nǐn hǎo │ Nǐ hǎo │
+│ French  │ Bonjour │ Salut  │
+│ Japanes │ こんに  │ やあ   │
+│ Russian │ Zdravst │ Privet │
+│ Spanish │ Hola    │ ¿Qué   │
+└─────────┴─────────┴────────┘
 `)
 
 	if table.String() != expected {
@@ -597,20 +597,126 @@ func TestTableWidthSmartCrop(t *testing.T) {
 	}
 
 	table := New().
-		Width(24).
+		Width(25).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("Name", "Age of Person", "Location").
 		Rows(rows...)
 
 	expected := strings.TrimSpace(`
-┌──────┬────┬──────────┐
-│ Name │ Ag │ Location │
-├──────┼────┼──────────┤
-│ Kini │ 40 │ New York │
-│ Eli  │ 30 │ London   │
-│ Iris │ 20 │ Paris    │
-└──────┴────┴──────────┘
+┌──────┬─────┬──────────┐
+│ Name │ Age │ Location │
+├──────┼─────┼──────────┤
+│ Kini │ 40  │ New York │
+│ Eli  │ 30  │ London   │
+│ Iris │ 20  │ Paris    │
+└──────┴─────┴──────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableWidthSmartCropExtensive(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "您好", "你好"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Arabic", "أهلين", "أهلا"},
+		{"Russian", "Здравствуйте", "Привет"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+		{"English", "You look absolutely fabulous.", "How's it going?"},
+	}
+
+	table := New().
+		Width(18).
+		StyleFunc(TableStyle).
+		Border(lipgloss.ThickBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┏━━━━━┳━━━━━┳━━━━┓
+┃ LAN ┃ FOR ┃ IN ┃
+┣━━━━━╋━━━━━╋━━━━┫
+┃ Chi ┃ 您  ┃ 你 ┃
+┃ Jap ┃ こ  ┃ や ┃
+┃ Ara ┃ أهل ┃ أه ┃
+┃ Rus ┃ Здр ┃ Пр ┃
+┃ Spa ┃ Hol ┃ ¿Q ┃
+┃ Eng ┃ You ┃ Ho ┃
+┗━━━━━┻━━━━━┻━━━━┛
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableWidthSmartCropFail(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "您好", "你好"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Здравствуйте", "Привет"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+		{"English", "You look absolutely fabulous.", "How's it going?"},
+	}
+
+	table := New().
+		Width(1). // Width is unreasonably small, fail to crop.
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+		// Width is too small, ignoring widths...
+		// TODO: Perhaps truncate the entire table to the table width?
+	expected := strings.TrimSpace(`
+┌──────────┬─────────────┬─────────┐
+│ LANGUAGE │   FORMAL    │ INFORMA │
+├──────────┼─────────────┼─────────┤
+│ Chinese  │ 您好        │ 你好    │
+│ Japanese │ こんにちは  │ やあ    │
+│ Russian  │ Здравствуйт │ Привет  │
+│ Spanish  │ Hola        │ ¿Qué    │
+│ English  │ You look    │ How's   │
+└──────────┴─────────────┴─────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableWidths(t *testing.T) {
+	rows := [][]any{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Width(30).
+		StyleFunc(TableStyle).
+		BorderLeft(false).
+		BorderRight(false).
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+──────────────────────────────
+ LANGUAGE   FORMAL    INFORMA 
+──────────────────────────────
+ Chinese   Nǐn hǎo    Nǐ hǎo  
+ French    Bonjour    Salut   
+ Japanese  こんにち   やあ    
+ Russian   Zdravstvu  Privet  
+ Spanish   Hola       ¿Qué    
+──────────────────────────────
 `)
 
 	if table.String() != expected {
@@ -638,15 +744,15 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 		Rows(rows...)
 
 	expected := strings.TrimSpace(`
-─────────────────────────────
- LANGUA    FORMAL    INFORMA 
-─────────────────────────────
- Chines  Nǐn hǎo     Nǐ hǎo  
- French  Bonjour     Salut   
- Japane  こんにちは  やあ    
- Russia  Zdravstvuy  Privet  
- Spanis  Hola        ¿Qué    
-─────────────────────────────
+──────────────────────────────
+ LANGUAGE   FORMAL    INFORMA 
+──────────────────────────────
+ Chinese   Nǐn hǎo    Nǐ hǎo  
+ French    Bonjour    Salut   
+ Japanese  こんにち   やあ    
+ Russian   Zdravstvu  Privet  
+ Spanish   Hola       ¿Qué    
+──────────────────────────────
 `)
 
 	if table.String() != expected {
