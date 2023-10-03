@@ -328,148 +328,44 @@ func (t *Table) String() string {
 		}
 	}
 
-	// Write the top border.
 	if t.borderTop {
-		if t.borderLeft {
-			s.WriteString(t.borderStyle.Render(t.border.TopLeft))
-		}
-		for i := 0; i < longestRowLen; i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < longestRowLen-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
-			}
-		}
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.TopRight))
-		}
+		s.WriteString(t.constructTopBorder())
 		s.WriteString("\n")
 	}
 
-	// Write the headers.
-	if hasHeaders && t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.Left))
-	}
-	for i, header := range t.headers {
-		s.WriteString(t.style(0, i).
-			MaxHeight(1).
-			Width(t.widths[i]).
-			MaxWidth(t.widths[i]).
-			Render(runewidth.Truncate(fmt.Sprint(header), t.widths[i], "…")))
-		if i < len(t.headers)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
-		}
-	}
-	if hasHeaders && t.borderHeader {
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
-		}
-		s.WriteString("\n")
-		if t.borderLeft {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
-		}
-	}
-	if t.borderHeader {
-		for i := 0; i < len(t.headers); i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < len(t.headers)-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.Middle))
-			}
-		}
-	}
-	if hasHeaders && t.borderRight {
-		if t.borderHeader {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
-		} else {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
-		}
-	}
 	if hasHeaders {
+		s.WriteString(t.constructHeaders())
 		s.WriteString("\n")
 	}
 
-	// Write the data.
 	for r, row := range t.rows {
-		height := t.heights[r+btoi(hasHeaders)]
-
-		left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
-		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
-
-		// Append empty cells to the row, until it's the same length as the
-		// longest row.
-		for i := len(row); i < longestRowLen; i++ {
-			row = append(row, "")
-		}
-
-		var cells []string
-		if t.borderLeft {
-			cells = append(cells, left)
-		}
-
-		for c, cell := range row {
-			cells = append(cells, t.style(r+1, c).
-				Height(height).
-				MaxHeight(height).
-				Width(t.widths[c]).
-				MaxWidth(t.widths[c]).
-				Render(runewidth.Truncate(fmt.Sprint(cell), t.widths[c]*height, "…")))
-
-			if c < len(row)-1 && t.borderColumn {
-				cells = append(cells, left)
-			}
-		}
-
-		if t.borderRight {
-			cells = append(cells, right)
-		}
-
-		for i, cell := range cells {
-			cells[i] = strings.TrimRight(cell, "\n")
-		}
-
-		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
-
-		if t.borderRow && r < len(t.rows)-1 {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
-			for i := 0; i < longestRowLen; i++ {
-				s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-				if i < longestRowLen-1 && t.borderColumn {
-					s.WriteString(t.borderStyle.Render(t.border.Middle))
-				}
-			}
-			s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
-		}
+		s.WriteString(t.constructRow(r, row))
 	}
 
-	// Write the bottom border.
 	if t.borderBottom {
-		if t.borderLeft {
-			s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
-		}
-		for i := 0; i < longestRowLen; i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-			if i < longestRowLen-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
-			}
-		}
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.BottomRight))
-		}
+		s.WriteString(t.constructBottomBorder())
 	}
 
-	height := sum(t.heights) - 1 + btoi(hasHeaders) +
-		btoi(t.borderHeader) + btoi(t.borderTop) + btoi(t.borderBottom) +
-		len(t.rows)*btoi(t.borderRow)
-
-	return lipgloss.NewStyle().MaxHeight(height).MaxWidth(t.width).Render(s.String())
+	return lipgloss.NewStyle().
+		MaxHeight(t.computeHeight()).
+		MaxWidth(t.width).Render(s.String())
 }
 
-// compute the width of the table in it's current configuration.
+// computeWidth computes the width of the table in it's current configuration.
 func (t *Table) computeWidth() int {
 	width := sum(t.widths) + btoi(t.borderLeft) + btoi(t.borderRight)
 	if t.borderColumn {
 		width += len(t.widths) - 1
 	}
 	return width
+}
+
+// computeHeight computes the height of the table in it's current configuration.
+func (t *Table) computeHeight() int {
+	hasHeaders := t.headers != nil && len(t.headers) > 0
+	return sum(t.heights) - 1 + btoi(hasHeaders) +
+		btoi(t.borderTop) + btoi(t.borderBottom) +
+		btoi(t.borderHeader) + len(t.rows)*btoi(t.borderRow)
 }
 
 // Render returns the table as a string.
@@ -513,4 +409,133 @@ func median(n []int) int {
 		return (n[len(n)/2-1] + n[len(n)/2]) / 2
 	}
 	return n[len(n)/2]
+}
+
+func (t *Table) constructTopBorder() string {
+	var s strings.Builder
+	if t.borderLeft {
+		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
+	}
+	for i := 0; i < len(t.widths); i++ {
+		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
+		if i < len(t.widths)-1 && t.borderColumn {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
+		}
+	}
+	if t.borderRight {
+		s.WriteString(t.borderStyle.Render(t.border.TopRight))
+	}
+	return s.String()
+}
+
+func (t *Table) constructBottomBorder() string {
+	var s strings.Builder
+	if t.borderLeft {
+		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
+	}
+	for i := 0; i < len(t.widths); i++ {
+		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+		if i < len(t.widths)-1 && t.borderColumn {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
+		}
+	}
+	if t.borderRight {
+		s.WriteString(t.borderStyle.Render(t.border.BottomRight))
+	}
+	return s.String()
+}
+
+func (t *Table) constructHeaders() string {
+	var s strings.Builder
+	if t.borderLeft {
+		s.WriteString(t.borderStyle.Render(t.border.Left))
+	}
+	for i, header := range t.headers {
+		s.WriteString(t.style(0, i).
+			MaxHeight(1).
+			Width(t.widths[i]).
+			MaxWidth(t.widths[i]).
+			Render(runewidth.Truncate(fmt.Sprint(header), t.widths[i], "…")))
+		if i < len(t.headers)-1 && t.borderColumn {
+			s.WriteString(t.borderStyle.Render(t.border.Left))
+		}
+	}
+	if t.borderHeader {
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.Right))
+		}
+		s.WriteString("\n")
+		if t.borderLeft {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		}
+		for i := 0; i < len(t.headers); i++ {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
+			if i < len(t.headers)-1 && t.borderColumn {
+				s.WriteString(t.borderStyle.Render(t.border.Middle))
+			}
+		}
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
+		}
+	}
+	if t.borderRight && !t.borderHeader {
+		s.WriteString(t.borderStyle.Render(t.border.Right))
+	}
+	return s.String()
+}
+
+func (t *Table) constructRow(index int, row []any) string {
+	var s strings.Builder
+
+	hasHeaders := t.headers != nil && len(t.headers) > 0
+	height := t.heights[index+btoi(hasHeaders)]
+
+	// Append empty cells to the row, until it's the same length as the
+	// longest row.
+	for i := len(row); i < len(t.widths); i++ {
+		row = append(row, "")
+	}
+
+	var cells []string
+	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
+	if t.borderLeft {
+		cells = append(cells, left)
+	}
+
+	for c, cell := range row {
+		cells = append(cells, t.style(index+1, c).
+			Height(height).
+			MaxHeight(height).
+			Width(t.widths[c]).
+			MaxWidth(t.widths[c]).
+			Render(runewidth.Truncate(fmt.Sprint(cell), t.widths[c]*height, "…")))
+
+		if c < len(row)-1 && t.borderColumn {
+			cells = append(cells, left)
+		}
+	}
+
+	if t.borderRight {
+		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
+		cells = append(cells, right)
+	}
+
+	for i, cell := range cells {
+		cells[i] = strings.TrimRight(cell, "\n")
+	}
+
+	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
+
+	if t.borderRow && index < len(t.rows)-1 {
+		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		for i := 0; i < len(t.widths); i++ {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+			if i < len(t.widths)-1 && t.borderColumn {
+				s.WriteString(t.borderStyle.Render(t.border.Middle))
+			}
+		}
+		s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
+	}
+
+	return s.String()
 }
