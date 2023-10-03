@@ -313,11 +313,10 @@ func TestTableUnsetBorders(t *testing.T) {
  French   │ Bonjour      │ Salut     
  Japanese │ こんにちは   │ やあ      
  Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? 
-`, "\n")
+ Spanish  │ Hola         │ ¿Qué tal? `, "\n")
 
 	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
 	}
 }
 
@@ -343,11 +342,10 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
  French   │ Bonjour      │ Salut     
  Japanese │ こんにちは   │ やあ      
  Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? 
-`, "\n")
+ Spanish  │ Hola         │ ¿Qué tal? `, "\n")
 
 	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
 	}
 }
 
@@ -540,16 +538,20 @@ func TestTableWidthExpand(t *testing.T) {
 		Rows(rows...)
 
 	expected := strings.TrimSpace(`
-┌────────────────────────┬────────────────────────────┬─────────────────────────┐
-│        LANGUAGE        │           FORMAL           │        INFORMAL         │
-├────────────────────────┼────────────────────────────┼─────────────────────────┤
-│ Chinese                │ Nǐn hǎo                    │ Nǐ hǎo                  │
-│ French                 │ Bonjour                    │ Salut                   │
-│ Japanese               │ こんにちは                 │ やあ                    │
-│ Russian                │ Zdravstvuyte               │ Privet                  │
-│ Spanish                │ Hola                       │ ¿Qué tal?               │
-└────────────────────────┴────────────────────────────┴─────────────────────────┘
+┌────────────────────────┬────────────────────────────┬────────────────────────┐
+│        LANGUAGE        │           FORMAL           │        INFORMAL        │
+├────────────────────────┼────────────────────────────┼────────────────────────┤
+│ Chinese                │ Nǐn hǎo                    │ Nǐ hǎo                 │
+│ French                 │ Bonjour                    │ Salut                  │
+│ Japanese               │ こんにちは                 │ やあ                   │
+│ Russian                │ Zdravstvuyte               │ Privet                 │
+│ Spanish                │ Hola                       │ ¿Qué tal?              │
+└────────────────────────┴────────────────────────────┴────────────────────────┘
 `)
+
+	if lipgloss.Width(table.String()) != 80 {
+		t.Fatalf("expected table width to be 80, got %d", lipgloss.Width(table.String()))
+	}
 
 	if table.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
@@ -653,7 +655,7 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 	}
 }
 
-func TestTableWidthSmartCropFail(t *testing.T) {
+func TestTableWidthSmartCropTiny(t *testing.T) {
 	rows := [][]any{
 		{"Chinese", "您好", "你好"},
 		{"Japanese", "こんにちは", "やあ"},
@@ -663,24 +665,22 @@ func TestTableWidthSmartCropFail(t *testing.T) {
 	}
 
 	table := New().
-		Width(1). // Width is unreasonably small, fail to crop.
+		Width(1).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-		// Width is too small, ignoring widths...
-		// TODO: Perhaps truncate the entire table to the table width?
 	expected := strings.TrimSpace(`
-┌──────────┬─────────────┬─────────┐
-│ LANGUAGE │   FORMAL    │ INFORMA │
-├──────────┼─────────────┼─────────┤
-│ Chinese  │ 您好        │ 你好    │
-│ Japanese │ こんにちは  │ やあ    │
-│ Russian  │ Здравствуйт │ Привет  │
-│ Spanish  │ Hola        │ ¿Qué    │
-│ English  │ You look    │ How's   │
-└──────────┴─────────────┴─────────┘
+┌
+│
+├
+│
+│
+│
+│
+│
+└
 `)
 
 	if table.String() != expected {
@@ -758,4 +758,8 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 	if table.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
 	}
+}
+
+func debug(s string) string {
+	return strings.ReplaceAll(s, " ", ".")
 }

@@ -33,8 +33,8 @@ import (
 //	    })
 type StyleFunc func(row, col int) lipgloss.Style
 
-// NoTableStyle is a TableStyleFunc that returns a new Style with no attributes.
-func NoTableStyle(_, _ int) lipgloss.Style {
+// DefaultStyles is a TableStyleFunc that returns a new Style with no attributes.
+func DefaultStyles(_, _ int) lipgloss.Style {
 	return lipgloss.NewStyle()
 }
 
@@ -70,8 +70,8 @@ type Table struct {
 // By default, a table has no border, no styling, and no rows.
 func New() *Table {
 	return &Table{
-		styleFunc:    NoTableStyle,
-		border:       lipgloss.HiddenBorder(),
+		styleFunc:    DefaultStyles,
+		border:       lipgloss.RoundedBorder(),
 		borderBottom: true,
 		borderColumn: true,
 		borderHeader: true,
@@ -282,6 +282,9 @@ func (t *Table) String() string {
 			for i := range t.widths {
 				t.widths[i]++
 				tableWidth++
+				if tableWidth >= t.width {
+					break
+				}
 			}
 		}
 	} else if tableWidth > t.width && t.width > 0 {
@@ -472,7 +475,10 @@ func (t *Table) String() string {
 		}
 	}
 
-	return s.String()
+	height := sum(t.heights) - 1 + boolToInt(hasHeaders) +
+		boolToInt(t.borderHeader) + boolToInt(t.borderTop) + boolToInt(t.borderBottom) +
+		len(t.rows)*boolToInt(t.borderRow)
+	return lipgloss.NewStyle().MaxHeight(height).MaxWidth(t.width).Render(s.String())
 }
 
 // Render returns the table as a string.
