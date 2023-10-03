@@ -289,48 +289,41 @@ func (t *Table) String() string {
 		}
 
 		for width > t.width {
-			// Find the column with the largest median.
-			largestDifference, largestDifferenceIndex := 0, 0
+			var largestDiff, largestDiffIndex int
 			for i, median := range columnMedians {
 				difference := (t.widths[i] - median)
-				if median > largestDifference {
-					largestDifference = difference
-					largestDifferenceIndex = i
+				if median > largestDiff {
+					largestDiff = difference
+					largestDiffIndex = i
 				}
 			}
 
-			if largestDifference <= 0 {
+			if largestDiff <= 0 {
 				break
 			}
 
-			if width-largestDifference < t.width {
-				largestDifference = width - t.width
+			if width-largestDiff < t.width {
+				largestDiff = width - t.width
 			}
 
-			width -= largestDifference
+			width -= largestDiff
+
 			// Set column width to the median.
-			newWidth := t.widths[largestDifferenceIndex] - largestDifference
-			t.widths[largestDifferenceIndex] = max(newWidth, 1)
-			columnMedians[largestDifferenceIndex] = 0
+			newWidth := t.widths[largestDiffIndex] - largestDiff
+			t.widths[largestDiffIndex] = max(newWidth, 1)
+			columnMedians[largestDiffIndex] = 0
 		}
 
-		// If the table is still too wide, we need to shrink it further. This
-		// time, we shrink the columns evenly.
-		for width > t.width {
-			// Is the width unreasonably small?
-			if t.width <= (len(t.widths) + (len(t.widths) * btoi(t.borderColumn)) + btoi(t.borderLeft) + btoi(t.borderRight)) {
-				// Give up.
-				break
-			}
-
-			for i := range t.widths {
-				if t.widths[i] > 1 {
-					t.widths[i]--
-					width--
+		minWidth := len(t.widths) + (len(t.widths) * btoi(t.borderColumn)) + btoi(t.borderLeft) + btoi(t.borderRight)
+		if t.width > minWidth {
+			var i int
+			for width > t.width {
+				if t.widths[i] <= 1 {
+					continue
 				}
-				if width <= t.width {
-					break
-				}
+				t.widths[i]--
+				width--
+				i = (i + 1) % len(t.widths)
 			}
 		}
 	}
