@@ -274,57 +274,47 @@ func (t *Table) String() string {
 			i = (i + 1) % len(t.widths)
 		}
 	} else if width > t.width && t.width > 0 {
-		// Table is too wide, narrow the columns until it reaches the desired
-		// width. We choose which columns to narrow based on the median
-		// non-whitespace length of each column.
+		// Table is too wide, calculate the median non-whitespace length of each
+		// column, and shrink the columns based on the largest difference.
 		columnMedians := make([]int, len(t.widths))
 		for c := range t.widths {
 			trimmedWidth := make([]int, len(t.rows))
-			for r := range t.rows {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(fmt.Sprint(t.rows[r][c]))
-				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " ")) + 1
-				trimmedWidth[r] = nonWhitespaceChars + 1 // +1 for some padding or truncation character
+			for r, row := range t.rows {
+				renderedCell := t.style(r+btoi(hasHeaders), c).Render(fmt.Sprint(row[c]))
+				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
+				trimmedWidth[r] = nonWhitespaceChars + 1
 			}
 			columnMedians[c] = median(trimmedWidth)
 		}
 
-		for width > t.width {
-			var largestDiff, largestDiffIndex int
-			for i, median := range columnMedians {
-				difference := (t.widths[i] - median)
-				if median > largestDiff {
-					largestDiff = difference
-					largestDiffIndex = i
-				}
-			}
+		// Find the biggest differences between the median and the column width.
+		// Shrink the columns based on the largest difference.
+		differences := make([]int, len(t.widths))
+		for i := range t.widths {
+			differences[i] = t.widths[i] - columnMedians[i]
+		}
 
-			if largestDiff <= 0 {
+		for width > t.width {
+			index := largest(differences)
+			if differences[index] < 1 {
 				break
 			}
 
-			if width-largestDiff < t.width {
-				largestDiff = width - t.width
-			}
-
-			width -= largestDiff
-
-			// Set column width to the median.
-			newWidth := t.widths[largestDiffIndex] - largestDiff
-			t.widths[largestDiffIndex] = max(newWidth, 1)
-			columnMedians[largestDiffIndex] = 0
+			shrink := min(differences[index], width-t.width)
+			t.widths[index] -= shrink
+			width -= shrink
+			differences[index] = 0
 		}
 
-		minWidth := len(t.widths) + (len(t.widths) * btoi(t.borderColumn)) + btoi(t.borderLeft) + btoi(t.borderRight)
-		if t.width > minWidth {
-			var i int
-			for width > t.width {
-				if t.widths[i] <= 1 {
-					continue
-				}
-				t.widths[i]--
-				width--
-				i = (i + 1) % len(t.widths)
+		// Table is still too wide, begin shrinking the columns based on the
+		// largest column.
+		for width > t.width {
+			index := largest(t.widths)
+			if t.widths[index] < 1 {
+				break
 			}
+			t.widths[index]--
+			width--
 		}
 	}
 
@@ -389,6 +379,14 @@ func max(a, b int) int {
 	return b
 }
 
+// min returns the greater of two integers.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 // sum returns the sum of all integers in a slice.
 func sum(n []int) int {
 	var sum int
@@ -409,6 +407,16 @@ func median(n []int) int {
 		return (n[len(n)/2-1] + n[len(n)/2]) / 2
 	}
 	return n[len(n)/2]
+}
+
+func largest(n []int) int {
+	var largest int
+	for i := range n {
+		if n[i] > n[largest] {
+			largest = i
+		}
+	}
+	return largest
 }
 
 func (t *Table) constructTopBorder() string {

@@ -69,7 +69,7 @@ func main() {
 		Border(lipgloss.NormalBorder()).
 		BorderStyle(re.NewStyle().Foreground(lipgloss.Color("238"))).
 		Headers(CapitalizeHeaders(headers)...).
-		Width(90).
+		Width(40).
 		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			if row == 0 {
