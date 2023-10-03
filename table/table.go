@@ -183,51 +183,45 @@ func (t *Table) Width(w int) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
-	if (t.headers == nil || len(t.headers) <= 0) && len(t.rows) == 0 {
+	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasRows := t.rows != nil && len(t.rows) > 0
+
+	if !hasHeaders && !hasRows {
 		return ""
 	}
 
 	var s strings.Builder
 
-	hasHeaders := len(t.headers) > 0
-	longestRow := t.headers
-	if !hasHeaders {
-		longestRow = t.rows[0]
-	}
-
-	// Find longest row.
+	// Find the longest row length.
+	longestRowLen := len(t.headers)
 	for _, row := range t.rows {
-		if len(row) > len(longestRow) {
-			longestRow = row
-		}
+		longestRowLen = max(longestRowLen, len(row))
 	}
 
 	// Add empty cells to the headers, until it's the same length as the longest
 	// row (only if there are at headers in the first place).
 	if hasHeaders {
-		for i := len(t.headers); i < len(longestRow); i++ {
+		for i := len(t.headers); i < longestRowLen; i++ {
 			t.headers = append(t.headers, "")
 		}
 	}
 
 	// Initialize the widths.
-	t.widths = make([]int, len(longestRow))
-	t.heights = make([]int, boolToInt(hasHeaders)+len(t.rows))
+	t.widths = make([]int, longestRowLen)
+	t.heights = make([]int, btoi(hasHeaders)+len(t.rows))
 
-	// It's possible that the styling affects the width of the table or rows.
-	//
-	// It's also possible that the styling function was set after the headers
-	// and rows.
-	//
-	// So let's update the widths one last time.
+	// The style function may affect width of the table. It's possible to set
+	// the StyleFunc after the headers and rows. Update the widths for a final
+	// time.
 	for i, cell := range t.headers {
 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(0, i).Render(fmt.Sprint(cell))))
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(fmt.Sprint(cell))))
 	}
+
 	for r, row := range t.rows {
 		for i, cell := range row {
 			rendered := t.style(r+1, i).Render(fmt.Sprint(cell))
-			t.heights[r+boolToInt(hasHeaders)] = max(t.heights[r+boolToInt(hasHeaders)], lipgloss.Height(rendered))
+			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
 	}
@@ -268,42 +262,36 @@ func (t *Table) String() string {
 	//
 	// The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 
-	tableWidth := sum(t.widths)
-	if t.borderColumn {
-		tableWidth += (len(t.widths) - 1)
-	}
-	tableWidth += boolToInt(t.borderLeft)
-	tableWidth += boolToInt(t.borderRight)
+	width := t.computeWidth()
 
-	if tableWidth < t.width && t.width > 0 {
-		// The table is too narrow, so we need to expand it.
-		for tableWidth < t.width {
-			// Add an equal amount to each column.
-			for i := range t.widths {
-				t.widths[i]++
-				tableWidth++
-				if tableWidth >= t.width {
-					break
-				}
-			}
+	if width < t.width && t.width > 0 {
+		// Table is too narrow, expand the columns evenly until it reaches the
+		// desired width.
+		var i int
+		for width < t.width {
+			t.widths[i]++
+			width++
+			i = (i + 1) % len(t.widths)
 		}
-	} else if tableWidth > t.width && t.width > 0 {
-		// Calculate the median non-whitespace length of each column.
-		medians := make([]int, len(t.widths))
+	} else if width > t.width && t.width > 0 {
+		// Table is too wide, narrow the columns until it reaches the desired
+		// width. We choose which columns to narrow based on the median
+		// non-whitespace length of each column.
+		columnMedians := make([]int, len(t.widths))
 		for c := range t.widths {
-			var trimmed []int
+			trimmedWidth := make([]int, len(t.rows))
 			for r := range t.rows {
-				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(t.style(r+boolToInt(hasHeaders), c).Render(fmt.Sprint(t.rows[r][c])), " ")) + 1
-				trimmed = append(trimmed, nonWhitespaceChars+1) // +1 for some padding or truncation character
+				renderedCell := t.style(r+btoi(hasHeaders), c).Render(fmt.Sprint(t.rows[r][c]))
+				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " ")) + 1
+				trimmedWidth[r] = nonWhitespaceChars + 1 // +1 for some padding or truncation character
 			}
-			medians[c] = median(trimmed)
+			columnMedians[c] = median(trimmedWidth)
 		}
 
-		// The table is too wide, so we need to shrink it.
-		for tableWidth > t.width {
+		for width > t.width {
 			// Find the column with the largest median.
 			largestDifference, largestDifferenceIndex := 0, 0
-			for i, median := range medians {
+			for i, median := range columnMedians {
 				difference := (t.widths[i] - median)
 				if median > largestDifference {
 					largestDifference = difference
@@ -315,22 +303,22 @@ func (t *Table) String() string {
 				break
 			}
 
-			if tableWidth-largestDifference < t.width {
-				largestDifference = tableWidth - t.width
+			if width-largestDifference < t.width {
+				largestDifference = width - t.width
 			}
 
-			tableWidth -= largestDifference
+			width -= largestDifference
 			// Set column width to the median.
 			newWidth := t.widths[largestDifferenceIndex] - largestDifference
 			t.widths[largestDifferenceIndex] = max(newWidth, 1)
-			medians[largestDifferenceIndex] = 0
+			columnMedians[largestDifferenceIndex] = 0
 		}
 
 		// If the table is still too wide, we need to shrink it further. This
 		// time, we shrink the columns evenly.
-		for tableWidth > t.width {
+		for width > t.width {
 			// Is the width unreasonably small?
-			if t.width <= (len(t.widths) + (len(t.widths) * boolToInt(t.borderColumn)) + boolToInt(t.borderLeft) + boolToInt(t.borderRight)) {
+			if t.width <= (len(t.widths) + (len(t.widths) * btoi(t.borderColumn)) + btoi(t.borderLeft) + btoi(t.borderRight)) {
 				// Give up.
 				break
 			}
@@ -338,9 +326,9 @@ func (t *Table) String() string {
 			for i := range t.widths {
 				if t.widths[i] > 1 {
 					t.widths[i]--
-					tableWidth--
+					width--
 				}
-				if tableWidth <= t.width {
+				if width <= t.width {
 					break
 				}
 			}
@@ -352,9 +340,9 @@ func (t *Table) String() string {
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.TopLeft))
 		}
-		for i := 0; i < len(longestRow); i++ {
+		for i := 0; i < longestRowLen; i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
-			if i < len(longestRow)-1 && t.borderColumn {
+			if i < longestRowLen-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
 			}
 		}
@@ -408,14 +396,14 @@ func (t *Table) String() string {
 
 	// Write the data.
 	for r, row := range t.rows {
-		height := t.heights[r+boolToInt(hasHeaders)]
+		height := t.heights[r+btoi(hasHeaders)]
 
 		left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
 
 		// Append empty cells to the row, until it's the same length as the
 		// longest row.
-		for i := len(row); i < len(longestRow); i++ {
+		for i := len(row); i < longestRowLen; i++ {
 			row = append(row, "")
 		}
 
@@ -449,9 +437,9 @@ func (t *Table) String() string {
 
 		if t.borderRow && r < len(t.rows)-1 {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
-			for i := 0; i < len(longestRow); i++ {
+			for i := 0; i < longestRowLen; i++ {
 				s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-				if i < len(longestRow)-1 && t.borderColumn {
+				if i < longestRowLen-1 && t.borderColumn {
 					s.WriteString(t.borderStyle.Render(t.border.Middle))
 				}
 			}
@@ -464,9 +452,9 @@ func (t *Table) String() string {
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
 		}
-		for i := 0; i < len(longestRow); i++ {
+		for i := 0; i < longestRowLen; i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-			if i < len(longestRow)-1 && t.borderColumn {
+			if i < longestRowLen-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
 			}
 		}
@@ -475,10 +463,20 @@ func (t *Table) String() string {
 		}
 	}
 
-	height := sum(t.heights) - 1 + boolToInt(hasHeaders) +
-		boolToInt(t.borderHeader) + boolToInt(t.borderTop) + boolToInt(t.borderBottom) +
-		len(t.rows)*boolToInt(t.borderRow)
+	height := sum(t.heights) - 1 + btoi(hasHeaders) +
+		btoi(t.borderHeader) + btoi(t.borderTop) + btoi(t.borderBottom) +
+		len(t.rows)*btoi(t.borderRow)
+
 	return lipgloss.NewStyle().MaxHeight(height).MaxWidth(t.width).Render(s.String())
+}
+
+// compute the width of the table in it's current configuration.
+func (t *Table) computeWidth() int {
+	width := sum(t.widths) + btoi(t.borderLeft) + btoi(t.borderRight)
+	if t.borderColumn {
+		width += len(t.widths) - 1
+	}
+	return width
 }
 
 // Render returns the table as a string.
@@ -486,8 +484,8 @@ func (t *Table) Render() string {
 	return t.String()
 }
 
-// boolToInt converts returns 1 if boolean value is true, otherwise 0.
-func boolToInt(b bool) int {
+// btoi converts a boolean to an integer, 1 if true, 0 if false.
+func btoi(b bool) int {
 	if b {
 		return 1
 	}
