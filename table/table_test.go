@@ -19,15 +19,18 @@ var TableStyle = func(row, col int) lipgloss.Style {
 }
 
 func TestTable(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┐
@@ -46,16 +49,84 @@ func TestTable(t *testing.T) {
 	}
 }
 
+func TestTableOffset(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Model(model).
+		Offset(1)
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestFilterModel(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
+	filter := NewFilterModel(model).Filter(func(row Row) bool {
+		return row.Column(0) != "French"
+	})
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Model(filter)
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableBorder(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.DoubleBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ╔══════════╦══════════════╦═══════════╗
@@ -75,19 +146,20 @@ func TestTableBorder(t *testing.T) {
 }
 
 func TestTableSetRows(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┐
@@ -107,19 +179,20 @@ func TestTableSetRows(t *testing.T) {
 }
 
 func TestMoreCellsThanHeaders(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┐
@@ -139,19 +212,20 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 }
 
 func TestMoreCellsThanHeadersExtra(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet", "Privet", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(5).AppendRows(rows...)
 
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┬────────┬────────┐
@@ -171,14 +245,17 @@ func TestMoreCellsThanHeadersExtra(t *testing.T) {
 }
 
 func TestTableNoHeaders(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┐
@@ -196,15 +273,18 @@ func TestTableNoHeaders(t *testing.T) {
 }
 
 func TestTableNoColumnSeparators(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌───────────────────────────────────┐
@@ -222,16 +302,19 @@ func TestTableNoColumnSeparators(t *testing.T) {
 }
 
 func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌───────────────────────────────────┐
@@ -251,20 +334,21 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 }
 
 func TestBorderColumnsWithExtraRows(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet", "Privet", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(5).AppendRows(rows...)
 
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌───────────────────────────────────────────────────┐
@@ -292,15 +376,18 @@ func TestNew(t *testing.T) {
 }
 
 func TestTableUnsetBorders(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?").
+		Model(model).
 		BorderTop(false).
 		BorderBottom(false).
 		BorderLeft(false).
@@ -321,15 +408,18 @@ func TestTableUnsetBorders(t *testing.T) {
 }
 
 func TestTableUnsetHeaderSeparator(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?").
+		Model(model).
 		BorderHeader(false).
 		BorderTop(false).
 		BorderBottom(false).
@@ -350,15 +440,18 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
 }
 
 func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?").
+		Model(model).
 		BorderHeader(false)
 
 	expected := strings.TrimSpace(`
@@ -378,16 +471,19 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 }
 
 func TestTableRowSeparators(t *testing.T) {
+	model := NewStringModel(3).
+		AppendRow("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		AppendRow("French", "Bonjour", "Salut").
+		AppendRow("Japanese", "こんにちは", "やあ").
+		AppendRow("Russian", "Zdravstvuyte", "Privet").
+		AppendRow("Spanish", "Hola", "¿Qué tal?")
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		BorderRow(true).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────┬──────────────┬───────────┐
@@ -413,7 +509,7 @@ func TestTableRowSeparators(t *testing.T) {
 func TestTableHeights(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
 		if row == 0 {
-			return lipgloss.NewStyle().Bold(true).Padding(0, 1)
+			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
 			return lipgloss.NewStyle().Width(18).Padding(1)
@@ -421,13 +517,16 @@ func TestTableHeights(t *testing.T) {
 		return lipgloss.NewStyle().Width(25).Padding(1, 2)
 	}
 
+	model := NewStringModel(2).
+		AppendRow("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
+		AppendRow("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
+		AppendRow("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(styleFunc).
 		Headers("EXPRESSION", "MEANING").
-		Row("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
-		Row("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
-		Row("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────────────┬─────────────────────────┐
@@ -467,7 +566,7 @@ func TestTableHeights(t *testing.T) {
 func TestTableMultiLineRowSeparator(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
 		if row == 0 {
-			return lipgloss.NewStyle().Bold(true).Padding(0, 1)
+			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
 			return lipgloss.NewStyle().Width(18).Padding(1)
@@ -475,14 +574,17 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 		return lipgloss.NewStyle().Width(25).Padding(1, 2)
 	}
 
+	model := NewStringModel(2).
+		AppendRow("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
+		AppendRow("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
+		AppendRow("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
+
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(styleFunc).
 		Headers("EXPRESSION", "MEANING").
 		BorderRow(true).
-		Row("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
-		Row("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
-		Row("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────────────────┬─────────────────────────┐
@@ -522,20 +624,21 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 }
 
 func TestTableWidthExpand(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(80).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌────────────────────────┬────────────────────────────┬────────────────────────┐
@@ -559,20 +662,21 @@ func TestTableWidthExpand(t *testing.T) {
 }
 
 func TestTableWidthShrink(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(30).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌─────────┬─────────┬────────┐
@@ -592,18 +696,19 @@ func TestTableWidthShrink(t *testing.T) {
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
-	rows := [][]any{
-		{"Kini", 40, "New York"},
-		{"Eli", 30, "London"},
-		{"Iris", 20, "Paris"},
+	rows := [][]string{
+		{"Kini", "40", "New York"},
+		{"Eli", "30", "London"},
+		{"Iris", "20", "Paris"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(25).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("Name", "Age of Person", "Location").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌──────┬─────┬──────────┐
@@ -621,7 +726,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 }
 
 func TestTableWidthSmartCropExtensive(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "您好", "你好"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Arabic", "أهلين", "أهلا"},
@@ -629,13 +734,14 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 		{"English", "You look absolutely fabulous.", "How's it going?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(18).
 		StyleFunc(TableStyle).
 		Border(lipgloss.ThickBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┏━━━━┳━━━━━┳━━━━━┓
@@ -656,20 +762,21 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 }
 
 func TestTableWidthSmartCropTiny(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "您好", "你好"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Здравствуйте", "Привет"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 		{"English", "You look absolutely fabulous.", "How's it going?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(1).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ┌
@@ -689,13 +796,14 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 }
 
 func TestTableWidths(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(30).
@@ -705,7 +813,7 @@ func TestTableWidths(t *testing.T) {
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ──────────────────────────────
@@ -725,13 +833,14 @@ func TestTableWidths(t *testing.T) {
 }
 
 func TestTableWidthShrinkNoBorders(t *testing.T) {
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	model := NewStringModel(3).AppendRows(rows...)
 
 	table := New().
 		Width(30).
@@ -741,7 +850,7 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+		Model(model)
 
 	expected := strings.TrimSpace(`
 ──────────────────────────────

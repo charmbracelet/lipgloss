@@ -53,9 +53,11 @@ type Table struct {
 
 	borderStyle lipgloss.Style
 	headers     []any
-	rows        [][]any
+	model       Model
 
-	width int
+	width  int
+	height int
+	offset int
 
 	// widths tracks the width of each column.
 	widths []int
@@ -83,7 +85,7 @@ func New() *Table {
 
 // ClearRows clears the table rows.
 func (t *Table) ClearRows() *Table {
-	t.rows = make([][]any, 0)
+	t.model = nil
 	return t
 }
 
@@ -101,15 +103,9 @@ func (t *Table) style(row, col int) lipgloss.Style {
 	return t.styleFunc(row, col)
 }
 
-// Rows sets the table rows.
-func (t *Table) Rows(rows ...[]any) *Table {
-	t.rows = rows
-	return t
-}
-
-// Row appends a row of data to the table.
-func (t *Table) Row(row ...any) *Table {
-	t.rows = append(t.rows, row)
+// Model sets the table model.
+func (t *Table) Model(model Model) *Table {
+	t.model = model
 	return t
 }
 
@@ -181,10 +177,22 @@ func (t *Table) Width(w int) *Table {
 	return t
 }
 
+// Height sets the table height.
+func (t *Table) Height(h int) *Table {
+	t.height = h
+	return t
+}
+
+// Offset sets the table rendering offset.
+func (t *Table) Offset(o int) *Table {
+	t.offset = o
+	return t
+}
+
 // String returns the table as a string.
 func (t *Table) String() string {
 	hasHeaders := t.headers != nil && len(t.headers) > 0
-	hasRows := t.rows != nil && len(t.rows) > 0
+	hasRows := t.model != nil && t.model.Count() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
@@ -192,23 +200,17 @@ func (t *Table) String() string {
 
 	var s strings.Builder
 
-	// Find the longest row length.
-	longestRowLen := len(t.headers)
-	for _, row := range t.rows {
-		longestRowLen = max(longestRowLen, len(row))
-	}
-
 	// Add empty cells to the headers, until it's the same length as the longest
 	// row (only if there are at headers in the first place).
 	if hasHeaders {
-		for i := len(t.headers); i < longestRowLen; i++ {
+		for i := len(t.headers); i < t.model.Columns(); i++ {
 			t.headers = append(t.headers, "")
 		}
 	}
 
 	// Initialize the widths.
-	t.widths = make([]int, longestRowLen)
-	t.heights = make([]int, btoi(hasHeaders)+len(t.rows))
+	t.widths = make([]int, t.model.Columns())
+	t.heights = make([]int, btoi(hasHeaders)+t.model.Count())
 
 	// The style function may affect width of the table. It's possible to set
 	// the StyleFunc after the headers and rows. Update the widths for a final
@@ -218,9 +220,13 @@ func (t *Table) String() string {
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(fmt.Sprint(cell))))
 	}
 
-	for r, row := range t.rows {
-		for i, cell := range row {
-			rendered := t.style(r+1, i).Render(fmt.Sprint(cell))
+	for r := 0; r < t.model.Count(); r++ {
+		row := t.model.Row(r)
+
+		for i := 0; i < t.model.Columns(); i++ {
+			cell := row.Column(i)
+
+			rendered := t.style(r+1, i).Render(cell)
 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
@@ -278,12 +284,15 @@ func (t *Table) String() string {
 		// column, and shrink the columns based on the largest difference.
 		columnMedians := make([]int, len(t.widths))
 		for c := range t.widths {
-			trimmedWidth := make([]int, len(t.rows))
-			for r, row := range t.rows {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(fmt.Sprint(row[c]))
+			trimmedWidth := make([]int, t.model.Count())
+			for r := 0; r < t.model.Count(); r++ {
+				row := t.model.Row(r)
+
+				renderedCell := t.style(r+btoi(hasHeaders), c).Render(row.Column(c))
 				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
 				trimmedWidth[r] = nonWhitespaceChars + 1
 			}
+
 			columnMedians[c] = median(trimmedWidth)
 		}
 
@@ -328,7 +337,8 @@ func (t *Table) String() string {
 		s.WriteString("\n")
 	}
 
-	for r, row := range t.rows {
+	for r := t.offset; r < t.model.Count(); r++ {
+		row := t.model.Row(r)
 		s.WriteString(t.constructRow(r, row))
 	}
 
@@ -355,7 +365,7 @@ func (t *Table) computeHeight() int {
 	hasHeaders := t.headers != nil && len(t.headers) > 0
 	return sum(t.heights) - 1 + btoi(hasHeaders) +
 		btoi(t.borderTop) + btoi(t.borderBottom) +
-		btoi(t.borderHeader) + len(t.rows)*btoi(t.borderRow)
+		btoi(t.borderHeader) + t.model.Count()*btoi(t.borderRow)
 }
 
 // Render returns the table as a string.
@@ -492,17 +502,11 @@ func (t *Table) constructHeaders() string {
 	return s.String()
 }
 
-func (t *Table) constructRow(index int, row []any) string {
+func (t *Table) constructRow(index int, row Row) string {
 	var s strings.Builder
 
 	hasHeaders := t.headers != nil && len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
-
-	// Append empty cells to the row, until it's the same length as the
-	// longest row.
-	for i := len(row); i < len(t.widths); i++ {
-		row = append(row, "")
-	}
 
 	var cells []string
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
@@ -510,15 +514,17 @@ func (t *Table) constructRow(index int, row []any) string {
 		cells = append(cells, left)
 	}
 
-	for c, cell := range row {
+	for c := 0; c < t.model.Columns(); c++ {
+		cell := row.Column(c)
+
 		cells = append(cells, t.style(index+1, c).
 			Height(height).
 			MaxHeight(height).
 			Width(t.widths[c]).
 			MaxWidth(t.widths[c]).
-			Render(runewidth.Truncate(fmt.Sprint(cell), t.widths[c]*height, "…")))
+			Render(runewidth.Truncate(cell, t.widths[c]*height, "…")))
 
-		if c < len(row)-1 && t.borderColumn {
+		if c < t.model.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
 		}
 	}
@@ -534,7 +540,7 @@ func (t *Table) constructRow(index int, row []any) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && index < len(t.rows)-1 {
+	if t.borderRow && index < t.model.Count()-1 {
 		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		for i := 0; i < len(t.widths); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
