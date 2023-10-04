@@ -3,6 +3,7 @@ package table
 // Data is the interface that wraps the basic methods of a table model.
 type Data interface {
 	Row(row int) Row
+	Append(row Row)
 	Count() int
 	Columns() int
 }
@@ -10,6 +11,7 @@ type Data interface {
 // Row represents one line in the table.
 type Row interface {
 	Column(col int) string
+	Length() int
 }
 
 // StringData is a string-based implementation of the Data interface.
@@ -18,8 +20,8 @@ type StringData struct {
 	columns int
 }
 
-// StringRows creates a new StringData with the given number of columns.
-func StringRows(rows ...[]string) *StringData {
+// Rows creates a new StringData with the given number of columns.
+func Rows(rows ...[]string) *StringData {
 	m := StringData{columns: 0}
 
 	for _, row := range rows {
@@ -28,6 +30,12 @@ func StringRows(rows ...[]string) *StringData {
 	}
 
 	return &m
+}
+
+// Append appends the given row to the table.
+func (m *StringData) Append(row Row) {
+	m.columns = max(m.columns, row.Length())
+	m.rows = append(m.rows, row)
 }
 
 // Row returns the row at the given index.
@@ -65,6 +73,11 @@ func (r StringRow) Column(col int) string {
 	return r[col]
 }
 
+// Value returns the value of the column at the given index.
+func (r StringRow) Length() int {
+	return len(r)
+}
+
 // Filter applies a filter on some data.
 type Filter struct {
 	data   Data
@@ -96,6 +109,11 @@ func (m *Filter) Row(row int) Row {
 	}
 
 	return nil
+}
+
+// Append appends the given row to the table.
+func (m *Filter) Append(row Row) {
+	m.data.Append(row)
 }
 
 // Columns returns the number of columns in the table.

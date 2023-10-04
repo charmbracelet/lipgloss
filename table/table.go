@@ -103,9 +103,18 @@ func (t *Table) style(row, col int) lipgloss.Style {
 	return t.styleFunc(row, col)
 }
 
-// Rows sets the table model.
+// Rows sets the table data.
 func (t *Table) Rows(data Data) *Table {
 	t.data = data
+	return t
+}
+
+// Row appends a row to the table data.
+func (t *Table) Row(data ...string) *Table {
+	if t.data == nil {
+		t.data = Rows()
+	}
+	t.data.Append(StringRow(data))
 	return t
 }
 
