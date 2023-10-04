@@ -1,7 +1,7 @@
 package table
 
-// Model is the interface that wraps the basic methods of a table model.
-type Model interface {
+// Data is the interface that wraps the basic methods of a table model.
+type Data interface {
 	Row(row int) Row
 	Count() int
 	Columns() int
@@ -12,45 +12,44 @@ type Row interface {
 	Column(col int) string
 }
 
-// StringModel is a string-based implementation of the Model interface.
-type StringModel struct {
+// StringData is a string-based implementation of the Data interface.
+type StringData struct {
 	rows    []Row
 	columns int
 }
 
-// NewStringModel creates a new StringModel with the given number of columns.
-func NewStringModel(columns int) *StringModel {
-	return &StringModel{columns: columns}
+// StringRows creates a new StringData with the given number of columns.
+func StringRows(rows ...[]string) *StringData {
+	m := StringData{columns: 0}
+
+	for _, row := range rows {
+		m.columns = max(m.columns, len(row))
+		m.rows = append(m.rows, StringRow(row))
+	}
+
+	return &m
 }
 
 // Row returns the row at the given index.
-func (m *StringModel) Row(row int) Row {
+func (m *StringData) Row(row int) Row {
 	return m.rows[row]
 }
 
 // Columns returns the number of columns in the table.
-func (m *StringModel) Columns() int {
+func (m *StringData) Columns() int {
 	return m.columns
 }
 
-// AppendRows appends the given rows to the table.
-func (m *StringModel) AppendRows(rows ...[]string) *StringModel {
-	for _, row := range rows {
-		m.rows = append(m.rows, StringRow(row))
-	}
-
-	return m
-}
-
-// AppendRow appends the given row to the table.
-func (m *StringModel) AppendRow(rows ...string) *StringModel {
+// Item appends the given row to the table.
+func (m *StringData) Item(rows ...string) *StringData {
+	m.columns = max(m.columns, len(rows))
 	m.rows = append(m.rows, StringRow(rows))
 
 	return m
 }
 
 // Count returns the number of rows in the table.
-func (m *StringModel) Count() int {
+func (m *StringData) Count() int {
 	return len(m.rows)
 }
 
@@ -66,26 +65,30 @@ func (r StringRow) Column(col int) string {
 	return r[col]
 }
 
-type FilterModel struct {
-	model  Model
+// Filter applies a filter on some data.
+type Filter struct {
+	data   Data
 	filter func(row Row) bool
 }
 
-func NewFilterModel(model Model) *FilterModel {
-	return &FilterModel{model: model}
+// NewFilter initializes a new Filter.
+func NewFilter(data Data) *Filter {
+	return &Filter{data: data}
 }
 
-func (m *FilterModel) Filter(f func(row Row) bool) *FilterModel {
+// Filter applies the given filter function to the data.
+func (m *Filter) Filter(f func(row Row) bool) *Filter {
 	m.filter = f
 	return m
 }
 
-func (m *FilterModel) Row(row int) Row {
+// Row returns the row at the given index.
+func (m *Filter) Row(row int) Row {
 	j := 0
-	for i := 0; i < m.model.Count(); i++ {
-		if m.filter(m.model.Row(i)) {
+	for i := 0; i < m.data.Count(); i++ {
+		if m.filter(m.data.Row(i)) {
 			if j == row {
-				return m.model.Row(i)
+				return m.data.Row(i)
 			}
 
 			j++
@@ -95,14 +98,16 @@ func (m *FilterModel) Row(row int) Row {
 	return nil
 }
 
-func (m *FilterModel) Columns() int {
-	return m.model.Columns()
+// Columns returns the number of columns in the table.
+func (m *Filter) Columns() int {
+	return m.data.Columns()
 }
 
-func (m *FilterModel) Count() int {
+// Count returns the number of rows in the table.
+func (m *Filter) Count() int {
 	j := 0
-	for i := 0; i < m.model.Count(); i++ {
-		if m.filter(m.model.Row(i)) {
+	for i := 0; i < m.data.Count(); i++ {
+		if m.filter(m.data.Row(i)) {
 			j++
 		}
 	}
