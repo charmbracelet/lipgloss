@@ -30,7 +30,7 @@ func main() {
 		BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
 
-	rows := [][]any{
+	rows := [][]string{
 		{"Chinese", "您好", "你好"},
 		{"Japanese", "こんにちは", "やあ"},
 		{"Arabic", "أهلين", "أهلا"},
@@ -67,7 +67,7 @@ func main() {
 			return style
 		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...).
+		Rows(table.Rows(rows...)).
 		Width(18)
 
 	fmt.Println(t)

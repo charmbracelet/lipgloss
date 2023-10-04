@@ -13,7 +13,7 @@ func main() {
 	re := lipgloss.NewRenderer(os.Stdout)
 	labelStyle := re.NewStyle().Foreground(lipgloss.Color("241"))
 
-	board := [][]any{
+	board := [][]string{
 		{"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"},
 		{"♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"},
 		{" ", " ", " ", " ", " ", " ", " ", " "},
@@ -28,7 +28,7 @@ func main() {
 		Border(lipgloss.NormalBorder()).
 		BorderRow(true).
 		BorderColumn(true).
-		Rows(board...).
+		Rows(table.Rows(board...)).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			return lipgloss.NewStyle().Padding(0, 1)
 		})

@@ -13,7 +13,7 @@ func main() {
 	labelStyle := re.NewStyle().Width(3).Align(lipgloss.Right)
 	swatchStyle := re.NewStyle().Width(6)
 
-	data := [][]any{}
+	data := [][]string{}
 	for i := 0; i < 13; i += 8 {
 		data = append(data, makeRow(i, i+5))
 	}
@@ -32,7 +32,7 @@ func main() {
 
 	t := table.New().
 		Border(lipgloss.HiddenBorder()).
-		Rows(data...).
+		Rows(table.Rows(data...)).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			color := lipgloss.Color(fmt.Sprint(data[row-1][col-col%2]))
 			switch {
@@ -48,10 +48,10 @@ func main() {
 
 const rowLength = 12
 
-func makeRow(start, end int) []any {
-	var row []any
+func makeRow(start, end int) []string {
+	var row []string
 	for i := start; i <= end; i++ {
-		row = append(row, i)
+		row = append(row, fmt.Sprint(i))
 		row = append(row, "")
 	}
 	for i := len(row); i < rowLength; i++ {
@@ -60,6 +60,6 @@ func makeRow(start, end int) []any {
 	return row
 }
 
-func makeEmptyRow() []any {
+func makeEmptyRow() []string {
 	return makeRow(0, -1)
 }
