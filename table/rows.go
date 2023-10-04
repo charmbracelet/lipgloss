@@ -52,7 +52,6 @@ func (m *StringData) Columns() int {
 func (m *StringData) Item(rows ...string) *StringData {
 	m.columns = max(m.columns, len(rows))
 	m.rows = append(m.rows, StringRow(rows))
-
 	return m
 }
 
