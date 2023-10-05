@@ -333,7 +333,7 @@ func (s Style) GetBorderRightSize() int {
 	if !s.getAsBool(borderRightKey, false) {
 		return 0
 	}
-	return s.getBorderStyle().GetBottomSize()
+	return s.getBorderStyle().GetRightSize()
 }
 
 // GetHorizontalBorderSize returns the width of the horizontal borders. If
