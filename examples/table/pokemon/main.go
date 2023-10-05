@@ -12,18 +12,29 @@ import (
 func main() {
 	re := lipgloss.NewRenderer(os.Stdout)
 	baseStyle := re.NewStyle().Padding(0, 1)
-	headerStyle := baseStyle.Copy().Foreground(lipgloss.Color("#FCFF5F"))
-	selectedStyle := baseStyle.Copy().Foreground(lipgloss.Color("#FCFF5F")).Background(lipgloss.Color("#282828"))
-	typeColors := map[string]lipgloss.AdaptiveColor{
-		"Grass":    {Light: "#00FF87", Dark: "#00FF87"},
-		"Bug":      {Light: "#D7FF87", Dark: "#D7FF87"},
-		"Fire":     {Light: "#FF7698", Dark: "#FF7698"},
-		"Water":    {Light: "#00E2C7", Dark: "#00E2C7"},
-		"Normal":   {Light: "#585858", Dark: "#585858"},
-		"Poison":   {Light: "#7D56F3", Dark: "#7D56F3"},
-		"Flying":   {Light: "#FF87D7", Dark: "#FF87D7"},
-		"Electric": {Light: "#FCFF5F", Dark: "#FCFF5F"},
-		"Ground":   {Light: "#FF875F", Dark: "#FF875F"},
+	headerStyle := baseStyle.Copy().Foreground(lipgloss.Color("252")).Bold(true)
+	selectedStyle := baseStyle.Copy().Foreground(lipgloss.Color("#01BE85")).Background(lipgloss.Color("#00432F"))
+	typeColors := map[string]lipgloss.Color{
+		"Bug":      lipgloss.Color("#D7FF87"),
+		"Electric": lipgloss.Color("#FDFF90"),
+		"Fire":     lipgloss.Color("#FF7698"),
+		"Flying":   lipgloss.Color("#FF87D7"),
+		"Grass":    lipgloss.Color("#75FBAB"),
+		"Ground":   lipgloss.Color("#FF875F"),
+		"Normal":   lipgloss.Color("#929292"),
+		"Poison":   lipgloss.Color("#7D5AFC"),
+		"Water":    lipgloss.Color("#00E2C7"),
+	}
+	dimTypeColors := map[string]lipgloss.Color{
+		"Bug":      lipgloss.Color("#97AD64"),
+		"Electric": lipgloss.Color("#FCFF5F"),
+		"Fire":     lipgloss.Color("#BA5F75"),
+		"Flying":   lipgloss.Color("#C97AB2"),
+		"Grass":    lipgloss.Color("#59B980"),
+		"Ground":   lipgloss.Color("#C77252"),
+		"Normal":   lipgloss.Color("#727272"),
+		"Poison":   lipgloss.Color("#634BD0"),
+		"Water":    lipgloss.Color("#439F8E"),
 	}
 
 	headers := []any{"#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."}
@@ -80,20 +91,23 @@ func main() {
 				return selectedStyle
 			}
 
+			even := row%2 == 0
+
 			switch col {
 			case 2, 3: // Type 1 + 2
-				color := typeColors[fmt.Sprint(data[row-1][col])]
+				c := typeColors
+				if even {
+					c = dimTypeColors
+				}
+
+				color := c[fmt.Sprint(data[row-1][col])]
 				return baseStyle.Copy().Foreground(color)
 			}
 
-			switch {
-			case row%2 == 0:
+			if even {
 				return baseStyle.Copy().Foreground(lipgloss.Color("245"))
-			case row%2 == 1:
-				return baseStyle.Copy().Foreground(lipgloss.Color("247"))
 			}
-
-			return baseStyle
+			return baseStyle.Copy().Foreground(lipgloss.Color("252"))
 		})
 	fmt.Println(t)
 }
