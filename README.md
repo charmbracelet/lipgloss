@@ -421,7 +421,7 @@ import "github.com/charmbracelet/lipgloss/table"
 Define some rows of data.
 
 ```go
-rows := [][]any{
+rows := [][]string{
     {"Chinese", "您好", "你好"},
     {"Japanese", "こんにちは", "やあ"},
     {"Arabic", "أهلين", "أهلا"},
