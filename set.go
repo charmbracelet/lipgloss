@@ -544,6 +544,18 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 	return s
 }
 
+// Transform applies a given function to a string at render time, allowing for
+// the string being rendered to be manipuated.
+//
+// Example:
+//
+//	s := NewStyle().Transform(strings.ToUpper)
+//	fmt.Println(s.Render("raow!") // "RAOW!"
+func (s Style) Transform(fn func(string) string) Style {
+	s.set(transformKey, fn)
+	return s
+}
+
 // Renderer sets the renderer for the style. This is useful for changing the
 // renderer for a style that is being used in a different context.
 func (s Style) Renderer(r *Renderer) Style {

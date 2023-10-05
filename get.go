@@ -408,6 +408,12 @@ func (s Style) GetFrameSize() (x, y int) {
 	return s.GetHorizontalFrameSize(), s.GetVerticalFrameSize()
 }
 
+// GetTransform returns the transform set on the style. If no transform is set
+// nil is returned.
+func (s Style) GetTransform() func(string) string {
+	return s.getAsTransform(transformKey)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	_, exists := s.rules[k]
@@ -467,6 +473,17 @@ func (s Style) getBorderStyle() Border {
 		return b
 	}
 	return noBorder
+}
+
+func (s Style) getAsTransform(k propKey) func(string) string {
+	v, ok := s.rules[k]
+	if !ok {
+		return nil
+	}
+	if fn, ok := v.(func(string) string); ok {
+		return fn
+	}
+	return nil
 }
 
 // Split a string into lines, additionally returning the size of the widest

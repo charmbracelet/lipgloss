@@ -73,6 +73,8 @@ const (
 	tabWidthKey
 	underlineSpacesKey
 	strikethroughSpacesKey
+
+	transformKey
 )
 
 // A set of properties.
@@ -225,6 +227,8 @@ func (s Style) Render(strs ...string) string {
 
 		// Do we need to style spaces separately?
 		useSpaceStyler = underlineSpaces || strikethroughSpaces
+
+		transform = s.getAsTransform(transformKey)
 	)
 
 	if len(s.rules) == 0 {
@@ -399,6 +403,10 @@ func (s Style) Render(strs ...string) string {
 	if maxHeight > 0 {
 		lines := strings.Split(str, "\n")
 		str = strings.Join(lines[:min(maxHeight, len(lines))], "\n")
+	}
+
+	if transform != nil {
+		return transform(str)
 	}
 
 	return str
