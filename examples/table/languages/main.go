@@ -67,8 +67,7 @@ func main() {
 			return style
 		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...).
-		Width(18)
+		Rows(rows...)
 
 	fmt.Println(t)
 }
