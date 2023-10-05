@@ -28,7 +28,7 @@ func main() {
 		Border(lipgloss.NormalBorder()).
 		BorderRow(true).
 		BorderColumn(true).
-		Rows(table.Rows(board...)).
+		Rows(board...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			return lipgloss.NewStyle().Padding(0, 1)
 		})

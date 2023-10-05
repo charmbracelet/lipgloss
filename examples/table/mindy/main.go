@@ -32,7 +32,7 @@ func main() {
 
 	t := table.New().
 		Border(lipgloss.HiddenBorder()).
-		Rows(table.Rows(data...)).
+		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			color := lipgloss.Color(fmt.Sprint(data[row-1][col-col%2]))
 			switch {

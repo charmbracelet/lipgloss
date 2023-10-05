@@ -70,7 +70,7 @@ func main() {
 		BorderStyle(re.NewStyle().Foreground(lipgloss.Color("238"))).
 		Headers(CapitalizeHeaders(headers)...).
 		Width(80).
-		Rows(table.Rows(data...)).
+		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			if row == 0 {
 				return headerStyle
