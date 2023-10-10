@@ -305,6 +305,12 @@ func (s Style) UnsetStrikethroughSpaces() Style {
 	return s
 }
 
+// UnsetTransform removes the value set by Transform.
+func (s Style) UnsetTransform() Style {
+	delete(s.rules, transformKey)
+	return s
+}
+
 // UnsetString sets the underlying string value to the empty string.
 func (s Style) UnsetString() Style {
 	s.value = ""
