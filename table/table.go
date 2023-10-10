@@ -114,7 +114,7 @@ func (t *Table) Rows(rows ...[]string) *Table {
 	for _, row := range rows {
 		switch t.data.(type) {
 		case *StringData:
-			t.data.(*StringData).Append(StringRow(row))
+			t.data.(*StringData).Append(row)
 		}
 	}
 	return t
@@ -124,7 +124,7 @@ func (t *Table) Rows(rows ...[]string) *Table {
 func (t *Table) Row(row ...string) *Table {
 	switch t.data.(type) {
 	case *StringData:
-		t.data.(*StringData).Append(StringRow(row))
+		t.data.(*StringData).Append(row)
 	}
 	return t
 }
@@ -212,7 +212,7 @@ func (t *Table) Offset(o int) *Table {
 // String returns the table as a string.
 func (t *Table) String() string {
 	hasHeaders := t.headers != nil && len(t.headers) > 0
-	hasRows := t.data != nil && t.data.Count() > 0
+	hasRows := t.data != nil && t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
@@ -230,7 +230,7 @@ func (t *Table) String() string {
 
 	// Initialize the widths.
 	t.widths = make([]int, max(len(t.headers), t.data.Columns()))
-	t.heights = make([]int, btoi(hasHeaders)+t.data.Count())
+	t.heights = make([]int, btoi(hasHeaders)+t.data.Rows())
 
 	// The style function may affect width of the table. It's possible to set
 	// the StyleFunc after the headers and rows. Update the widths for a final
@@ -240,11 +240,9 @@ func (t *Table) String() string {
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(fmt.Sprint(cell))))
 	}
 
-	for r := 0; r < t.data.Count(); r++ {
-		row := t.data.Row(r)
-
+	for r := 0; r < t.data.Rows(); r++ {
 		for i := 0; i < t.data.Columns(); i++ {
-			cell := row.Column(i)
+			cell := t.data.At(r, i)
 
 			rendered := t.style(r+1, i).Render(cell)
 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
@@ -304,11 +302,9 @@ func (t *Table) String() string {
 		// column, and shrink the columns based on the largest difference.
 		columnMedians := make([]int, len(t.widths))
 		for c := range t.widths {
-			trimmedWidth := make([]int, t.data.Count())
-			for r := 0; r < t.data.Count(); r++ {
-				row := t.data.Row(r)
-
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(row.Column(c))
+			trimmedWidth := make([]int, t.data.Rows())
+			for r := 0; r < t.data.Rows(); r++ {
+				renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
 				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
 				trimmedWidth[r] = nonWhitespaceChars + 1
 			}
@@ -357,9 +353,8 @@ func (t *Table) String() string {
 		s.WriteString("\n")
 	}
 
-	for r := t.offset; r < t.data.Count(); r++ {
-		row := t.data.Row(r)
-		s.WriteString(t.constructRow(r, row))
+	for r := t.offset; r < t.data.Rows(); r++ {
+		s.WriteString(t.constructRow(r))
 	}
 
 	if t.borderBottom {
@@ -385,7 +380,7 @@ func (t *Table) computeHeight() int {
 	hasHeaders := t.headers != nil && len(t.headers) > 0
 	return sum(t.heights) - 1 + btoi(hasHeaders) +
 		btoi(t.borderTop) + btoi(t.borderBottom) +
-		btoi(t.borderHeader) + t.data.Count()*btoi(t.borderRow)
+		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
 }
 
 // Render returns the table as a string.
@@ -474,7 +469,7 @@ func (t *Table) constructHeaders() string {
 
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration.
-func (t *Table) constructRow(index int, row Row) string {
+func (t *Table) constructRow(index int) string {
 	var s strings.Builder
 
 	hasHeaders := t.headers != nil && len(t.headers) > 0
@@ -487,7 +482,7 @@ func (t *Table) constructRow(index int, row Row) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cell := row.Column(c)
+		cell := t.data.At(index, c)
 
 		cells = append(cells, t.style(index+1, c).
 			Height(height).
@@ -512,7 +507,7 @@ func (t *Table) constructRow(index int, row Row) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && index < t.data.Count()-1 {
+	if t.borderRow && index < t.data.Rows()-1 {
 		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		for i := 0; i < len(t.widths); i++ {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))

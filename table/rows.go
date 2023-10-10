@@ -2,20 +2,14 @@ package table
 
 // Data is the interface that wraps the basic methods of a table model.
 type Data interface {
-	Row(row int) Row
-	Count() int
+	At(row, cell int) string
+	Rows() int
 	Columns() int
-}
-
-// Row represents one line in the table.
-type Row interface {
-	Column(col int) string
-	Length() int
 }
 
 // StringData is a string-based implementation of the Data interface.
 type StringData struct {
-	rows    []Row
+	rows    [][]string
 	columns int
 }
 
@@ -25,21 +19,25 @@ func NewStringData(rows ...[]string) *StringData {
 
 	for _, row := range rows {
 		m.columns = max(m.columns, len(row))
-		m.rows = append(m.rows, StringRow(row))
+		m.rows = append(m.rows, row)
 	}
 
 	return &m
 }
 
 // Append appends the given row to the table.
-func (m *StringData) Append(row Row) {
-	m.columns = max(m.columns, row.Length())
+func (m *StringData) Append(row []string) {
+	m.columns = max(m.columns, len(row))
 	m.rows = append(m.rows, row)
 }
 
 // Row returns the row at the given index.
-func (m *StringData) Row(row int) Row {
-	return m.rows[row]
+func (m *StringData) At(row, cell int) string {
+	if row >= len(m.rows) || cell >= len(m.rows[row]) {
+		return ""
+	}
+
+	return m.rows[row][cell]
 }
 
 // Columns returns the number of columns in the table.
@@ -50,36 +48,19 @@ func (m *StringData) Columns() int {
 // Item appends the given row to the table.
 func (m *StringData) Item(rows ...string) *StringData {
 	m.columns = max(m.columns, len(rows))
-	m.rows = append(m.rows, StringRow(rows))
+	m.rows = append(m.rows, rows)
 	return m
 }
 
-// Count returns the number of rows in the table.
-func (m *StringData) Count() int {
+// Rows returns the number of rows in the table.
+func (m *StringData) Rows() int {
 	return len(m.rows)
-}
-
-// StringRow is a simple implementation of the Row interface.
-type StringRow []string
-
-// Value returns the value of the column at the given index.
-func (r StringRow) Column(col int) string {
-	if col >= len(r) {
-		return ""
-	}
-
-	return r[col]
-}
-
-// Value returns the value of the column at the given index.
-func (r StringRow) Length() int {
-	return len(r)
 }
 
 // Filter applies a filter on some data.
 type Filter struct {
 	data   Data
-	filter func(row Row) bool
+	filter func(row int) bool
 }
 
 // NewFilter initializes a new Filter.
@@ -88,25 +69,25 @@ func NewFilter(data Data) *Filter {
 }
 
 // Filter applies the given filter function to the data.
-func (m *Filter) Filter(f func(row Row) bool) *Filter {
+func (m *Filter) Filter(f func(row int) bool) *Filter {
 	m.filter = f
 	return m
 }
 
 // Row returns the row at the given index.
-func (m *Filter) Row(row int) Row {
+func (m *Filter) At(row, cell int) string {
 	j := 0
-	for i := 0; i < m.data.Count(); i++ {
-		if m.filter(m.data.Row(i)) {
+	for i := 0; i < m.data.Rows(); i++ {
+		if m.filter(i) {
 			if j == row {
-				return m.data.Row(i)
+				return m.data.At(i, cell)
 			}
 
 			j++
 		}
 	}
 
-	return nil
+	return ""
 }
 
 // Columns returns the number of columns in the table.
@@ -114,11 +95,11 @@ func (m *Filter) Columns() int {
 	return m.data.Columns()
 }
 
-// Count returns the number of rows in the table.
-func (m *Filter) Count() int {
+// Rows returns the number of rows in the table.
+func (m *Filter) Rows() int {
 	j := 0
-	for i := 0; i < m.data.Count(); i++ {
-		if m.filter(m.data.Row(i)) {
+	for i := 0; i < m.data.Rows(); i++ {
+		if m.filter(i) {
 			j++
 		}
 	}

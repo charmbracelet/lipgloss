@@ -836,8 +836,8 @@ func TestFilter(t *testing.T) {
 		Item("Russian", "Zdravstvuyte", "Privet").
 		Item("Spanish", "Hola", "¿Qué tal?")
 
-	filter := NewFilter(data).Filter(func(row Row) bool {
-		return row.Column(0) != "French"
+	filter := NewFilter(data).Filter(func(row int) bool {
+		return data.At(row, 0) != "French"
 	})
 
 	table := New().
@@ -870,8 +870,8 @@ func TestFilterInverse(t *testing.T) {
 		Item("Russian", "Zdravstvuyte", "Privet").
 		Item("Spanish", "Hola", "¿Qué tal?")
 
-	filter := NewFilter(data).Filter(func(row Row) bool {
-		return row.Column(0) == "French"
+	filter := NewFilter(data).Filter(func(row int) bool {
+		return data.At(row, 0) == "French"
 	})
 
 	table := New().
