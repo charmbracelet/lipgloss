@@ -36,7 +36,6 @@ func main() {
 		{"Arabic", "أهلين", "أهلا"},
 		{"Russian", "Здравствуйте", "Привет"},
 		{"Spanish", "Hola", "¿Qué tal?"},
-		{"English", "You look absolutely fabulous.", "How's it going?"},
 	}
 
 	t := table.New().
@@ -60,7 +59,7 @@ func main() {
 			}
 
 			// Arabic is a right-to-left language, so right align the text.
-			if rows[row-1][0] == "Arabic" && col != 0 {
+			if row < len(rows) && rows[row-1][0] == "Arabic" && col != 0 {
 				style = style.Copy().Align(lipgloss.Right)
 			}
 
@@ -68,6 +67,8 @@ func main() {
 		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
+
+	t.Row("English", "You look absolutely fabulous.", "How's it going?")
 
 	fmt.Println(t)
 }

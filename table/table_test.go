@@ -46,6 +46,54 @@ func TestTable(t *testing.T) {
 	}
 }
 
+func TestTableExample(t *testing.T) {
+	HeaderStyle := lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
+	EvenRowStyle := lipgloss.NewStyle().Padding(0, 1)
+	OddRowStyle := lipgloss.NewStyle().Padding(0, 1)
+
+	rows := [][]string{
+		{"Chinese", "您好", "你好"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Здравствуйте", "Привет"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			switch {
+			case row == 0:
+				return HeaderStyle
+			case row%2 == 0:
+				return EvenRowStyle
+			default:
+				return OddRowStyle
+			}
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	// You can also add tables row-by-row
+	table.Row("English", "You look absolutely fabulous.", "How's it going?")
+
+	expected := strings.TrimSpace(`
+┌──────────┬───────────────────────────────┬─────────────────┐
+│ LANGUAGE │            FORMAL             │    INFORMAL     │
+├──────────┼───────────────────────────────┼─────────────────┤
+│ Chinese  │ 您好                          │ 你好            │
+│ Japanese │ こんにちは                    │ やあ            │
+│ Russian  │ Здравствуйте                  │ Привет          │
+│ Spanish  │ Hola                          │ ¿Qué tal?       │
+│ English  │ You look absolutely fabulous. │ How's it going? │
+└──────────┴───────────────────────────────┴─────────────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableEmpty(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
