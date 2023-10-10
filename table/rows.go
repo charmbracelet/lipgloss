@@ -2,8 +2,13 @@ package table
 
 // Data is the interface that wraps the basic methods of a table model.
 type Data interface {
+	// At returns the contents of the cell at the given index.
 	At(row, cell int) string
+
+	// Rows returns the number of rows in the table.
 	Rows() int
+
+	// Columns returns the number of columns in the table.
 	Columns() int
 }
 
@@ -31,7 +36,7 @@ func (m *StringData) Append(row []string) {
 	m.rows = append(m.rows, row)
 }
 
-// Row returns the row at the given index.
+// At returns the contents of the cell at the given index.
 func (m *StringData) At(row, cell int) string {
 	if row >= len(m.rows) || cell >= len(m.rows[row]) {
 		return ""
