@@ -46,6 +46,24 @@ func TestTable(t *testing.T) {
 	}
 }
 
+func TestTableEmpty(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL")
+
+	expected := strings.TrimSpace(`
+┌──────────┬────────┬──────────┐
+│ LANGUAGE │ FORMAL │ INFORMAL │
+├──────────┼────────┼──────────┤
+└──────────┴────────┴──────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).

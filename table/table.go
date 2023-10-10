@@ -79,6 +79,7 @@ func New() *Table {
 		borderLeft:   true,
 		borderRight:  true,
 		borderTop:    true,
+		data:         NewStringData(),
 	}
 }
 
@@ -110,9 +111,6 @@ func (t *Table) Data(data Data) *Table {
 
 // Rows appends rows to the table data.
 func (t *Table) Rows(rows ...[]string) *Table {
-	if t.data == nil {
-		t.data = NewStringData()
-	}
 	for _, row := range rows {
 		switch t.data.(type) {
 		case *StringData:
@@ -124,9 +122,6 @@ func (t *Table) Rows(rows ...[]string) *Table {
 
 // Row appends a row to the table data.
 func (t *Table) Row(row ...string) *Table {
-	if t.data == nil {
-		t.data = NewStringData()
-	}
 	switch t.data.(type) {
 	case *StringData:
 		t.data.(*StringData).Append(StringRow(row))
@@ -234,7 +229,7 @@ func (t *Table) String() string {
 	}
 
 	// Initialize the widths.
-	t.widths = make([]int, t.data.Columns())
+	t.widths = make([]int, max(len(t.headers), t.data.Columns()))
 	t.heights = make([]int, btoi(hasHeaders)+t.data.Count())
 
 	// The style function may affect width of the table. It's possible to set
