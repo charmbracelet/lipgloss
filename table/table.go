@@ -1,7 +1,6 @@
 package table
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -51,7 +50,7 @@ type Table struct {
 	borderRow    bool
 
 	borderStyle lipgloss.Style
-	headers     []any
+	headers     []string
 	data        Data
 
 	width  int
@@ -130,7 +129,7 @@ func (t *Table) Row(row ...string) *Table {
 }
 
 // Headers sets the table headers.
-func (t *Table) Headers(headers ...any) *Table {
+func (t *Table) Headers(headers ...string) *Table {
 	t.headers = headers
 	return t
 }
@@ -236,8 +235,8 @@ func (t *Table) String() string {
 	// the StyleFunc after the headers and rows. Update the widths for a final
 	// time.
 	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(0, i).Render(fmt.Sprint(cell))))
-		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(fmt.Sprint(cell))))
+		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(0, i).Render(cell)))
+		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(cell)))
 	}
 
 	for r := 0; r < t.data.Rows(); r++ {
@@ -438,7 +437,7 @@ func (t *Table) constructHeaders() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(runewidth.Truncate(fmt.Sprint(header), t.widths[i], "…")))
+			Render(runewidth.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
