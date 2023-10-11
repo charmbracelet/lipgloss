@@ -37,7 +37,7 @@ func main() {
 		"Water":    lipgloss.Color("#439F8E"),
 	}
 
-	headers := []any{"#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."}
+	headers := []string{"#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."}
 	data := [][]string{
 		{"1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"},
 		{"2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Ivysaur"},
@@ -69,9 +69,9 @@ func main() {
 		{"28", "Sandslash", "Ground", "", "サンドパン", "Sandpan"},
 	}
 
-	CapitalizeHeaders := func(data []any) []any {
+	CapitalizeHeaders := func(data []string) []string {
 		for i := range data {
-			data[i] = strings.ToUpper(data[i].(string))
+			data[i] = strings.ToUpper(data[i])
 		}
 		return data
 	}
