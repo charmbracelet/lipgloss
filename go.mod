@@ -8,7 +8,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.15
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 )
 
 require (
