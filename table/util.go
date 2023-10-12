@@ -1,6 +1,8 @@
 package table
 
-import "golang.org/x/exp/slices"
+import (
+	"sort"
+)
 
 // btoi converts a boolean to an integer, 1 if true, 0 if false.
 func btoi(b bool) int {
@@ -37,7 +39,7 @@ func sum(n []int) int {
 
 // median returns the median of a slice of integers.
 func median(n []int) int {
-	slices.Sort(n)
+	sort.Ints(n)
 
 	if len(n) <= 0 {
 		return 0
