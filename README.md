@@ -220,7 +220,7 @@ pattern to the margin and padding shorthand functions.
 lipgloss.NewStyle().
     Border(lipgloss.ThickBorder(), true, false)
 
-// Add a thick border to the right and bottom sides. Rules are set clockwise
+// Add a double border to the top and left sides. Rules are set clockwise
 // from top.
 lipgloss.NewStyle().
     Border(lipgloss.DoubleBorder(), true, false, false, true)
