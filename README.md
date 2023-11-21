@@ -459,9 +459,100 @@ Print the table.
 fmt.Println(t)
 ```
 
-![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
+<p align="center">
+    <img src="https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d" width="800" />
+</p>
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
+
+## Rendering Lists
+
+Lip Gloss ships with a list rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/list"
+```
+
+Define a new list.
+
+```go
+l := list.New("A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+
+// • A
+// • B
+// • C
+```
+
+### Customization
+
+Lists can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+
+l := list.New(
+  "Glossier",
+  "Claire’s Boutique",
+  "Nyx",
+  "Mac",
+  "Milk",
+).
+  Enumerator(list.Roman).
+  EnumeratorStyle(enumeratorStyle).
+  ItemStyle(itemStyle)
+```
+
+Print the list.
+
+<p align="center">
+    <img width="600" alt="List example" src="https://github.com/charmbracelet/lipgloss/assets/42545625/360494f1-57fb-4e13-bc19-0006efe01561">
+</p>
+
+In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
+you may also define your own custom enumerator:
+
+```go
+var DuckDuckGooseEnumerator Enumerator = func(l *List, i int) string {
+    if l.At(i) == "Goose" {
+        return "Honk →"
+    }
+    return ""
+}
+```
+
+Use it in a list:
+
+```go
+l := list.New("Duck", "Duck", "Duck", "Duck", "Goose", "Duck", "Duck")
+l.Enumerator(DuckDuckGooseEnumerator)
+```
+
+Print the list:
+
+<p align="center">
+<img width="600" alt="image" src="https://github.com/charmbracelet/lipgloss/assets/42545625/157aaf30-140d-4948-9bb4-dfba46e5b87e">
+</p>
+
+
+### Building
+
+If you need, you can also build lists incrementally:
+
+```go
+l := list.New()
+
+for i := 0; i < repeat; i++ {
+    l.Item("Lip Gloss")
+}
+```
 
 ***
 
