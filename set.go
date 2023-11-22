@@ -115,7 +115,7 @@ func (s Style) Height(i int) Style {
 //
 // With one argument, the position value is applied to the horizontal alignment.
 //
-// With two arguments, the value is applied to the vertical and horizontal
+// With two arguments, the value is applied to the horizontal and vertical
 // alignments, in that order.
 func (s Style) Align(p ...Position) Style {
 	if len(p) > 0 {
