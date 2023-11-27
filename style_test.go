@@ -3,6 +3,7 @@ package lipgloss
 import (
 	"io"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/muesli/termenv"
@@ -372,6 +373,42 @@ func TestTabConversion(t *testing.T) {
 	requireEqual(t, "[]", s.Render("[\t]"))
 	s = NewStyle().TabWidth(-1)
 	requireEqual(t, "[\t]", s.Render("[\t]"))
+}
+
+func TestStringTransform(t *testing.T) {
+	for i, tc := range []struct {
+		input    string
+		fn       func(string) string
+		expected string
+	}{
+		{
+			"raow",
+			strings.ToUpper,
+			"RAOW",
+		},
+		{
+			"The quick brown 狐 jumped over the lazy 犬",
+			func(s string) string {
+				n := 0
+				rune := make([]rune, len(s))
+				for _, r := range s {
+					rune[n] = r
+					n++
+				}
+				rune = rune[0:n]
+				for i := 0; i < n/2; i++ {
+					rune[i], rune[n-1-i] = rune[n-1-i], rune[i]
+				}
+				return string(rune)
+			},
+			"犬 yzal eht revo depmuj 狐 nworb kciuq ehT",
+		},
+	} {
+		res := NewStyle().Transform(tc.fn).Render(tc.input)
+		if res != tc.expected {
+			t.Errorf("Test #%d:\nExpected: %q\nGot: %q", i+1, tc.expected, res)
+		}
+	}
 }
 
 func BenchmarkStyleRender(b *testing.B) {
