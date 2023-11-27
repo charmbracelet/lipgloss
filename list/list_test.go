@@ -3,6 +3,8 @@ package list
 import (
 	"strings"
 	"testing"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func TestList(t *testing.T) {
@@ -148,7 +150,7 @@ func TestDeepNestedList(t *testing.T) {
 	}
 }
 
-func TestEnumeration(t *testing.T) {
+func TestEnumerators(t *testing.T) {
 	tests := []struct {
 		enumeration Enumerator
 		expected    string
@@ -214,6 +216,94 @@ III. Baz
 			Item("Bar").
 			Item("Baz").
 			Item(New("Qux", "Quux").Enumerator(test.enumeration))
+
+		if l.String() != expected {
+			t.Errorf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
+		}
+	}
+}
+
+func TestEnumeratorsTransform(t *testing.T) {
+	tests := []struct {
+		enumeration Enumerator
+		style       lipgloss.Style
+		expected    string
+	}{
+		{
+			enumeration: Alphabet,
+			style:       lipgloss.NewStyle().MarginRight(1).Transform(strings.ToLower),
+			expected: `
+a. Foo
+b. Bar
+c. Baz
+  a. Qux
+  b. Quux
+`,
+		},
+		{
+			enumeration: Arabic,
+			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
+				return strings.Replace(s, ".", ")", 1)
+			}),
+			expected: `
+1) Foo
+2) Bar
+3) Baz
+  1) Qux
+  2) Quux
+`,
+		},
+		{
+			enumeration: Roman,
+			style: lipgloss.NewStyle().Transform(func(s string) string {
+				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
+			}),
+			expected: `
+(i) Foo
+(ii) Bar
+(iii) Baz
+  (i) Qux
+  (ii) Quux
+`,
+		},
+		{
+			enumeration: Bullet,
+			style: lipgloss.NewStyle().Transform(func(s string) string {
+				return "- " // this is better done by replacing the enumerator.
+			}),
+			expected: `
+- Foo
+- Bar
+- Baz
+  - Qux
+  - Quux
+`,
+		},
+		{
+			enumeration: Tree,
+			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
+				return strings.Replace(s, "─", "───", 1)
+			}),
+			expected: `
+├─── Foo
+├─── Bar
+└─── Baz
+  ├─── Qux
+  └─── Quux
+`,
+		},
+	}
+
+	for _, test := range tests {
+		expected := strings.TrimPrefix(test.expected, "\n")
+
+		l := New().
+			Enumerator(test.enumeration).
+			EnumeratorStyle(test.style).
+			Item("Foo").
+			Item("Bar").
+			Item("Baz").
+			Item(New("Qux", "Quux").Enumerator(test.enumeration).EnumeratorStyle(test.style))
 
 		if l.String() != expected {
 			t.Errorf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())

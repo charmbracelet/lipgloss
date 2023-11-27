@@ -51,6 +51,30 @@ func (l *List) Enumerator(enumerator Enumerator) *List {
 	return l
 }
 
+// Style sets the list style.
+func (l *List) Style(style Style) *List {
+	l.style = style
+	return l
+}
+
+// EnumeratorStyle sets the enumerator style.
+func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
+	l.style.Enumerator = style
+	return l
+}
+
+// ItemStyle sets the item style.
+func (l *List) ItemStyle(style lipgloss.Style) *List {
+	l.style.Item = style
+	return l
+}
+
+// BaseStyle sets the base style.
+func (l *List) BaseStyle(style lipgloss.Style) *List {
+	l.style.Base = style
+	return l
+}
+
 // Indent sets the indent level.
 func (l *List) Indent(indent int) *List {
 	if indent < 0 {
