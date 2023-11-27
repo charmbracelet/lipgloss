@@ -463,6 +463,118 @@ fmt.Println(t)
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
+## Rendering Lists
+
+Lip Gloss ships with a list rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/list"
+```
+
+Define a new list.
+
+```go
+l := list.New("A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+```
+
+```
+• A
+• B
+• C
+```
+
+### Nesting
+
+Lists have the ability to nest.
+
+```go
+l := list.New(
+    "A", list.New("Apricot"),
+    "B", list.New("Bergamot orange"),
+    "C", list.New("Citron", "Clymenia"),
+)
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+```
+
+```
+• A
+  • Apricot
+• B
+  • Bergamot orange
+• C
+  • Citron
+  • Clymenia
+```
+
+### Customization
+
+Lists can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+
+l := list.New(
+  "Glossier",
+  "Claire’s Boutique",
+  "Nyx",
+  "Mac",
+  "Milk",
+).
+  Enumerator(list.Roman).
+  EnumeratorStyle(enumeratorStyle).
+  ItemStyle(itemStyle)
+```
+
+Print the list.
+
+```
+  I. Glossier
+ II. Claire’s Boutique
+III. Nyx
+ IV. Mac
+  V. Milk
+```
+
+### Building
+
+You can also build lists incrementally:
+
+```
+l := list.New()
+
+for i := 0; i < 10; i++ {
+    l.Item("Lip Gloss")
+}
+
+fmt.Println(l)
+```
+
+```
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+• Lip Gloss
+```
+
 ***
 
 ## FAQ
