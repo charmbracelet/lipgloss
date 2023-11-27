@@ -343,3 +343,118 @@ func TestBullet(t *testing.T) {
 		}
 	}
 }
+
+func TestEnumeratorsAlign(t *testing.T) {
+	fooList := strings.Split(strings.TrimSuffix(strings.Repeat("Foo ", 100), " "), " ")
+	l := New().Enumerator(Roman)
+	for _, f := range fooList {
+		l.Item(f)
+	}
+
+	expected := strings.TrimPrefix(`
+       I. Foo
+      II. Foo
+     III. Foo
+      IV. Foo
+       V. Foo
+      VI. Foo
+     VII. Foo
+    VIII. Foo
+      IX. Foo
+       X. Foo
+      XI. Foo
+     XII. Foo
+    XIII. Foo
+     XIV. Foo
+      XV. Foo
+     XVI. Foo
+    XVII. Foo
+   XVIII. Foo
+     XIX. Foo
+      XX. Foo
+     XXI. Foo
+    XXII. Foo
+   XXIII. Foo
+    XXIV. Foo
+     XXV. Foo
+    XXVI. Foo
+   XXVII. Foo
+  XXVIII. Foo
+    XXIX. Foo
+     XXX. Foo
+    XXXI. Foo
+   XXXII. Foo
+  XXXIII. Foo
+   XXXIV. Foo
+    XXXV. Foo
+   XXXVI. Foo
+  XXXVII. Foo
+ XXXVIII. Foo
+   XXXIX. Foo
+      XL. Foo
+     XLI. Foo
+    XLII. Foo
+   XLIII. Foo
+    XLIV. Foo
+     XLV. Foo
+    XLVI. Foo
+   XLVII. Foo
+  XLVIII. Foo
+    XLIX. Foo
+       L. Foo
+      LI. Foo
+     LII. Foo
+    LIII. Foo
+     LIV. Foo
+      LV. Foo
+     LVI. Foo
+    LVII. Foo
+   LVIII. Foo
+     LIX. Foo
+      LX. Foo
+     LXI. Foo
+    LXII. Foo
+   LXIII. Foo
+    LXIV. Foo
+     LXV. Foo
+    LXVI. Foo
+   LXVII. Foo
+  LXVIII. Foo
+    LXIX. Foo
+     LXX. Foo
+    LXXI. Foo
+   LXXII. Foo
+  LXXIII. Foo
+   LXXIV. Foo
+    LXXV. Foo
+   LXXVI. Foo
+  LXXVII. Foo
+ LXXVIII. Foo
+   LXXIX. Foo
+    LXXX. Foo
+   LXXXI. Foo
+  LXXXII. Foo
+ LXXXIII. Foo
+  LXXXIV. Foo
+   LXXXV. Foo
+  LXXXVI. Foo
+ LXXXVII. Foo
+LXXXVIII. Foo
+  LXXXIX. Foo
+      XC. Foo
+     XCI. Foo
+    XCII. Foo
+   XCIII. Foo
+    XCIV. Foo
+     XCV. Foo
+    XCVI. Foo
+   XCVII. Foo
+  XCVIII. Foo
+    XCIX. Foo
+       C. Foo
+`, "\n")
+
+	if l.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
+	}
+}
