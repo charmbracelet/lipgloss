@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-runewidth"
 )
 
 const indentIncrement = 2
@@ -103,6 +104,13 @@ func (l *List) String() string {
 		return ""
 	}
 
+	// find the longest enumerator value of this list.
+	var maxLen int
+	for i := 0; i < len(l.items); i++ {
+		enum := l.style.Enumerator.Render(l.enumerator(l, i+1))
+		maxLen = max(runewidth.StringWidth(enum), maxLen)
+	}
+
 	var s strings.Builder
 	for i, item := range l.items {
 		switch item := item.(type) {
@@ -112,11 +120,21 @@ func (l *List) String() string {
 			}
 			s.WriteString(item.String())
 		default:
+			enum := l.style.Enumerator.Render(l.enumerator(l, i+1))
+			enumLen := runewidth.StringWidth(enum)
 			s.WriteString(strings.Repeat(" ", l.indent))
-			s.WriteString(l.style.Enumerator.Render(l.enumerator(l, i+1)))
+			s.WriteString(strings.Repeat(" ", maxLen-enumLen))
+			s.WriteString(enum)
 			s.WriteString(l.style.Item.Render(fmt.Sprintf("%v", item)))
 			s.WriteRune('\n')
 		}
 	}
 	return s.String()
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

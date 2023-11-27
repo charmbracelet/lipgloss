@@ -39,10 +39,10 @@ var Arabic Enumerator = func(_ *List, i int) string {
 
 // Roman is the enumeration for roman numerals listing.
 //
-// i. Foo
-// ii. Bar
+//   i. Foo
+//  ii. Bar
 // iii. Baz
-// iv. Qux.
+//  iv. Qux.
 var Roman Enumerator = func(_ *List, i int) string {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}

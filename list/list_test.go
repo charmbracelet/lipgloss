@@ -178,10 +178,10 @@ C. Baz
 		{
 			enumeration: Roman,
 			expected: `
-I. Foo
-II. Bar
+  I. Foo
+ II. Bar
 III. Baz
-  I. Qux
+   I. Qux
   II. Quux
 `,
 		},
@@ -259,10 +259,10 @@ c. Baz
 				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
 			}),
 			expected: `
-(i) Foo
-(ii) Bar
+  (i) Foo
+ (ii) Bar
 (iii) Baz
-  (i) Qux
+   (i) Qux
   (ii) Quux
 `,
 		},
