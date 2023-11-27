@@ -509,12 +509,12 @@ fmt.Println(l)
 
 ```
 • A
-  • Apricot
+    • Apricot
 • B
-  • Bergamot orange
+    • Bergamot orange
 • C
-  • Citron
-  • Clymenia
+    • Citron
+    • Clymenia
 ```
 
 ### Customization
@@ -548,11 +548,43 @@ III. Nyx
   V. Milk
 ```
 
+In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
+you may also define your own custom enumerator:
+
+```go
+var DuckDuckGooseEnumerator Enumerator = func(l *List, i int) string {
+    if l.item[i] == "Goose" {
+        return "→ "
+    }
+    return "  "
+}
+```
+
+Use it in a list:
+
+```go
+l := list.New("Duck", "Duck", "Duck", "Duck", "Goose", "Duck", "Duck")
+l.Enumerator(DuckDuckGooseEnumerator)
+```
+
+Print the list:
+
+```
+  Duck
+  Duck
+  Duck
+  Duck
+  Duck
+→ Goose
+  Duck
+```
+
+
 ### Building
 
 You can also build lists incrementally:
 
-```
+```go
 l := list.New()
 
 for i := 0; i < 10; i++ {
