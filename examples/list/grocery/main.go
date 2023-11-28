@@ -20,9 +20,8 @@ var purchased = []string{
 }
 
 func GroceryEnumerator(l *list.List, i int) string {
-	item := l.Items[i-1]
 	for _, p := range purchased {
-		if item == p {
+		if l.Items[i-1] == p {
 			return "✓"
 		}
 	}
@@ -30,7 +29,9 @@ func GroceryEnumerator(l *list.List, i int) string {
 }
 
 func newList(items ...any) *list.List {
-	enumStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+	enumStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("10")).
+		MarginRight(1)
 
 	return list.New(items...).
 		Enumerator(GroceryEnumerator).
