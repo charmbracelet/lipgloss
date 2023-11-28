@@ -459,7 +459,9 @@ Print the table.
 fmt.Println(t)
 ```
 
-![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
+<p align="center">
+<img src="https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d" width="800" />
+</p>
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
@@ -507,15 +509,9 @@ Print the list.
 fmt.Println(l)
 ```
 
-```
-• A
-    • Apricot
-• B
-    • Bergamot orange
-• C
-    • Citron
-    • Clymenia
-```
+<p align="center">
+<img width="600" alt="image" src="https://github.com/charmbracelet/lipgloss/assets/42545625/0dc9f440-0748-4151-a3b0-7dcf29dfcdb0">
+</p>
 
 ### Customization
 
@@ -540,23 +536,19 @@ l := list.New(
 
 Print the list.
 
-```
-  I. Glossier
- II. Claire’s Boutique
-III. Nyx
- IV. Mac
-  V. Milk
-```
+<p align="center">
+<img width="600" alt="List example" src="https://github.com/charmbracelet/lipgloss/assets/42545625/360494f1-57fb-4e13-bc19-0006efe01561">
+</p>
 
 In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
 you may also define your own custom enumerator:
 
 ```go
 var DuckDuckGooseEnumerator Enumerator = func(l *List, i int) string {
-    if l.item[i] == "Goose" {
-        return "→ "
+    if l.At(i) == "Goose" {
+        return "Honk →"
     }
-    return "  "
+    return ""
 }
 ```
 
@@ -569,20 +561,14 @@ l.Enumerator(DuckDuckGooseEnumerator)
 
 Print the list:
 
-```
-  Duck
-  Duck
-  Duck
-  Duck
-  Duck
-→ Goose
-  Duck
-```
+<p align="center">
+<img width="600" alt="image" src="https://github.com/charmbracelet/lipgloss/assets/42545625/157aaf30-140d-4948-9bb4-dfba46e5b87e">
+</p>
 
 
 ### Building
 
-You can also build lists incrementally:
+If you need, you can also build lists incrementally:
 
 ```go
 l := list.New()
@@ -590,21 +576,6 @@ l := list.New()
 for i := 0; i < 10; i++ {
     l.Item("Lip Gloss")
 }
-
-fmt.Println(l)
-```
-
-```
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
-• Lip Gloss
 ```
 
 ***
