@@ -18,13 +18,13 @@ const abcLen = 26
 // c. Baz
 // d. Qux.
 func Alphabet(_ *List, i int) string {
-	if i > abcLen*abcLen+abcLen {
-		return fmt.Sprintf("%c%c%c.", 'A'+(i-1)/abcLen/abcLen-1, 'A'+((i-1)/abcLen)%abcLen-1, 'A'+(i-1)%abcLen)
+	if i >= abcLen*abcLen+abcLen {
+		return fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
 	}
-	if i > abcLen {
-		return fmt.Sprintf("%c%c.", 'A'+(i-1)/abcLen-1, 'A'+(i-1)%abcLen)
+	if i >= abcLen {
+		return fmt.Sprintf("%c%c.", 'A'+i/abcLen-1, 'A'+(i)%abcLen)
 	}
-	return fmt.Sprintf("%c.", 'A'+(i-1)%abcLen)
+	return fmt.Sprintf("%c.", 'A'+i%abcLen)
 }
 
 // Arabic is the enumeration for arabic numerals listing.
@@ -34,7 +34,7 @@ func Alphabet(_ *List, i int) string {
 // 3. Baz
 // 4. Qux.
 func Arabic(_ *List, i int) string {
-	return fmt.Sprintf("%d.", i)
+	return fmt.Sprintf("%d.", i+1)
 }
 
 // Roman is the enumeration for roman numerals listing.
@@ -50,7 +50,7 @@ func Roman(_ *List, i int) string {
 		result strings.Builder
 	)
 	for v, value := range arabic {
-		for i >= value {
+		for i >= value-1 {
 			i -= value
 			result.WriteString(roman[v])
 		}
@@ -77,16 +77,16 @@ func Bullet(_ *List, _ int) string {
 // └─ Qux.
 func Tree(l *List, index int) string {
 	// out of bounds?
-	if index < 0 || index > len(l.Items) {
+	if index < 0 || index > len(l.items) {
 		return ""
 	}
 
 	switch index {
 	// is last item of list.
-	case len(l.Items):
+	case len(l.items) - 1:
 		return "└─"
 	default:
-		switch l.Items[index].(type) {
+		switch l.items[index+1].(type) {
 		case *List:
 			return "└─"
 		default:
