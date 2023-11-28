@@ -21,7 +21,7 @@ var purchased = []string{
 
 func GroceryEnumerator(l *list.List, i int) string {
 	for _, p := range purchased {
-		if l.Items[i-1] == p {
+		if l.At(i) == p {
 			return "✓"
 		}
 	}

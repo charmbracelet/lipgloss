@@ -22,14 +22,14 @@ type List struct {
 	enumerator Enumerator
 	hide       bool
 	indent     int
-	Items      []any
+	items      []any
 	style      Style
 }
 
 // New returns a new list.
 func New(items ...any) *List {
 	return &List{
-		Items: items,
+		items: items,
 
 		enumerator: Bullet,
 		indent:     0,
@@ -43,8 +43,17 @@ func New(items ...any) *List {
 
 // Item appends an item to a list.
 func (l *List) Item(item any) *List {
-	l.Items = append(l.Items, item)
+	l.items = append(l.items, item)
 	return l
+}
+
+// At returns the item at index.
+func (l *List) At(i int) any {
+	if i < 0 || i >= len(l.items) {
+		return ""
+	}
+
+	return l.items[i]
 }
 
 // Enumerator sets the enumeration type.
@@ -107,13 +116,13 @@ func (l *List) String() string {
 
 	// find the longest enumerator value of this list.
 	var maxLen int
-	for i := 0; i < len(l.Items); i++ {
-		enum := l.style.Enumerator.Render(l.enumerator(l, i+1))
+	for i := 0; i < len(l.items); i++ {
+		enum := l.style.Enumerator.Render(l.enumerator(l, i))
 		maxLen = max(runewidth.StringWidth(enum), maxLen)
 	}
 
 	var s strings.Builder
-	for i, item := range l.Items {
+	for i, item := range l.items {
 		switch item := item.(type) {
 		case *List:
 			if item.indent <= 0 {
@@ -121,7 +130,7 @@ func (l *List) String() string {
 			}
 			s.WriteString(item.String())
 		default:
-			enum := l.style.Enumerator.Render(l.enumerator(l, i+1))
+			enum := l.style.Enumerator.Render(l.enumerator(l, i))
 			enumLen := runewidth.StringWidth(enum)
 			s.WriteString(strings.Repeat(" ", l.indent))
 			s.WriteString(strings.Repeat(" ", maxLen-enumLen))
@@ -130,7 +139,7 @@ func (l *List) String() string {
 			s.WriteRune('\n')
 		}
 	}
-	return s.String()
+	return l.style.Base.Render(s.String())
 }
 
 func max(a, b int) int {

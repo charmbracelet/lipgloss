@@ -497,9 +497,15 @@ Lists have the ability to nest.
 
 ```go
 l := list.New(
-    "A", list.New("Apricot"),
-    "B", list.New("Bergamot orange"),
-    "C", list.New("Citron", "Clymenia"),
+		"A", list.New("Artichoke"),
+		"B", list.New("Baking Flour", "Bananas", "Barley", "Bean Sprouts"),
+		"C", list.New("Cashew Apple", "Cashews", "Coconut Milk", "Curry Paste", "Currywurst"),
+		"D", list.New("Dill", "Dragonfruit", "Dried Shrimp"),
+		"E", list.New("Eggs"),
+		"F", list.New("Fish Cake", "Furikake"),
+		"J", list.New("Jicama"),
+		"K", list.New("Kohlrabi"),
+		"L", list.New("Leeks", "Lentils", "Licorice Root"),
 )
 ```
 
@@ -573,7 +579,7 @@ If you need, you can also build lists incrementally:
 ```go
 l := list.New()
 
-for i := 0; i < 10; i++ {
+for i := 0; i < repeat; i++ {
     l.Item("Lip Gloss")
 }
 ```
