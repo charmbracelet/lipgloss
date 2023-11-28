@@ -77,16 +77,16 @@ func Bullet(_ *List, _ int) string {
 // └─ Qux.
 func Tree(l *List, index int) string {
 	// out of bounds?
-	if index < 0 || index > len(l.items) {
+	if index < 0 || index > len(l.Items) {
 		return ""
 	}
 
 	switch index {
 	// is last item of list.
-	case len(l.items):
+	case len(l.Items):
 		return "└─"
 	default:
-		switch l.items[index].(type) {
+		switch l.Items[index].(type) {
 		case *List:
 			return "└─"
 		default:

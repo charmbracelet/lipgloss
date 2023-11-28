@@ -22,16 +22,17 @@ type List struct {
 	enumerator Enumerator
 	hide       bool
 	indent     int
-	items      []any
+	Items      []any
 	style      Style
 }
 
 // New returns a new list.
 func New(items ...any) *List {
 	return &List{
+		Items: items,
+
 		enumerator: Bullet,
 		indent:     0,
-		items:      items,
 		style: Style{
 			Enumerator: lipgloss.NewStyle().MarginRight(1),
 			Item:       lipgloss.NewStyle(),
@@ -42,7 +43,7 @@ func New(items ...any) *List {
 
 // Item appends an item to a list.
 func (l *List) Item(item any) *List {
-	l.items = append(l.items, item)
+	l.Items = append(l.Items, item)
 	return l
 }
 
@@ -106,13 +107,13 @@ func (l *List) String() string {
 
 	// find the longest enumerator value of this list.
 	var maxLen int
-	for i := 0; i < len(l.items); i++ {
+	for i := 0; i < len(l.Items); i++ {
 		enum := l.style.Enumerator.Render(l.enumerator(l, i+1))
 		maxLen = max(runewidth.StringWidth(enum), maxLen)
 	}
 
 	var s strings.Builder
-	for i, item := range l.items {
+	for i, item := range l.Items {
 		switch item := item.(type) {
 		case *List:
 			if item.indent <= 0 {
