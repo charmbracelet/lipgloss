@@ -17,7 +17,7 @@ const abcLen = 26
 // b. Bar
 // c. Baz
 // d. Qux.
-var Alphabet Enumerator = func(_ *List, i int) string {
+func Alphabet(_ *List, i int) string {
 	if i > abcLen*abcLen+abcLen {
 		return fmt.Sprintf("%c%c%c.", 'A'+(i-1)/abcLen/abcLen-1, 'A'+((i-1)/abcLen)%abcLen-1, 'A'+(i-1)%abcLen)
 	}
@@ -33,17 +33,17 @@ var Alphabet Enumerator = func(_ *List, i int) string {
 // 2. Bar
 // 3. Baz
 // 4. Qux.
-var Arabic Enumerator = func(_ *List, i int) string {
+func Arabic(_ *List, i int) string {
 	return fmt.Sprintf("%d.", i)
 }
 
 // Roman is the enumeration for roman numerals listing.
 //
-//   i. Foo
-//  ii. Bar
-// iii. Baz
-//  iv. Qux.
-var Roman Enumerator = func(_ *List, i int) string {
+// /   I. Foo
+// /  II. Bar
+// / III. Baz
+// /  IV. Qux.
+func Roman(_ *List, i int) string {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
 		arabic = []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
@@ -65,7 +65,7 @@ var Roman Enumerator = func(_ *List, i int) string {
 // • Bar
 // • Baz
 // • Qux.
-var Bullet Enumerator = func(_ *List, _ int) string {
+func Bullet(_ *List, _ int) string {
 	return "•"
 }
 
@@ -75,7 +75,7 @@ var Bullet Enumerator = func(_ *List, _ int) string {
 // ├─ Bar
 // ├─ Baz
 // └─ Qux.
-var Tree Enumerator = func(l *List, index int) string {
+func Tree(l *List, index int) string {
 	// out of bounds?
 	if index < 0 || index > len(l.items) {
 		return ""
