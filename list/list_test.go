@@ -39,9 +39,9 @@ func TestHide(t *testing.T) {
 
 func TestListIntegers(t *testing.T) {
 	l := New().
-		Item(1).
-		Item(2).
-		Item(3)
+		Item("1").
+		Item("2").
+		Item("3")
 
 	expected := strings.TrimPrefix(`
 • 1
@@ -212,6 +212,22 @@ func TestBullet(t *testing.T) {
 		if bullet != test.exp {
 			t.Errorf("expected: %s, got: %s\n", test.exp, bullet)
 		}
+	}
+}
+
+func TestData(t *testing.T) {
+	data := NewStringData("Foo", "Bar", "Baz")
+	filter := func(index int) bool {
+		return index != 1
+	}
+	l := New().Data(NewFilter(data).Filter(filter))
+
+	expected := strings.TrimPrefix(`
+• Foo
+• Baz`, "\n")
+
+	if l.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
 	}
 }
 
