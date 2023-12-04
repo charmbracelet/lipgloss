@@ -344,3 +344,40 @@ LXXXVIII. Foo
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
 	}
 }
+
+func TestIndent(t *testing.T) {
+	l := New("foo", "bar", "baz").Enumerator(Arabic).Indent(2)
+
+	expected := strings.TrimPrefix(`
+  1. foo
+  2. bar
+  3. baz`, "\n")
+
+	if l.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
+	}
+}
+
+func TestOffset(t *testing.T) {
+	l := New("foo", "bar", "baz", "qux", "quux").Enumerator(Arabic).Offset(2).Height(2)
+
+	expected := strings.TrimPrefix(`
+3. baz
+4. qux`, "\n")
+
+	if l.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
+	}
+}
+func TestInvalidOffset(t *testing.T) {
+	l := New("foo", "bar", "baz", "qux", "quux").
+		Enumerator(Arabic).
+		Offset(10).
+		Height(2)
+
+	expected := ""
+
+	if l.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
+	}
+}

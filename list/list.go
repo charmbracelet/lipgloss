@@ -23,12 +23,16 @@ type List struct {
 	hide       bool
 	data       Data
 	style      Style
+	indent     int
+	offset     int
+	height     int
 }
 
 // New returns a new list.
 func New(items ...string) *List {
 	return &List{
-		data: NewStringData(items...),
+		data:   NewStringData(items...),
+		height: -1,
 
 		enumerator: Bullet,
 		style: Style{
@@ -60,6 +64,24 @@ func (l *List) At(i int) any {
 // Data sets the list data.
 func (l *List) Data(data Data) *List {
 	l.data = data
+	return l
+}
+
+// Indent sets the list indent.
+func (l *List) Indent(indent int) *List {
+	l.indent = indent
+	return l
+}
+
+// Offset sets the list offset.
+func (l *List) Offset(offset int) *List {
+	l.offset = offset
+	return l
+}
+
+// Height sets the list height.
+func (l *List) Height(height int) *List {
+	l.height = height
 	return l
 }
 
@@ -131,21 +153,30 @@ func (l *List) String() string {
 		return ""
 	}
 
+	last := l.data.Length() - l.offset
+	if l.height > 0 {
+		last = l.height + l.offset
+	}
+	if last <= 0 || last > l.data.Length() {
+		return l.style.Base.Render("")
+	}
+
 	// find the longest enumerator value of this list.
 	var maxLen int
-	for i := 0; i < l.data.Length(); i++ {
+	for i := l.offset; i < last; i++ {
 		enum := l.style.EnumeratorFunc(l, i).Render(l.enumerator(l, i))
 		maxLen = max(lipgloss.Width(enum), maxLen)
 	}
 
 	var s strings.Builder
-	for i := 0; i < l.data.Length(); i++ {
+
+	for i := l.offset; i < last; i++ {
 		enum := l.style.EnumeratorFunc(l, i).Render(l.enumerator(l, i))
 		enumLen := lipgloss.Width(enum)
-		enum = strings.Repeat(" ", maxLen-enumLen) + enum
+		prefix := strings.Repeat(" ", l.indent+maxLen-enumLen) + enum
 		item := l.style.ItemFunc(l, i).Render(fmt.Sprintf("%v", l.data.At(i)))
-		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, enum, item))
-		if i != l.data.Length()-1 {
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, prefix, item))
+		if i != last-1 {
 			s.WriteRune('\n')
 		}
 	}
