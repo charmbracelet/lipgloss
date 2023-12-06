@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 )
 
 type Document struct {
@@ -50,7 +50,7 @@ func main() {
 		})
 
 	for _, d := range docs {
-		l.Item(d)
+		l.Item(d.String())
 	}
 
 	fmt.Println()
