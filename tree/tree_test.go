@@ -37,6 +37,36 @@ func TestTree(t *testing.T) {
 	}
 }
 
+func TestTreeLastNodeIsSubTree(t *testing.T) {
+	tree := New(
+		"Foo",
+		"Bar",
+		New(
+			"Qux",
+			"Quux",
+			New(
+				"Foo",
+				"Bar",
+			),
+			"Quuux",
+		),
+	)
+
+	expected := strings.TrimPrefix(`
+├── Foo
+└─── Bar
+   ├── Qux
+   ├── Quux
+   │  ├── Foo
+   │  └── Bar
+   └── Quuux
+`, "\n")
+
+	if tree.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
+	}
+}
+
 func TestTreeNil(t *testing.T) {
 	tree := New(
 		nil,
