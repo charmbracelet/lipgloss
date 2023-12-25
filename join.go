@@ -12,7 +12,7 @@ import (
 // the position, with 0 being all the way at the top and 1 being all the way
 // at the bottom.
 //
-// If you just want to align to the left, right or center you may as well just
+// If you just want to align to the top, center or bottom you may as well just
 // use the helper constants Top, Center, and Bottom.
 //
 // Example:
