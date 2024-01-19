@@ -31,6 +31,29 @@ import (
 //	    })
 type StyleFunc func(row, col int) lipgloss.Style
 
+// BorderType contains a series of values which comprise the various parts of a border.
+type BorderType int
+
+// A series of BorderType which comprise the various parts of a border.
+const (
+	BorderTop BorderType = iota
+	BorderBottom
+	BorderLeft
+	BorderRight
+	BorderTopLeft
+	BorderTopRight
+	BorderBottomLeft
+	BorderBottomRight
+	BorderMiddleLeft
+	BorderMiddleRight
+	BorderMiddle
+	BorderMiddleTop
+	BorderMiddleBottom
+)
+
+// BorderStyleFunc is the style function that determines the style of a cell border.
+type BorderStyleFunc func(row, col int, borderType BorderType) lipgloss.Style
+
 // DefaultStyles is a TableStyleFunc that returns a new Style with no attributes.
 func DefaultStyles(_, _ int) lipgloss.Style {
 	return lipgloss.NewStyle()
@@ -38,8 +61,9 @@ func DefaultStyles(_, _ int) lipgloss.Style {
 
 // Table is a type for rendering tables.
 type Table struct {
-	styleFunc StyleFunc
-	border    lipgloss.Border
+	styleFunc       StyleFunc
+	borderStyleFunc BorderStyleFunc
+	border          lipgloss.Border
 
 	borderTop    bool
 	borderBottom bool
@@ -100,6 +124,20 @@ func (t *Table) style(row, col int) lipgloss.Style {
 		return lipgloss.NewStyle()
 	}
 	return t.styleFunc(row, col)
+}
+
+// BorderStyleFunc sets the style for a cell border based on it's position (row, column).
+func (t *Table) BorderStyleFunc(style BorderStyleFunc) *Table {
+	t.borderStyleFunc = style
+	return t
+}
+
+// getBorderStyle returns the style for a cell border based on it's position (row, column).
+func (t *Table) getBorderStyle(row, col int, borderType BorderType) lipgloss.Style {
+	if t.borderStyleFunc == nil {
+		return t.borderStyle
+	}
+	return t.borderStyleFunc(row, col, borderType)
 }
 
 // Data sets the table data.
@@ -392,16 +430,16 @@ func (t *Table) Render() string {
 func (t *Table) constructTopBorder() string {
 	var s strings.Builder
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
+		s.WriteString(t.getBorderStyle(0, 0, BorderTopLeft).Render(t.border.TopLeft))
 	}
 	for i := 0; i < len(t.widths); i++ {
-		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
+		s.WriteString(t.getBorderStyle(0, i, BorderTop).Render(strings.Repeat(t.border.Top, t.widths[i])))
 		if i < len(t.widths)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
+			s.WriteString(t.getBorderStyle(0, i, BorderMiddleTop).Render(t.border.MiddleTop))
 		}
 	}
 	if t.borderRight {
-		s.WriteString(t.borderStyle.Render(t.border.TopRight))
+		s.WriteString(t.getBorderStyle(0, len(t.widths)-1, BorderTopRight).Render(t.border.TopRight))
 	}
 	return s.String()
 }
@@ -411,16 +449,16 @@ func (t *Table) constructTopBorder() string {
 func (t *Table) constructBottomBorder() string {
 	var s strings.Builder
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
+		s.WriteString(t.getBorderStyle(t.data.Rows(), 0, BorderBottomLeft).Render(t.border.BottomLeft))
 	}
 	for i := 0; i < len(t.widths); i++ {
-		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+		s.WriteString(t.getBorderStyle(t.data.Rows(), i, BorderBottom).Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 		if i < len(t.widths)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
+			s.WriteString(t.getBorderStyle(t.data.Rows(), i, BorderMiddleBottom).Render(t.border.MiddleBottom))
 		}
 	}
 	if t.borderRight {
-		s.WriteString(t.borderStyle.Render(t.border.BottomRight))
+		s.WriteString(t.getBorderStyle(t.data.Rows(), len(t.widths)-1, BorderBottomRight).Render(t.border.BottomRight))
 	}
 	return s.String()
 }
@@ -430,7 +468,7 @@ func (t *Table) constructBottomBorder() string {
 func (t *Table) constructHeaders() string {
 	var s strings.Builder
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.Left))
+		s.WriteString(t.getBorderStyle(0, 0, BorderLeft).Render(t.border.Left))
 	}
 	for i, header := range t.headers {
 		s.WriteString(t.style(0, i).
@@ -439,29 +477,29 @@ func (t *Table) constructHeaders() string {
 			MaxWidth(t.widths[i]).
 			Render(runewidth.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
+			s.WriteString(t.getBorderStyle(0, i+1, BorderLeft).Render(t.border.Left))
 		}
 	}
 	if t.borderHeader {
 		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
+			s.WriteString(t.getBorderStyle(0, len(t.headers)-1, BorderRight).Render(t.border.Right))
 		}
 		s.WriteString("\n")
 		if t.borderLeft {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+			s.WriteString(t.getBorderStyle(0, 0, BorderMiddleLeft).Render(t.border.MiddleLeft))
 		}
 		for i := 0; i < len(t.headers); i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
+			s.WriteString(t.getBorderStyle(0, i, BorderBottom).Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 			if i < len(t.headers)-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.Middle))
+				s.WriteString(t.getBorderStyle(0, i, BorderMiddle).Render(t.border.Middle))
 			}
 		}
 		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
+			s.WriteString(t.getBorderStyle(0, len(t.headers)-1, BorderMiddleRight).Render(t.border.MiddleRight))
 		}
 	}
 	if t.borderRight && !t.borderHeader {
-		s.WriteString(t.borderStyle.Render(t.border.Right))
+		s.WriteString(t.getBorderStyle(0, len(t.headers)-1, BorderRight).Render(t.border.Right))
 	}
 	return s.String()
 }
@@ -475,9 +513,8 @@ func (t *Table) constructRow(index int) string {
 	height := t.heights[index+btoi(hasHeaders)]
 
 	var cells []string
-	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
-		cells = append(cells, left)
+		cells = append(cells, strings.Repeat(t.getBorderStyle(index+1, 0, BorderLeft).Render(t.border.Left)+"\n", height))
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
@@ -491,12 +528,12 @@ func (t *Table) constructRow(index int) string {
 			Render(runewidth.Truncate(cell, t.widths[c]*height, "…")))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
-			cells = append(cells, left)
+			cells = append(cells, strings.Repeat(t.getBorderStyle(index+1, c+1, BorderLeft).Render(t.border.Left)+"\n", height))
 		}
 	}
 
 	if t.borderRight {
-		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
+		right := strings.Repeat(t.getBorderStyle(index+1, t.data.Columns()-1, BorderRight).Render(t.border.Right)+"\n", height)
 		cells = append(cells, right)
 	}
 
@@ -507,14 +544,14 @@ func (t *Table) constructRow(index int) string {
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
 	if t.borderRow && index < t.data.Rows()-1 {
-		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		s.WriteString(t.getBorderStyle(index+1, 0, BorderMiddleLeft).Render(t.border.MiddleLeft))
 		for i := 0; i < len(t.widths); i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+			s.WriteString(t.getBorderStyle(index+1, i, BorderBottom).Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 			if i < len(t.widths)-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.Middle))
+				s.WriteString(t.getBorderStyle(index+1, i, BorderMiddle).Render(t.border.Middle))
 			}
 		}
-		s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
+		s.WriteString(t.getBorderStyle(index+1, len(t.widths)-1, BorderMiddleRight).Render(t.border.MiddleRight) + "\n")
 	}
 
 	return s.String()
