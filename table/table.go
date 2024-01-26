@@ -86,6 +86,8 @@ type Table struct {
 
 	// heights tracks the height of each row.
 	heights []int
+
+	fixedColumns []int
 }
 
 // New returns a new Table that can be modified through different
@@ -328,11 +330,14 @@ func (t *Table) String() string {
 	if width < t.width && t.width > 0 {
 		// Table is too narrow, expand the columns evenly until it reaches the
 		// desired width.
-		var i int
-		for width < t.width {
-			t.widths[i]++
-			width++
-			i = (i + 1) % len(t.widths)
+		idx := t.getExpandableColumns()
+		if len(idx) > 0 {
+			var i int
+			for width < t.width {
+				t.widths[idx[i]]++
+				width++
+				i = (i + 1) % len(idx)
+			}
 		}
 	} else if width > t.width && t.width > 0 {
 		// Table is too wide, calculate the median non-whitespace length of each
@@ -401,6 +406,35 @@ func (t *Table) String() string {
 	return lipgloss.NewStyle().
 		MaxHeight(t.computeHeight()).
 		MaxWidth(t.width).Render(s.String())
+}
+
+// GetTotalWidth returns the total width of the table, usually called after String.
+func (t *Table) GetTotalWidth() int {
+	return t.computeWidth()
+}
+
+// FixedColumns make sure the columns not to be expanded when table is too narrow.
+func (t *Table) FixedColumns(columns ...int) *Table {
+	t.fixedColumns = append(t.fixedColumns, columns...)
+	return t
+}
+
+// getExpandableColumns returns the non-fixed columns.
+func (t *Table) getExpandableColumns() []int {
+	var idx []int
+	for i := 0; i < len(t.widths); i++ {
+		fixed := false
+		for _, j := range t.fixedColumns {
+			if i == j {
+				fixed = true
+				break
+			}
+		}
+		if !fixed {
+			idx = append(idx, i)
+		}
+	}
+	return idx
 }
 
 // computeWidth computes the width of the table in it's current configuration.
