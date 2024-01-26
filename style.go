@@ -489,7 +489,7 @@ func padLeft(str string, n int, style *termenv.Style) string {
 
 // Apply right padding.
 func padRight(str string, n int, style *termenv.Style) string {
-	if n == 0 || str == "" {
+	if n == 0 {
 		return str
 	}
 

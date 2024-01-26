@@ -329,33 +329,62 @@ func TestStyleValue(t *testing.T) {
 
 	tt := []struct {
 		name     string
+		text     string
 		style    Style
 		expected string
 	}{
 		{
 			name:     "empty",
+			text:     "foo",
 			style:    NewStyle(),
 			expected: "foo",
 		},
 		{
 			name:     "set string",
+			text:     "foo",
 			style:    NewStyle().SetString("bar"),
 			expected: "bar foo",
 		},
 		{
 			name:     "set string with bold",
+			text:     "foo",
 			style:    NewStyle().SetString("bar").Bold(true),
 			expected: "\x1b[1mbar foo\x1b[0m",
 		},
 		{
 			name:     "new style with string",
+			text:     "foo",
 			style:    NewStyle().SetString("bar", "foobar"),
 			expected: "bar foobar foo",
+		},
+		{
+			name:     "margin right",
+			text:     "foo",
+			style:    NewStyle().MarginRight(1),
+			expected: "foo ",
+		},
+		{
+			name:     "margin left",
+			text:     "foo",
+			style:    NewStyle().MarginLeft(1),
+			expected: " foo",
+		},
+		{
+			name:     "empty text margin right",
+			text:     "",
+			style:    NewStyle().MarginRight(1),
+			expected: " ",
+		},
+		{
+			name:     "empty text margin left",
+			text:     "",
+			style:    NewStyle().MarginLeft(1),
+			expected: " ",
 		},
 	}
 
 	for i, tc := range tt {
-		res := tc.style.Render("foo")
+		res := tc.style.Render(tc.text)
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
 				i, tc.expected, formatEscapes(tc.expected),
