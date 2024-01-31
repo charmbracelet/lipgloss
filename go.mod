@@ -5,6 +5,7 @@ retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
 go 1.17
 
 require (
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/mattn/go-runewidth v0.0.15
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2
