@@ -4,13 +4,12 @@ import (
 	"strings"
 
 	"github.com/muesli/reflow/ansi"
-	"github.com/muesli/termenv"
 )
 
 // whitespace is a whitespace renderer.
 type whitespace struct {
 	re    *Renderer
-	style termenv.Style
+	style style
 	chars string
 }
 
@@ -20,7 +19,7 @@ type whitespace struct {
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 	w := &whitespace{
 		re:    r,
-		style: r.ColorProfile().String(),
+		style: r.ColorProfile().string(),
 	}
 	for _, opt := range opts {
 		opt(w)
@@ -64,14 +63,14 @@ type WhitespaceOption func(*whitespace)
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
 func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
-		w.style = w.style.Foreground(c.color(w.re))
+		w.style = w.style.Foreground(c.Color(w.re))
 	}
 }
 
 // WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
-		w.style = w.style.Background(c.color(w.re))
+		w.style = w.style.Background(c.Color(w.re))
 	}
 }
 

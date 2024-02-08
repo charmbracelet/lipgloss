@@ -1,17 +1,14 @@
 package lipgloss
 
 import (
-	"io"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/muesli/termenv"
 )
 
 func TestStyleRender(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
+	r := NewRenderer()
+	r.SetColorProfile(TrueColor)
 	r.SetHasDarkBackground(true)
 	t.Parallel()
 
@@ -21,31 +18,31 @@ func TestStyleRender(t *testing.T) {
 	}{
 		{
 			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Bold(true),
-			"\x1b[1mhello\x1b[0m",
+			"\x1b[1mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Italic(true),
-			"\x1b[3mhello\x1b[0m",
+			"\x1b[3mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
+			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
 		},
 		{
 			r.NewStyle().Blink(true),
-			"\x1b[5mhello\x1b[0m",
+			"\x1b[5mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[0m",
+			"\x1b[2mhello\x1b[m",
 		},
 	}
 
@@ -61,44 +58,44 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(io.Discard)
+	r := NewRenderer()
 	r.SetHasDarkBackground(false)
-	r.SetColorProfile(termenv.TrueColor)
+	r.SetColorProfile(TrueColor)
 	tt := []struct {
 		style    Style
 		expected string
 	}{
 		{
 			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;255;254;18mhello\x1b[0m",
+			"\x1b[38;2;255;254;18mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Bold(true),
-			"\x1b[1mhello\x1b[0m",
+			"\x1b[1mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Italic(true),
-			"\x1b[3mhello\x1b[0m",
+			"\x1b[3mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
+			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
 		},
 		{
 			r.NewStyle().Blink(true),
-			"\x1b[5mhello\x1b[0m",
+			"\x1b[5mhello\x1b[m",
 		},
 		{
 			r.NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[0m",
+			"\x1b[2mhello\x1b[m",
 		},
 		{
 			NewStyle().Faint(true).Renderer(r),
-			"\x1b[2mhello\x1b[0m",
+			"\x1b[2mhello\x1b[m",
 		},
 	}
 
@@ -114,7 +111,7 @@ func TestStyleCustomRender(t *testing.T) {
 }
 
 func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(io.Discard)
+	r := NewRenderer()
 	s1 := NewStyle().Bold(true)
 	s2 := s1.Renderer(r)
 	if s1.r == s2.r {
@@ -349,7 +346,7 @@ func TestStyleValue(t *testing.T) {
 			name:     "set string with bold",
 			text:     "foo",
 			style:    NewStyle().SetString("bar").Bold(true),
-			expected: "\x1b[1mbar foo\x1b[0m",
+			expected: "\x1b[1mbar foo\x1b[m",
 		},
 		{
 			name:     "new style with string",

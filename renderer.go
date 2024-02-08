@@ -1,29 +1,24 @@
 package lipgloss
 
 import (
-	"io"
+	"os"
 	"sync"
 
+	"github.com/charmbracelet/x/exp/term"
+	ansi "github.com/charmbracelet/x/exp/term/ansi/style"
 	"github.com/muesli/termenv"
 )
 
 // We're manually creating the struct here to avoid initializing the output and
 // query the terminal multiple times.
-var renderer = &Renderer{
-	output: termenv.DefaultOutput(),
-}
+var renderer = NewRenderer()
 
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
-	output            *termenv.Output
-	colorProfile      termenv.Profile
-	hasDarkBackground bool
-
-	getColorProfile      sync.Once
-	explicitColorProfile bool
-
-	getBackgroundColor      sync.Once
-	explicitBackgroundColor bool
+	environ           Environ
+	hasDarkBackground *bool
+	isatty            *bool
+	colorProfile      Profile
 
 	mtx sync.RWMutex
 }
@@ -41,48 +36,78 @@ func SetDefaultRenderer(r *Renderer) {
 	renderer = r
 }
 
+// WithRendererEnvironment sets the terminal environment on the renderer.
+func WithRendererEnvironment(env Environ) RendererOption {
+	return func(r *Renderer) {
+		r.environ = env
+	}
+}
+
+// WithRendererColorProfile sets the color profile on the renderer.
+func WithRendererColorProfile(p Profile) RendererOption {
+	return func(r *Renderer) {
+		r.colorProfile = p
+	}
+}
+
+// WithRendererDarkBackground sets the background color detection value on the renderer.
+func WithRendererDarkBackground(b bool) RendererOption {
+	return func(r *Renderer) {
+		r.hasDarkBackground = &b
+	}
+}
+
+// WithRendererTerminal sets whether the renderer should treat the output as a
+// terminal.
+func WithRendererTerminal(b bool) RendererOption {
+	return func(r *Renderer) {
+		r.isatty = &b
+	}
+}
+
 // NewRenderer creates a new Renderer.
 //
 // w will be used to determine the terminal's color capabilities.
-func NewRenderer(w io.Writer, opts ...termenv.OutputOption) *Renderer {
+func NewRenderer(opts ...RendererOption) *Renderer {
 	r := &Renderer{
-		output: termenv.NewOutput(w, opts...),
+		colorProfile: -1,
 	}
+
+	for _, opt := range opts {
+		opt(r)
+	}
+
+	if r.isatty == nil {
+		isatty := term.IsTerminal(os.Stdout.Fd())
+		r.isatty = &isatty
+	}
+
+	if r.hasDarkBackground == nil {
+		t := termenv.HasDarkBackground()
+		r.hasDarkBackground = &t
+	}
+
+	if r.environ == nil {
+		r.environ = OsEnviron{}
+	}
+
+	if r.colorProfile < 0 {
+		r.colorProfile = envColorProfile(*r.isatty, r.environ)
+	}
+
 	return r
 }
 
-// Output returns the termenv output.
-func (r *Renderer) Output() *termenv.Output {
-	r.mtx.RLock()
-	defer r.mtx.RUnlock()
-	return r.output
-}
-
-// SetOutput sets the termenv output.
-func (r *Renderer) SetOutput(o *termenv.Output) {
-	r.mtx.Lock()
-	defer r.mtx.Unlock()
-	r.output = o
-}
-
 // ColorProfile returns the detected termenv color profile.
-func (r *Renderer) ColorProfile() termenv.Profile {
+func (r *Renderer) ColorProfile() Profile {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-
-	if !r.explicitColorProfile {
-		r.getColorProfile.Do(func() {
-			// NOTE: we don't need to lock here because sync.Once provides its
-			// own locking mechanism.
-			r.colorProfile = r.output.EnvColorProfile()
-		})
-	}
 
 	return r.colorProfile
 }
 
 // ColorProfile returns the detected termenv color profile.
-func ColorProfile() termenv.Profile {
+func ColorProfile() Profile {
 	return renderer.ColorProfile()
 }
 
@@ -96,18 +121,17 @@ func ColorProfile() termenv.Profile {
 //
 // Available color profiles are:
 //
-//	termenv.Ascii     // no color, 1-bit
-//	termenv.ANSI      //16 colors, 4-bit
-//	termenv.ANSI256   // 256 colors, 8-bit
-//	termenv.TrueColor // 16,777,216 colors, 24-bit
+//	Ascii     // no color, 1-bit
+//	ANSI      //16 colors, 4-bit
+//	ANSI256   // 256 colors, 8-bit
+//	TrueColor // 16,777,216 colors, 24-bit
 //
 // This function is thread-safe.
-func (r *Renderer) SetColorProfile(p termenv.Profile) {
+func (r *Renderer) SetColorProfile(p Profile) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
 	r.colorProfile = p
-	r.explicitColorProfile = true
 }
 
 // SetColorProfile sets the color profile on the default renderer. This
@@ -120,13 +144,13 @@ func (r *Renderer) SetColorProfile(p termenv.Profile) {
 //
 // Available color profiles are:
 //
-//	termenv.Ascii     // no color, 1-bit
-//	termenv.ANSI      //16 colors, 4-bit
-//	termenv.ANSI256   // 256 colors, 8-bit
-//	termenv.TrueColor // 16,777,216 colors, 24-bit
+//	Ascii     // no color, 1-bit
+//	ANSI      //16 colors, 4-bit
+//	ANSI256   // 256 colors, 8-bit
+//	TrueColor // 16,777,216 colors, 24-bit
 //
 // This function is thread-safe.
-func SetColorProfile(p termenv.Profile) {
+func SetColorProfile(p Profile) {
 	renderer.SetColorProfile(p)
 }
 
@@ -142,15 +166,11 @@ func (r *Renderer) HasDarkBackground() bool {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 
-	if !r.explicitBackgroundColor {
-		r.getBackgroundColor.Do(func() {
-			// NOTE: we don't need to lock here because sync.Once provides its
-			// own locking mechanism.
-			r.hasDarkBackground = r.output.HasDarkBackground()
-		})
+	if r.hasDarkBackground != nil {
+		return *r.hasDarkBackground
 	}
 
-	return r.hasDarkBackground
+	return true
 }
 
 // SetHasDarkBackground sets the background color detection value for the
@@ -179,6 +199,67 @@ func (r *Renderer) SetHasDarkBackground(b bool) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
-	r.hasDarkBackground = b
-	r.explicitBackgroundColor = true
+	r.hasDarkBackground = &b
+}
+
+type style struct {
+	attrs []ansi.Attribute
+	p     Profile
+}
+
+func (s style) Styled(str string) string {
+	if s.p <= Ascii || len(s.attrs) == 0 {
+		return str
+	}
+
+	return ansi.String(str, s.attrs...)
+}
+
+func (s style) Foreground(c ansi.Color) style {
+	if c != nil {
+		s.attrs = append(s.attrs, ansi.ForegroundColor(c))
+	}
+	return s
+}
+
+func (s style) Background(c ansi.Color) style {
+	if c != nil {
+		s.attrs = append(s.attrs, ansi.BackgroundColor(c))
+	}
+	return s
+}
+
+func (s style) CrossOut() style {
+	s.attrs = append(s.attrs, ansi.Strikethrough)
+	return s
+}
+
+func (s style) Underline() style {
+	s.attrs = append(s.attrs, ansi.Underline)
+	return s
+}
+
+func (s style) Bold() style {
+	s.attrs = append(s.attrs, ansi.Bold)
+	return s
+}
+
+func (s style) Italic() style {
+	s.attrs = append(s.attrs, ansi.Italic)
+	return s
+}
+
+func (s style) Blink() style {
+	s.attrs = append(s.attrs, ansi.SlowBlink)
+	return s
+}
+
+func (s style) Faint() style {
+	s.attrs = append(s.attrs, ansi.Faint)
+	return s
+}
+
+func (s style) Reverse() style {
+	s.attrs = append(s.attrs, ansi.Reverse)
+	return s
 }

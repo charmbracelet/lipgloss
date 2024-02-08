@@ -7,7 +7,6 @@ import (
 	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/reflow/wrap"
-	"github.com/muesli/termenv"
 )
 
 const tabWidthDefault = 4
@@ -188,9 +187,9 @@ func (s Style) Render(strs ...string) string {
 		str = joinString(strs...)
 
 		p            = s.r.ColorProfile()
-		te           = p.String()
-		teSpace      = p.String()
-		teWhitespace = p.String()
+		te           = p.string()
+		teSpace      = p.string()
+		teWhitespace = p.string()
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)
@@ -235,10 +234,6 @@ func (s Style) Render(strs ...string) string {
 		return s.maybeConvertTabs(str)
 	}
 
-	// Enable support for ANSI on the legacy Windows cmd.exe console. This is a
-	// no-op on non-Windows systems and on Windows runs only once.
-	enableLegacyWindowsANSI()
-
 	if bold {
 		te = te.Bold()
 	}
@@ -262,22 +257,22 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if fg != noColor {
-		te = te.Foreground(fg.color(s.r))
+		te = te.Foreground(fg.Color(s.r))
 		if styleWhitespace {
-			teWhitespace = teWhitespace.Foreground(fg.color(s.r))
+			teWhitespace = teWhitespace.Foreground(fg.Color(s.r))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Foreground(fg.color(s.r))
+			teSpace = teSpace.Foreground(fg.Color(s.r))
 		}
 	}
 
 	if bg != noColor {
-		te = te.Background(bg.color(s.r))
+		te = te.Background(bg.Color(s.r))
 		if colorWhitespace {
-			teWhitespace = teWhitespace.Background(bg.color(s.r))
+			teWhitespace = teWhitespace.Background(bg.Color(s.r))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Background(bg.color(s.r))
+			teSpace = teSpace.Background(bg.Color(s.r))
 		}
 	}
 
@@ -339,7 +334,7 @@ func (s Style) Render(strs ...string) string {
 	// Padding
 	if !inline {
 		if leftPadding > 0 {
-			var st *termenv.Style
+			var st *style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -347,7 +342,7 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		if rightPadding > 0 {
-			var st *termenv.Style
+			var st *style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -375,7 +370,7 @@ func (s Style) Render(strs ...string) string {
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
-			var st *termenv.Style
+			var st *style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -434,12 +429,12 @@ func (s Style) applyMargins(str string, inline bool) string {
 		bottomMargin = s.getAsInt(marginBottomKey)
 		leftMargin   = s.getAsInt(marginLeftKey)
 
-		styler termenv.Style
+		styler style
 	)
 
 	bgc := s.getAsColor(marginBackgroundKey)
 	if bgc != noColor {
-		styler = styler.Background(bgc.color(s.r))
+		styler = styler.Background(bgc.Color(s.r))
 	}
 
 	// Add left and right margin
@@ -463,19 +458,19 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *termenv.Style) string {
+func padLeft(str string, n int, style *style) string {
 	return pad(str, -n, style)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *termenv.Style) string {
+func padRight(str string, n int, style *style) string {
 	return pad(str, n, style)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *termenv.Style) string {
+func pad(str string, n int, style *style) string {
 	if n == 0 {
 		return str
 	}

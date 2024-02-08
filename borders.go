@@ -5,7 +5,6 @@ import (
 
 	"github.com/mattn/go-runewidth"
 	"github.com/muesli/reflow/ansi"
-	"github.com/muesli/termenv"
 )
 
 // Border contains a series of values which comprise the various parts of a
@@ -411,13 +410,13 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	style := termenv.Style{}
+	style := style{}
 
 	if fg != noColor {
-		style = style.Foreground(fg.color(s.r))
+		style = style.Foreground(fg.Color(s.r))
 	}
 	if bg != noColor {
-		style = style.Background(bg.color(s.r))
+		style = style.Background(bg.Color(s.r))
 	}
 
 	return style.Styled(border)
