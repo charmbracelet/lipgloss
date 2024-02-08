@@ -262,22 +262,22 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if fg != noColor {
-		te = te.Foreground(fg.color(s.r))
+		te = te.Foreground(fg)
 		if styleWhitespace {
-			teWhitespace = teWhitespace.Foreground(fg.color(s.r))
+			teWhitespace = teWhitespace.Foreground(fg)
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Foreground(fg.color(s.r))
+			teSpace = teSpace.Foreground(fg)
 		}
 	}
 
 	if bg != noColor {
-		te = te.Background(bg.color(s.r))
+		te = te.Background(bg)
 		if colorWhitespace {
-			teWhitespace = teWhitespace.Background(bg.color(s.r))
+			teWhitespace = teWhitespace.Background(bg)
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Background(bg.color(s.r))
+			teSpace = teSpace.Background(bg)
 		}
 	}
 
@@ -439,7 +439,7 @@ func (s Style) applyMargins(str string, inline bool) string {
 
 	bgc := s.getAsColor(marginBackgroundKey)
 	if bgc != noColor {
-		styler = styler.Background(bgc.color(s.r))
+		styler = styler.Background(bgc)
 	}
 
 	// Add left and right margin

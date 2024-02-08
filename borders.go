@@ -414,10 +414,10 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 	style := termenv.Style{}
 
 	if fg != noColor {
-		style = style.Foreground(fg.color(s.r))
+		style = style.Foreground(fg)
 	}
 	if bg != noColor {
-		style = style.Background(bg.color(s.r))
+		style = style.Background(bg)
 	}
 
 	return style.Styled(border)
