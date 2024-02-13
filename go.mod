@@ -8,7 +8,7 @@ require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2
-	github.com/rivo/uniseg v0.4.6
+	github.com/rivo/uniseg v0.4.7
 )
 
 require (
