@@ -2,6 +2,8 @@ package tree
 
 import (
 	"strings"
+
+	"github.com/charmbracelet/lipgloss/list"
 )
 
 // Node is a node in a tree.
@@ -10,6 +12,10 @@ type Node interface {
 	String() string
 	Children() []Node
 }
+
+// Enumerator is the function that allow customization of the indentation of
+// the tree.
+type Enumerator func(children []Node, prefix string) string
 
 // StringNode is a node without children.
 type StringNode string
@@ -24,14 +30,10 @@ func (s StringNode) Name() string { return string(s) }
 
 func (s StringNode) String() string { return s.Name() }
 
-// IndentFunc is the function that allow customization of the indentation of
-// the tree.
-type IndentFunc func(children []Node, prefix string) string
-
 // TreeNode implements the Node interface with String data.
 type TreeNode struct { //nolint:revive
 	name       string
-	indentFunc IndentFunc
+	enumerator Enumerator
 	children   []Node
 }
 
@@ -43,13 +45,13 @@ func (n TreeNode) String() string {
 	if n.Name() != "" {
 		sb.WriteString(n.Name() + "\n")
 	}
-	sb.WriteString(n.indentFunc(n.children, ""))
+	sb.WriteString(n.enumerator(n.children, ""))
 	return sb.String()
 }
 
-// Indent sets the indentation function for a string node / tree.
-func (n *TreeNode) Indent(indentFunc IndentFunc) *TreeNode {
-	n.indentFunc = indentFunc
+// Enumerator sets the indentation function for a string node / tree.
+func (n *TreeNode) Enumerator(indentFunc Enumerator) *TreeNode {
+	n.enumerator = indentFunc
 	return n
 }
 
@@ -58,9 +60,23 @@ func (n TreeNode) Children() []Node {
 	return n.children
 }
 
-func defaultIndentFunc(children []Node, prefix string) string {
+func ListEnumerator(children []Node, prefix string) string {
 	var sb strings.Builder
-	for i, info := range children {
+	for _, child := range children {
+		for _, line := range strings.Split(child.Name(), "\n") {
+			sb.WriteString(prefix + line + "\n")
+		}
+
+		if len(child.Children()) > 0 {
+			sb.WriteString(DefaultEnumerator(child.Children(), "  "+prefix))
+		}
+	}
+	return sb.String()
+}
+
+func DefaultEnumerator(children []Node, prefix string) string {
+	var sb strings.Builder
+	for i, child := range children {
 		var treePrefix string
 		var branch string
 
@@ -72,7 +88,7 @@ func defaultIndentFunc(children []Node, prefix string) string {
 			branch = "│  "
 		}
 
-		for i, line := range strings.Split(info.Name(), "\n") {
+		for i, line := range strings.Split(child.Name(), "\n") {
 			if i == 0 {
 				sb.WriteString(prefix + treePrefix + " " + line + "\n")
 				continue
@@ -80,8 +96,8 @@ func defaultIndentFunc(children []Node, prefix string) string {
 			sb.WriteString(prefix + branch + " " + line + "\n")
 		}
 
-		if len(info.Children()) > 0 {
-			sb.WriteString(defaultIndentFunc(info.Children(), prefix+branch))
+		if len(child.Children()) > 0 {
+			sb.WriteString(DefaultEnumerator(child.Children(), prefix+branch))
 		}
 	}
 	return sb.String()
@@ -98,6 +114,8 @@ func New(name string, data ...any) *TreeNode {
 			children = append(children, d)
 		case *StringNode:
 			children = append(children, d)
+		case *list.List:
+			children = append(children, StringNode(d.Render()))
 		case string:
 			s := StringNode(d)
 			children = append(children, &s)
@@ -106,6 +124,6 @@ func New(name string, data ...any) *TreeNode {
 	return &TreeNode{
 		name:       name,
 		children:   children,
-		indentFunc: defaultIndentFunc,
+		enumerator: DefaultEnumerator,
 	}
 }

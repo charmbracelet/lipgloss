@@ -3,6 +3,8 @@ package tree
 import (
 	"strings"
 	"testing"
+
+	"github.com/charmbracelet/lipgloss/list"
 )
 
 func TestTree(t *testing.T) {
@@ -178,7 +180,7 @@ func TestTreeCustom(t *testing.T) {
 			&quuux,
 		),
 		"Baz",
-	).Indent(arrowIndent)
+	).Enumerator(arrowIndent)
 
 	expected := strings.TrimPrefix(`
 -> Foo
@@ -233,5 +235,35 @@ Node
 
 	if tree.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
+	}
+}
+
+func TestTreeLists(t *testing.T) {
+	tree := New(
+		"",
+		list.New(
+			"Foo",
+			New(
+				"Bar",
+				list.New(
+					"Qux",
+					New(
+						"Quux",
+						list.New("Foo", "Bar").
+							Enumerator(list.Alphabet).
+							Render(),
+					).Enumerator(ListEnumerator).String(),
+					"Quuux",
+				).Enumerator(list.Roman).Render(),
+			).Enumerator(ListEnumerator).String(),
+			"Baz",
+		).Enumerator(list.Arabic),
+	).Enumerator(ListEnumerator)
+
+	got := strings.TrimSpace(tree.String())
+	expected := strings.TrimSpace(``)
+
+	if got != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, got)
 	}
 }

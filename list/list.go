@@ -8,7 +8,7 @@ import (
 )
 
 // StyleFunc allows the list to be styled per item.
-type StyleFunc func(_ *List, i int) lipgloss.Style
+type StyleFunc func(i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {
@@ -36,10 +36,10 @@ func New(items ...string) *List {
 
 		enumerator: Bullet,
 		style: Style{
-			EnumeratorFunc: func(_ *List, i int) lipgloss.Style {
+			EnumeratorFunc: func(i int) lipgloss.Style {
 				return lipgloss.NewStyle().MarginRight(1)
 			},
-			ItemFunc: func(_ *List, i int) lipgloss.Style {
+			ItemFunc: func(i int) lipgloss.Style {
 				return lipgloss.NewStyle()
 			},
 			Base: lipgloss.NewStyle(),
@@ -93,7 +93,7 @@ func (l *List) Enumerator(enumerator Enumerator) *List {
 
 // EnumeratorStyle sets the enumerator style.
 func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
-	l.style.EnumeratorFunc = func(_ *List, _ int) lipgloss.Style {
+	l.style.EnumeratorFunc = func(_ int) lipgloss.Style {
 		return style
 	}
 	return l
@@ -101,7 +101,7 @@ func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
 
 // ItemStyle sets the item style.
 func (l *List) ItemStyle(style lipgloss.Style) *List {
-	l.style.ItemFunc = func(_ *List, _ int) lipgloss.Style {
+	l.style.ItemFunc = func(_ int) lipgloss.Style {
 		return style
 	}
 	return l
@@ -164,17 +164,17 @@ func (l *List) String() string {
 	// find the longest enumerator value of this list.
 	var maxLen int
 	for i := l.offset; i < last; i++ {
-		enum := l.style.EnumeratorFunc(l, i).Render(l.enumerator(l, i))
+		enum := l.style.EnumeratorFunc(i).Render(l.enumerator(i))
 		maxLen = max(lipgloss.Width(enum), maxLen)
 	}
 
 	var s strings.Builder
 
 	for i := l.offset; i < last; i++ {
-		enum := l.style.EnumeratorFunc(l, i).Render(l.enumerator(l, i))
+		enum := l.style.EnumeratorFunc(i).Render(l.enumerator(i))
 		enumLen := lipgloss.Width(enum)
 		prefix := strings.Repeat(" ", l.indent+maxLen-enumLen) + enum
-		item := l.style.ItemFunc(l, i).Render(fmt.Sprintf("%v", l.data.At(i)))
+		item := l.style.ItemFunc(i).Render(fmt.Sprintf("%v", l.data.At(i)))
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, prefix, item))
 		if i != last-1 {
 			s.WriteRune('\n')
