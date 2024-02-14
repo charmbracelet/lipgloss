@@ -72,7 +72,14 @@ func defaultIndentFunc(children []Node, prefix string) string {
 			branch = "│  "
 		}
 
-		sb.WriteString(prefix + treePrefix + " " + info.Name() + "\n")
+		for i, line := range strings.Split(info.Name(), "\n") {
+			if i == 0 {
+				sb.WriteString(prefix + treePrefix + " " + line + "\n")
+				continue
+			}
+			sb.WriteString(prefix + branch + " " + line + "\n")
+		}
+
 		if len(info.Children()) > 0 {
 			sb.WriteString(defaultIndentFunc(info.Children(), prefix+branch))
 		}

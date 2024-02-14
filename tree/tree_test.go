@@ -195,3 +195,43 @@ func TestTreeCustom(t *testing.T) {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
 	}
 }
+
+func TestTreeMultilineNode(t *testing.T) {
+	tree := New(
+		"Multiline\nRoot\nNode",
+		"Foo",
+		New(
+			"Bar",
+			"Qux\nLine 2\nLine 3\nLine 4",
+			New(
+				"Quux",
+				"Foo",
+				"Bar",
+			),
+			"Quuux",
+		),
+		"Baz\nLine 2",
+	)
+
+	expected := strings.TrimPrefix(`
+Multiline
+Root
+Node
+├── Foo
+├── Bar
+│  ├── Qux
+│  │   Line 2
+│  │   Line 3
+│  │   Line 4
+│  ├── Quux
+│  │  ├── Foo
+│  │  └── Bar
+│  └── Quuux
+└── Baz
+    Line 2
+`, "\n")
+
+	if tree.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
+	}
+}
