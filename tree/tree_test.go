@@ -7,12 +7,13 @@ import (
 
 func TestTree(t *testing.T) {
 	tree := New(
+		"",
 		"Foo",
-		"Bar",
 		New(
+			"Bar",
 			"Qux",
-			"Quux",
 			New(
+				"Quux",
 				"Foo",
 				"Bar",
 			),
@@ -37,14 +38,64 @@ func TestTree(t *testing.T) {
 	}
 }
 
+func TestTreeRoot(t *testing.T) {
+	tree := New(
+		"The Root",
+		"Foo",
+		New(
+			"Bar",
+			"Qux",
+			"Quuux",
+		),
+		"Baz",
+	)
+
+	expected := strings.TrimPrefix(`
+The Root
+├── Foo
+├── Bar
+│  ├── Qux
+│  └── Quuux
+└── Baz
+`, "\n")
+
+	if tree.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
+	}
+}
+
+func TestTreeStartsWithSubtree(t *testing.T) {
+	tree := New(
+		"",
+		New(
+			"Bar",
+			"Qux",
+			"Quuux",
+		),
+		"Baz",
+	)
+
+	expected := strings.TrimPrefix(`
+├── Bar
+│  ├── Qux
+│  └── Quuux
+└── Baz
+`, "\n")
+
+	if tree.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
+	}
+}
+
 func TestTreeLastNodeIsSubTree(t *testing.T) {
 	tree := New(
+		"",
 		"Foo",
-		"Bar",
 		New(
+			"Bar",
 			"Qux",
-			"Quux",
 			New(
+				"Quux",
 				"Foo",
 				"Bar",
 			),
@@ -54,7 +105,7 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 
 	expected := strings.TrimPrefix(`
 ├── Foo
-└─── Bar
+└── Bar
    ├── Qux
    ├── Quux
    │  ├── Foo
@@ -69,13 +120,13 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 
 func TestTreeNil(t *testing.T) {
 	tree := New(
+		"",
 		nil,
-		"Bar",
 		New(
+			"Bar",
 			"Qux",
-			"Quux",
 			New(
-				nil,
+				"Quux",
 				"Bar",
 			),
 			"Quuux",
@@ -97,23 +148,36 @@ func TestTreeNil(t *testing.T) {
 	}
 }
 
+func arrowIndent(children []Node, prefix string) string {
+	var sb strings.Builder
+	if prefix == "" {
+		prefix = "-> "
+	}
+	for _, node := range children {
+		sb.WriteString(prefix + node.Name() + "\n")
+		if len(node.Children()) > 0 {
+			sb.WriteString(arrowIndent(node.Children(), prefix+"-> "))
+		}
+	}
+	return sb.String()
+}
+
 func TestTreeCustom(t *testing.T) {
 	tree := New(
+		"",
 		"Foo",
-		"Bar",
 		New(
+			"Bar",
 			"Qux",
-			"Quux",
 			New(
+				"Quux",
 				"Foo",
 				"Bar",
 			),
 			"Quuux",
 		),
 		"Baz",
-	).Indent(func(t Node, level, index int, last bool) string {
-		return strings.Repeat("-> ", level+1)
-	})
+	).Indent(arrowIndent)
 
 	expected := strings.TrimPrefix(`
 -> Foo
