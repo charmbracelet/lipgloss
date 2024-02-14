@@ -163,18 +163,19 @@ func arrowIndent(children []Node, prefix string) string {
 }
 
 func TestTreeCustom(t *testing.T) {
+	quuux := StringNode("Quuux")
 	tree := New(
 		"",
 		"Foo",
 		New(
 			"Bar",
-			"Qux",
+			StringNode("Qux"),
 			New(
 				"Quux",
 				"Foo",
 				"Bar",
 			),
-			"Quuux",
+			&quuux,
 		),
 		"Baz",
 	).Indent(arrowIndent)
