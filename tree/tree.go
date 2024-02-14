@@ -14,8 +14,14 @@ type Node interface {
 // StringNode is a node without children.
 type StringNode string
 
+// Children conforms with Node.
+// StringNodes have no children.
 func (StringNode) Children() []Node { return nil }
-func (s StringNode) Name() string   { return string(s) }
+
+// Name conforms with Node.
+// Returns the value of the string itself.
+func (s StringNode) Name() string { return string(s) }
+
 func (s StringNode) String() string { return s.Name() }
 
 // IndentFunc is the function that allow customization of the indentation of
@@ -23,16 +29,14 @@ func (s StringNode) String() string { return s.Name() }
 type IndentFunc func(children []Node, prefix string) string
 
 // TreeNode implements the Node interface with String data.
-type TreeNode struct {
+type TreeNode struct { //nolint:revive
 	name       string
 	indentFunc IndentFunc
 	children   []Node
 }
 
 // Name returns the root name of this node.
-func (n TreeNode) Name() string {
-	return n.name
-}
+func (n TreeNode) Name() string { return n.name }
 
 func (n TreeNode) String() string {
 	var sb strings.Builder
