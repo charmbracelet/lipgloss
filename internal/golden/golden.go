@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/aymanbagabas/go-udiff"
@@ -19,7 +20,7 @@ var update = flag.Bool("update", false, "update .golden files")
 func RequireEqual(tb testing.TB, out []byte) {
 	tb.Helper()
 
-	out = bytes.ReplaceAll(out, []byte("\r\n"), []byte{'\n'})
+	out = fixLineEndings(out)
 
 	golden := filepath.Join("testdata", tb.Name()+".golden")
 	if *update {
@@ -43,8 +44,17 @@ func RequireEqual(tb testing.TB, out []byte) {
 	if err != nil {
 		tb.Fatal(err)
 	}
+
+	goldenBts = fixLineEndings(goldenBts)
 	diff := udiff.Unified("golden", "run", string(goldenBts), string(out))
 	if diff != "" {
 		tb.Fatalf("output does not match, expected:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s", string(goldenBts), string(out), diff)
 	}
+}
+
+func fixLineEndings(in []byte) []byte {
+	if runtime.GOOS != "windows" {
+		return in
+	}
+	return bytes.ReplaceAll(in, []byte("\r\n"), []byte{'\n'})
 }
