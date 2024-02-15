@@ -15,10 +15,10 @@ type Style struct {
 func DefaultStyles() Style {
 	return Style{
 		PrefixFunc: func(int) lipgloss.Style {
-			return lipgloss.NewStyle()
+			return lipgloss.NewStyle().MarginRight(1)
 		},
 		ItemFunc: func(int) lipgloss.Style {
-			return lipgloss.NewStyle().MarginLeft(1)
+			return lipgloss.NewStyle()
 		},
 	}
 }

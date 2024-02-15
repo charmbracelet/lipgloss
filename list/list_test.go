@@ -31,9 +31,35 @@ func TestSublists(t *testing.T) {
 				Renderer(tree.DefaultRenderer().Enumerator(Alphabet)).
 				Item("foo").
 				Item(
-					NewSublist("Deeper", "a", "b", "c").
-						Renderer(tree.DefaultRenderer().Enumerator(Alphabet))).
-				Renderer(tree.DefaultRenderer().Enumerator(Roman)).
+					NewSublist("Deeper").
+						Renderer(tree.DefaultRenderer().Enumerator(Arabic)).
+						Item("a").
+						Item("b").
+						Item(
+							NewSublist("Even Deeper, inherit parent renderer").
+								Item("sus").
+								Item("d minor").
+								Item("f#").
+								Item(
+
+									NewSublist("One ore level, with another renderer").
+										Renderer(tree.DefaultRenderer().Enumerator(Bullet)).
+										Item("a\nmultine\nstring").
+										Item("hoccus poccus").
+										Item("abra kadabra").
+										Item(
+
+											NewSublist("And finally, a tree within all this").
+												Renderer(tree.DefaultRenderer()).
+												Item("another\nmultine\nstring").
+												Item("something").
+												Item("hallo").
+												Item("wunderbar!"),
+										).
+										Item("this is a tree\nand other obvious statements"),
+								),
+						),
+				).
 				Item("bar"),
 		).
 		Item("Baz")

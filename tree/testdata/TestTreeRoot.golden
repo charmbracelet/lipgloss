@@ -1,6 +1,6 @@
-The Root    
-├── Foo     
-├── Bar     
-│  ├── Qux  
-│  └── Quuux
-└── Baz     
+The Root     
+├── Foo      
+├── Bar      
+│   ├── Qux  
+│   └── Quuux
+└── Baz      
