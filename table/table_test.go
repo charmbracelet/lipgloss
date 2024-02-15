@@ -3,7 +3,9 @@ package table
 import (
 	"strings"
 	"testing"
+	"unicode"
 
+	"github.com/acarl005/stripansi"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -941,6 +943,52 @@ func TestFilterInverse(t *testing.T) {
 	}
 }
 
+func TestTableANSI(t *testing.T) {
+	const code = "\x1b[31mC\x1b[0m\x1b[32mo\x1b[0m\x1b[34md\x1b[0m\x1b[33me\x1b[0m"
+
+	rows := [][]string{
+		{"Apple", "Red", "\x1b[31m31\x1b[0m"},
+		{"Lime", "Green", "\x1b[32m32\x1b[0m"},
+		{"Banana", "Yellow", "\x1b[33m33\x1b[0m"},
+		{"Blueberry", "Blue", "\x1b[34m34\x1b[0m"},
+	}
+
+	table := New().
+		Width(29).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("Fruit", "Color", code).
+		Rows(rows...)
+
+	expected := strings.TrimSpace(`
+┌───────────┬────────┬──────┐
+│   Fruit   │ Color  │ Code │
+├───────────┼────────┼──────┤
+│ Apple     │ Red    │ 31   │
+│ Lime      │ Green  │ 32   │
+│ Banana    │ Yellow │ 33   │
+│ Blueberry │ Blue   │ 34   │
+└───────────┴────────┴──────┘
+`)
+
+	if stripString(table.String()) != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, stripString(table.String()))
+	}
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
+}
+
+func stripString(str string) string {
+	s := stripansi.Strip(str)
+	ss := strings.Split(s, "\n")
+
+	var lines []string
+	for _, l := range ss {
+		trim := strings.TrimRightFunc(l, unicode.IsSpace)
+		lines = append(lines, trim)
+	}
+
+	return strings.Join(lines, "\n")
 }

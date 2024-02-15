@@ -3,9 +3,9 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/mattn/go-runewidth"
 	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/termenv"
+	"github.com/rivo/uniseg"
 )
 
 // Border contains a series of values which comprise the various parts of a
@@ -411,7 +411,7 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	var style = termenv.Style{}
+	style := termenv.Style{}
 
 	if fg != noColor {
 		style = style.Foreground(fg.color(s.r))
@@ -423,13 +423,18 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 	return style.Styled(border)
 }
 
-func maxRuneWidth(str string) (width int) {
-	for _, r := range str {
-		w := runewidth.RuneWidth(r)
+func maxRuneWidth(str string) int {
+	var width int
+
+	state := -1
+	for len(str) > 0 {
+		var w int
+		_, str, w, state = uniseg.FirstGraphemeClusterInString(str, state)
 		if w > width {
 			width = w
 		}
 	}
+
 	return width
 }
 
