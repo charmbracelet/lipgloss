@@ -105,9 +105,10 @@ func TestTreeCustom(t *testing.T) {
 		},
 	}
 	r := DefaultRenderer().
-		Styles(st).Enumerator(func(i int, last bool) (branch string, prefix string) {
-		return "-> ", "->"
-	})
+		Styles(st).
+		Enumerator(func(i int, last bool) (indent string, prefix string) {
+			return "-> ", "->"
+		})
 	tree := New(
 		"",
 		"Foo",
@@ -118,9 +119,9 @@ func TestTreeCustom(t *testing.T) {
 				"Quux",
 				"Foo",
 				"Bar",
-			),
+			).Renderer(r),
 			&quuux,
-		),
+		).Renderer(r),
 		"Baz",
 	).Renderer(r)
 

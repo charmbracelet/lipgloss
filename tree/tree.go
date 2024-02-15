@@ -134,24 +134,44 @@ func DefaultEnumerator(_ int, last bool) (indent, prefix string) {
 	return "│  ", "├──"
 }
 
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func (r *defaultRenderer) Render(children []Node, prefix string) string {
 	var strs []string
+	var maxLen int
+
+	for i := range children {
+		_, prefix := r.enumerator(i, i == len(children)-1)
+		prefix = r.style.PrefixFunc(i).Render(prefix)
+		maxLen = max(lipgloss.Width(prefix), maxLen)
+	}
+
 	for i, child := range children {
 		last := i == len(children)-1
 		branch, treePrefix := r.enumerator(i, last)
+
+		treePrefix = r.style.PrefixFunc(i).Render(treePrefix)
+		if l := maxLen - lipgloss.Width(treePrefix); l > 0 {
+			treePrefix = strings.Repeat(" ", l) + treePrefix
+		}
 
 		for i, line := range strings.Split(child.Name(), "\n") {
 			if i == 0 {
 				strs = append(strs, lipgloss.JoinHorizontal(
 					lipgloss.Left,
-					r.style.PrefixFunc(i).Render(prefix+treePrefix),
+					prefix+treePrefix,
 					r.style.ItemFunc(i).Render(line),
 				))
 				continue
 			}
 			strs = append(strs, lipgloss.JoinHorizontal(
 				lipgloss.Left,
-				r.style.PrefixFunc(i).Render(prefix+branch),
+				prefix+branch,
 				r.style.ItemFunc(i).Render(line),
 			))
 		}

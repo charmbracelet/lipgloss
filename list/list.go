@@ -1,25 +1,13 @@
 package list
 
 import (
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
 )
-
-// StyleFunc allows the list to be styled per item.
-type StyleFunc func(i int) lipgloss.Style
-
-// Style is the styling applied to the list.
-type Style struct {
-	Base           lipgloss.Style
-	EnumeratorFunc StyleFunc
-	ItemFunc       StyleFunc
-}
 
 // List is a list of items.
 type List struct {
 	hide   bool
 	data   Data
-	style  Style
 	indent int
 	offset int
 	height int
@@ -72,53 +60,4 @@ func (l *List) Height(height int) *List {
 func (l *List) Hide(hide bool) *List {
 	l.hide = hide
 	return l
-}
-
-// Render renders the list.
-func (l *List) Render() string {
-	return l.String()
-}
-
-// String returns the string representation of the list.
-func (l *List) String() string {
-	if l.hide {
-		return ""
-	}
-
-	last := l.data.Length() - l.offset
-	if l.height > 0 {
-		last = l.height + l.offset
-	}
-	if last <= 0 || last > l.data.Length() {
-		return l.style.Base.Render("")
-	}
-
-	// find the longest enumerator value of this list.
-	// var maxLen int
-	// for i := l.offset; i < last; i++ {
-	// 	enum := l.style.EnumeratorFunc(i).Render(l.enumerator(i))
-	// 	maxLen = max(lipgloss.Width(enum), maxLen)
-	// }
-	//
-	// var s strings.Builder
-	//
-	// for i := l.offset; i < last; i++ {
-	// 	enum := l.style.EnumeratorFunc(i).Render(l.enumerator(i))
-	// 	enumLen := lipgloss.Width(enum)
-	// 	prefix := strings.Repeat(" ", l.indent+maxLen-enumLen) + enum
-	// 	item := l.style.ItemFunc(i).Render(fmt.Sprintf("%v", l.data.At(i)))
-	// 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, prefix, item))
-	// 	if i != last-1 {
-	// 		s.WriteRune('\n')
-	// 	}
-	// }
-	// return l.style.Base.Render(s.String())
-	return ""
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

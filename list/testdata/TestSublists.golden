@@ -1,15 +1,15 @@
-• Foo       
-• Bar       
-  • foo2    
-  • bar2    
-• Qux       
-  I. aaa    
-  II. bbb   
-• Deep      
-  I. foo    
-  II. Deeper
-    A. a    
-    B. b    
-    C. c    
-  III. bar  
-• Baz       
+• Foo        
+• Bar        
+  • foo2     
+  • bar2     
+• Qux        
+   I. aaa    
+  II. bbb    
+• Deep       
+    I. foo   
+   II. Deeper
+    A. a     
+    B. b     
+    C. c     
+  III. bar   
+• Baz        

@@ -42,7 +42,6 @@ func RequireEqual(tb testing.TB, out []byte) {
 	}
 	diff := udiff.Unified("golden", "run", string(goldenBts), string(out))
 	if diff != "" {
-		tb.Fatalf("output does not match, diff:\n\n%s", diff)
+		tb.Fatalf("output does not match, expected:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s", string(goldenBts), string(out), diff)
 	}
-	tb.Logf("got:\n%s", string(goldenBts))
 }

@@ -46,13 +46,7 @@ func TestHide(t *testing.T) {
 		Item("Foo").
 		Item("Baz")
 
-	expected := strings.TrimPrefix(`
-• Foo
-• Baz`, "\n")
-
-	if l.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-	}
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestListIntegers(t *testing.T) {
@@ -61,135 +55,80 @@ func TestListIntegers(t *testing.T) {
 		Item("2").
 		Item("3")
 
-	expected := strings.TrimPrefix(`
-• 1
-• 2
-• 3`, "\n")
-
-	if l.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-	}
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestEnumerators(t *testing.T) {
-	tests := []struct {
-		enumeration tree.Enumerator
-		expected    string
-	}{
-		{
-			enumeration: Alphabet,
-			expected: `
-A. Foo
-B. Bar
-C. Baz`,
-		},
-		{
-			enumeration: Arabic,
-			expected: `
-1. Foo
-2. Bar
-3. Baz`,
-		},
-		{
-			enumeration: Roman,
-			expected: `
-  I. Foo
- II. Bar
-III. Baz`,
-		},
-		{
-			enumeration: Bullet,
-			expected: `
-• Foo
-• Bar
-• Baz`,
-		},
+	tests := map[string]tree.Enumerator{
+		"alphabet": Alphabet,
+		"arabic":   Arabic,
+		"roman":    Roman,
+		"bullet":   Bullet,
 	}
 
-	for _, test := range tests {
-		expected := strings.TrimPrefix(test.expected, "\n")
+	for name, enum := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := New().
+				Renderer(DefaultRenderer().Enumerator(enum)).
+				Item("Foo").
+				Item("Bar").
+				Item("Baz")
 
-		l := New().
-			// Enumerator(test.enumeration).
-			Item("Foo").
-			Item("Bar").
-			Item("Baz")
-
-		if l.String() != expected {
-			t.Errorf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-		}
+			golden.RequireEqual(t, []byte(l.String()))
+		})
 	}
 }
 
 func TestEnumeratorsTransform(t *testing.T) {
-	tests := []struct {
+	tests := map[string]struct {
 		enumeration tree.Enumerator
 		style       lipgloss.Style
-		expected    string
 	}{
-		{
+		"alphabet lower": {
 			enumeration: Alphabet,
 			style:       lipgloss.NewStyle().MarginRight(1).Transform(strings.ToLower),
-			expected: `
-a. Foo
-b. Bar
-c. Baz`,
 		},
-		{
+		"arabic)": {
 			enumeration: Arabic,
 			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
 				return strings.Replace(s, ".", ")", 1)
 			}),
-			expected: `
-1) Foo
-2) Bar
-3) Baz`,
 		},
-		{
+		"roman within ()": {
 			enumeration: Roman,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
 			}),
-			expected: `
-  (i) Foo
- (ii) Bar
-(iii) Baz`,
 		},
-		{
+		"bullet is dash": {
 			enumeration: Bullet,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "- " // this is better done by replacing the enumerator.
 			}),
-			expected: `
-- Foo
-- Bar
-- Baz`,
 		},
-		// 		{
-		// 			enumeration: Tree,
-		// 			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
-		// 				return strings.Replace(s, "─", "───", 1)
-		// 			}),
-		// 			expected: `
-		// ├─── Foo
-		// ├─── Bar
-		// └─── Baz`,
-		// 		},
 	}
 
-	for _, test := range tests {
-		expected := strings.TrimPrefix(test.expected, "\n")
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := New().
+				Renderer(
+					DefaultRenderer().
+						Styles(tree.Style{
+							PrefixFunc: func(i int) lipgloss.Style {
+								return test.style
+							},
+							ItemFunc: func(i int) lipgloss.Style {
+								return lipgloss.NewStyle()
+							},
+						}).
+						Enumerator(test.enumeration),
+				).
+				Item("Foo").
+				Item("Bar").
+				Item("Baz")
 
-		l := New().
-			// Enumerator(test.enumeration).
-			// EnumeratorStyle(test.style).
-			Item("Foo").
-			Item("Bar").
-			Item("Baz")
-
-		if l.String() != expected {
-			t.Errorf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-		}
+			golden.RequireEqual(t, []byte(l.String()))
+		})
 	}
 }
 
