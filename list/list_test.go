@@ -41,14 +41,6 @@ func TestSublists(t *testing.T) {
 	golden.RequireEqual(t, []byte(l.String()))
 }
 
-func TestHide(t *testing.T) {
-	l := New().
-		Item("Foo").
-		Item("Baz")
-
-	golden.RequireEqual(t, []byte(l.String()))
-}
-
 func TestListIntegers(t *testing.T) {
 	l := New().
 		Item("1").
@@ -166,25 +158,9 @@ func TestBullet(t *testing.T) {
 	}
 }
 
-// func TestData(t *testing.T) {
-// 	data := NewStringData("Foo", "Bar", "Baz")
-// 	filter := func(index int) bool {
-// 		return index != 1
-// 	}
-// 	l := New().Data(NewFilter(data).Filter(filter))
-//
-// 	expected := strings.TrimPrefix(`
-// • Foo
-// • Baz`, "\n")
-//
-// 	if l.String() != expected {
-// 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-// 	}
-// }
-
 func TestEnumeratorsAlign(t *testing.T) {
 	fooList := strings.Split(strings.TrimSuffix(strings.Repeat("Foo ", 100), " "), " ")
-	l := New() //.Enumerator(Roman)
+	l := New().Renderer(DefaultRenderer().Enumerator(Roman))
 	for _, f := range fooList {
 		l.Item(f)
 	}
@@ -295,41 +271,3 @@ LXXXVIII. Foo
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
 	}
 }
-
-// func TestIndent(t *testing.T) {
-// 	l := New("foo", "bar", "baz").Enumerator(Arabic).Indent(2)
-//
-// 	expected := strings.TrimPrefix(`
-//   1. foo
-//   2. bar
-//   3. baz`, "\n")
-//
-// 	if l.String() != expected {
-// 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-// 	}
-// }
-
-// func TestOffset(t *testing.T) {
-// 	l := New("foo", "bar", "baz", "qux", "quux").Enumerator(Arabic).Offset(2).Height(2)
-//
-// 	expected := strings.TrimPrefix(`
-// 3. baz
-// 4. qux`, "\n")
-//
-// 	if l.String() != expected {
-// 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-// 	}
-// }
-
-// func TestInvalidOffset(t *testing.T) {
-// 	l := New("foo", "bar", "baz", "qux", "quux").
-// 		Enumerator(Arabic).
-// 		Offset(10).
-// 		Height(2)
-//
-// 	expected := ""
-//
-// 	if l.String() != expected {
-// 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-// 	}
-// }
