@@ -1,6 +1,7 @@
 package tree
 
-// Enumerator returns the branch and tree prefixes of a given item.
+// Enumerator returns the indent (also known as branch) and tree prefixes of a
+// given item.
 type Enumerator func(i int, last bool) (indent string, prefix string)
 
 // DefaultEnumerator enumerates items.

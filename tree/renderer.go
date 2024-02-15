@@ -59,25 +59,25 @@ func (r *defaultRenderer) Render(children []Node, prefix string) string {
 
 	for i, child := range children {
 		last := i == len(children)-1
-		branch, treePrefix := r.enumerator(i, last)
+		indent, nodePrefix := r.enumerator(i, last)
 
-		treePrefix = r.style.PrefixFunc(i).Render(treePrefix)
-		if l := maxLen - lipgloss.Width(treePrefix); l > 0 {
-			treePrefix = strings.Repeat(" ", l) + treePrefix
+		nodePrefix = r.style.PrefixFunc(i).Render(nodePrefix)
+		if l := maxLen - lipgloss.Width(nodePrefix); l > 0 {
+			nodePrefix = strings.Repeat(" ", l) + nodePrefix
 		}
 
 		for i, line := range strings.Split(child.Name(), "\n") {
 			if i == 0 {
 				strs = append(strs, lipgloss.JoinHorizontal(
 					lipgloss.Left,
-					prefix+treePrefix,
+					prefix+nodePrefix,
 					r.style.ItemFunc(i).Render(line),
 				))
 				continue
 			}
 			strs = append(strs, lipgloss.JoinHorizontal(
 				lipgloss.Left,
-				prefix+branch,
+				prefix+indent,
 				r.style.ItemFunc(i).Render(line),
 			))
 		}
@@ -90,7 +90,7 @@ func (r *defaultRenderer) Render(children []Node, prefix string) string {
 					renderer = child.renderer
 				}
 			}
-			strs = append(strs, renderer.Render(child.Children(), prefix+branch))
+			strs = append(strs, renderer.Render(child.Children(), prefix+indent))
 		}
 	}
 	return lipgloss.JoinVertical(lipgloss.Top, strs...)
