@@ -17,7 +17,7 @@ func DefaultStyles() Style {
 		PrefixFunc: func(int) lipgloss.Style {
 			return lipgloss.NewStyle()
 		},
-		ItemFunc: func(i int) lipgloss.Style {
+		ItemFunc: func(int) lipgloss.Style {
 			return lipgloss.NewStyle().MarginLeft(1)
 		},
 	}
