@@ -1,10 +1,6 @@
 package tree
 
-import (
-	"strings"
-
-	"github.com/charmbracelet/lipgloss"
-)
+import "github.com/charmbracelet/lipgloss"
 
 // Node is a node in a tree.
 type Node interface {
@@ -12,26 +8,6 @@ type Node interface {
 	String() string
 	Children() []Node
 }
-
-// StyleFunc allows the list to be styled per item.
-type StyleFunc func(i int) lipgloss.Style
-
-// Style is the styling applied to the list.
-type Style struct {
-	PrefixFunc StyleFunc
-	ItemFunc   StyleFunc
-}
-
-// Renderer is the function that allow customization of the indentation of
-// the tree.
-type Renderer interface {
-	Render(children []Node, prefix string) string
-	Enumerator(enum Enumerator) Renderer
-	Styles(style Style) Renderer
-}
-
-// Enumerator returns the branch and tree prefixes of a given item.
-type Enumerator func(i int, last bool) (indent string, prefix string)
 
 // StringNode is a node without children.
 type StringNode string
@@ -61,6 +37,9 @@ func (n *TreeNode) String() string {
 	if name := n.Name(); name != "" {
 		strs = append(strs, name)
 	}
+	if n.renderer == nil {
+		n.renderer = DefaultRenderer()
+	}
 	strs = append(strs, n.renderer.Render(n.children, ""))
 	return lipgloss.JoinVertical(lipgloss.Top, strs...)
 }
@@ -88,115 +67,11 @@ func (n *TreeNode) Children() []Node {
 	return n.children
 }
 
-// DefaultStyles is the default tree styles.
-func DefaultStyles() Style {
-	return Style{
-		PrefixFunc: func(int) lipgloss.Style {
-			return lipgloss.NewStyle()
-		},
-		ItemFunc: func(i int) lipgloss.Style {
-			return lipgloss.NewStyle().MarginLeft(1)
-		},
-	}
-}
-
-type defaultRenderer struct {
-	style      Style
-	enumerator Enumerator
-}
-
-// Enumerator implements Renderer.
-func (r *defaultRenderer) Enumerator(enum Enumerator) Renderer {
-	r.enumerator = enum
-	return r
-}
-
-// Styles implements Renderer.
-func (r *defaultRenderer) Styles(style Style) Renderer {
-	r.style = style
-	return r
-}
-
-// DefaultRenderer returns the default renderer with the given style and
-// enumerator.
-func DefaultRenderer() Renderer {
-	return &defaultRenderer{
-		style:      DefaultStyles(),
-		enumerator: DefaultEnumerator,
-	}
-}
-
-// DefaultEnumerator enumerates items.
-func DefaultEnumerator(_ int, last bool) (indent, prefix string) {
-	if last {
-		return "   ", "└──"
-	}
-	return "│  ", "├──"
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func (r *defaultRenderer) Render(children []Node, prefix string) string {
-	var strs []string
-	var maxLen int
-
-	for i := range children {
-		_, prefix := r.enumerator(i, i == len(children)-1)
-		prefix = r.style.PrefixFunc(i).Render(prefix)
-		maxLen = max(lipgloss.Width(prefix), maxLen)
-	}
-
-	for i, child := range children {
-		last := i == len(children)-1
-		branch, treePrefix := r.enumerator(i, last)
-
-		treePrefix = r.style.PrefixFunc(i).Render(treePrefix)
-		if l := maxLen - lipgloss.Width(treePrefix); l > 0 {
-			treePrefix = strings.Repeat(" ", l) + treePrefix
-		}
-
-		for i, line := range strings.Split(child.Name(), "\n") {
-			if i == 0 {
-				strs = append(strs, lipgloss.JoinHorizontal(
-					lipgloss.Left,
-					prefix+treePrefix,
-					r.style.ItemFunc(i).Render(line),
-				))
-				continue
-			}
-			strs = append(strs, lipgloss.JoinHorizontal(
-				lipgloss.Left,
-				prefix+branch,
-				r.style.ItemFunc(i).Render(line),
-			))
-		}
-
-		if len(child.Children()) > 0 {
-			switch child := child.(type) {
-			case *TreeNode:
-				strs = append(strs, child.renderer.Render(child.Children(), prefix+branch))
-			default:
-				strs = append(strs, r.Render(child.Children(), prefix+branch))
-			}
-		}
-	}
-	return lipgloss.JoinVertical(lipgloss.Top, strs...)
-}
-
 // New returns a new tree.
 func New(name string, data ...any) *TreeNode {
-	t := &TreeNode{
-		name:     name,
-		renderer: DefaultRenderer(),
-	}
+	t := &TreeNode{name: name}
 	for _, d := range data {
-		t = t.Item(d)
+		t.Item(d)
 	}
-
 	return t
 }

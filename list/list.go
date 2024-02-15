@@ -1,8 +1,6 @@
 package list
 
-import (
-	"github.com/charmbracelet/lipgloss/tree"
-)
+import "github.com/charmbracelet/lipgloss/tree"
 
 // DefaultRenderer returns the default list renderer.
 func DefaultRenderer() tree.Renderer {
@@ -17,6 +15,5 @@ func New(items ...any) *tree.TreeNode {
 
 // NewSublist returns a new node with the given name and subitems.
 func NewSublist(parent string, items ...any) *tree.TreeNode {
-	return tree.New(parent, items...).
-		Renderer(DefaultRenderer())
+	return tree.New(parent, items...)
 }

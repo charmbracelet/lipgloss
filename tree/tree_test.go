@@ -119,9 +119,9 @@ func TestTreeCustom(t *testing.T) {
 				"Quux",
 				"Foo",
 				"Bar",
-			).Renderer(r),
+			),
 			&quuux,
-		).Renderer(r),
+		),
 		"Baz",
 	).Renderer(r)
 
