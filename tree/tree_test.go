@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func TestTree(t *testing.T) {
@@ -150,22 +150,19 @@ func TestTreeNil(t *testing.T) {
 	}
 }
 
-func arrowIndent(children []Node, prefix string) string {
-	var sb strings.Builder
-	if prefix == "" {
-		prefix = "-> "
-	}
-	for _, node := range children {
-		sb.WriteString(prefix + node.Name() + "\n")
-		if len(node.Children()) > 0 {
-			sb.WriteString(arrowIndent(node.Children(), prefix+"-> "))
-		}
-	}
-	return sb.String()
-}
-
 func TestTreeCustom(t *testing.T) {
 	quuux := StringNode("Quuux")
+	st := Style{
+		ItemFunc: func(i int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("9")).MarginLeft(1)
+		},
+		PrefixFunc: func(i int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("12"))
+		},
+	}
+	r := NewDefaultRenderer(st, func(last bool) (branch string, prefix string) {
+		return "-> ", "->"
+	})
 	tree := New(
 		"",
 		"Foo",
@@ -180,7 +177,7 @@ func TestTreeCustom(t *testing.T) {
 			&quuux,
 		),
 		"Baz",
-	).Enumerator(arrowIndent)
+	).Renderer(r)
 
 	expected := strings.TrimPrefix(`
 -> Foo
@@ -235,35 +232,5 @@ Node
 
 	if tree.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
-}
-
-func TestTreeLists(t *testing.T) {
-	tree := New(
-		"",
-		list.New(
-			"Foo",
-			New(
-				"Bar",
-				list.New(
-					"Qux",
-					New(
-						"Quux",
-						list.New("Foo", "Bar").
-							Enumerator(list.Alphabet).
-							Render(),
-					).Enumerator(ListEnumerator).String(),
-					"Quuux",
-				).Enumerator(list.Roman).Render(),
-			).Enumerator(ListEnumerator).String(),
-			"Baz",
-		).Enumerator(list.Arabic),
-	).Enumerator(ListEnumerator)
-
-	got := strings.TrimSpace(tree.String())
-	expected := strings.TrimSpace(``)
-
-	if got != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, got)
 	}
 }
