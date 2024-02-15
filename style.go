@@ -337,7 +337,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	// Padding
-	if !inline {
+	if !inline { //nolint: nestif
 		if leftPadding > 0 {
 			var st *termenv.Style
 			if colorWhitespace || styleWhitespace {
