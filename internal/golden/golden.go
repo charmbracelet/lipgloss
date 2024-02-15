@@ -1,6 +1,7 @@
 package golden
 
 import (
+	"bytes"
 	"flag"
 	"os"
 	"path/filepath"
@@ -17,6 +18,8 @@ var update = flag.Bool("update", false, "update .golden files")
 // You can update the golden files by running your tests with the -update flag.
 func RequireEqual(tb testing.TB, out []byte) {
 	tb.Helper()
+
+	out = bytes.ReplaceAll(out, []byte("\r\n"), []byte{'\n'})
 
 	golden := filepath.Join("testdata", tb.Name()+".golden")
 	if *update {
