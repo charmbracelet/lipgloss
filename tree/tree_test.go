@@ -1,10 +1,10 @@
 package tree
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/internal/golden"
 )
 
 func TestTree(t *testing.T) {
@@ -24,20 +24,7 @@ func TestTree(t *testing.T) {
 		"Baz",
 	)
 
-	expected := strings.TrimPrefix(`
-├── Foo
-├── Bar
-│  ├── Qux
-│  ├── Quux
-│  │  ├── Foo
-│  │  └── Bar
-│  └── Quuux
-└── Baz
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeRoot(t *testing.T) {
@@ -52,18 +39,7 @@ func TestTreeRoot(t *testing.T) {
 		"Baz",
 	)
 
-	expected := strings.TrimPrefix(`
-The Root
-├── Foo
-├── Bar
-│  ├── Qux
-│  └── Quuux
-└── Baz
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
@@ -77,16 +53,7 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 		"Baz",
 	)
 
-	expected := strings.TrimPrefix(`
-├── Bar
-│  ├── Qux
-│  └── Quuux
-└── Baz
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
@@ -105,19 +72,7 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 		),
 	)
 
-	expected := strings.TrimPrefix(`
-├── Foo
-└── Bar
-   ├── Qux
-   ├── Quux
-   │  ├── Foo
-   │  └── Bar
-   └── Quuux
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeNil(t *testing.T) {
@@ -136,18 +91,7 @@ func TestTreeNil(t *testing.T) {
 		"Baz",
 	)
 
-	expected := strings.TrimPrefix(`
-├── Bar
-│  ├── Qux
-│  ├── Quux
-│  │  └── Bar
-│  └── Quuux
-└── Baz
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeCustom(t *testing.T) {
@@ -160,7 +104,8 @@ func TestTreeCustom(t *testing.T) {
 			return lipgloss.NewStyle().Foreground(lipgloss.Color("12"))
 		},
 	}
-	r := NewDefaultRenderer(st, func(last bool) (branch string, prefix string) {
+	r := DefaultRenderer().
+		Styles(st).Enumerator(func(i int, last bool) (branch string, prefix string) {
 		return "-> ", "->"
 	})
 	tree := New(
@@ -179,20 +124,7 @@ func TestTreeCustom(t *testing.T) {
 		"Baz",
 	).Renderer(r)
 
-	expected := strings.TrimPrefix(`
--> Foo
--> Bar
--> -> Qux
--> -> Quux
--> -> -> Foo
--> -> -> Bar
--> -> Quuux
--> Baz
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeMultilineNode(t *testing.T) {
@@ -212,25 +144,5 @@ func TestTreeMultilineNode(t *testing.T) {
 		"Baz\nLine 2",
 	)
 
-	expected := strings.TrimPrefix(`
-Multiline
-Root
-Node
-├── Foo
-├── Bar
-│  ├── Qux
-│  │   Line 2
-│  │   Line 3
-│  │   Line 4
-│  ├── Quux
-│  │  ├── Foo
-│  │  └── Bar
-│  └── Quuux
-└── Baz
-    Line 2
-`, "\n")
-
-	if tree.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, tree)
-	}
+	golden.RequireEqual(t, []byte(tree.String()))
 }

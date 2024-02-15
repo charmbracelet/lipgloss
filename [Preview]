@@ -1,0 +1,4 @@
+|27| 				Renderer(tree.DefaultRenderer(tree.DefaultStyles(), Roman)),
+|31| 				Renderer(tree.DefaultRenderer(tree.DefaultStyles(), Alphabet)).
+|35| 						Renderer(tree.DefaultRenderer(tree.DefaultStyles(), Alphabet))).
+|36| 				Renderer(tree.DefaultRenderer(tree.DefaultStyles(), Arabic)).

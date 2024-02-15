@@ -26,10 +26,12 @@ type Style struct {
 // the tree.
 type Renderer interface {
 	Render(children []Node, prefix string) string
+	Enumerator(enum Enumerator) Renderer
+	Styles(style Style) Renderer
 }
 
 // Enumerator returns the branch and tree prefixes of a given item.
-type Enumerator func(last bool) (branch string, prefix string)
+type Enumerator func(i int, last bool) (indent string, prefix string)
 
 // StringNode is a node without children.
 type StringNode string
@@ -55,12 +57,24 @@ type TreeNode struct { //nolint:revive
 func (n *TreeNode) Name() string { return n.name }
 
 func (n *TreeNode) String() string {
-	var sb strings.Builder
-	if n.Name() != "" {
-		sb.WriteString(n.Name() + "\n")
+	var strs []string
+	if name := n.Name(); name != "" {
+		strs = append(strs, name)
 	}
-	sb.WriteString(n.renderer.Render(n.children, ""))
-	return sb.String()
+	strs = append(strs, n.renderer.Render(n.children, ""))
+	return lipgloss.JoinVertical(lipgloss.Top, strs...)
+}
+
+// Item appends an item to a list.
+func (n *TreeNode) Item(item any) *TreeNode {
+	switch item := item.(type) {
+	case Node:
+		n.children = append(n.children, item)
+	case string:
+		s := StringNode(item)
+		n.children = append(n.children, &s)
+	}
+	return n
 }
 
 // Renderer sets the rendering function for a string node / tree.
@@ -91,17 +105,29 @@ type defaultRenderer struct {
 	enumerator Enumerator
 }
 
-// NewDefaultRenderer returns the default renderer with the given style and
+// Enumerator implements Renderer.
+func (r *defaultRenderer) Enumerator(enum Enumerator) Renderer {
+	r.enumerator = enum
+	return r
+}
+
+// Styles implements Renderer.
+func (r *defaultRenderer) Styles(style Style) Renderer {
+	r.style = style
+	return r
+}
+
+// DefaultRenderer returns the default renderer with the given style and
 // enumerator.
-func NewDefaultRenderer(style Style, enumerator Enumerator) Renderer {
+func DefaultRenderer() Renderer {
 	return &defaultRenderer{
-		style:      style,
-		enumerator: enumerator,
+		style:      DefaultStyles(),
+		enumerator: DefaultEnumerator,
 	}
 }
 
 // DefaultEnumerator enumerates items.
-func DefaultEnumerator(last bool) (branch, prefix string) {
+func DefaultEnumerator(_ int, last bool) (indent, prefix string) {
 	if last {
 		return "   ", "└──"
 	}
@@ -109,49 +135,48 @@ func DefaultEnumerator(last bool) (branch, prefix string) {
 }
 
 func (r *defaultRenderer) Render(children []Node, prefix string) string {
-	var sb strings.Builder
+	var strs []string
 	for i, child := range children {
 		last := i == len(children)-1
-		branch, treePrefix := r.enumerator(last)
+		branch, treePrefix := r.enumerator(i, last)
 
 		for i, line := range strings.Split(child.Name(), "\n") {
 			if i == 0 {
-				sb.WriteString(
-					r.style.PrefixFunc(i).Render(prefix+treePrefix) +
-						r.style.ItemFunc(i).Render(line) +
-						"\n",
-				)
+				strs = append(strs, lipgloss.JoinHorizontal(
+					lipgloss.Left,
+					r.style.PrefixFunc(i).Render(prefix+treePrefix),
+					r.style.ItemFunc(i).Render(line),
+				))
 				continue
 			}
-			sb.WriteString(
-				r.style.PrefixFunc(i).Render(prefix+branch) +
-					r.style.ItemFunc(i).Render(line) +
-					"\n",
-			)
+			strs = append(strs, lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				r.style.PrefixFunc(i).Render(prefix+branch),
+				r.style.ItemFunc(i).Render(line),
+			))
 		}
 
 		if len(child.Children()) > 0 {
-			sb.WriteString(r.Render(child.Children(), prefix+branch))
+			switch child := child.(type) {
+			case *TreeNode:
+				strs = append(strs, child.renderer.Render(child.Children(), prefix+branch))
+			default:
+				strs = append(strs, r.Render(child.Children(), prefix+branch))
+			}
 		}
 	}
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Top, strs...)
 }
 
 // New returns a new tree.
 func New(name string, data ...any) *TreeNode {
-	var children []Node
-	for _, d := range data {
-		switch d := d.(type) {
-		case Node:
-			children = append(children, d)
-		case string:
-			s := StringNode(d)
-			children = append(children, &s)
-		}
-	}
-	return &TreeNode{
+	t := &TreeNode{
 		name:     name,
-		children: children,
-		renderer: NewDefaultRenderer(DefaultStyles(), DefaultEnumerator),
+		renderer: DefaultRenderer(),
 	}
+	for _, d := range data {
+		t = t.Item(d)
+	}
+
+	return t
 }
