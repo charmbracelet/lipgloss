@@ -18,7 +18,7 @@ func main() {
 		"Mac",
 		"Milk",
 	).Renderer(
-		list.DefaultRenderer().
+		list.NewDefaultRenderer().
 			Enumerator(list.Roman).
 			EnumeratorStyle(enumeratorStyle).
 			ItemStyle(itemStyle),

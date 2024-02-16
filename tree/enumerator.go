@@ -7,7 +7,7 @@ type Enumerator func(atter Atter, i int, last bool) (indent string, prefix strin
 // DefaultEnumerator enumerates items.
 func DefaultEnumerator(_ Atter, _ int, last bool) (indent, prefix string) {
 	if last {
-		return "    ", "└──"
+		return "   ", "└──"
 	}
-	return "│   ", "├──"
+	return "│  ", "├──"
 }

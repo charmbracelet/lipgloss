@@ -33,8 +33,8 @@ func main() {
 
 	l := list.New().
 		Renderer(
-			list.DefaultRenderer().
-				Enumerator(func(tree.Atter, i int, bool) (indent string, prefix string) {
+			list.NewDefaultRenderer().
+				Enumerator(func(_ tree.Atter, i int, _ bool) (string, string) {
 					if i == selectedIndex {
 						return "", "│\n│"
 					}

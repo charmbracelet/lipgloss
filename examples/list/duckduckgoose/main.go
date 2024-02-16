@@ -21,7 +21,7 @@ func main() {
 
 	l := list.New("Duck", "Duck", "Duck", "Goose", "Duck")
 	l.Renderer(
-		list.DefaultRenderer().
+		list.NewDefaultRenderer().
 			ItemStyle(itemStyle).
 			EnumeratorStyle(enumStyle).
 			Enumerator(duckDuckGooseEnumerator),

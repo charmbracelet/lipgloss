@@ -100,8 +100,10 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 	for i, child := range children {
 		last := i == len(children)-1
 		indent, nodePrefix := r.enumerator(atter, i, last)
+		enumStyle := r.style.EnumeratorFunc(atter, i)
+		itemStyle := r.style.ItemFunc(atter, i)
 
-		nodePrefix = r.style.EnumeratorFunc(atter, i).Render(nodePrefix)
+		nodePrefix = enumStyle.Render(nodePrefix)
 		if l := maxLen - lipgloss.Width(nodePrefix); l > 0 {
 			nodePrefix = strings.Repeat(" ", l) + nodePrefix
 		}
@@ -111,14 +113,14 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 				strs = append(strs, lipgloss.JoinHorizontal(
 					lipgloss.Left,
 					prefix+nodePrefix,
-					r.style.ItemFunc(atter, i).Render(line),
+					itemStyle.Render(line),
 				))
 				continue
 			}
 			strs = append(strs, lipgloss.JoinHorizontal(
 				lipgloss.Left,
-				prefix+indent,
-				r.style.ItemFunc(atter, i).Render(line),
+				prefix+enumStyle.Render(indent),
+				itemStyle.Render(line),
 			))
 		}
 
@@ -130,7 +132,7 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 					renderer = child.renderer
 				}
 			}
-			strs = append(strs, renderer.Render(child, false, prefix+indent))
+			strs = append(strs, renderer.Render(child, false, prefix+enumStyle.Render(indent)))
 		}
 	}
 	return lipgloss.JoinVertical(lipgloss.Top, strs...)

@@ -87,7 +87,7 @@ func TestEnumerators(t *testing.T) {
 	for name, enum := range tests {
 		t.Run(name, func(t *testing.T) {
 			l := New().
-				Renderer(DefaultRenderer().Enumerator(enum)).
+				Renderer(NewDefaultRenderer().Enumerator(enum)).
 				Item("Foo").
 				Item("Bar").
 				Item("Baz")
@@ -130,7 +130,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			l := New().
 				Renderer(
-					DefaultRenderer().
+					NewDefaultRenderer().
 						EnumeratorStyle(test.style).
 						Enumerator(test.enumeration),
 				).
@@ -179,7 +179,7 @@ func TestBullet(t *testing.T) {
 
 func TestEnumeratorsAlign(t *testing.T) {
 	fooList := strings.Split(strings.TrimSuffix(strings.Repeat("Foo ", 100), " "), " ")
-	l := New().Renderer(DefaultRenderer().Enumerator(Roman))
+	l := New().Renderer(NewDefaultRenderer().Enumerator(Roman))
 	for _, f := range fooList {
 		l.Item(f)
 	}

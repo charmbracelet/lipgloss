@@ -60,7 +60,7 @@ func main() {
 		"Kohlrabi",
 		"Leeks", "Lentils", "Licorice Root",
 	).Renderer(
-		list.DefaultRenderer().
+		list.NewDefaultRenderer().
 			Enumerator(groceryEnumerator).
 			EnumeratorStyleFunc(enumStyleFunc).
 			ItemStyle(itemStyle),
