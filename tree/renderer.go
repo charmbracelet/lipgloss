@@ -132,7 +132,14 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 					renderer = child.renderer
 				}
 			}
-			strs = append(strs, renderer.Render(child, false, prefix+enumStyle.Render(indent)))
+			strs = append(
+				strs,
+				renderer.Render(
+					child,
+					false,
+					prefix+enumStyle.Render(indent),
+				),
+			)
 		}
 	}
 	return lipgloss.JoinVertical(lipgloss.Top, strs...)

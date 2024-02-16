@@ -67,6 +67,15 @@ func TestSublists(t *testing.T) {
 	golden.RequireEqual(t, []byte(l.String()))
 }
 
+func TestMultiline(t *testing.T) {
+	l := New().
+		Item("Item1\nline 2\nline 3").
+		Item("Item2\nline 2\nline 3").
+		Item("3")
+
+	golden.RequireEqual(t, []byte(l.String()))
+}
+
 func TestListIntegers(t *testing.T) {
 	l := New().
 		Item("1").

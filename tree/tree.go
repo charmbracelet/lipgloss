@@ -5,7 +5,6 @@ type Node interface {
 	Name() string
 	String() string
 	Children() []Node
-	Atter
 }
 
 // Atter returns a child node in a specified index.
@@ -15,7 +14,12 @@ type Atter interface {
 
 type atterImpl []Node
 
-func (a atterImpl) At(i int) Node { return a[i] }
+func (a atterImpl) At(i int) Node {
+	if i >= 0 && i < len(a) {
+		return a[i]
+	}
+	return nil
+}
 
 // StringNode is a node without children.
 type StringNode string
@@ -28,10 +32,6 @@ func (StringNode) Children() []Node { return nil }
 // Returns the value of the string itself.
 func (s StringNode) Name() string { return string(s) }
 
-// At conforms with Atter.
-// Always returns nil.
-func (s StringNode) At(int) Node { return nil }
-
 func (s StringNode) String() string { return s.Name() }
 
 // TreeNode implements the Node interface with String data.
@@ -43,15 +43,6 @@ type TreeNode struct { //nolint:revive
 
 // Name returns the root name of this node.
 func (n *TreeNode) Name() string { return n.name }
-
-// At returns the child at the specific index, if the index is within bounds.
-// It'll return nil otherwise.
-func (n *TreeNode) At(i int) Node {
-	if i >= 0 && i < len(n.children) {
-		return n.children[i]
-	}
-	return nil
-}
 
 func (n *TreeNode) String() string {
 	if n.renderer == nil {

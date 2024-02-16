@@ -9,7 +9,7 @@ import (
 
 const abcLen = 26
 
-const indent = "  "
+const indent = " "
 
 // Alphabet is the enumeration for alphabetical listing.
 //
