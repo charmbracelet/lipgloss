@@ -32,27 +32,24 @@ func main() {
 	highlightStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")).MarginBottom(1).MarginLeft(1)
 
 	l := list.New().
-		Renderer(
-			list.NewDefaultRenderer().
-				Enumerator(func(_ tree.Atter, i int, _ bool) (string, string) {
-					if i == selectedIndex {
-						return "", "│\n│"
-					}
-					return "", ""
-				}).
-				ItemStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
-					if selectedIndex == i {
-						return highlightStyle
-					}
-					return baseStyle
-				}).
-				EnumeratorStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
-					if selectedIndex == i {
-						return highlightStyle
-					}
-					return baseStyle
-				}),
-		)
+		Enumerator(func(_ tree.Atter, i int, _ bool) (string, string) {
+			if i == selectedIndex {
+				return "", "│\n│"
+			}
+			return "", ""
+		}).
+		ItemStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
+			if selectedIndex == i {
+				return highlightStyle
+			}
+			return baseStyle
+		}).
+		EnumeratorStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
+			if selectedIndex == i {
+				return highlightStyle
+			}
+			return baseStyle
+		})
 
 	for _, d := range docs {
 		l.Item(d.String())

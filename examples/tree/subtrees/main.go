@@ -35,17 +35,9 @@ func main() {
 			"Pork",
 			"Chicken",
 			tree.New("Something", "foo", "bar"),
-		).
-			Renderer(
-				tree.NewDefaultRenderer().
-					EnumeratorStyle(style2),
-			),
+		).EnumeratorStyle(style2),
 		"Foobar",
-	).
-		Renderer(
-			tree.NewDefaultRenderer().
-				EnumeratorStyle(style1),
-		)
+	).EnumeratorStyle(style1)
 
 	fmt.Println(t)
 }

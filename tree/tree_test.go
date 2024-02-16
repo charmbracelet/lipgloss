@@ -96,12 +96,6 @@ func TestTreeNil(t *testing.T) {
 
 func TestTreeCustom(t *testing.T) {
 	quuux := StringNode("Quuux")
-	r := NewDefaultRenderer().
-		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
-		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
-		Enumerator(func(Atter, int, bool) (indent string, prefix string) {
-			return "->", "->"
-		})
 	tree := New(
 		"",
 		"Foo",
@@ -116,8 +110,12 @@ func TestTreeCustom(t *testing.T) {
 			&quuux,
 		),
 		"Baz",
-	).Renderer(r)
-
+	).
+		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
+		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
+		Enumerator(func(Atter, int, bool) (indent string, prefix string) {
+			return "->", "->"
+		})
 	golden.RequireEqual(t, []byte(tree.String()))
 }
 
@@ -144,26 +142,20 @@ func TestTreeMultilineNode(t *testing.T) {
 func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
 	tree := New(
 		"The Root Node(tm)",
-		New(
-			"Parent",
-			"child 1",
-			"child 2",
-		).Renderer(
-			NewDefaultRenderer().
-				ItemStyleFunc(func(atter Atter, i int) lipgloss.Style {
-					return lipgloss.NewStyle().
-						Foreground(lipgloss.Color("240"))
-				}).
-				EnumeratorStyleFunc(func(atter Atter, i int) lipgloss.Style {
-					color := "212"
-					if i%2 == 0 {
-						color = "99"
-					}
-					return lipgloss.NewStyle().
-						Foreground(lipgloss.Color(color)).
-						MarginRight(1)
-				}),
-		),
+		New("Parent", "child 1", "child 2").
+			ItemStyleFunc(func(atter Atter, i int) lipgloss.Style {
+				return lipgloss.NewStyle().
+					Foreground(lipgloss.Color("240"))
+			}).
+			EnumeratorStyleFunc(func(_ Atter, i int) lipgloss.Style {
+				color := "212"
+				if i%2 == 0 {
+					color = "99"
+				}
+				return lipgloss.NewStyle().
+					Foreground(lipgloss.Color(color)).
+					MarginRight(1)
+			}),
 		"Baz",
 	)
 
@@ -178,20 +170,17 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 		"child 3",
 		"child 4",
 		"child 5",
-	).Renderer(
-		NewDefaultRenderer().
-			Enumerator(func(atter Atter, i int, last bool) (indent string, prefix string) {
-				romans := map[int]string{
-					1: "I",
-					2: "II",
-					3: "III",
-					4: "IV",
-					5: "V",
-					6: "VI",
-				}
-				return "", romans[i+1]
-			}),
-	)
+	).Enumerator(func(_ Atter, i int, _ bool) (indent string, prefix string) {
+		romans := map[int]string{
+			1: "I",
+			2: "II",
+			3: "III",
+			4: "IV",
+			5: "V",
+			6: "VI",
+		}
+		return "", romans[i+1]
+	})
 
 	golden.RequireEqual(t, []byte(tree.String()))
 }
@@ -201,11 +190,8 @@ func TestTreeStyleNilFuncs(t *testing.T) {
 		"Multiline",
 		"Foo",
 		"Baz",
-	).Renderer(
-		NewDefaultRenderer().
-			ItemStyleFunc(nil).
-			EnumeratorStyleFunc(nil),
-	)
+	).ItemStyleFunc(nil).
+		EnumeratorStyleFunc(nil)
 
 	golden.RequireEqual(t, []byte(tree.String()))
 }
@@ -215,14 +201,12 @@ func TestTreeStyleAt(t *testing.T) {
 		"Multiline",
 		"Foo",
 		"Baz",
-	).Renderer(
-		NewDefaultRenderer().Enumerator(func(atter Atter, i int, last bool) (indent string, prefix string) {
-			if atter.At(i).Name() == "Foo" {
-				return "", ">"
-			}
-			return "", "-"
-		}),
-	)
+	).Enumerator(func(atter Atter, i int, _ bool) (indent string, prefix string) {
+		if atter.At(i).Name() == "Foo" {
+			return "", ">"
+		}
+		return "", "-"
+	})
 
 	golden.RequireEqual(t, []byte(tree.String()))
 }

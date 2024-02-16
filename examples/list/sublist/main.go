@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func main() {
@@ -21,66 +20,45 @@ func main() {
 		Item(list.NewSublist("Bar", "foo2", "bar2")).
 		Item(
 			list.NewSublist("Qux", "aaa", "bbb").
-				Renderer(
-					list.NewDefaultRenderer().
-						EnumeratorStyle(style1).
-						Enumerator(list.Roman),
-				),
+				EnumeratorStyle(style1).
+				Enumerator(list.Roman),
 		).
 		Item(
 			list.NewSublist("Deep").
-				Renderer(
-					list.NewDefaultRenderer().
-						EnumeratorStyle(style2).
-						Enumerator(list.Alphabet),
-				).
+				EnumeratorStyle(style2).
+				Enumerator(list.Alphabet).
 				Item("foo").
 				Item(
 					list.NewSublist("Deeper").
-						Renderer(
-							list.NewDefaultRenderer().
-								EnumeratorStyle(style1).
-								Enumerator(list.Arabic),
-						).
+						EnumeratorStyle(style1).
+						Enumerator(list.Arabic).
 						Item("a").
 						Item("b").
 						Item(
 							list.NewSublist("Even Deeper, inherit parent renderer").
-								Renderer(
-									list.NewDefaultRenderer().
-										Enumerator(list.Asterisk).
-										EnumeratorStyle(style2),
-								).
+								Enumerator(list.Asterisk).
+								EnumeratorStyle(style2).
 								Item("sus").
 								Item("d minor").
 								Item("f#").
 								Item(
 
 									list.NewSublist("One ore level, with another renderer").
-										Renderer(
-											list.NewDefaultRenderer().
-												EnumeratorStyle(style1).
-												Enumerator(list.Dash),
-										).
+										EnumeratorStyle(style1).
+										Enumerator(list.Dash).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
 										Item(
 
 											list.NewSublist("And finally, a tree within all this").
-												Renderer(
-													tree.NewDefaultRenderer().
-														EnumeratorStyle(style2),
-												).
+												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
 												Item(
 
 													list.NewSublist("And finally, a tree within all this").
-														Renderer(
-															tree.NewDefaultRenderer().
-																EnumeratorStyle(style2),
-														).
+														EnumeratorStyle(style2).
 														Item("another"),
 												).
 												Item("hallo").

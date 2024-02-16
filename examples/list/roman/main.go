@@ -17,12 +17,10 @@ func main() {
 		"Nyx",
 		"Mac",
 		"Milk",
-	).Renderer(
-		list.NewDefaultRenderer().
-			Enumerator(list.Roman).
-			EnumeratorStyle(enumeratorStyle).
-			ItemStyle(itemStyle),
-	)
+	).
+		Enumerator(list.Roman).
+		EnumeratorStyle(enumeratorStyle).
+		ItemStyle(itemStyle)
 
 	fmt.Println(l)
 }

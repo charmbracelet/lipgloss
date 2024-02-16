@@ -19,10 +19,7 @@ func main() {
 		"Photos",
 		"Movies",
 	).
-		Renderer(
-			tree.NewDefaultRenderer().
-				EnumeratorStyle(enumeratorStyle).
-				ItemStyle(itemStyle),
-		)
+		EnumeratorStyle(enumeratorStyle).
+		ItemStyle(itemStyle)
 	fmt.Println(t)
 }

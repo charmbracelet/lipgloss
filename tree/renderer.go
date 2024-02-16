@@ -2,34 +2,29 @@ package tree
 
 import (
 	"strings"
+	"sync/atomic"
 
 	"github.com/charmbracelet/lipgloss"
 )
-
-// Renderer is the function that allow customization of the indentation of
-// the tree.
-type Renderer interface {
-	Render(node Node, root bool, prefix string) string
-}
 
 // StyleFunc allows the list to be styled per item.
 type StyleFunc func(atter Atter, i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {
-	EnumeratorFunc StyleFunc
-	ItemFunc       StyleFunc
+	enumeratorFunc StyleFunc
+	itemFunc       StyleFunc
 }
 
 // NewDefaultRenderer returns the default renderer with the given style and
 // enumerator.
-func NewDefaultRenderer() *DefaultRenderer {
-	return &DefaultRenderer{
+func newDefaultRenderer() *defaultRenderer {
+	return &defaultRenderer{
 		style: Style{
-			EnumeratorFunc: func(Atter, int) lipgloss.Style {
+			enumeratorFunc: func(Atter, int) lipgloss.Style {
 				return lipgloss.NewStyle().MarginRight(1)
 			},
-			ItemFunc: func(Atter, int) lipgloss.Style {
+			itemFunc: func(Atter, int) lipgloss.Style {
 				return lipgloss.NewStyle()
 			},
 		},
@@ -37,50 +32,15 @@ func NewDefaultRenderer() *DefaultRenderer {
 	}
 }
 
-// DefaultRenderer is the default renderer used by the tree.
-type DefaultRenderer struct {
+// defaultRenderer is the default renderer used by the tree.
+type defaultRenderer struct {
 	style      Style
 	enumerator Enumerator
-}
-
-// EnumeratorStyle implements Renderer.
-func (r *DefaultRenderer) EnumeratorStyle(style lipgloss.Style) *DefaultRenderer {
-	r.style.EnumeratorFunc = func(Atter, int) lipgloss.Style { return style }
-	return r
-}
-
-// EnumeratorStyleFunc implements Renderer.
-func (r *DefaultRenderer) EnumeratorStyleFunc(fn StyleFunc) *DefaultRenderer {
-	if fn == nil {
-		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
-	}
-	r.style.EnumeratorFunc = fn
-	return r
-}
-
-// ItemStyle implements Renderer.
-func (r *DefaultRenderer) ItemStyle(style lipgloss.Style) *DefaultRenderer {
-	r.style.ItemFunc = func(Atter, int) lipgloss.Style { return style }
-	return r
-}
-
-// ItemStyleFunc implements Renderer.
-func (r *DefaultRenderer) ItemStyleFunc(fn StyleFunc) *DefaultRenderer {
-	if fn == nil {
-		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
-	}
-	r.style.EnumeratorFunc = fn
-	return r
-}
-
-// Enumerator implements Renderer.
-func (r *DefaultRenderer) Enumerator(enum Enumerator) *DefaultRenderer {
-	r.enumerator = enum
-	return r
+	custom     atomic.Bool
 }
 
 // Render conforms with the Renderer interface.
-func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
+func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	var strs []string
 	var maxLen int
 	children := node.Children()
@@ -88,20 +48,20 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 
 	// print the root node name if its not empty.
 	if name := node.Name(); name != "" && root {
-		strs = append(strs, r.style.ItemFunc(atter, -1).Render(name))
+		strs = append(strs, r.style.itemFunc(atter, -1).Render(name))
 	}
 
 	for i := range children {
 		_, prefix := r.enumerator(atter, i, i == len(children)-1)
-		prefix = r.style.EnumeratorFunc(atter, i).Render(prefix)
+		prefix = r.style.enumeratorFunc(atter, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
 	for i, child := range children {
 		last := i == len(children)-1
 		indent, nodePrefix := r.enumerator(atter, i, last)
-		enumStyle := r.style.EnumeratorFunc(atter, i)
-		itemStyle := r.style.ItemFunc(atter, i)
+		enumStyle := r.style.enumeratorFunc(atter, i)
+		itemStyle := r.style.itemFunc(atter, i)
 
 		nodePrefix = enumStyle.Render(nodePrefix)
 		if l := maxLen - lipgloss.Width(nodePrefix); l > 0 {
@@ -125,10 +85,10 @@ func (r *DefaultRenderer) Render(node Node, root bool, prefix string) string {
 		}
 
 		if len(child.Children()) > 0 {
-			var renderer Renderer = r
+			renderer := r
 			switch child := child.(type) {
 			case *TreeNode:
-				if child.renderer != nil {
+				if child.renderer.custom.Load() {
 					renderer = child.renderer
 				}
 			}

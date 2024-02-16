@@ -59,12 +59,10 @@ func main() {
 		"Jicama",
 		"Kohlrabi",
 		"Leeks", "Lentils", "Licorice Root",
-	).Renderer(
-		list.NewDefaultRenderer().
-			Enumerator(groceryEnumerator).
-			EnumeratorStyleFunc(enumStyleFunc).
-			ItemStyle(itemStyle),
-	)
+	).
+		Enumerator(groceryEnumerator).
+		EnumeratorStyleFunc(enumStyleFunc).
+		ItemStyle(itemStyle)
 
 	fmt.Println(l)
 }

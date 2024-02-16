@@ -1,5 +1,9 @@
 package tree
 
+import (
+	"github.com/charmbracelet/lipgloss"
+)
+
 // Node is a node in a tree.
 type Node interface {
 	Name() string
@@ -37,7 +41,7 @@ func (s StringNode) String() string { return s.Name() }
 // TreeNode implements the Node interface with String data.
 type TreeNode struct { //nolint:revive
 	name     string
-	renderer Renderer
+	renderer *defaultRenderer
 	children []Node
 }
 
@@ -45,9 +49,6 @@ type TreeNode struct { //nolint:revive
 func (n *TreeNode) Name() string { return n.name }
 
 func (n *TreeNode) String() string {
-	if n.renderer == nil {
-		n.renderer = NewDefaultRenderer()
-	}
 	return n.renderer.Render(n, true, "")
 }
 
@@ -63,9 +64,44 @@ func (n *TreeNode) Item(item any) *TreeNode {
 	return n
 }
 
-// Renderer sets the rendering function for a string node / tree.
-func (n *TreeNode) Renderer(renderer Renderer) *TreeNode {
-	n.renderer = renderer
+// EnumeratorStyle implements Renderer.
+func (n *TreeNode) EnumeratorStyle(style lipgloss.Style) *TreeNode {
+	n.renderer.custom.Store(true)
+	n.renderer.style.enumeratorFunc = func(Atter, int) lipgloss.Style { return style }
+	return n
+}
+
+// EnumeratorStyleFunc implements Renderer.
+func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
+	if fn == nil {
+		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
+	}
+	n.renderer.custom.Store(true)
+	n.renderer.style.enumeratorFunc = fn
+	return n
+}
+
+// ItemStyle implements Renderer.
+func (n *TreeNode) ItemStyle(style lipgloss.Style) *TreeNode {
+	n.renderer.style.itemFunc = func(Atter, int) lipgloss.Style { return style }
+	n.renderer.custom.Store(true)
+	return n
+}
+
+// ItemStyleFunc implements Renderer.
+func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
+	if fn == nil {
+		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
+	}
+	n.renderer.custom.Store(true)
+	n.renderer.style.enumeratorFunc = fn
+	return n
+}
+
+// Enumerator implements Renderer.
+func (n *TreeNode) Enumerator(enum Enumerator) *TreeNode {
+	n.renderer.custom.Store(true)
+	n.renderer.enumerator = enum
 	return n
 }
 
@@ -76,7 +112,10 @@ func (n *TreeNode) Children() []Node {
 
 // New returns a new tree.
 func New(root string, data ...any) *TreeNode {
-	t := &TreeNode{name: root}
+	t := &TreeNode{
+		name:     root,
+		renderer: newDefaultRenderer(),
+	}
 	for _, d := range data {
 		t = t.Item(d)
 	}
