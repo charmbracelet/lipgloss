@@ -42,6 +42,7 @@ func (s StringNode) String() string { return s.Name() }
 type TreeNode struct { //nolint:revive
 	name     string
 	renderer *defaultRenderer
+	addItem  ItemAddFunc
 	children []Node
 }
 
@@ -52,15 +53,27 @@ func (n *TreeNode) String() string {
 	return n.renderer.Render(n, true, "")
 }
 
-// Item appends an item to a list.
-func (n *TreeNode) Item(item any) *TreeNode {
+type ItemAddFunc func(nodes []Node, item any) []Node
+
+func treeItemAddFn(children []Node, item any) []Node {
 	switch item := item.(type) {
 	case Node:
-		n.children = append(n.children, item)
+		children = append(children, item)
 	case string:
 		s := StringNode(item)
-		n.children = append(n.children, &s)
+		children = append(children, &s)
 	}
+	return children
+}
+
+func (n *TreeNode) ItemAddFunc(fn ItemAddFunc) *TreeNode {
+	n.addItem = fn
+	return n
+}
+
+// Item appends an item to a list.
+func (n *TreeNode) Item(item any) *TreeNode {
+	n.children = n.addItem(n.children, item)
 	return n
 }
 
@@ -115,6 +128,7 @@ func New(root string, data ...any) *TreeNode {
 	t := &TreeNode{
 		name:     root,
 		renderer: newDefaultRenderer(),
+		addItem:  treeItemAddFn,
 	}
 	for _, d := range data {
 		t = t.Item(d)

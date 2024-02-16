@@ -17,47 +17,55 @@ func main() {
 
 	l := list.New().
 		Item("Foo").
-		Item(list.NewSublist("Bar", "foo2", "bar2")).
+		Item("Bar").
+		Item(list.New("foo2", "bar2")).
+		Item("Qux").
 		Item(
-			list.NewSublist("Qux", "aaa", "bbb").
+			list.New("Qux", "aaa", "bbb").
 				EnumeratorStyle(style1).
 				Enumerator(list.Roman),
 		).
+		Item("Deep").
 		Item(
-			list.NewSublist("Deep").
+			list.New().
 				EnumeratorStyle(style2).
 				Enumerator(list.Alphabet).
 				Item("foo").
+				Item("Deeper").
 				Item(
-					list.NewSublist("Deeper").
+					list.New().
 						EnumeratorStyle(style1).
 						Enumerator(list.Arabic).
 						Item("a").
 						Item("b").
+						Item("Even Deeper, inherit parent renderer").
 						Item(
-							list.NewSublist("Even Deeper, inherit parent renderer").
+							list.New().
 								Enumerator(list.Asterisk).
 								EnumeratorStyle(style2).
 								Item("sus").
 								Item("d minor").
 								Item("f#").
+								Item("One ore level, with another renderer").
 								Item(
 
-									list.NewSublist("One ore level, with another renderer").
+									list.New().
 										EnumeratorStyle(style1).
 										Enumerator(list.Dash).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
+										Item("And finally, a tree within all this").
 										Item(
 
-											list.NewSublist("And finally, a tree within all this").
+											list.New().
 												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
+												Item("And finally, a tree within all this").
 												Item(
 
-													list.NewSublist("And finally, a tree within all this").
+													list.New().
 														EnumeratorStyle(style2).
 														Item("another"),
 												).

@@ -18,7 +18,16 @@ func TestList(t *testing.T) {
 	golden.RequireEqual(t, []byte(l.String()))
 }
 
-func TestSublists(t *testing.T) {
+func TestSublist(t *testing.T) {
+	l := New().
+		Item("Foo").
+		Item("Bar").
+		Item(New("Hi", "Hello")).
+		Item("Qux")
+	golden.RequireEqual(t, []byte(l.String()))
+}
+
+func TestComplexSublist(t *testing.T) {
 	style1 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
 		MarginRight(1)
@@ -28,47 +37,55 @@ func TestSublists(t *testing.T) {
 
 	l := New().
 		Item("Foo").
-		Item(NewSublist("Bar", "foo2", "bar2")).
+		Item("Bar").
+		Item(New("foo2", "bar2")).
+		Item("Qux").
 		Item(
-			NewSublist("Qux", "aaa", "bbb").
+			New("aaa", "bbb").
 				EnumeratorStyle(style1).
 				Enumerator(Roman),
 		).
+		Item("Deep").
 		Item(
-			NewSublist("Deep").
+			New().
 				EnumeratorStyle(style2).
 				Enumerator(Alphabet).
 				Item("foo").
+				Item("Deeper").
 				Item(
-					NewSublist("Deeper").
+					New().
 						EnumeratorStyle(style1).
 						Enumerator(Arabic).
 						Item("a").
 						Item("b").
+						Item("Even Deeper, inherit parent renderer").
 						Item(
-							NewSublist("Even Deeper, inherit parent renderer").
+							New().
 								Enumerator(Asterisk).
 								EnumeratorStyle(style2).
 								Item("sus").
 								Item("d minor").
 								Item("f#").
+								Item("One ore level, with another renderer").
 								Item(
 
-									NewSublist("One ore level, with another renderer").
+									New().
 										EnumeratorStyle(style1).
 										Enumerator(Dash).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
+										Item("And finally, a tree within all this").
 										Item(
 
-											NewSublist("And finally, a tree within all this").
+											New().
 												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
+												Item("And finally, a tree within all this").
 												Item(
 
-													NewSublist("And finally, a tree within all this").
+													New().
 														EnumeratorStyle(style2).
 														Item("another"),
 												).
