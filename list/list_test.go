@@ -24,15 +24,15 @@ func TestSublists(t *testing.T) {
 		Item(NewSublist("Bar", "foo2", "bar2")).
 		Item(
 			NewSublist("Qux", "aaa", "bbb").
-				Renderer(tree.DefaultRenderer().Enumerator(Roman)),
+				Renderer(tree.NewDefaultRenderer().Enumerator(Roman)),
 		).
 		Item(
 			NewSublist("Deep").
-				Renderer(tree.DefaultRenderer().Enumerator(Alphabet)).
+				Renderer(tree.NewDefaultRenderer().Enumerator(Alphabet)).
 				Item("foo").
 				Item(
 					NewSublist("Deeper").
-						Renderer(tree.DefaultRenderer().Enumerator(Arabic)).
+						Renderer(tree.NewDefaultRenderer().Enumerator(Arabic)).
 						Item("a").
 						Item("b").
 						Item(
@@ -43,14 +43,14 @@ func TestSublists(t *testing.T) {
 								Item(
 
 									NewSublist("One ore level, with another renderer").
-										Renderer(tree.DefaultRenderer().Enumerator(Bullet)).
+										Renderer(tree.NewDefaultRenderer().Enumerator(Bullet)).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
 										Item(
 
 											NewSublist("And finally, a tree within all this").
-												Renderer(tree.DefaultRenderer()).
+												Renderer(tree.NewDefaultRenderer()).
 												Item("another\nmultine\nstring").
 												Item("something").
 												Item("hallo").
@@ -131,14 +131,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 			l := New().
 				Renderer(
 					DefaultRenderer().
-						Styles(tree.Style{
-							PrefixFunc: func(i int) lipgloss.Style {
-								return test.style
-							},
-							ItemFunc: func(i int) lipgloss.Style {
-								return lipgloss.NewStyle()
-							},
-						}).
+						EnumeratorStyle(test.style).
 						Enumerator(test.enumeration),
 				).
 				Item("Foo").
@@ -176,7 +169,7 @@ func TestBullet(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, prefix := test.enum(test.i, false)
+		_, prefix := test.enum(nil, test.i, false)
 		bullet := strings.TrimSuffix(prefix, ".")
 		if bullet != test.exp {
 			t.Errorf("expected: %s, got: %s\n", test.exp, bullet)

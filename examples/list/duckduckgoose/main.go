@@ -5,24 +5,26 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
-func DuckDuckGooseEnumerator(l *list.List, i int) string {
-	if l.At(i) == "Goose" {
-		return "Honk →"
+func duckDuckGooseEnumerator(atter tree.Atter, i int, _ bool) (string, string) {
+	if atter.At(i).Name() == "Goose" {
+		return "", "Honk →"
 	}
-	return " "
+	return "", " "
 }
 
 func main() {
 	enumStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")).MarginRight(1)
 	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("255"))
-	baseStyle := lipgloss.NewStyle().Padding(1)
 
 	l := list.New("Duck", "Duck", "Duck", "Goose", "Duck")
-	l.Enumerator(DuckDuckGooseEnumerator)
-	l.EnumeratorStyle(enumStyle)
-	l.ItemStyle(itemStyle)
-	l.BaseStyle(baseStyle)
+	l.Renderer(
+		list.DefaultRenderer().
+			ItemStyle(itemStyle).
+			EnumeratorStyle(enumStyle).
+			Enumerator(duckDuckGooseEnumerator),
+	)
 	fmt.Println(l)
 }

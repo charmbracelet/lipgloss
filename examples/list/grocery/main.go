@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 var purchased = []string{
@@ -19,13 +20,13 @@ var purchased = []string{
 	"Papaya",
 }
 
-func GroceryEnumerator(l *list.List, i int) string {
+func groceryEnumerator(atter tree.Atter, i int, _ bool) (string, string) {
 	for _, p := range purchased {
-		if l.At(i) == p {
-			return "✓"
+		if atter.At(i).Name() == p {
+			return "", "✓"
 		}
 	}
-	return "•"
+	return "", "•"
 }
 
 var dimEnumStyle = lipgloss.NewStyle().
@@ -36,9 +37,10 @@ var highlightedEnumStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("10")).
 	MarginRight(1)
 
-func EnumStyleFunc(l *list.List, i int) lipgloss.Style {
+func enumStyleFunc(atter tree.Atter, i int) lipgloss.Style {
+	fmt.Println("AQUI")
 	for _, p := range purchased {
-		if l.At(i) == p {
+		if atter.At(i).Name() == p {
 			return highlightedEnumStyle
 		}
 	}
@@ -58,10 +60,12 @@ func main() {
 		"Jicama",
 		"Kohlrabi",
 		"Leeks", "Lentils", "Licorice Root",
-	).
-		ItemStyle(itemStyle).
-		Enumerator(GroceryEnumerator).
-		EnumeratorStyleFunc(EnumStyleFunc)
+	).Renderer(
+		list.DefaultRenderer().
+			Enumerator(groceryEnumerator).
+			EnumeratorStyleFunc(enumStyleFunc).
+			ItemStyle(itemStyle),
+	)
 
 	fmt.Println(l)
 }

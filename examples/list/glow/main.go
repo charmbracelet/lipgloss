@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 	humanize "github.com/dustin/go-humanize"
 )
 
@@ -30,24 +31,28 @@ func main() {
 	baseStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("250")).MarginBottom(1).MarginLeft(1)
 	highlightStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")).MarginBottom(1).MarginLeft(1)
 
-	l := list.New().Enumerator(func(_ *list.List, i int) string {
-		if i == selectedIndex {
-			return "│\n│"
-		}
-		return ""
-	}).
-		ItemStyleFunc(func(_ *list.List, i int) lipgloss.Style {
-			if selectedIndex == i {
-				return highlightStyle
-			}
-			return baseStyle
-		}).
-		EnumeratorStyleFunc(func(_ *list.List, i int) lipgloss.Style {
-			if selectedIndex == i {
-				return highlightStyle
-			}
-			return baseStyle
-		})
+	l := list.New().
+		Renderer(
+			list.DefaultRenderer().
+				Enumerator(func(tree.Atter, i int, bool) (indent string, prefix string) {
+					if i == selectedIndex {
+						return "", "│\n│"
+					}
+					return "", ""
+				}).
+				ItemStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
+					if selectedIndex == i {
+						return highlightStyle
+					}
+					return baseStyle
+				}).
+				EnumeratorStyleFunc(func(_ tree.Atter, i int) lipgloss.Style {
+					if selectedIndex == i {
+						return highlightStyle
+					}
+					return baseStyle
+				}),
+		)
 
 	for _, d := range docs {
 		l.Item(d.String())

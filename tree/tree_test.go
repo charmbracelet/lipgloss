@@ -96,17 +96,10 @@ func TestTreeNil(t *testing.T) {
 
 func TestTreeCustom(t *testing.T) {
 	quuux := StringNode("Quuux")
-	st := Style{
-		ItemFunc: func(i int) lipgloss.Style {
-			return lipgloss.NewStyle().Foreground(lipgloss.Color("9")).MarginLeft(1)
-		},
-		PrefixFunc: func(i int) lipgloss.Style {
-			return lipgloss.NewStyle().Foreground(lipgloss.Color("12"))
-		},
-	}
-	r := DefaultRenderer().
-		Styles(st).
-		Enumerator(func(i int, last bool) (indent string, prefix string) {
+	r := NewDefaultRenderer().
+		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
+		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
+		Enumerator(func(Atter, int, bool) (indent string, prefix string) {
 			return "-> ", "->"
 		})
 	tree := New(

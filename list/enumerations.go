@@ -3,6 +3,8 @@ package list
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 const abcLen = 26
@@ -15,7 +17,7 @@ const indent = "  "
 // b. Bar
 // c. Baz
 // d. Qux.
-func Alphabet(i int, _ bool) (string, string) {
+func Alphabet(_ tree.Atter, i int, _ bool) (string, string) {
 	if i >= abcLen*abcLen+abcLen {
 		return indent, fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
 	}
@@ -31,7 +33,7 @@ func Alphabet(i int, _ bool) (string, string) {
 // 2. Bar
 // 3. Baz
 // 4. Qux.
-func Arabic(i int, _ bool) (string, string) {
+func Arabic(_ tree.Atter, i int, _ bool) (string, string) {
 	return indent, fmt.Sprintf("%d.", i+1)
 }
 
@@ -41,7 +43,7 @@ func Arabic(i int, _ bool) (string, string) {
 // /  II. Bar
 // / III. Baz
 // /  IV. Qux.
-func Roman(i int, _ bool) (string, string) {
+func Roman(_ tree.Atter, i int, _ bool) (string, string) {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
 		arabic = []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
@@ -63,6 +65,6 @@ func Roman(i int, _ bool) (string, string) {
 // • Bar
 // • Baz
 // • Qux.
-func Bullet(int, bool) (string, string) {
+func Bullet(tree.Atter, int, bool) (string, string) {
 	return indent, "•"
 }

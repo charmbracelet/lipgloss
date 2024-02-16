@@ -1,13 +1,21 @@
 package tree
 
-import "github.com/charmbracelet/lipgloss"
-
 // Node is a node in a tree.
 type Node interface {
 	Name() string
 	String() string
 	Children() []Node
+	Atter
 }
+
+// Atter returns a child node in a specified index.
+type Atter interface {
+	At(i int) Node
+}
+
+type atterImpl []Node
+
+func (a atterImpl) At(i int) Node { return a[i] }
 
 // StringNode is a node without children.
 type StringNode string
@@ -19,6 +27,10 @@ func (StringNode) Children() []Node { return nil }
 // Name conforms with Node.
 // Returns the value of the string itself.
 func (s StringNode) Name() string { return string(s) }
+
+// At conforms with Atter.
+// Always returns nil.
+func (s StringNode) At(int) Node { return nil }
 
 func (s StringNode) String() string { return s.Name() }
 
@@ -32,16 +44,20 @@ type TreeNode struct { //nolint:revive
 // Name returns the root name of this node.
 func (n *TreeNode) Name() string { return n.name }
 
+// At returns the child at the specific index, if the index is within bounds.
+// It'll return nil otherwise.
+func (n *TreeNode) At(i int) Node {
+	if i >= 0 && i < len(n.children) {
+		return n.children[i]
+	}
+	return nil
+}
+
 func (n *TreeNode) String() string {
-	var strs []string
-	if name := n.Name(); name != "" {
-		strs = append(strs, name)
-	}
 	if n.renderer == nil {
-		n.renderer = DefaultRenderer()
+		n.renderer = NewDefaultRenderer()
 	}
-	strs = append(strs, n.renderer.Render(n.children, ""))
-	return lipgloss.JoinVertical(lipgloss.Top, strs...)
+	return n.renderer.Render(n, true, "")
 }
 
 // Item appends an item to a list.
@@ -71,7 +87,7 @@ func (n *TreeNode) Children() []Node {
 func New(name string, data ...any) *TreeNode {
 	t := &TreeNode{name: name}
 	for _, d := range data {
-		t.Item(d)
+		t = t.Item(d)
 	}
 	return t
 }

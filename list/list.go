@@ -3,13 +3,13 @@ package list
 import "github.com/charmbracelet/lipgloss/tree"
 
 // DefaultRenderer returns the default list renderer.
-func DefaultRenderer() tree.Renderer {
-	return tree.DefaultRenderer().Enumerator(Bullet)
+func DefaultRenderer() *tree.DefaultRenderer {
+	return tree.NewDefaultRenderer().Enumerator(Bullet)
 }
 
 // New returns a new list.
 func New(items ...any) *tree.TreeNode {
-	return tree.New("", items).
+	return tree.New("", items...).
 		Renderer(DefaultRenderer())
 }
 
