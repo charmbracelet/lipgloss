@@ -68,3 +68,23 @@ func Roman(_ tree.Atter, i int, _ bool) (string, string) {
 func Bullet(tree.Atter, int, bool) (string, string) {
 	return indent, "•"
 }
+
+// Asterisk is an enumeration using asterisks.
+//
+// * Foo
+// * Bar
+// * Baz
+// * Qux.
+func Asterisk(tree.Atter, int, bool) (string, string) {
+	return indent, "*"
+}
+
+// Dash is an enumeration using dashes.
+//
+// * Foo
+// * Bar
+// * Baz
+// * Qux.
+func Dash(tree.Atter, int, bool) (string, string) {
+	return indent, "-"
+}

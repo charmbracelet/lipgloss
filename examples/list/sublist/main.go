@@ -48,6 +48,7 @@ func main() {
 							list.NewSublist("Even Deeper, inherit parent renderer").
 								Renderer(
 									list.NewDefaultRenderer().
+										Enumerator(list.Asterisk).
 										EnumeratorStyle(style2),
 								).
 								Item("sus").
@@ -59,7 +60,7 @@ func main() {
 										Renderer(
 											list.NewDefaultRenderer().
 												EnumeratorStyle(style1).
-												Enumerator(list.Bullet),
+												Enumerator(list.Dash),
 										).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").

@@ -19,40 +19,80 @@ func TestList(t *testing.T) {
 }
 
 func TestSublists(t *testing.T) {
+	style1 := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("99")).
+		MarginRight(1)
+	style2 := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("212")).
+		MarginRight(1)
+
 	l := New().
 		Item("Foo").
 		Item(NewSublist("Bar", "foo2", "bar2")).
 		Item(
 			NewSublist("Qux", "aaa", "bbb").
-				Renderer(tree.NewDefaultRenderer().Enumerator(Roman)),
+				Renderer(
+					NewDefaultRenderer().
+						EnumeratorStyle(style1).
+						Enumerator(Roman),
+				),
 		).
 		Item(
 			NewSublist("Deep").
-				Renderer(tree.NewDefaultRenderer().Enumerator(Alphabet)).
+				Renderer(
+					NewDefaultRenderer().
+						EnumeratorStyle(style2).
+						Enumerator(Alphabet),
+				).
 				Item("foo").
 				Item(
 					NewSublist("Deeper").
-						Renderer(tree.NewDefaultRenderer().Enumerator(Arabic)).
+						Renderer(
+							NewDefaultRenderer().
+								EnumeratorStyle(style1).
+								Enumerator(Arabic),
+						).
 						Item("a").
 						Item("b").
 						Item(
 							NewSublist("Even Deeper, inherit parent renderer").
+								Renderer(
+									NewDefaultRenderer().
+										Enumerator(Asterisk).
+										EnumeratorStyle(style2),
+								).
 								Item("sus").
 								Item("d minor").
 								Item("f#").
 								Item(
 
 									NewSublist("One ore level, with another renderer").
-										Renderer(tree.NewDefaultRenderer().Enumerator(Bullet)).
+										Renderer(
+											NewDefaultRenderer().
+												EnumeratorStyle(style1).
+												Enumerator(Dash),
+										).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
 										Item(
 
 											NewSublist("And finally, a tree within all this").
-												Renderer(tree.NewDefaultRenderer()).
+												Renderer(
+													tree.NewDefaultRenderer().
+														EnumeratorStyle(style2),
+												).
 												Item("another\nmultine\nstring").
 												Item("something").
+												Item(
+
+													NewSublist("And finally, a tree within all this").
+														Renderer(
+															tree.NewDefaultRenderer().
+																EnumeratorStyle(style2),
+														).
+														Item("another"),
+												).
 												Item("hallo").
 												Item("wunderbar!"),
 										).
@@ -91,6 +131,8 @@ func TestEnumerators(t *testing.T) {
 		"arabic":   Arabic,
 		"roman":    Roman,
 		"bullet":   Bullet,
+		"asterisk": Asterisk,
+		"dash":     Dash,
 	}
 
 	for name, enum := range tests {
