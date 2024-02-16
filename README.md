@@ -465,6 +465,32 @@ fmt.Println(t)
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
+
+## Rendering Trees
+
+Lip Gloss ships with a tree rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/tree"
+```
+
+Define a new list.
+
+```go
+l := tree.New("Root", "A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+
+// Root
+// ├── A
+// ├── B
+// └── C
+```
+
 ## Rendering Lists
 
 Lip Gloss ships with a list rendering sub-package.

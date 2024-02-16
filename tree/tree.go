@@ -84,8 +84,8 @@ func (n *TreeNode) Children() []Node {
 }
 
 // New returns a new tree.
-func New(name string, data ...any) *TreeNode {
-	t := &TreeNode{name: name}
+func New(root string, data ...any) *TreeNode {
+	t := &TreeNode{name: root}
 	for _, d := range data {
 		t = t.Item(d)
 	}
