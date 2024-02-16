@@ -57,11 +57,12 @@ func parentize(nodes []tree.Node, item tree.Node) (tree.Node, int) {
 
 // creates a new TreeNode with the given name and children.
 func makeParent(name string, children []tree.Node) *tree.TreeNode {
-	var data []any
+	data := make([]any, 0, len(children))
 	for _, d := range children {
 		data = append(data, d)
 	}
-	return tree.New(name, data...).ItemAddFunc(listItemAddFn)
+	return tree.New(name, data...).
+		ItemAddFunc(listItemAddFn)
 }
 
 func remove(data []tree.Node, i int) []tree.Node {
