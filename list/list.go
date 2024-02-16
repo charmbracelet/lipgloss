@@ -28,9 +28,6 @@ func listItemAddFn(nodes []tree.Node, item any) []tree.Node {
 		}
 		nodes = append(nodes, newItem)
 		return nodes
-	}
-
-	switch item := item.(type) {
 	case tree.Node:
 		nodes = append(nodes, item)
 	case string:
@@ -47,22 +44,21 @@ func parentize(nodes []tree.Node, item tree.Node) (tree.Node, int) {
 		parent := nodes[j]
 		switch parent := parent.(type) {
 		case tree.StringNode:
-			return makeParent(parent.Name(), item.Children()), j
+			return treenize(parent, item.Children()), j
 		case *tree.StringNode:
-			return makeParent(parent.Name(), item.Children()), j
+			return treenize(parent, item.Children()), j
 		}
 	}
 	return item, -1
 }
 
 // creates a new TreeNode with the given name and children.
-func makeParent(name string, children []tree.Node) *tree.TreeNode {
+func treenize(parent tree.Node, children []tree.Node) *tree.TreeNode {
 	data := make([]any, 0, len(children))
 	for _, d := range children {
 		data = append(data, d)
 	}
-	return tree.New(name, data...).
-		ItemAddFunc(listItemAddFn)
+	return tree.New(parent.Name(), data...)
 }
 
 func remove(data []tree.Node, i int) []tree.Node {

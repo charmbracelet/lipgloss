@@ -2,7 +2,6 @@ package tree
 
 import (
 	"strings"
-	"sync/atomic"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -36,7 +35,6 @@ func newDefaultRenderer() *defaultRenderer {
 type defaultRenderer struct {
 	style      Style
 	enumerator Enumerator
-	custom     atomic.Bool
 }
 
 // Render conforms with the Renderer interface.
@@ -88,9 +86,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 			renderer := r
 			switch child := child.(type) {
 			case *TreeNode:
-				if child.renderer.custom.Load() {
-					renderer = child.renderer
-				}
+				renderer = child.renderer
 			}
 			strs = append(
 				strs,

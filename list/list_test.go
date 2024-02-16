@@ -22,7 +22,7 @@ func TestSublist(t *testing.T) {
 	l := New().
 		Item("Foo").
 		Item("Bar").
-		Item(New("Hi", "Hello")).
+		Item(New("Hi", "Hello")).Enumerator(Roman).
 		Item("Qux")
 	golden.RequireEqual(t, []byte(l.String()))
 }
