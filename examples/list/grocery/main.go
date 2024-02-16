@@ -38,7 +38,6 @@ var highlightedEnumStyle = lipgloss.NewStyle().
 	MarginRight(1)
 
 func enumStyleFunc(atter tree.Atter, i int) lipgloss.Style {
-	fmt.Println("AQUI")
 	for _, p := range purchased {
 		if atter.At(i).Name() == p {
 			return highlightedEnumStyle

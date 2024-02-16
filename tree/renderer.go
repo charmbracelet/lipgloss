@@ -45,7 +45,8 @@ type DefaultRenderer struct {
 
 // EnumeratorStyle implements Renderer.
 func (r *DefaultRenderer) EnumeratorStyle(style lipgloss.Style) *DefaultRenderer {
-	return r.EnumeratorStyleFunc(func(Atter, int) lipgloss.Style { return style })
+	r.style.EnumeratorFunc = func(Atter, int) lipgloss.Style { return style }
+	return r
 }
 
 // EnumeratorStyleFunc implements Renderer.
@@ -59,7 +60,8 @@ func (r *DefaultRenderer) EnumeratorStyleFunc(fn StyleFunc) *DefaultRenderer {
 
 // ItemStyle implements Renderer.
 func (r *DefaultRenderer) ItemStyle(style lipgloss.Style) *DefaultRenderer {
-	return r.ItemStyleFunc(func(Atter, int) lipgloss.Style { return style })
+	r.style.ItemFunc = func(Atter, int) lipgloss.Style { return style }
+	return r
 }
 
 // ItemStyleFunc implements Renderer.
