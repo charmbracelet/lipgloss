@@ -1,6 +1,8 @@
 package tree
 
 import (
+	"sync"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -40,50 +42,86 @@ func (s StringNode) String() string { return s.Name() }
 
 // TreeNode implements the Node interface with String data.
 type TreeNode struct { //nolint:revive
-	name     string
-	renderer *defaultRenderer
-	addItem  ItemAddFunc
-	children []Node
+	name         string
+	renderer     *defaultRenderer
+	rendererOnce sync.Once
+	children     []Node
 }
 
 // Name returns the root name of this node.
 func (n *TreeNode) Name() string { return n.name }
 
 func (n *TreeNode) String() string {
-	return n.renderer.Render(n, true, "")
-}
-
-// ItemAddFunc is a function that, given the current list of nodes and a new
-// item, adds the new item to the list and returns it.
-// This is to be used internally only.
-type ItemAddFunc func(nodes []Node, item any) []Node
-
-func treeItemAddFn(children []Node, item any) []Node {
-	switch item := item.(type) {
-	case Node:
-		children = append(children, item)
-	case string:
-		s := StringNode(item)
-		children = append(children, &s)
-	}
-	return children
-}
-
-// ItemAddFunc changes the way items are added to a tree.
-func (n *TreeNode) ItemAddFunc(fn ItemAddFunc) *TreeNode {
-	n.addItem = fn
-	return n
+	return n.ensureRenderer().Render(n, true, "")
 }
 
 // Item appends an item to a list.
+//
+// If the tree being added is a new TreeNode without a name, we add its
+// children to the previous string node.
+//
+// This is mostly syntactic sugar for adding items to lists.
+//
+// Both of these should result in the same thing:
+//
+//	New("foo", "bar", New("", "zaz"))
+//	New("foo", New("bar", "zaz"))
+//
+// The resulting tree would be:
+// - foo
+// - bar
+//   - zaz
 func (n *TreeNode) Item(item any) *TreeNode {
-	n.children = n.addItem(n.children, item)
+	switch item := item.(type) {
+	case *TreeNode:
+		newItem, rm := ensureParent(n.children, item)
+		if rm >= 0 {
+			n.children = remove(n.children, rm)
+		}
+		n.children = append(n.children, newItem)
+	case Node:
+		n.children = append(n.children, item)
+	case string:
+		s := StringNode(item)
+		n.children = append(n.children, &s)
+	}
 	return n
+}
+
+// walks backwards in the existing nodes until it finds a string node, then
+// remove it from the list and set it as the parent of the current node.
+func ensureParent(nodes []Node, item *TreeNode) (*TreeNode, int) {
+	if item.Name() != "" {
+		return item, -1
+	}
+	for j := len(nodes) - 1; j >= 0; j-- {
+		parent := nodes[j]
+		switch parent := parent.(type) {
+		case StringNode:
+			item.name = parent.Name()
+			return item, j
+		case *StringNode:
+			item.name = parent.Name()
+			return item, j
+		}
+	}
+	return item, -1
+}
+
+func remove(data []Node, i int) []Node {
+	return append(data[:i], data[i+1:]...)
+}
+
+func (n *TreeNode) ensureRenderer() *defaultRenderer {
+	n.rendererOnce.Do(func() {
+		n.renderer = newDefaultRenderer()
+	})
+	return n.renderer
 }
 
 // EnumeratorStyle implements Renderer.
 func (n *TreeNode) EnumeratorStyle(style lipgloss.Style) *TreeNode {
-	n.renderer.style.enumeratorFunc = func(Atter, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.enumeratorFunc = func(Atter, int) lipgloss.Style { return style }
 	return n
 }
 
@@ -92,13 +130,13 @@ func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
 		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
-	n.renderer.style.enumeratorFunc = fn
+	n.ensureRenderer().style.enumeratorFunc = fn
 	return n
 }
 
 // ItemStyle implements Renderer.
 func (n *TreeNode) ItemStyle(style lipgloss.Style) *TreeNode {
-	n.renderer.style.itemFunc = func(Atter, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.itemFunc = func(Atter, int) lipgloss.Style { return style }
 	return n
 }
 
@@ -107,13 +145,13 @@ func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
 		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
-	n.renderer.style.enumeratorFunc = fn
+	n.ensureRenderer().style.enumeratorFunc = fn
 	return n
 }
 
 // Enumerator implements Renderer.
 func (n *TreeNode) Enumerator(enum Enumerator) *TreeNode {
-	n.renderer.enumerator = enum
+	n.ensureRenderer().enumerator = enum
 	return n
 }
 
@@ -125,9 +163,7 @@ func (n *TreeNode) Children() []Node {
 // New returns a new tree.
 func New(root string, data ...any) *TreeNode {
 	t := &TreeNode{
-		name:     root,
-		renderer: newDefaultRenderer(),
-		addItem:  treeItemAddFn,
+		name: root,
 	}
 	for _, d := range data {
 		t = t.Item(d)

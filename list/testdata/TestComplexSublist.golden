@@ -3,24 +3,24 @@
   • foo2                                       
   • bar2                                       
 • Qux                                          
-  • aaa                                        
-  • bbb                                        
+   I. aaa                                      
+  II. bbb                                      
 • Deep                                         
-  • foo                                        
-  • Deeper                                     
-    • a                                        
-    • b                                        
-    • Even Deeper, inherit parent renderer     
-      • sus                                    
-      • d minor                                
-      • f#                                     
-      • One ore level, with another renderer   
-        • a                                    
+  A. foo                                       
+  B. Deeper                                    
+    1. a                                       
+    2. b                                       
+    3. Even Deeper, inherit parent renderer    
+      * sus                                    
+      * d minor                                
+      * f#                                     
+      * One ore level, with another renderer   
+        - a                                    
           multine                              
           string                               
-        • hoccus poccus                        
-        • abra kadabra                         
-        • And finally, a tree within all this  
+        - hoccus poccus                        
+        - abra kadabra                         
+        - And finally, a tree within all this  
           • another                            
             multine                            
             string                             
@@ -29,7 +29,7 @@
             • another                          
           • hallo                              
           • wunderbar!                         
-        • this is a tree                       
+        - this is a tree                       
           and other obvious statements         
-  • bar                                        
+  C. bar                                       
 • Baz                                          

@@ -43,6 +43,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	var maxLen int
 	children := node.Children()
 	atter := atterImpl(children)
+	enumerator := r.enumerator
 
 	// print the root node name if its not empty.
 	if name := node.Name(); name != "" && root {
@@ -50,14 +51,14 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	}
 
 	for i := range children {
-		_, prefix := r.enumerator(atter, i, i == len(children)-1)
+		_, prefix := enumerator(atter, i, i == len(children)-1)
 		prefix = r.style.enumeratorFunc(atter, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
 	for i, child := range children {
 		last := i == len(children)-1
-		indent, nodePrefix := r.enumerator(atter, i, last)
+		indent, nodePrefix := enumerator(atter, i, last)
 		enumStyle := r.style.enumeratorFunc(atter, i)
 		itemStyle := r.style.itemFunc(atter, i)
 
@@ -86,7 +87,9 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 			renderer := r
 			switch child := child.(type) {
 			case *TreeNode:
-				renderer = child.renderer
+				if child.renderer != nil {
+					renderer = child.renderer
+				}
 			}
 			strs = append(
 				strs,
