@@ -56,6 +56,33 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 	golden.RequireEqual(t, []byte(tree.String()))
 }
 
+func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
+	tree := New(
+		"",
+		"bar",
+		"foo",
+		New(
+			"",
+			"Bar 11",
+			"Bar 12",
+			"Bar 13",
+			"Bar 14",
+			"Bar 15",
+		),
+		New(
+			"",
+			"Bar 21",
+			"Bar 22",
+			"Bar 23",
+			"Bar 24",
+			"Bar 25",
+		),
+		"Baz",
+	)
+
+	golden.RequireEqual(t, []byte(tree.String()))
+}
+
 func TestTreeLastNodeIsSubTree(t *testing.T) {
 	tree := New(
 		"",

@@ -91,19 +91,23 @@ func (n *TreeNode) Item(item any) *TreeNode {
 // walks backwards in the existing nodes until it finds a string node, then
 // remove it from the list and set it as the parent of the current node.
 func ensureParent(nodes []Node, item *TreeNode) (*TreeNode, int) {
-	if item.Name() != "" {
+	if item.Name() != "" || len(nodes) == 0 {
 		return item, -1
 	}
-	for j := len(nodes) - 1; j >= 0; j-- {
-		parent := nodes[j]
-		switch parent := parent.(type) {
-		case StringNode:
-			item.name = parent.Name()
-			return item, j
-		case *StringNode:
-			item.name = parent.Name()
-			return item, j
+	j := len(nodes) - 1
+	parent := nodes[j]
+	switch parent := parent.(type) {
+	case *TreeNode:
+		for _, child := range item.children {
+			parent.Item(child)
 		}
+		return parent, j
+	case StringNode:
+		item.name = parent.Name()
+		return item, j
+	case *StringNode:
+		item.name = parent.Name()
+		return item, j
 	}
 	return item, -1
 }

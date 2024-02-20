@@ -22,7 +22,7 @@ func main() {
 		Item(list.New("foo2", "bar2")).
 		Item("Qux").
 		Item(
-			list.New("Qux", "aaa", "bbb").
+			list.New("aaa", "bbb").
 				EnumeratorStyle(style1).
 				Enumerator(list.Roman),
 		).

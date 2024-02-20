@@ -41,7 +41,7 @@ func TestComplexSublist(t *testing.T) {
 		Item(New("foo2", "bar2")).
 		Item("Qux").
 		Item(
-			New("Qux", "aaa", "bbb").
+			New("aaa", "bbb").
 				EnumeratorStyle(style1).
 				Enumerator(Roman),
 		).
