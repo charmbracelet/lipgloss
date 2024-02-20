@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/golden"
+	"github.com/charmbracelet/lipgloss/internal/require"
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
@@ -15,7 +15,12 @@ func TestList(t *testing.T) {
 		Item("Bar").
 		Item("Baz")
 
-	golden.RequireEqual(t, []byte(l.String()))
+	expected := `
+• Foo
+• Bar
+• Baz
+	`
+	require.Equal(t, expected, l.String())
 }
 
 func TestSublist(t *testing.T) {
@@ -24,7 +29,15 @@ func TestSublist(t *testing.T) {
 		Item("Bar").
 		Item(New("Hi", "Hello")).Enumerator(Roman).
 		Item("Qux")
-	golden.RequireEqual(t, []byte(l.String()))
+
+	expected := `
+  I. Foo
+ II. Bar
+  • Hi
+  • Hello
+III. Qux
+	`
+	require.Equal(t, expected, l.String())
 }
 
 func TestComplexSublist(t *testing.T) {
@@ -100,7 +113,46 @@ func TestComplexSublist(t *testing.T) {
 		).
 		Item("Baz")
 
-	golden.RequireEqual(t, []byte(l.String()))
+	expected := `
+• Foo
+• Bar
+  • foo2
+  • bar2
+• Qux
+   I. aaa
+  II. bbb
+• Deep
+  A. foo
+  B. Deeper
+    1. a
+    2. b
+    3. Even Deeper, inherit parent renderer
+      * sus
+      * d minor
+      * f#
+      * One ore level, with another renderer
+        - a
+          multine
+          string
+        - hoccus poccus
+        - abra kadabra
+        - And finally, a tree within all this
+          ├── another
+          │   multine
+          │   string
+          ├── something
+          ├── a subtree
+          │   ├── yup
+          │   ├── many itens
+          │   └── another
+          ├── hallo
+          └── wunderbar!
+        - this is a tree
+          and other obvious statements
+  C. bar
+• Baz
+	`
+	require.Equal(t, expected, l.String())
 }
 
 func TestMultiline(t *testing.T) {
@@ -109,7 +161,16 @@ func TestMultiline(t *testing.T) {
 		Item("Item2\nline 2\nline 3").
 		Item("3")
 
-	golden.RequireEqual(t, []byte(l.String()))
+	expected := `
+• Item1
+  line 2
+  line 3
+• Item2
+  line 2
+  line 3
+• 3
+	`
+	require.Equal(t, expected, l.String())
 }
 
 func TestListIntegers(t *testing.T) {
@@ -118,28 +179,78 @@ func TestListIntegers(t *testing.T) {
 		Item("2").
 		Item("3")
 
-	golden.RequireEqual(t, []byte(l.String()))
+	expected := `
+• 1
+• 2
+• 3
+	`
+	require.Equal(t, expected, l.String())
 }
 
 func TestEnumerators(t *testing.T) {
-	tests := map[string]tree.Enumerator{
-		"alphabet": Alphabet,
-		"arabic":   Arabic,
-		"roman":    Roman,
-		"bullet":   Bullet,
-		"asterisk": Asterisk,
-		"dash":     Dash,
+	tests := map[string]struct {
+		enumerator tree.Enumerator
+		expected   string
+	}{
+		"alphabet": {
+			enumerator: Alphabet,
+			expected: `
+A. Foo
+B. Bar
+C. Baz
+			`,
+		},
+		"arabic": {
+			enumerator: Arabic,
+			expected: `
+1. Foo
+2. Bar
+3. Baz
+			`,
+		},
+		"roman": {
+			enumerator: Roman,
+			expected: `
+  I. Foo
+ II. Bar
+III. Baz
+			`,
+		},
+		"bullet": {
+			enumerator: Bullet,
+			expected: `
+• Foo
+• Bar
+• Baz
+			`,
+		},
+		"asterisk": {
+			enumerator: Asterisk,
+			expected: `
+* Foo
+* Bar
+* Baz
+			`,
+		},
+		"dash": {
+			enumerator: Dash,
+			expected: `
+- Foo
+- Bar
+- Baz
+			`,
+		},
 	}
 
-	for name, enum := range tests {
+	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			l := New().
-				Enumerator(enum).
+				Enumerator(test.enumerator).
 				Item("Foo").
 				Item("Bar").
 				Item("Baz")
 
-			golden.RequireEqual(t, []byte(l.String()))
+			require.Equal(t, test.expected, l.String())
 		})
 	}
 }
@@ -148,28 +259,49 @@ func TestEnumeratorsTransform(t *testing.T) {
 	tests := map[string]struct {
 		enumeration tree.Enumerator
 		style       lipgloss.Style
+		expected    string
 	}{
 		"alphabet lower": {
 			enumeration: Alphabet,
 			style:       lipgloss.NewStyle().MarginRight(1).Transform(strings.ToLower),
+			expected: `
+a. Foo
+b. Bar
+c. Baz
+			`,
 		},
 		"arabic)": {
 			enumeration: Arabic,
 			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
 				return strings.Replace(s, ".", ")", 1)
 			}),
+			expected: `
+1) Foo
+2) Bar
+3) Baz
+			`,
 		},
 		"roman within ()": {
 			enumeration: Roman,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
 			}),
+			expected: `
+  (i) Foo
+ (ii) Bar
+(iii) Baz
+			`,
 		},
 		"bullet is dash": {
 			enumeration: Bullet,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "- " // this is better done by replacing the enumerator.
 			}),
+			expected: `
+- Foo
+- Bar
+- Baz
+			`,
 		},
 	}
 
@@ -182,7 +314,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 				Item("Bar").
 				Item("Baz")
 
-			golden.RequireEqual(t, []byte(l.String()))
+			require.Equal(t, test.expected, l.String())
 		})
 	}
 }

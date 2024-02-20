@@ -1,11 +1,10 @@
 package tree
 
 import (
-	"strings"
 	"testing"
-	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/internal/require"
 )
 
 func TestTree(t *testing.T) {
@@ -35,7 +34,7 @@ func TestTree(t *testing.T) {
 │   └── Quuux
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeRoot(t *testing.T) {
@@ -57,7 +56,7 @@ The Root
 │   └── Quuux
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
@@ -77,7 +76,7 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 │   └── Quuux
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
@@ -119,7 +118,7 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 │   └── Bar 25
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
@@ -147,7 +146,7 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
     │   └── Bar
     └── Quuux
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeNil(t *testing.T) {
@@ -174,7 +173,7 @@ func TestTreeNil(t *testing.T) {
 │   └── Quuux
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeCustom(t *testing.T) {
@@ -210,7 +209,7 @@ func TestTreeCustom(t *testing.T) {
 -> -> Quuux
 -> Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeMultilineNode(t *testing.T) {
@@ -247,7 +246,7 @@ Node
 └── Baz
     Line 2
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
@@ -273,7 +272,7 @@ The Root Node(tm)
 │   + └── * child 2
 └── Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeMixedEnumeratorSize(t *testing.T) {
@@ -304,7 +303,7 @@ III child 3
  IV child 4
   V child 5
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeStyleNilFuncs(t *testing.T) {
@@ -320,7 +319,7 @@ Multiline
 ├──Foo
 └──Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestTreeStyleAt(t *testing.T) {
@@ -340,7 +339,7 @@ Multiline
 > Foo
 - Baz
 	`
-	requireEqual(t, expected, tree.String())
+	require.Equal(t, expected, tree.String())
 }
 
 func TestAtter(t *testing.T) {
@@ -363,17 +362,4 @@ func TestAtter(t *testing.T) {
 			t.Errorf("expected nil, got '%s'", n)
 		}
 	})
-}
-
-func requireEqual(tb testing.TB, expected, got string) {
-	tb.Helper()
-	expected = strings.TrimSpace(expected)
-	gotLines := strings.Split(got, "\n")
-	for i := range gotLines {
-		gotLines[i] = strings.TrimRightFunc(gotLines[i], unicode.IsSpace)
-	}
-	gott := strings.Join(gotLines, "\n")
-	if gott != expected {
-		tb.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n\n", expected, gott)
-	}
 }
