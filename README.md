@@ -484,9 +484,29 @@ Trees can be customized via their enumeration function as well as using
 `lipgloss.Style`s.
 
 ```go
-enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
-itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+style1 := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+style2 := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
 
+t := tree.New(
+  "",
+  "Glossier",
+  "Claire’s Boutique",
+  tree.New("Nyx", "Foo", "Bar").
+    EnumeratorStyle(style2),
+  "Mac",
+  "Milk",
+).EnumeratorStyle(style1)
+```
+
+Print the tree:
+
+<p align="center">
+    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/9eadf947-a801-441a-abd2-e0b0adaf0b53">
+</p>
+
+You may also define custom enumerator implementations:
+
+```go
 t := tree.New(
   "",
   "Glossier",
@@ -494,18 +514,15 @@ t := tree.New(
   tree.New("Nyx", "Foo", "Bar"),
   "Mac",
   "Milk",
-).
-  Enumerator(func(tree.Atter, int, bool) (indent string, prefix string) {
+).Enumerator(func(atter tree.Atter,i int, last bool) (indent string, prefix string) {
     return "->", "->"
-  }).
-  EnumeratorStyle(enumeratorStyle).
-  ItemStyle(itemStyle)
+  })
 ```
 
 Print the tree.
 
 <p align="center">
-    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/be5e8a34-594f-43bb-8756-edf731ec4497">
+    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/5a0c4969-0fbd-47fe-8672-45f590d7efdd">
 </p>
 
 ### Building
