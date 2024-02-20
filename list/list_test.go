@@ -41,7 +41,7 @@ func TestComplexSublist(t *testing.T) {
 		Item(New("foo2", "bar2")).
 		Item("Qux").
 		Item(
-			New("aaa", "bbb").
+			New("Qux", "aaa", "bbb").
 				EnumeratorStyle(style1).
 				Enumerator(Roman),
 		).
@@ -68,7 +68,6 @@ func TestComplexSublist(t *testing.T) {
 								Item("f#").
 								Item("One ore level, with another renderer").
 								Item(
-
 									New().
 										EnumeratorStyle(style1).
 										Enumerator(Dash).
@@ -78,15 +77,16 @@ func TestComplexSublist(t *testing.T) {
 										Item("And finally, a tree within all this").
 										Item(
 
-											New().
+											tree.New("").
 												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
-												Item("And finally, a tree within all this").
+												Item("a subtree").
 												Item(
-
-													New().
+													tree.New("").
 														EnumeratorStyle(style2).
+														Item("yup").
+														Item("many itens").
 														Item("another"),
 												).
 												Item("hallo").

@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func main() {
@@ -48,7 +49,6 @@ func main() {
 								Item("f#").
 								Item("One ore level, with another renderer").
 								Item(
-
 									list.New().
 										EnumeratorStyle(style1).
 										Enumerator(list.Dash).
@@ -58,15 +58,16 @@ func main() {
 										Item("And finally, a tree within all this").
 										Item(
 
-											list.New().
+											tree.New("").
 												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
-												Item("And finally, a tree within all this").
+												Item("a subtree").
 												Item(
-
-													list.New().
+													tree.New("").
 														EnumeratorStyle(style2).
+														Item("yup").
+														Item("many itens").
 														Item("another"),
 												).
 												Item("hallo").
