@@ -149,7 +149,7 @@ func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
 		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
-	n.ensureRenderer().style.enumeratorFunc = fn
+	n.ensureRenderer().style.itemFunc = fn
 	return n
 }
 
