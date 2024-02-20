@@ -1,10 +1,11 @@
 package tree
 
 import (
+	"strings"
 	"testing"
+	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/golden"
 )
 
 func TestTree(t *testing.T) {
@@ -24,7 +25,17 @@ func TestTree(t *testing.T) {
 		"Baz",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+├── Foo
+├── Bar
+│   ├── Qux
+│   ├── Quux
+│   │   ├── Foo
+│   │   └── Bar
+│   └── Quuux
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeRoot(t *testing.T) {
@@ -38,8 +49,15 @@ func TestTreeRoot(t *testing.T) {
 		),
 		"Baz",
 	)
-
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+The Root
+├── Foo
+├── Bar
+│   ├── Qux
+│   └── Quuux
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
@@ -53,7 +71,13 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 		"Baz",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+├── Bar
+│   ├── Qux
+│   └── Quuux
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
@@ -80,7 +104,22 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 		"Baz",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+├── bar
+├── foo
+│   ├── Bar 11
+│   ├── Bar 12
+│   ├── Bar 13
+│   ├── Bar 14
+│   ├── Bar 15
+│   ├── Bar 21
+│   ├── Bar 22
+│   ├── Bar 23
+│   ├── Bar 24
+│   └── Bar 25
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
@@ -99,7 +138,16 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 		),
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+├── Foo
+└── Bar
+    ├── Qux
+    ├── Quux
+    │   ├── Foo
+    │   └── Bar
+    └── Quuux
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeNil(t *testing.T) {
@@ -118,7 +166,15 @@ func TestTreeNil(t *testing.T) {
 		"Baz",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+├── Bar
+│   ├── Qux
+│   ├── Quux
+│   │   └── Bar
+│   └── Quuux
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeCustom(t *testing.T) {
@@ -143,7 +199,18 @@ func TestTreeCustom(t *testing.T) {
 		Enumerator(func(Atter, int, bool) (indent string, prefix string) {
 			return "->", "->"
 		})
-	golden.RequireEqual(t, []byte(tree.String()))
+
+	expected := `
+-> Foo
+-> Bar
+-> -> Qux
+-> -> Quux
+-> -> -> Foo
+-> -> -> Bar
+-> -> Quuux
+-> Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeMultilineNode(t *testing.T) {
@@ -163,30 +230,50 @@ func TestTreeMultilineNode(t *testing.T) {
 		"Baz\nLine 2",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+Multiline
+Root
+Node
+├── Foo
+├── Bar
+│   ├── Qux
+│   │   Line 2
+│   │   Line 3
+│   │   Line 4
+│   ├── Quux
+│   │   ├── Foo
+│   │   └── Bar
+│   └── Quuux
+└── Baz
+    Line 2
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
 	tree := New(
 		"The Root Node(tm)",
 		New("Parent", "child 1", "child 2").
-			ItemStyleFunc(func(atter Atter, i int) lipgloss.Style {
+			ItemStyleFunc(func(Atter, int) lipgloss.Style {
 				return lipgloss.NewStyle().
-					Foreground(lipgloss.Color("240"))
+					SetString("*")
 			}).
 			EnumeratorStyleFunc(func(_ Atter, i int) lipgloss.Style {
-				color := "212"
-				if i%2 == 0 {
-					color = "99"
-				}
 				return lipgloss.NewStyle().
-					Foreground(lipgloss.Color(color)).
+					SetString("+").
 					MarginRight(1)
 			}),
 		"Baz",
 	)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+The Root Node(tm)
+├── Parent
+│   + ├── * child 1
+│   + └── * child 2
+└── Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeMixedEnumeratorSize(t *testing.T) {
@@ -209,7 +296,15 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 		return "", romans[i+1]
 	})
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+The Root Node(tm)
+  I child 1
+ II child 2
+III child 3
+ IV child 4
+  V child 5
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeStyleNilFuncs(t *testing.T) {
@@ -220,7 +315,12 @@ func TestTreeStyleNilFuncs(t *testing.T) {
 	).ItemStyleFunc(nil).
 		EnumeratorStyleFunc(nil)
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+Multiline
+├──Foo
+└──Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestTreeStyleAt(t *testing.T) {
@@ -235,7 +335,12 @@ func TestTreeStyleAt(t *testing.T) {
 		return "", "-"
 	})
 
-	golden.RequireEqual(t, []byte(tree.String()))
+	expected := `
+Multiline
+> Foo
+- Baz
+	`
+	requireEqual(t, expected, tree.String())
 }
 
 func TestAtter(t *testing.T) {
@@ -258,4 +363,17 @@ func TestAtter(t *testing.T) {
 			t.Errorf("expected nil, got '%s'", n)
 		}
 	})
+}
+
+func requireEqual(tb testing.TB, expected, got string) {
+	tb.Helper()
+	expected = strings.TrimSpace(expected)
+	gotLines := strings.Split(got, "\n")
+	for i := range gotLines {
+		gotLines[i] = strings.TrimRightFunc(gotLines[i], unicode.IsSpace)
+	}
+	gott := strings.Join(gotLines, "\n")
+	if gott != expected {
+		tb.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n\n", expected, gott)
+	}
 }
