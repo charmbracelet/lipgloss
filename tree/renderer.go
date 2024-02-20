@@ -84,6 +84,10 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 		}
 
 		if len(child.Children()) > 0 {
+			// here we see if the child has a custom renderer, which means the
+			// user set a custom enumerator, style, etc.
+			// if it has one, we'll use it to render itself.
+			// otherwise, we keep using the current renderer.
 			renderer := r
 			switch child := child.(type) {
 			case *TreeNode:

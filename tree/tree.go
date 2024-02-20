@@ -76,7 +76,7 @@ func (n *TreeNode) Item(item any) *TreeNode {
 	case *TreeNode:
 		newItem, rm := ensureParent(n.children, item)
 		if rm >= 0 {
-			n.children = remove(n.children, rm)
+			n.children = append(n.children[:rm], n.children[rm+1:]...)
 		}
 		n.children = append(n.children, newItem)
 	case Node:
@@ -88,8 +88,12 @@ func (n *TreeNode) Item(item any) *TreeNode {
 	return n
 }
 
-// walks backwards in the existing nodes until it finds a string node, then
-// remove it from the list and set it as the parent of the current node.
+// Ensures the TreeItem being added is in good shape.
+//
+// If it has no name, and the current node list is empty, it will check the
+// last item's of the list type:
+// 1. IFF it's a TreeNode, it'll append item's children to it, and return it.
+// 1. IFF it's a StringNode, it'll set its content as item's name, and remove it.
 func ensureParent(nodes []Node, item *TreeNode) (*TreeNode, int) {
 	if item.Name() != "" || len(nodes) == 0 {
 		return item, -1
@@ -110,10 +114,6 @@ func ensureParent(nodes []Node, item *TreeNode) (*TreeNode, int) {
 		return item, j
 	}
 	return item, -1
-}
-
-func remove(data []Node, i int) []Node {
-	return append(data[:i], data[i+1:]...)
 }
 
 func (n *TreeNode) ensureRenderer() *defaultRenderer {
