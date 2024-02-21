@@ -39,7 +39,7 @@ type TreeNode struct { //nolint:revive
 	rendererOnce sync.Once
 	children     Data
 	hide         bool
-	offset       int
+	offset       [2]int
 }
 
 // Returns true if this node is hidden.
@@ -55,8 +55,14 @@ func (n *TreeNode) Hide(hide bool) *TreeNode {
 }
 
 // Offset sets the tree children offsets.
-func (n *TreeNode) Offset(offset int) *TreeNode {
-	n.offset = offset
+func (n *TreeNode) OffsetStart(offset int) *TreeNode {
+	n.offset[0] = offset
+	return n
+}
+
+// Offset sets the tree children offsets.
+func (n *TreeNode) OffsetEnd(offset int) *TreeNode {
+	n.offset[1] = offset
 	return n
 }
 
@@ -180,14 +186,11 @@ func (n *TreeNode) Enumerator(enum Enumerator) *TreeNode {
 
 // Children returns the children of a string node.
 func (n *TreeNode) Children() Data {
-	if n.offset > 0 {
-		var data []Node
-		for i := n.offset; i < n.children.Length(); i++ {
-			data = append(data, n.children.At(i))
-		}
-		return nodeData(data)
+	var data []Node
+	for i := n.offset[0]; i < n.children.Length()-n.offset[1]; i++ {
+		data = append(data, n.children.At(i))
 	}
-	return n.children
+	return nodeData(data)
 }
 
 // New returns a new tree.
