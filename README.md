@@ -514,7 +514,7 @@ t := tree.New(
   tree.New("Nyx", "Foo", "Bar"),
   "Mac",
   "Milk",
-).Enumerator(func(atter tree.Atter,i int, last bool) (indent string, prefix string) {
+).Enumerator(func(data tree.Data,i int, last bool) (indent string, prefix string) {
     return "->", "->"
   })
 ```
