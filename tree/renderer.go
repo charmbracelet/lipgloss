@@ -7,7 +7,7 @@ import (
 )
 
 // StyleFunc allows the list to be styled per item.
-type StyleFunc func(atter Data, i int) lipgloss.Style
+type StyleFunc func(data Data, i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {

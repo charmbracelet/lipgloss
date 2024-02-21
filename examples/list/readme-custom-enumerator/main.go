@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	var duckDuckGooseEnumerator tree.Enumerator = func(atter tree.Data, i int, last bool) (string, string) {
-		if atter.At(i).Name() == "Goose" {
+	var duckDuckGooseEnumerator tree.Enumerator = func(data tree.Data, i int, last bool) (string, string) {
+		if data.At(i).Name() == "Goose" {
 			return "", "Honk →"
 		}
 		return "", ""
