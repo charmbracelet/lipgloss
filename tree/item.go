@@ -43,7 +43,7 @@ func (a nodeData) At(i int) Node {
 
 // NewStringData returns a Data of strings.
 func NewStringData(data ...string) Data {
-	var result []Node
+	result := make([]Node, 0, len(data))
 	for _, d := range data {
 		s := StringNode(d)
 		result = append(result, &s)

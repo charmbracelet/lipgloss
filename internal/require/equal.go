@@ -14,13 +14,14 @@ func Equal(tb testing.TB, expected, got string) {
 
 	cleanExpected := trimSpace(expected)
 	cleanGot := trimSpace(got)
-	if diff := udiff.Unified("expected", "got", cleanExpected, cleanGot); diff != "" {
+	diff := udiff.Unified("expected", "got", cleanExpected, cleanGot)
+	if diff != "" {
 		tb.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", cleanExpected, cleanGot, diff)
 	}
 }
 
 func trimSpace(s string) string {
-	var result []string
+	var result []string //nolint: prealloc
 	ss := strings.Split(s, "\n")
 	for i, line := range ss {
 		// ignore begging and ending empty lines
