@@ -7,6 +7,14 @@ import (
 )
 
 func main() {
-	t := tree.New("root", "child 1", "child 2", tree.New("child 3", "child 3.1"))
+	t := tree.New(
+		"Root",
+		"Item 1",
+		"Item 2",
+		tree.New(
+			"Item 3",
+			"Item 3.1",
+		),
+	)
 	fmt.Println(t)
 }

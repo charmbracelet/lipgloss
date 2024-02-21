@@ -15,7 +15,7 @@ func main() {
 		"",
 		"Glossier",
 		"Claire’s Boutique",
-		tree.New("Nyx", "Foo", "Bar").
+		tree.New("Nyx", "Qux", "Quux").
 			EnumeratorStyle(style2),
 		"Mac",
 		"Milk",

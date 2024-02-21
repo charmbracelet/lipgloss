@@ -33,10 +33,9 @@ func main() {
 			"Meats",
 			"Beef",
 			"Pork",
-			"Chicken",
-			tree.New("Something", "foo", "bar"),
+			tree.New("Birds", "Chicken", "Duck"),
 		).EnumeratorStyle(style2),
-		"Foobar",
+		"Fruit",
 	).EnumeratorStyle(style1)
 
 	fmt.Println(t)

@@ -18,57 +18,57 @@ func main() {
 		MarginRight(1)
 
 	l := list.New().
-		Item("Foo").
-		Item("Bar").
-		Item(list.New("foo2", "bar2")).
-		Item("Qux").
+		Item("Item 1").
+		Item("Item 2").
+		Item(list.New("Item 2.1", "Item 2.2")).
+		Item("Item 3").
 		Item(
-			list.New("aaa", "bbb").
+			list.New("Item 3.1", "Item 3.2").
 				EnumeratorStyle(style1).
 				Enumerator(list.Roman),
 		).
-		Item("Deep").
+		Item("Item 4").
 		Item(
 			list.New().
 				EnumeratorStyle(style2).
 				Enumerator(list.Alphabet).
-				Item("foo").
-				Item("Deeper").
+				Item("Item 4.1").
+				Item("Item 4.2").
 				Item(
 					list.New().
 						EnumeratorStyle(style1).
 						Enumerator(list.Arabic).
-						Item("a").
-						Item("b").
-						Item("Even Deeper, inherit parent renderer").
+						Item("Item 4.2.1").
+						Item("Item 4.2.2").
+						Item("Item 4.2.3").
 						Item(
 							list.New().
 								Enumerator(list.Asterisk).
 								EnumeratorStyle(style2).
-								Item("sus").
-								Item("d minor").
-								Item("f#").
-								Item("One ore level, with another renderer").
+								Item("Item 4.2.3.1").
+								Item("Item 4.2.3.3").
+								Item("Item 4.2.3.4").
+								Item("Item 4.2.3.5").
 								Item(
 									list.New().
 										EnumeratorStyle(style1).
 										Enumerator(list.Dash).
-										Item("a\nmultine\nstring").
-										Item("hoccus poccus").
-										Item("abra kadabra").
-										Item("And finally, a tree within all this").
+										Item("Item 4.2.3.3.1\nis a multiline string").
+										Item("Item 4.2.3.3.2").
+										Item("Item 4.2.3.3.3").
+										Item("Item 4.2.3.3.4").
 										Item(
 
 											tree.New("").
 												EnumeratorStyle(style2).
-												Item("another\nmultine\nstring").
-												Item("something").
-												Item("a subtree").
+												Item("Item 4.2.3.3.4.1\nThis is a tree within a list.\nLists are actually syntactic sugar for trees!").
+												Item("Item 4.2.3.3.4.2").
+												Item("Item 4.2.3.3.4.3").
 												Item(
 													tree.New("").
 														EnumeratorStyle(style2).
-														Item("yup").
-														Item("many itens").
+														Item("Item 4.2.3.3.4.3.1\nanother tree").
+														Item("Item 4.2.3.3.4.3.2").
 														Item(
 															lipgloss.NewStyle().
 																Bold(true).
@@ -77,8 +77,8 @@ func main() {
 																AlignHorizontal(lipgloss.Center).
 																AlignVertical(lipgloss.Center).
 																Padding(1, 3).
-																Width(22).
-																Render("charming"),
+																Width(40).
+																Render("Item 4.2.3.3.4.3.3\n\nItems can be any string, including tables!"),
 														).
 														Item(
 															table.New().
@@ -100,17 +100,17 @@ func main() {
 																Row("Apple", "6").
 																Row("Strawberry", "12"),
 														).
-														Item("another"),
+														Item("Item 4.2.3.3.4.3.3"),
 												).
-												Item("hallo").
-												Item("wunderbar!"),
+												Item("Item 4.2.3.3.4.4").
+												Item("Item 4.2.3.3.4.5"),
 										).
-										Item("this is a tree\nand other obvious statements"),
+										Item("Item 4.2.3.3.5"),
 								),
 						),
 				).
-				Item("bar"),
+				Item("Item 4.3"),
 		).
-		Item("Baz")
+		Item("item 5")
 	fmt.Println(l)
 }

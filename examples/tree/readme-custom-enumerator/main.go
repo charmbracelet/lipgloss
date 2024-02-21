@@ -11,7 +11,11 @@ func main() {
 		"",
 		"Glossier",
 		"Claire’s Boutique",
-		tree.New("Nyx", "Foo", "Bar"),
+		tree.New(
+			"Nyx",
+			"Qux",
+			"Quux",
+		),
 		"Mac",
 		"Milk",
 	).Enumerator(func(data tree.Data, i int, last bool) (indent string, prefix string) {
