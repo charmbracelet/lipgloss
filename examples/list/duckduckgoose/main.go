@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
-func duckDuckGooseEnumerator(atter tree.Atter, i int, _ bool) (string, string) {
+func duckDuckGooseEnumerator(atter tree.Data, i int, _ bool) (string, string) {
 	if atter.At(i).Name() == "Goose" {
 		return "", "Honk →"
 	}

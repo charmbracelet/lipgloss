@@ -20,7 +20,7 @@ var purchased = []string{
 	"Papaya",
 }
 
-func groceryEnumerator(atter tree.Atter, i int, _ bool) (string, string) {
+func groceryEnumerator(atter tree.Data, i int, _ bool) (string, string) {
 	for _, p := range purchased {
 		if atter.At(i).Name() == p {
 			return "", "✓"
@@ -37,7 +37,7 @@ var highlightedEnumStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("10")).
 	MarginRight(1)
 
-func enumStyleFunc(atter tree.Atter, i int) lipgloss.Style {
+func enumStyleFunc(atter tree.Data, i int) lipgloss.Style {
 	for _, p := range purchased {
 		if atter.At(i).Name() == p {
 			return highlightedEnumStyle

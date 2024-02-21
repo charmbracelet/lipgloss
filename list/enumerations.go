@@ -17,7 +17,7 @@ const indent = " "
 // b. Bar
 // c. Baz
 // d. Qux.
-func Alphabet(_ tree.Atter, i int, _ bool) (string, string) {
+func Alphabet(_ tree.Data, i int, _ bool) (string, string) {
 	if i >= abcLen*abcLen+abcLen {
 		return indent, fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
 	}
@@ -33,7 +33,7 @@ func Alphabet(_ tree.Atter, i int, _ bool) (string, string) {
 // 2. Bar
 // 3. Baz
 // 4. Qux.
-func Arabic(_ tree.Atter, i int, _ bool) (string, string) {
+func Arabic(_ tree.Data, i int, _ bool) (string, string) {
 	return indent, fmt.Sprintf("%d.", i+1)
 }
 
@@ -43,7 +43,7 @@ func Arabic(_ tree.Atter, i int, _ bool) (string, string) {
 // /  II. Bar
 // / III. Baz
 // /  IV. Qux.
-func Roman(_ tree.Atter, i int, _ bool) (string, string) {
+func Roman(_ tree.Data, i int, _ bool) (string, string) {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
 		arabic = []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
@@ -65,7 +65,7 @@ func Roman(_ tree.Atter, i int, _ bool) (string, string) {
 // • Bar
 // • Baz
 // • Qux.
-func Bullet(tree.Atter, int, bool) (string, string) {
+func Bullet(tree.Data, int, bool) (string, string) {
 	return indent, "•"
 }
 
@@ -75,7 +75,7 @@ func Bullet(tree.Atter, int, bool) (string, string) {
 // * Bar
 // * Baz
 // * Qux.
-func Asterisk(tree.Atter, int, bool) (string, string) {
+func Asterisk(tree.Data, int, bool) (string, string) {
 	return indent, "*"
 }
 
@@ -85,6 +85,6 @@ func Asterisk(tree.Atter, int, bool) (string, string) {
 // * Bar
 // * Baz
 // * Qux.
-func Dash(tree.Atter, int, bool) (string, string) {
+func Dash(tree.Data, int, bool) (string, string) {
 	return indent, "-"
 }

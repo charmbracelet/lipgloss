@@ -243,7 +243,7 @@ func TestTreeCustom(t *testing.T) {
 	).
 		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
 		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
-		Enumerator(func(Atter, int, bool) (indent string, prefix string) {
+		Enumerator(func(Data, int, bool) (indent string, prefix string) {
 			return "->", "->"
 		})
 
@@ -301,11 +301,11 @@ func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
 	tree := New(
 		"The Root Node(tm)",
 		New("Parent", "child 1", "child 2").
-			ItemStyleFunc(func(Atter, int) lipgloss.Style {
+			ItemStyleFunc(func(Data, int) lipgloss.Style {
 				return lipgloss.NewStyle().
 					SetString("*")
 			}).
-			EnumeratorStyleFunc(func(_ Atter, i int) lipgloss.Style {
+			EnumeratorStyleFunc(func(_ Data, i int) lipgloss.Style {
 				return lipgloss.NewStyle().
 					SetString("+").
 					MarginRight(1)
@@ -331,7 +331,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 		"child 3",
 		"child 4",
 		"child 5",
-	).Enumerator(func(_ Atter, i int, _ bool) (indent string, prefix string) {
+	).Enumerator(func(_ Data, i int, _ bool) (indent string, prefix string) {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -375,7 +375,7 @@ func TestTreeStyleAt(t *testing.T) {
 		"Multiline",
 		"Foo",
 		"Baz",
-	).Enumerator(func(atter Atter, i int, _ bool) (indent string, prefix string) {
+	).Enumerator(func(atter Data, i int, _ bool) (indent string, prefix string) {
 		if atter.At(i).Name() == "Foo" {
 			return "", ">"
 		}
@@ -391,7 +391,7 @@ Multiline
 }
 
 func TestAtter(t *testing.T) {
-	nodes := atterImpl([]Node{
+	nodes := nodeData([]Node{
 		StringNode("foo"),
 		StringNode("bar"),
 	})
@@ -410,4 +410,36 @@ func TestAtter(t *testing.T) {
 			t.Errorf("expected nil, got '%s'", n)
 		}
 	})
+}
+
+func TestFilter(t *testing.T) {
+	data := NewFilter(NewStringData("Foo", "Bar", "Baz", "Nope")).
+		Filter(func(index int) bool {
+			return index != 1
+		}).
+		Append(StringNode("Qux")).
+		Remove(3)
+	tree := New("Root", data)
+
+	expected := `
+Root
+├── Foo
+├── Baz
+└── Qux
+	`
+
+	require.Equal(t, expected, tree.String())
+	if got := data.At(1); got.Name() != "Baz" {
+		t.Errorf("expected to get Baz, got %v", got)
+	}
+	if got := data.At(10); got != nil {
+		t.Errorf("expected to get nil, got %v", got)
+	}
+}
+
+func TestNodeDataRemoveOutOfBounds(t *testing.T) {
+	data := NewStringData("a").Remove(-1).Remove(1)
+	if l := data.Length(); l != 1 {
+		t.Errorf("expected data to contain 1 items, has %d", l)
+	}
 }

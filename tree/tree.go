@@ -10,22 +10,8 @@ import (
 type Node interface {
 	Name() string
 	String() string
-	Children() []Node
+	Children() Data
 	Hidden() bool
-}
-
-// Atter returns a child node in a specified index.
-type Atter interface {
-	At(i int) Node
-}
-
-type atterImpl []Node
-
-func (a atterImpl) At(i int) Node {
-	if i >= 0 && i < len(a) {
-		return a[i]
-	}
-	return nil
 }
 
 // StringNode is a node without children.
@@ -33,7 +19,7 @@ type StringNode string
 
 // Children conforms with Node.
 // StringNodes have no children.
-func (StringNode) Children() []Node { return nil }
+func (StringNode) Children() Data { return nodeData(nil) }
 
 // Name conforms with Node.
 // Returns the value of the string itself.
@@ -50,7 +36,7 @@ type TreeNode struct { //nolint:revive
 	name         string
 	renderer     *defaultRenderer
 	rendererOnce sync.Once
-	children     []Node
+	children     Data
 	hide         bool
 }
 
@@ -94,14 +80,18 @@ func (n *TreeNode) Item(item any) *TreeNode {
 	case *TreeNode:
 		newItem, rm := ensureParent(n.children, item)
 		if rm >= 0 {
-			n.children = append(n.children[:rm], n.children[rm+1:]...)
+			n.children = n.children.Remove(rm)
 		}
-		n.children = append(n.children, newItem)
+		n.children = n.children.Append(newItem)
+	case Data:
+		for i := 0; i < item.Length(); i++ {
+			n.children = n.children.Append(item.At(i))
+		}
 	case Node:
-		n.children = append(n.children, item)
+		n.children = n.children.Append(item)
 	case string:
 		s := StringNode(item)
-		n.children = append(n.children, &s)
+		n.children = n.children.Append(&s)
 	}
 	return n
 }
@@ -112,16 +102,16 @@ func (n *TreeNode) Item(item any) *TreeNode {
 // last item's of the list type:
 // 1. IFF it's a TreeNode, it'll append item's children to it, and return it.
 // 1. IFF it's a StringNode, it'll set its content as item's name, and remove it.
-func ensureParent(nodes []Node, item *TreeNode) (*TreeNode, int) {
-	if item.Name() != "" || len(nodes) == 0 {
+func ensureParent(nodes Data, item *TreeNode) (*TreeNode, int) {
+	if item.Name() != "" || nodes.Length() == 0 {
 		return item, -1
 	}
-	j := len(nodes) - 1
-	parent := nodes[j]
+	j := nodes.Length() - 1
+	parent := nodes.At(j)
 	switch parent := parent.(type) {
 	case *TreeNode:
-		for _, child := range item.children {
-			parent.Item(child)
+		for i := 0; i < item.Children().Length(); i++ {
+			parent.Item(item.children.At(i))
 		}
 		return parent, j
 	case StringNode:
@@ -143,14 +133,14 @@ func (n *TreeNode) ensureRenderer() *defaultRenderer {
 
 // EnumeratorStyle implements Renderer.
 func (n *TreeNode) EnumeratorStyle(style lipgloss.Style) *TreeNode {
-	n.ensureRenderer().style.enumeratorFunc = func(Atter, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.enumeratorFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
 // EnumeratorStyleFunc implements Renderer.
 func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
-		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
+		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	n.ensureRenderer().style.enumeratorFunc = fn
 	return n
@@ -158,14 +148,14 @@ func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
 
 // ItemStyle implements Renderer.
 func (n *TreeNode) ItemStyle(style lipgloss.Style) *TreeNode {
-	n.ensureRenderer().style.itemFunc = func(Atter, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.itemFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
 // ItemStyleFunc implements Renderer.
 func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
-		fn = func(Atter, int) lipgloss.Style { return lipgloss.NewStyle() }
+		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	n.ensureRenderer().style.itemFunc = fn
 	return n
@@ -178,14 +168,15 @@ func (n *TreeNode) Enumerator(enum Enumerator) *TreeNode {
 }
 
 // Children returns the children of a string node.
-func (n *TreeNode) Children() []Node {
+func (n *TreeNode) Children() Data {
 	return n.children
 }
 
 // New returns a new tree.
 func New(root string, data ...any) *TreeNode {
 	t := &TreeNode{
-		name: root,
+		name:     root,
+		children: nodeData(nil),
 	}
 	for _, d := range data {
 		t = t.Item(d)

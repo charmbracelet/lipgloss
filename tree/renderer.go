@@ -7,7 +7,7 @@ import (
 )
 
 // StyleFunc allows the list to be styled per item.
-type StyleFunc func(atter Atter, i int) lipgloss.Style
+type StyleFunc func(atter Data, i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {
@@ -20,10 +20,10 @@ type Style struct {
 func newDefaultRenderer() *defaultRenderer {
 	return &defaultRenderer{
 		style: Style{
-			enumeratorFunc: func(Atter, int) lipgloss.Style {
+			enumeratorFunc: func(Data, int) lipgloss.Style {
 				return lipgloss.NewStyle().MarginRight(1)
 			},
-			itemFunc: func(Atter, int) lipgloss.Style {
+			itemFunc: func(Data, int) lipgloss.Style {
 				return lipgloss.NewStyle()
 			},
 		},
@@ -45,28 +45,28 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	var strs []string
 	var maxLen int
 	children := node.Children()
-	atter := atterImpl(children)
 	enumerator := r.enumerator
 
 	// print the root node name if its not empty.
 	if name := node.Name(); name != "" && root {
-		strs = append(strs, r.style.itemFunc(atter, -1).Render(name))
+		strs = append(strs, r.style.itemFunc(children, -1).Render(name))
 	}
 
-	for i := range children {
-		_, prefix := enumerator(atter, i, i == len(children)-1)
-		prefix = r.style.enumeratorFunc(atter, i).Render(prefix)
+	for i := 0; i < children.Length(); i++ {
+		_, prefix := enumerator(children, i, i == children.Length()-1)
+		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
-	for i, child := range children {
+	for i := 0; i < children.Length(); i++ {
+		child := children.At(i)
 		if child.Hidden() {
 			continue
 		}
-		last := i == len(children)-1
-		indent, nodePrefix := enumerator(atter, i, last)
-		enumStyle := r.style.enumeratorFunc(atter, i)
-		itemStyle := r.style.itemFunc(atter, i)
+		last := i == children.Length()-1
+		indent, nodePrefix := enumerator(children, i, last)
+		enumStyle := r.style.enumeratorFunc(children, i)
+		itemStyle := r.style.itemFunc(children, i)
 
 		nodePrefix = enumStyle.Render(nodePrefix)
 		if l := maxLen - lipgloss.Width(nodePrefix); l > 0 {
@@ -89,7 +89,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 			))
 		}
 
-		if len(child.Children()) > 0 {
+		if children.Length() > 0 {
 			// here we see if the child has a custom renderer, which means the
 			// user set a custom enumerator, style, etc.
 			// if it has one, we'll use it to render itself.
@@ -101,14 +101,13 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 					renderer = child.renderer
 				}
 			}
-			strs = append(
-				strs,
-				renderer.Render(
-					child,
-					false,
-					prefix+enumStyle.Render(indent),
-				),
-			)
+			if s := renderer.Render(
+				child,
+				false,
+				prefix+enumStyle.Render(indent),
+			); s != "" {
+				strs = append(strs, s)
+			}
 		}
 	}
 	return lipgloss.JoinVertical(lipgloss.Top, strs...)
