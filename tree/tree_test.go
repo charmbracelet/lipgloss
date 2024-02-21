@@ -476,3 +476,58 @@ func TestTreeTable(t *testing.T) {
 	`
 	require.Equal(t, expected, tree.String())
 }
+
+func TestTreeOffset(t *testing.T) {
+	enum := func(tree.Data, int, bool) (string, string) {
+		return "", "*"
+	}
+
+	t.Run("min", func(t *testing.T) {
+		tree := tree.New("root", "a", "b", "c", "d").
+			Offset(0).
+			Enumerator(enum)
+
+		expected := `
+root
+* a
+* b
+* c
+* d
+		`
+		require.Equal(t, expected, tree.String())
+	})
+
+	t.Run("in bounds", func(t *testing.T) {
+		tree := tree.New("root", "a", "b", "c", "d").
+			Offset(2).
+			Enumerator(enum)
+
+		expected := `
+root
+* c
+* d
+		`
+		require.Equal(t, expected, tree.String())
+	})
+
+	t.Run("max", func(t *testing.T) {
+		tree := tree.New("root", "a", "b", "c", "d").
+			Offset(4).
+			Enumerator(enum)
+
+		expected := `
+root
+		`
+		require.Equal(t, expected, tree.String())
+	})
+	t.Run("out bounds", func(t *testing.T) {
+		tree := tree.New("root", "a", "b", "c", "d").
+			Offset(6).
+			Enumerator(enum)
+
+		expected := `
+root
+		`
+		require.Equal(t, expected, tree.String())
+	})
+}
