@@ -11,6 +11,7 @@ type Node interface {
 	Name() string
 	String() string
 	Children() []Node
+	Hidden() bool
 }
 
 // Atter returns a child node in a specified index.
@@ -38,6 +39,10 @@ func (StringNode) Children() []Node { return nil }
 // Returns the value of the string itself.
 func (s StringNode) Name() string { return string(s) }
 
+// Hidden conforms with Node.
+// Always returns false.
+func (s StringNode) Hidden() bool { return false }
+
 func (s StringNode) String() string { return s.Name() }
 
 // TreeNode implements the Node interface with String data.
@@ -46,6 +51,19 @@ type TreeNode struct { //nolint:revive
 	renderer     *defaultRenderer
 	rendererOnce sync.Once
 	children     []Node
+	hide         bool
+}
+
+// Returns true if this node is hidden.
+func (n *TreeNode) Hidden() bool {
+	return n.hide
+}
+
+// Hide sets whether or not to hide the tree.
+// This is useful for collapsing / hiding sub-tree.
+func (n *TreeNode) Hide(hide bool) *TreeNode {
+	n.hide = hide
+	return n
 }
 
 // Name returns the root name of this node.

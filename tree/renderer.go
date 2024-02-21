@@ -39,6 +39,9 @@ type defaultRenderer struct {
 
 // Render conforms with the Renderer interface.
 func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
+	if node.Hidden() {
+		return ""
+	}
 	var strs []string
 	var maxLen int
 	children := node.Children()
@@ -57,6 +60,9 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	}
 
 	for i, child := range children {
+		if child.Hidden() {
+			continue
+		}
 		last := i == len(children)-1
 		indent, nodePrefix := enumerator(atter, i, last)
 		enumStyle := r.style.enumeratorFunc(atter, i)

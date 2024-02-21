@@ -37,6 +37,54 @@ func TestTree(t *testing.T) {
 	require.Equal(t, expected, tree.String())
 }
 
+func TestTreeHidden(t *testing.T) {
+	tree := New(
+		"",
+		"Foo",
+		New(
+			"Bar",
+			"Qux",
+			New(
+				"Quux",
+				"Foo",
+				"Bar",
+			).Hide(true),
+			"Quuux",
+		),
+		"Baz",
+	)
+
+	expected := `
+├── Foo
+├── Bar
+│   ├── Qux
+│   └── Quuux
+└── Baz
+	`
+	require.Equal(t, expected, tree.String())
+}
+
+func TestTreeAllHidden(t *testing.T) {
+	tree := New(
+		"",
+		"Foo",
+		New(
+			"Bar",
+			"Qux",
+			New(
+				"Quux",
+				"Foo",
+				"Bar",
+			),
+			"Quuux",
+		),
+		"Baz",
+	).Hide(true)
+
+	expected := ``
+	require.Equal(t, expected, tree.String())
+}
+
 func TestTreeRoot(t *testing.T) {
 	tree := New(
 		"The Root",
