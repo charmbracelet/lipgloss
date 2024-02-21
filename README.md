@@ -491,7 +491,7 @@ t := tree.New(
   "",
   "Glossier",
   "Claire’s Boutique",
-  tree.New("Nyx", "Foo", "Bar").
+  tree.New("Nyx", "Qux", "Quux").
     EnumeratorStyle(style2),
   "Mac",
   "Milk",
@@ -501,7 +501,7 @@ t := tree.New(
 Print the tree:
 
 <p align="center">
-    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/9eadf947-a801-441a-abd2-e0b0adaf0b53">
+    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/5a875269-f6d6-43fa-9916-5d8360e66964">
 </p>
 
 You may also define custom enumerator implementations:
@@ -511,7 +511,7 @@ t := tree.New(
   "",
   "Glossier",
   "Claire’s Boutique",
-  tree.New("Nyx", "Foo", "Bar"),
+  tree.New("Nyx", "Qux", "Quux"),
   "Mac",
   "Milk",
 ).Enumerator(func(data tree.Data,i int, last bool) (indent string, prefix string) {
@@ -522,7 +522,7 @@ t := tree.New(
 Print the tree.
 
 <p align="center">
-    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/5a0c4969-0fbd-47fe-8672-45f590d7efdd">
+    <img width="600" alt="Tree example" src="https://github.com/charmbracelet/lipgloss/assets/245435/811e8b39-124f-48bb-b3dd-e015a65b1065">
 </p>
 
 ### Building
