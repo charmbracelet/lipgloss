@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/charmbracelet/lipgloss"
@@ -89,6 +90,9 @@ func (n *TreeNode) Item(item any) *TreeNode {
 		}
 	case Node:
 		n.children = n.children.Append(item)
+	case fmt.Stringer:
+		s := StringNode(item.String())
+		n.children = n.children.Append(&s)
 	case string:
 		s := StringNode(item)
 		n.children = n.children.Append(&s)
