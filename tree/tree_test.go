@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/internal/require"
+	"github.com/charmbracelet/lipgloss/table"
 )
 
 func TestTree(t *testing.T) {
@@ -442,4 +443,38 @@ func TestNodeDataRemoveOutOfBounds(t *testing.T) {
 	if l := data.Length(); l != 1 {
 		t.Errorf("expected data to contain 1 items, has %d", l)
 	}
+}
+
+func TestTreeTable(t *testing.T) {
+	tree := New(
+		"",
+		"a",
+		New(
+			"b",
+			"c",
+			"d",
+			table.New().
+				Width(40).
+				Headers("a", "b").
+				Row("1", "2").
+				Row("3", "4"),
+			"e",
+		),
+		"c",
+	)
+	expected := `
+├── a
+├── b
+│   ├── c
+│   ├── d
+│   ├── ╭───────────────────┬──────────────────╮
+│   │   │a                  │b                 │
+│   │   ├───────────────────┼──────────────────┤
+│   │   │1                  │2                 │
+│   │   │3                  │4                 │
+│   │   ╰───────────────────┴──────────────────╯
+│   └── e
+└── c
+	`
+	require.Equal(t, expected, tree.String())
 }
