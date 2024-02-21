@@ -70,6 +70,17 @@ func main() {
 														Item("yup").
 														Item("many itens").
 														Item(
+															lipgloss.NewStyle().
+																Bold(true).
+																Foreground(lipgloss.Color("#FAFAFA")).
+																Background(lipgloss.Color("#7D56F4")).
+																AlignHorizontal(lipgloss.Center).
+																AlignVertical(lipgloss.Center).
+																Padding(1, 3).
+																Width(22).
+																Render("charming"),
+														).
+														Item(
 															table.New().
 																Width(40).
 																BorderStyle(style1.Copy().MarginRight(0)).
