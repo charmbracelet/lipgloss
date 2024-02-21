@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
@@ -68,6 +69,26 @@ func main() {
 														EnumeratorStyle(style2).
 														Item("yup").
 														Item("many itens").
+														Item(
+															table.New().
+																Width(40).
+																BorderStyle(style1.Copy().MarginRight(0)).
+																StyleFunc(func(row, col int) lipgloss.Style {
+																	style := lipgloss.NewStyle()
+																	if col == 1 {
+																		style = style.Align(lipgloss.Center)
+																	}
+																	if row == 0 {
+																		return style.Bold(true)
+																	}
+																	return style.Faint(true)
+																}).
+																Headers("ITEM", "QTY").
+																Row("Banana", "10").
+																Row("Orange", "2").
+																Row("Apple", "6").
+																Row("Strawberry", "12"),
+														).
 														Item("another"),
 												).
 												Item("hallo").
