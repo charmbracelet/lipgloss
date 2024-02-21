@@ -1,4 +1,4 @@
-package list
+package list_test
 
 import (
 	"strings"
@@ -6,11 +6,12 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/internal/require"
+	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func TestList(t *testing.T) {
-	l := New().
+	l := list.New().
 		Item("Foo").
 		Item("Bar").
 		Item("Baz")
@@ -24,10 +25,10 @@ func TestList(t *testing.T) {
 }
 
 func TestSublist(t *testing.T) {
-	l := New().
+	l := list.New().
 		Item("Foo").
 		Item("Bar").
-		Item(New("Hi", "Hello")).Enumerator(Roman).
+		Item(list.New("Hi", "Hello")).Enumerator(list.Roman).
 		Item("Qux")
 
 	expected := `
@@ -48,42 +49,42 @@ func TestComplexSublist(t *testing.T) {
 		Foreground(lipgloss.Color("212")).
 		MarginRight(1)
 
-	l := New().
+	l := list.New().
 		Item("Foo").
 		Item("Bar").
-		Item(New("foo2", "bar2")).
+		Item(list.New("foo2", "bar2")).
 		Item("Qux").
 		Item(
-			New("aaa", "bbb").
+			list.New("aaa", "bbb").
 				EnumeratorStyle(style1).
-				Enumerator(Roman),
+				Enumerator(list.Roman),
 		).
 		Item("Deep").
 		Item(
-			New().
+			list.New().
 				EnumeratorStyle(style2).
-				Enumerator(Alphabet).
+				Enumerator(list.Alphabet).
 				Item("foo").
 				Item("Deeper").
 				Item(
-					New().
+					list.New().
 						EnumeratorStyle(style1).
-						Enumerator(Arabic).
+						Enumerator(list.Arabic).
 						Item("a").
 						Item("b").
 						Item("Even Deeper, inherit parent renderer").
 						Item(
-							New().
-								Enumerator(Asterisk).
+							list.New().
+								Enumerator(list.Asterisk).
 								EnumeratorStyle(style2).
 								Item("sus").
 								Item("d minor").
 								Item("f#").
 								Item("One ore level, with another renderer").
 								Item(
-									New().
+									list.New().
 										EnumeratorStyle(style1).
-										Enumerator(Dash).
+										Enumerator(list.Dash).
 										Item("a\nmultine\nstring").
 										Item("hoccus poccus").
 										Item("abra kadabra").
@@ -156,7 +157,7 @@ func TestComplexSublist(t *testing.T) {
 }
 
 func TestMultiline(t *testing.T) {
-	l := New().
+	l := list.New().
 		Item("Item1\nline 2\nline 3").
 		Item("Item2\nline 2\nline 3").
 		Item("3")
@@ -174,7 +175,7 @@ func TestMultiline(t *testing.T) {
 }
 
 func TestListIntegers(t *testing.T) {
-	l := New().
+	l := list.New().
 		Item("1").
 		Item("2").
 		Item("3")
@@ -193,7 +194,7 @@ func TestEnumerators(t *testing.T) {
 		expected   string
 	}{
 		"alphabet": {
-			enumerator: Alphabet,
+			enumerator: list.Alphabet,
 			expected: `
 A. Foo
 B. Bar
@@ -201,7 +202,7 @@ C. Baz
 			`,
 		},
 		"arabic": {
-			enumerator: Arabic,
+			enumerator: list.Arabic,
 			expected: `
 1. Foo
 2. Bar
@@ -209,7 +210,7 @@ C. Baz
 			`,
 		},
 		"roman": {
-			enumerator: Roman,
+			enumerator: list.Roman,
 			expected: `
   I. Foo
  II. Bar
@@ -217,7 +218,7 @@ III. Baz
 			`,
 		},
 		"bullet": {
-			enumerator: Bullet,
+			enumerator: list.Bullet,
 			expected: `
 • Foo
 • Bar
@@ -225,7 +226,7 @@ III. Baz
 			`,
 		},
 		"asterisk": {
-			enumerator: Asterisk,
+			enumerator: list.Asterisk,
 			expected: `
 * Foo
 * Bar
@@ -233,7 +234,7 @@ III. Baz
 			`,
 		},
 		"dash": {
-			enumerator: Dash,
+			enumerator: list.Dash,
 			expected: `
 - Foo
 - Bar
@@ -244,7 +245,7 @@ III. Baz
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			l := New().
+			l := list.New().
 				Enumerator(test.enumerator).
 				Item("Foo").
 				Item("Bar").
@@ -262,7 +263,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 		expected    string
 	}{
 		"alphabet lower": {
-			enumeration: Alphabet,
+			enumeration: list.Alphabet,
 			style:       lipgloss.NewStyle().MarginRight(1).Transform(strings.ToLower),
 			expected: `
 a. Foo
@@ -271,7 +272,7 @@ c. Baz
 			`,
 		},
 		"arabic)": {
-			enumeration: Arabic,
+			enumeration: list.Arabic,
 			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
 				return strings.Replace(s, ".", ")", 1)
 			}),
@@ -282,7 +283,7 @@ c. Baz
 			`,
 		},
 		"roman within ()": {
-			enumeration: Roman,
+			enumeration: list.Roman,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
 			}),
@@ -293,7 +294,7 @@ c. Baz
 			`,
 		},
 		"bullet is dash": {
-			enumeration: Bullet,
+			enumeration: list.Bullet,
 			style: lipgloss.NewStyle().Transform(func(s string) string {
 				return "- " // this is better done by replacing the enumerator.
 			}),
@@ -307,7 +308,7 @@ c. Baz
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			l := New().
+			l := list.New().
 				EnumeratorStyle(test.style).
 				Enumerator(test.enumeration).
 				Item("Foo").
@@ -325,23 +326,23 @@ func TestBullet(t *testing.T) {
 		i    int
 		exp  string
 	}{
-		{Alphabet, 0, "A"},
-		{Alphabet, 25, "Z"},
-		{Alphabet, 26, "AA"},
-		{Alphabet, 51, "AZ"},
-		{Alphabet, 52, "BA"},
-		{Alphabet, 79, "CB"},
-		{Alphabet, 701, "ZZ"},
-		{Alphabet, 702, "AAA"},
-		{Alphabet, 801, "ADV"},
-		{Alphabet, 1000, "ALM"},
-		{Roman, 0, "I"},
-		{Roman, 25, "XXVI"},
-		{Roman, 26, "XXVII"},
-		{Roman, 50, "LI"},
-		{Roman, 100, "CI"},
-		{Roman, 701, "DCCII"},
-		{Roman, 1000, "MI"},
+		{list.Alphabet, 0, "A"},
+		{list.Alphabet, 25, "Z"},
+		{list.Alphabet, 26, "AA"},
+		{list.Alphabet, 51, "AZ"},
+		{list.Alphabet, 52, "BA"},
+		{list.Alphabet, 79, "CB"},
+		{list.Alphabet, 701, "ZZ"},
+		{list.Alphabet, 702, "AAA"},
+		{list.Alphabet, 801, "ADV"},
+		{list.Alphabet, 1000, "ALM"},
+		{list.Roman, 0, "I"},
+		{list.Roman, 25, "XXVI"},
+		{list.Roman, 26, "XXVII"},
+		{list.Roman, 50, "LI"},
+		{list.Roman, 100, "CI"},
+		{list.Roman, 701, "DCCII"},
+		{list.Roman, 1000, "MI"},
 	}
 
 	for _, test := range tests {
@@ -355,7 +356,7 @@ func TestBullet(t *testing.T) {
 
 func TestEnumeratorsAlign(t *testing.T) {
 	fooList := strings.Split(strings.TrimSuffix(strings.Repeat("Foo ", 100), " "), " ")
-	l := New().Enumerator(Roman)
+	l := list.New().Enumerator(list.Roman)
 	for _, f := range fooList {
 		l.Item(f)
 	}

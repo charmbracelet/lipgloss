@@ -1,4 +1,4 @@
-package tree
+package tree_test
 
 import (
 	"testing"
@@ -6,16 +6,17 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/internal/require"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func TestTree(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
-			New(
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -39,13 +40,13 @@ func TestTree(t *testing.T) {
 }
 
 func TestTreeHidden(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
-			New(
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -66,13 +67,13 @@ func TestTreeHidden(t *testing.T) {
 }
 
 func TestTreeAllHidden(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
-			New(
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -87,10 +88,10 @@ func TestTreeAllHidden(t *testing.T) {
 }
 
 func TestTreeRoot(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"The Root",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
 			"Quuux",
@@ -109,9 +110,9 @@ The Root
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
 			"Quuux",
@@ -129,11 +130,11 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"bar",
 		"foo",
-		New(
+		tree.New(
 			"",
 			"Bar 11",
 			"Bar 12",
@@ -141,7 +142,7 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 			"Bar 14",
 			"Bar 15",
 		),
-		New(
+		tree.New(
 			"",
 			"Bar 21",
 			"Bar 22",
@@ -171,13 +172,13 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
-			New(
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -199,13 +200,13 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 }
 
 func TestTreeNil(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		nil,
-		New(
+		tree.New(
 			"Bar",
 			"Qux",
-			New(
+			tree.New(
 				"Quux",
 				"Bar",
 			),
@@ -226,14 +227,14 @@ func TestTreeNil(t *testing.T) {
 }
 
 func TestTreeCustom(t *testing.T) {
-	quuux := StringNode("Quuux")
-	tree := New(
+	quuux := tree.StringNode("Quuux")
+	tree := tree.New(
 		"",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
-			StringNode("Qux"),
-			New(
+			tree.StringNode("Qux"),
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -244,7 +245,7 @@ func TestTreeCustom(t *testing.T) {
 	).
 		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
 		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
-		Enumerator(func(Data, int, bool) (indent string, prefix string) {
+		Enumerator(func(tree.Data, int, bool) (indent string, prefix string) {
 			return "->", "->"
 		})
 
@@ -262,13 +263,13 @@ func TestTreeCustom(t *testing.T) {
 }
 
 func TestTreeMultilineNode(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"Multiline\nRoot\nNode",
 		"Foo",
-		New(
+		tree.New(
 			"Bar",
 			"Qux\nLine 2\nLine 3\nLine 4",
-			New(
+			tree.New(
 				"Quux",
 				"Foo",
 				"Bar",
@@ -299,14 +300,14 @@ Node
 }
 
 func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"The Root Node(tm)",
-		New("Parent", "child 1", "child 2").
-			ItemStyleFunc(func(Data, int) lipgloss.Style {
+		tree.New("Parent", "child 1", "child 2").
+			ItemStyleFunc(func(tree.Data, int) lipgloss.Style {
 				return lipgloss.NewStyle().
 					SetString("*")
 			}).
-			EnumeratorStyleFunc(func(_ Data, i int) lipgloss.Style {
+			EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
 				return lipgloss.NewStyle().
 					SetString("+").
 					MarginRight(1)
@@ -325,14 +326,14 @@ The Root Node(tm)
 }
 
 func TestTreeMixedEnumeratorSize(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"The Root Node(tm)",
 		"child 1",
 		"child 2",
 		"child 3",
 		"child 4",
 		"child 5",
-	).Enumerator(func(_ Data, i int, _ bool) (indent string, prefix string) {
+	).Enumerator(func(_ tree.Data, i int, _ bool) (indent string, prefix string) {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -356,7 +357,7 @@ III child 3
 }
 
 func TestTreeStyleNilFuncs(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"Multiline",
 		"Foo",
 		"Baz",
@@ -372,12 +373,12 @@ Multiline
 }
 
 func TestTreeStyleAt(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"Multiline",
 		"Foo",
 		"Baz",
-	).Enumerator(func(atter Data, i int, _ bool) (indent string, prefix string) {
-		if atter.At(i).Name() == "Foo" {
+	).Enumerator(func(data tree.Data, i int, _ bool) (indent string, prefix string) {
+		if data.At(i).Name() == "Foo" {
 			return "", ">"
 		}
 		return "", "-"
@@ -391,11 +392,8 @@ Multiline
 	require.Equal(t, expected, tree.String())
 }
 
-func TestAtter(t *testing.T) {
-	nodes := nodeData([]Node{
-		StringNode("foo"),
-		StringNode("bar"),
-	})
+func TestAt(t *testing.T) {
+	nodes := tree.NewStringData("foo", "bar")
 	t.Run("0", func(t *testing.T) {
 		if s := nodes.At(0).String(); s != "foo" {
 			t.Errorf("expected 'foo', got '%s'", s)
@@ -414,13 +412,13 @@ func TestAtter(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	data := NewFilter(NewStringData("Foo", "Bar", "Baz", "Nope")).
+	data := tree.NewFilter(tree.NewStringData("Foo", "Bar", "Baz", "Nope")).
 		Filter(func(index int) bool {
 			return index != 1
 		}).
-		Append(StringNode("Qux")).
+		Append(tree.StringNode("Qux")).
 		Remove(3)
-	tree := New("Root", data)
+	tree := tree.New("Root", data)
 
 	expected := `
 Root
@@ -439,17 +437,17 @@ Root
 }
 
 func TestNodeDataRemoveOutOfBounds(t *testing.T) {
-	data := NewStringData("a").Remove(-1).Remove(1)
+	data := tree.NewStringData("a").Remove(-1).Remove(1)
 	if l := data.Length(); l != 1 {
 		t.Errorf("expected data to contain 1 items, has %d", l)
 	}
 }
 
 func TestTreeTable(t *testing.T) {
-	tree := New(
+	tree := tree.New(
 		"",
 		"a",
-		New(
+		tree.New(
 			"b",
 			"c",
 			"d",
