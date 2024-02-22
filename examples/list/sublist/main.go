@@ -81,6 +81,10 @@ func main() {
 																Render("Item 4.2.3.3.4.3.3\n\nItems can be any string, including tables!"),
 														).
 														Item(
+															list.New("A list within a tree", "a", "b", "c").
+																Enumerator(list.Roman),
+														).
+														Item(
 															table.New().
 																Width(40).
 																BorderStyle(style1.Copy().MarginRight(0)).
