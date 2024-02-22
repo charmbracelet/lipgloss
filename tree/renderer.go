@@ -53,7 +53,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 	}
 
 	for i := 0; i < children.Length(); i++ {
-		_, prefix := enumerator(children, i, i == children.Length()-1)
+		_, prefix := enumerator(children, i)
 		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
@@ -63,8 +63,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 		if child.Hidden() {
 			continue
 		}
-		last := i == children.Length()-1
-		indent, nodePrefix := enumerator(children, i, last)
+		indent, nodePrefix := enumerator(children, i)
 		enumStyle := r.style.enumeratorFunc(children, i)
 		itemStyle := r.style.itemFunc(children, i)
 

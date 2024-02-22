@@ -346,7 +346,7 @@ func TestBullet(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, prefix := test.enum(nil, test.i, false)
+		_, prefix := test.enum(nil, test.i)
 		bullet := strings.TrimSuffix(prefix, ".")
 		if bullet != test.exp {
 			t.Errorf("expected: %s, got: %s\n", test.exp, bullet)

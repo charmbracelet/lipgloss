@@ -245,7 +245,7 @@ func TestTreeCustom(t *testing.T) {
 	).
 		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
 		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
-		Enumerator(func(tree.Data, int, bool) (indent string, prefix string) {
+		Enumerator(func(tree.Data, int) (indent string, prefix string) {
 			return "->", "->"
 		})
 
@@ -333,7 +333,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 		"child 3",
 		"child 4",
 		"child 5",
-	).Enumerator(func(_ tree.Data, i int, _ bool) (indent string, prefix string) {
+	).Enumerator(func(_ tree.Data, i int) (indent string, prefix string) {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -377,7 +377,7 @@ func TestTreeStyleAt(t *testing.T) {
 		"Multiline",
 		"Foo",
 		"Baz",
-	).Enumerator(func(data tree.Data, i int, _ bool) (indent string, prefix string) {
+	).Enumerator(func(data tree.Data, i int) (indent string, prefix string) {
 		if data.At(i).Name() == "Foo" {
 			return "", ">"
 		}
@@ -478,7 +478,7 @@ func TestTreeTable(t *testing.T) {
 }
 
 func TestTreeOffset(t *testing.T) {
-	enum := func(tree.Data, int, bool) (string, string) {
+	enum := func(tree.Data, int) (string, string) {
 		return "", "*"
 	}
 
