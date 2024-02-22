@@ -190,7 +190,7 @@ func TestListIntegers(t *testing.T) {
 
 func TestEnumerators(t *testing.T) {
 	tests := map[string]struct {
-		enumerator tree.Enumerator
+		enumerator list.Enumerator
 		expected   string
 	}{
 		"alphabet": {
@@ -258,7 +258,7 @@ III. Baz
 
 func TestEnumeratorsTransform(t *testing.T) {
 	tests := map[string]struct {
-		enumeration tree.Enumerator
+		enumeration list.Enumerator
 		style       lipgloss.Style
 		expected    string
 	}{
@@ -322,7 +322,7 @@ c. Baz
 
 func TestBullet(t *testing.T) {
 	tests := []struct {
-		enum tree.Enumerator
+		enum list.Enumerator
 		i    int
 		exp  string
 	}{
@@ -346,7 +346,7 @@ func TestBullet(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, prefix := test.enum(nil, test.i)
+		prefix := test.enum(nil, test.i)
 		bullet := strings.TrimSuffix(prefix, ".")
 		if bullet != test.exp {
 			t.Errorf("expected: %s, got: %s\n", test.exp, bullet)

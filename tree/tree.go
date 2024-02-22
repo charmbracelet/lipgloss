@@ -157,13 +157,13 @@ func (n *TreeNode) ensureRenderer() *defaultRenderer {
 	return n.renderer
 }
 
-// EnumeratorStyle implements Renderer.
+// EnumeratorStyle sets the enumeration style.
 func (n *TreeNode) EnumeratorStyle(style lipgloss.Style) *TreeNode {
 	n.ensureRenderer().style.enumeratorFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
-// EnumeratorStyleFunc implements Renderer.
+// EnumeratorStyleFunc sets the enumeration style function.
 func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
 		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
@@ -172,13 +172,13 @@ func (n *TreeNode) EnumeratorStyleFunc(fn StyleFunc) *TreeNode {
 	return n
 }
 
-// ItemStyle implements Renderer.
+// ItemStyle sets the item style.
 func (n *TreeNode) ItemStyle(style lipgloss.Style) *TreeNode {
 	n.ensureRenderer().style.itemFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
-// ItemStyleFunc implements Renderer.
+// ItemStyleFunc sets the item style function.
 func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
 	if fn == nil {
 		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
@@ -187,7 +187,7 @@ func (n *TreeNode) ItemStyleFunc(fn StyleFunc) *TreeNode {
 	return n
 }
 
-// Enumerator implements Renderer.
+// Enumerator sets the enumerator implementation.
 func (n *TreeNode) Enumerator(enum Enumerator) *TreeNode {
 	n.ensureRenderer().enumerator = enum
 	return n
