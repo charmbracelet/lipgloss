@@ -12,7 +12,7 @@ type (
 
 	// List is a list of items.
 	List struct {
-		inner *tree.TreeNode
+		inner *tree.Tree
 	}
 
 	// Data is the interface that wraps the basic methods of a list model.

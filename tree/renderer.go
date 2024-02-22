@@ -95,7 +95,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 			// otherwise, we keep using the current renderer.
 			renderer := r
 			switch child := child.(type) {
-			case *TreeNode:
+			case *Tree:
 				if child.renderer != nil {
 					renderer = child.renderer
 				}
