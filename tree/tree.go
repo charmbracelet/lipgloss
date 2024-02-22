@@ -82,13 +82,14 @@ func (n *TreeNode) String() string {
 //
 // Both of these should result in the same thing:
 //
-//	New("foo", "bar", New("", "zaz"))
-//	New("foo", New("bar", "zaz"))
+//	New().Root("foo").Items("bar", New().Item("zaz"), "qux")
+//	New().Root("foo").Items(New().Root("bar").Item("zaz"), "qux")
 //
 // The resulting tree would be:
-// - foo
-// - bar
-//   - zaz
+// ├── foo
+// ├── bar
+// │   └── zaz
+// └── qux
 func (n *TreeNode) Item(item any) *TreeNode {
 	switch item := item.(type) {
 	case *TreeNode:
@@ -109,6 +110,14 @@ func (n *TreeNode) Item(item any) *TreeNode {
 	case string:
 		s := StringNode(item)
 		n.children = n.children.Append(&s)
+	}
+	return n
+}
+
+// Items add multiple items to the tree.
+func (n *TreeNode) Items(items ...any) *TreeNode {
+	for _, item := range items {
+		n.Item(item)
 	}
 	return n
 }
@@ -193,14 +202,15 @@ func (n *TreeNode) Children() Data {
 	return nodeData(data)
 }
 
+// Root sets the tree node root name.
+func (n *TreeNode) Root(root string) *TreeNode {
+	n.name = root
+	return n
+}
+
 // New returns a new tree.
-func New(root string, data ...any) *TreeNode {
-	t := &TreeNode{
-		name:     root,
+func New() *TreeNode {
+	return &TreeNode{
 		children: nodeData(nil),
 	}
-	for _, d := range data {
-		t = t.Item(d)
-	}
-	return t
 }

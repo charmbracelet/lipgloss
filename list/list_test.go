@@ -91,13 +91,13 @@ func TestComplexSublist(t *testing.T) {
 										Item("And finally, a tree within all this").
 										Item(
 
-											tree.New("").
+											tree.New().
 												EnumeratorStyle(style2).
 												Item("another\nmultine\nstring").
 												Item("something").
 												Item("a subtree").
 												Item(
-													tree.New("").
+													tree.New().
 														EnumeratorStyle(style2).
 														Item("yup").
 														Item("many itens").
