@@ -15,28 +15,34 @@ func main() {
 		Foreground(lipgloss.Color("212")).
 		MarginRight(1)
 
-	t := tree.New(
-		"Items",
-		tree.New(
-			"Vegetables",
-			"Lettuce",
-			"Cabbage",
-		),
-		tree.New(
-			"Drinks",
-			"Beer",
-			"Wine",
-			"Whiskey",
-		),
-		"Bread",
-		tree.New(
-			"Meats",
-			"Beef",
-			"Pork",
-			tree.New("Birds", "Chicken", "Duck"),
-		).EnumeratorStyle(style2),
-		"Fruit",
-	).EnumeratorStyle(style1)
+	t := tree.New().
+		Root("Items").
+		Items(
+			tree.New().
+				Root("Vegetables").
+				Items(
+					"Lettuce",
+					"Cabbage",
+				),
+			tree.New().
+				Root("Drinks").
+				Items(
+					"Beer",
+					"Wine",
+					"Whiskey",
+				),
+			"Bread",
+			tree.New().
+				Root("Meats").
+				Items(
+					"Beef",
+					"Pork",
+					tree.New().
+						Root("Birds").
+						Items("Chicken", "Duck"),
+				).EnumeratorStyle(style2),
+			"Fruit",
+		).EnumeratorStyle(style1)
 
 	fmt.Println(t)
 }

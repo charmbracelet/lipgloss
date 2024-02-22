@@ -7,19 +7,21 @@ import (
 )
 
 func main() {
-	t := tree.New(
-		"",
-		"Glossier",
-		"Claire’s Boutique",
-		tree.New(
-			"Nyx",
-			"Qux",
-			"Quux",
-		),
-		"Mac",
-		"Milk",
-	).Enumerator(func(data tree.Data, i int, last bool) (indent string, prefix string) {
-		return "->", "->"
-	})
+	t := tree.New().
+		Items(
+			"Glossier",
+			"Claire’s Boutique",
+			tree.New().
+				Root("Nyx").
+				Items(
+					"Qux",
+					"Quux",
+				),
+			"Mac",
+			"Milk",
+		).
+		Enumerator(func(tree.Data, int) (string, string) {
+			return "->", "->"
+		})
 	fmt.Println(t)
 }

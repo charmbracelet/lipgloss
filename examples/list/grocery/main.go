@@ -20,13 +20,13 @@ var purchased = []string{
 	"Papaya",
 }
 
-func groceryEnumerator(data tree.Data, i int, _ bool) (string, string) {
+func groceryEnumerator(data list.Data, i int) string {
 	for _, p := range purchased {
 		if data.At(i).Name() == p {
-			return "", "✓"
+			return "✓"
 		}
 	}
-	return "", "•"
+	return "•"
 }
 
 var dimEnumStyle = lipgloss.NewStyle().

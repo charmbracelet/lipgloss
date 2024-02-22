@@ -5,14 +5,13 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/tree"
 )
 
-func duckDuckGooseEnumerator(data tree.Data, i int, _ bool) (string, string) {
+func duckDuckGooseEnumerator(data list.Data, i int) string {
 	if data.At(i).Name() == "Goose" {
-		return "", "Honk →"
+		return "Honk →"
 	}
-	return "", " "
+	return " "
 }
 
 func main() {

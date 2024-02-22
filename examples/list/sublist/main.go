@@ -59,13 +59,13 @@ func main() {
 										Item("Item 4.2.3.3.4").
 										Item(
 
-											tree.New("").
+											tree.New().
 												EnumeratorStyle(style2).
 												Item("Item 4.2.3.3.4.1\nThis is a tree within a list.\nLists are actually syntactic sugar for trees!").
 												Item("Item 4.2.3.3.4.2").
 												Item("Item 4.2.3.3.4.3").
 												Item(
-													tree.New("").
+													tree.New().
 														EnumeratorStyle(style2).
 														Item("Item 4.2.3.3.4.3.1\nanother tree").
 														Item("Item 4.2.3.3.4.3.2").

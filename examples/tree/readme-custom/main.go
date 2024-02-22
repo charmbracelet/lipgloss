@@ -11,15 +11,17 @@ func main() {
 	style1 := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
 	style2 := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
 
-	t := tree.New(
-		"",
-		"Glossier",
-		"Claire’s Boutique",
-		tree.New("Nyx", "Qux", "Quux").
-			EnumeratorStyle(style2),
-		"Mac",
-		"Milk",
-	).
+	t := tree.New().
+		Items(
+			"Glossier",
+			"Claire’s Boutique",
+			tree.New().
+				Root("Nyx").
+				Items("Qux", "Quux").
+				EnumeratorStyle(style2),
+			"Mac",
+			"Milk",
+		).
 		EnumeratorStyle(style1)
 	fmt.Println(t)
 }
