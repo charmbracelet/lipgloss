@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/internal/require"
+	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/lipgloss/tree"
 )
@@ -641,4 +642,19 @@ func TestAddItemWithoutRootAndWithRoot(t *testing.T) {
 	`
 	require.Equal(t, expected, t1.String())
 	require.Equal(t, expected, t2.String())
+}
+
+func TestEmbedListWithinTree(t *testing.T) {
+	t1 := tree.New().
+		Item(list.New("A", "B", "C").Enumerator(list.Arabic)).
+		Item(list.New("1", "2", "3").Enumerator(list.Alphabet))
+	expected := `
+├── 1. A
+│   2. B
+│   3. C
+└── A. 1
+    B. 2
+    C. 3
+	`
+	require.Equal(t, expected, t1.String())
 }
