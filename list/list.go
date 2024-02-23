@@ -54,12 +54,14 @@ func (n *List) String() string {
 }
 
 // EnumeratorStyle implements Renderer.
+// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
 func (n *List) EnumeratorStyle(style lipgloss.Style) *List {
 	n.inner.EnumeratorStyle(style)
 	return n
 }
 
 // EnumeratorStyleFunc implements Renderer.
+// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
 func (n *List) EnumeratorStyleFunc(fn StyleFunc) *List {
 	n.inner.EnumeratorStyleFunc(tree.StyleFunc(fn))
 	return n

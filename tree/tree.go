@@ -158,12 +158,14 @@ func (n *Tree) ensureRenderer() *defaultRenderer {
 }
 
 // EnumeratorStyle sets the enumeration style.
+// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
 func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 	n.ensureRenderer().style.enumeratorFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
 // EnumeratorStyleFunc sets the enumeration style function.
+// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
 func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
 		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }

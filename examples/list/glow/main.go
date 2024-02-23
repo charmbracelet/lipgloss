@@ -15,8 +15,11 @@ type Document struct {
 	Date time.Time
 }
 
+var faint = lipgloss.NewStyle().Faint(true)
+
 func (d Document) String() string {
-	return d.Name + "\n" + lipgloss.NewStyle().Faint(true).Render(humanize.Time(d.Date))
+	return d.Name + "\n" +
+		faint.Render(humanize.Time(d.Date))
 }
 
 var docs = []Document{
@@ -28,27 +31,31 @@ var docs = []Document{
 const selectedIndex = 1
 
 func main() {
-	baseStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("250")).MarginBottom(1).MarginLeft(1)
-	highlightStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")).MarginBottom(1).MarginLeft(1)
+	baseStyle := lipgloss.NewStyle().
+		MarginBottom(1).
+		MarginLeft(1)
+	dimColor := lipgloss.Color("250")
+	hightlightColor := lipgloss.Color("#EE6FF8")
 
 	l := list.New().
 		Enumerator(func(_ list.Data, i int) string {
 			if i == selectedIndex {
 				return "│\n│"
 			}
-			return ""
+			return " "
 		}).
 		ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+			st := baseStyle.Copy()
 			if selectedIndex == i {
-				return highlightStyle
+				return st.Foreground(hightlightColor)
 			}
-			return baseStyle
+			return st.Foreground(dimColor)
 		}).
 		EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
 			if selectedIndex == i {
-				return highlightStyle
+				return lipgloss.NewStyle().Foreground(hightlightColor)
 			}
-			return baseStyle
+			return lipgloss.NewStyle().Foreground(dimColor)
 		})
 
 	for _, d := range docs {

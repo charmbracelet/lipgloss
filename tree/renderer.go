@@ -72,21 +72,36 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 			nodePrefix = strings.Repeat(" ", l) + nodePrefix
 		}
 
-		for j, line := range strings.Split(child.Name(), "\n") {
-			if j == 0 {
-				strs = append(strs, lipgloss.JoinHorizontal(
-					lipgloss.Left,
-					prefix+nodePrefix,
-					itemStyle.Render(line),
-				))
-				continue
-			}
-			strs = append(strs, lipgloss.JoinHorizontal(
-				lipgloss.Left,
-				prefix+enumStyle.Render(indent),
-				itemStyle.Render(line),
-			))
+		item := itemStyle.Render(child.Name())
+		multineLinePrefix := prefix
+
+		// This dance below is to account for multiline prefixes, e.g. "|\n|".
+		// In that case, we need to make sure that both the parent prefix and
+		// the current node's prefix have the same height.
+		for lipgloss.Height(item) > lipgloss.Height(nodePrefix) {
+			nodePrefix = lipgloss.JoinVertical(
+				lipgloss.Top,
+				nodePrefix,
+				enumStyle.Render(indent),
+			)
 		}
+		for lipgloss.Height(nodePrefix) > lipgloss.Height(multineLinePrefix) {
+			multineLinePrefix = lipgloss.JoinVertical(
+				lipgloss.Top,
+				multineLinePrefix,
+				prefix,
+			)
+		}
+
+		strs = append(
+			strs,
+			lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				multineLinePrefix,
+				nodePrefix,
+				item,
+			),
+		)
 
 		if children.Length() > 0 {
 			// here we see if the child has a custom renderer, which means the

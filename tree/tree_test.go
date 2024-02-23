@@ -658,3 +658,68 @@ func TestEmbedListWithinTree(t *testing.T) {
 	`
 	require.Equal(t, expected, t1.String())
 }
+
+// TODO: add a test like this with subtrees
+func TestMultilinePrefix(t *testing.T) {
+	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	tree := tree.New().
+		Enumerator(func(_ tree.Data, i int) (string, string) {
+			if i == 1 {
+				return "", "│\n│"
+			}
+			return "", " "
+		}).
+		ItemStyle(marginsStyle).
+		Item("Document 0\nSome tagline").
+		Item("Document 1\nHello world").
+		Item("Document 2\nSome other tagline")
+	expected := `
+   Document 0
+   Some tagline
+
+│  Document 1
+│  Hello world
+
+   Document 2
+   Some other tagline
+	`
+	require.Equal(t, expected, tree.String())
+}
+
+func TestMultilinePrefixSubtree(t *testing.T) {
+	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	tree := tree.New().
+		Item("Hello").
+		Item("Foo").
+		Item(
+			tree.New().
+				Root("Bar").
+				Enumerator(func(_ tree.Data, i int) (string, string) {
+					if i == 1 {
+						return "", "│\n│"
+					}
+					return "", " "
+				}).
+				ItemStyle(marginsStyle).
+				Item("Document 0\nSome tagline").
+				Item("Document 1\nHello world").
+				Item("Document 2\nSome other tagline"),
+		).
+		Item("Fuss")
+	expected := `
+├── Hello
+├── Foo
+├── Bar
+│      Document 0
+│      Some tagline
+│
+│   │  Document 1
+│   │  Hello world
+│
+│      Document 2
+│      Some other tagline
+│
+└── Fuss
+	`
+	require.Equal(t, expected, tree.String())
+}
