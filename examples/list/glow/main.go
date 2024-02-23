@@ -2,30 +2,28 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/tree"
-	humanize "github.com/dustin/go-humanize"
 )
 
 type Document struct {
 	Name string
-	Date time.Time
+	Time string
 }
 
 var faint = lipgloss.NewStyle().Faint(true)
 
 func (d Document) String() string {
 	return d.Name + "\n" +
-		faint.Render(humanize.Time(d.Date))
+		faint.Render(d.Time)
 }
 
 var docs = []Document{
-	{"README.md", time.Now().Add(-time.Minute * 2)},
-	{"Example.md", time.Now().Add(-time.Hour)},
-	{"secrets.md", time.Now().Add(-time.Hour * 24 * 7)},
+	{"README.md", "2 minutes ago"},
+	{"Example.md", "1 hour ago"},
+	{"secrets.md", "1 week ago"},
 }
 
 const selectedIndex = 1

@@ -24,6 +24,18 @@ func TestList(t *testing.T) {
 	require.Equal(t, expected, l.String())
 }
 
+func TestListItems(t *testing.T) {
+	l := list.New().
+		Items([]any{"Foo", "Bar", "Baz"})
+
+	expected := `
+• Foo
+• Bar
+• Baz
+	`
+	require.Equal(t, expected, l.String())
+}
+
 func TestSublist(t *testing.T) {
 	l := list.New().
 		Item("Foo").
