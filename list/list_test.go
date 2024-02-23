@@ -26,7 +26,7 @@ func TestList(t *testing.T) {
 
 func TestListItems(t *testing.T) {
 	l := list.New().
-		Items([]any{"Foo", "Bar", "Baz"})
+		Items([]string{"Foo", "Bar", "Baz"})
 
 	expected := `
 • Foo

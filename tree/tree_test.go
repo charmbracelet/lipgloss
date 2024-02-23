@@ -114,12 +114,13 @@ The Root
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
-	tree := tree.New().Items(
-		tree.New().
-			Root("Bar").
-			Items("Qux", "Quuux"),
-		"Baz",
-	)
+	tree := tree.New().
+		Items(
+			tree.New().
+				Root("Bar").
+				Items("Qux", "Quuux"),
+			"Baz",
+		)
 
 	expected := `
 ├── Bar
@@ -131,25 +132,28 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
-	tree := tree.New().Items(
-		"bar",
-		"foo",
-		tree.New().Items(
-			"Bar 11",
-			"Bar 12",
-			"Bar 13",
-			"Bar 14",
-			"Bar 15",
-		),
-		tree.New().Items(
-			"Bar 21",
-			"Bar 22",
-			"Bar 23",
-			"Bar 24",
-			"Bar 25",
-		),
-		"Baz",
-	)
+	tree := tree.New().
+		Items(
+			"bar",
+			"foo",
+			tree.New().
+				Items(
+					"Bar 11",
+					"Bar 12",
+					"Bar 13",
+					"Bar 14",
+					"Bar 15",
+				),
+			tree.New().
+				Items(
+					"Bar 21",
+					"Bar 22",
+					"Bar 23",
+					"Bar 24",
+					"Bar 25",
+				),
+			"Baz",
+		)
 
 	expected := `
 ├── bar
@@ -170,18 +174,19 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
-	tree := tree.New().Items(
-		"Foo",
-		tree.New().
-			Root("Bar").
-			Items(
-				"Qux",
-				tree.New().
-					Root("Quux").
-					Items("Foo", "Bar"),
-				"Quuux",
-			),
-	)
+	tree := tree.New().
+		Items(
+			"Foo",
+			tree.New().
+				Root("Bar").
+				Items(
+					"Qux",
+					tree.New().
+						Root("Quux").
+						Items("Foo", "Bar"),
+					"Quuux",
+				),
+		)
 
 	expected := `
 ├── Foo
@@ -196,16 +201,20 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 }
 
 func TestTreeNil(t *testing.T) {
-	tree := tree.New().Items(
-		nil,
-		tree.New().
-			Root("Bar").Items(
-			"Qux",
-			tree.New().Root("Quux").Item("Bar"),
-			"Quuux",
-		),
-		"Baz",
-	)
+	tree := tree.New().
+		Items(
+			nil,
+			tree.New().
+				Root("Bar").
+				Items(
+					"Qux",
+					tree.New().
+						Root("Quux").
+						Item("Bar"),
+					"Quuux",
+				),
+			"Baz",
+		)
 
 	expected := `
 ├── Bar
@@ -220,21 +229,22 @@ func TestTreeNil(t *testing.T) {
 
 func TestTreeCustom(t *testing.T) {
 	quuux := tree.StringNode("Quuux")
-	tree := tree.New().Items(
-		"Foo",
-		tree.New().
-			Root("Bar").
-			Items(
-				tree.StringNode("Qux"),
-				tree.New().
-					Root("Quux").
-					Items("Foo",
-						"Bar",
-					),
-				&quuux,
-			),
-		"Baz",
-	).
+	tree := tree.New().
+		Items(
+			"Foo",
+			tree.New().
+				Root("Bar").
+				Items(
+					tree.StringNode("Qux"),
+					tree.New().
+						Root("Quux").
+						Items("Foo",
+							"Bar",
+						),
+					&quuux,
+				),
+			"Baz",
+		).
 		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
 		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
 		Enumerator(func(tree.Data, int) (indent string, prefix string) {
@@ -358,10 +368,8 @@ III child 3
 func TestTreeStyleNilFuncs(t *testing.T) {
 	tree := tree.New().
 		Root("Multiline").
-		Items(
-			"Foo",
-			"Baz",
-		).ItemStyleFunc(nil).
+		Items("Foo", "Baz").
+		ItemStyleFunc(nil).
 		EnumeratorStyleFunc(nil)
 
 	expected := `
@@ -789,6 +797,24 @@ func TestMultilinePrefixInception(t *testing.T) {
 
     Document 2
     Some other tagline
+	`
+	require.Equal(t, expected, tree.String())
+}
+
+func TestTypes(t *testing.T) {
+	tree := tree.New().
+		Item(1).
+		Item(true).
+		Item([]any{"a", "b"}).
+		Item([]string{"a", "b", "c"})
+	expected := `
+├── 1
+├── true
+├── a
+├── b
+├── a
+├── b
+└── c
 	`
 	require.Equal(t, expected, tree.String())
 }

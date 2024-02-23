@@ -110,6 +110,22 @@ func (n *Tree) Item(item any) *Tree {
 	case string:
 		s := StringNode(item)
 		n.children = n.children.Append(&s)
+	// XXX: passing []any and []string would be the most common errors it
+	// seems, this fixes it, but doesn't handle other types of slices...
+	// Maybe it's best to not handle any of these?
+	case []any:
+		return n.Items(item...)
+	case []string:
+		ss := make([]any, 0, len(item))
+		for _, s := range item {
+			ss = append(ss, s)
+		}
+		return n.Items(ss...)
+	case nil:
+		return n
+	default:
+		// optimistically try to convert to a string...
+		return n.Item(fmt.Sprintf("%v", item))
 	}
 	return n
 }
