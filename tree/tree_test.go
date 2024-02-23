@@ -659,7 +659,6 @@ func TestEmbedListWithinTree(t *testing.T) {
 	require.Equal(t, expected, t1.String())
 }
 
-// TODO: add a test like this with subtrees
 func TestMultilinePrefix(t *testing.T) {
 	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
 	tree := tree.New().
@@ -682,6 +681,32 @@ func TestMultilinePrefix(t *testing.T) {
 
    Document 2
    Some other tagline
+	`
+	require.Equal(t, expected, tree.String())
+}
+
+func TestMultilinePrefixSingleLineItem(t *testing.T) {
+	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	tree := tree.New().
+		Enumerator(func(_ tree.Data, i int) (string, string) {
+			if i == 1 {
+				return "", "│\n│"
+			}
+			return "", " "
+		}).
+		ItemStyle(marginsStyle).
+		Item("Document 0\nhello").
+		Item("Document 1\n").
+		Item("Document 2\nhello again")
+	expected := `
+   Document 0
+   hello
+
+│  Document 1
+│
+
+   Document 2
+   hello again
 	`
 	require.Equal(t, expected, tree.String())
 }
@@ -720,6 +745,50 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 │      Some other tagline
 │
 └── Fuss
+	`
+	require.Equal(t, expected, tree.String())
+}
+
+func TestMultilinePrefixInception(t *testing.T) {
+	glowEnum := func(_ tree.Data, i int) (string, string) {
+		if i == 1 {
+			return "  ", "│\n│"
+		}
+		return "  ", " "
+	}
+	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	tree := tree.New().
+		Enumerator(glowEnum).
+		ItemStyle(marginsStyle).
+		Item("Document 0\nSome tagline").
+		Item("Document 1\nHello world").
+		Item(
+			tree.New().
+				Enumerator(glowEnum).
+				ItemStyle(marginsStyle).
+				Item("Document 1a\nnothing important").
+				Item("Document 1b\nsomething").
+				Item("Document 1c\nsomething else"),
+		).
+		Item("Document 2\nSome other tagline")
+	expected := `
+    Document 0
+    Some tagline
+
+│   Document 1
+│   Hello world
+
+       Document 1a
+       nothing important
+
+   │   Document 1b
+   │   something
+
+       Document 1c
+       something else
+
+    Document 2
+    Some other tagline
 	`
 	require.Equal(t, expected, tree.String())
 }

@@ -17,6 +17,12 @@ func main() {
 		Foreground(lipgloss.Color("212")).
 		MarginRight(1)
 
+	baseStyle := lipgloss.NewStyle().
+		MarginBottom(1).
+		MarginLeft(1)
+	dimColor := lipgloss.Color("250")
+	hightlightColor := lipgloss.Color("#EE6FF8")
+
 	l := list.New().
 		Item("Item 1").
 		Item("Item 2").
@@ -104,7 +110,34 @@ func main() {
 																Row("Apple", "6").
 																Row("Strawberry", "12"),
 														).
-														Item("Item 4.2.3.3.4.3.3"),
+														Item("Item 4.2.3.3.4.3.3").
+														Item(
+															list.New().
+																Enumerator(func(_ list.Data, i int) string {
+																	if i == 1 {
+																		return "│\n│"
+																	}
+																	return " "
+																}).
+																ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+																	st := baseStyle.Copy()
+																	if i == 1 {
+																		return st.Foreground(hightlightColor)
+																	}
+																	return st.Foreground(dimColor)
+																}).
+																EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+																	if i == 1 {
+																		return lipgloss.NewStyle().Foreground(hightlightColor)
+																	}
+																	return lipgloss.NewStyle().Foreground(dimColor)
+																}).
+																Item("Item a\n1 day ago").
+																Item("Item b\n2 days ago").
+																Item("Item c\n10 minutes ago").
+																Item("Item d\n1 month ago"),
+														).
+														Item("Item 4.2.3.3.4.3.4"),
 												).
 												Item("Item 4.2.3.3.4.4").
 												Item("Item 4.2.3.3.4.5"),
