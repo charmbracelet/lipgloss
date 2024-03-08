@@ -9,7 +9,7 @@ require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2
-	github.com/rivo/uniseg v0.4.6
+	github.com/rivo/uniseg v0.4.7
 )
 
 require (
