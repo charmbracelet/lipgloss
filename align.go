@@ -4,13 +4,12 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/exp/term/ansi"
-	"github.com/muesli/termenv"
 )
 
 // Perform text alignment. If the string is multi-lined, we also make all lines
-// the same width by padding them with spaces. If a termenv style is passed,
-// use that to style the spaces added.
-func alignTextHorizontal(str string, pos Position, width int, style *termenv.Style) string {
+// the same width by padding them with spaces. If a style is passed, use that
+// to style the spaces added.
+func alignTextHorizontal(str string, pos Position, width int, style *style) string {
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
@@ -59,7 +58,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 	return b.String()
 }
 
-func alignTextVertical(str string, pos Position, height int, _ *termenv.Style) string {
+func alignTextVertical(str string, pos Position, height int, _ *style) string {
 	strHeight := strings.Count(str, "\n") + 1
 	if height < strHeight {
 		return str
