@@ -3,38 +3,36 @@ package lipgloss
 import (
 	"image/color"
 	"testing"
-
-	"github.com/muesli/termenv"
 )
 
 func TestSetColorProfile(t *testing.T) {
-	r := renderer
+	r := DefaultRenderer()
 	input := "hello"
 
 	tt := []struct {
 		name     string
-		profile  termenv.Profile
+		profile  Profile
 		expected string
 	}{
 		{
 			"ascii",
-			termenv.Ascii,
+			Ascii,
 			"hello",
 		},
 		{
 			"ansi",
-			termenv.ANSI,
-			"\x1b[94mhello\x1b[0m",
+			ANSI,
+			"\x1b[94mhello\x1b[m",
 		},
 		{
 			"ansi256",
-			termenv.ANSI256,
-			"\x1b[38;5;62mhello\x1b[0m",
+			ANSI256,
+			"\x1b[38;5;62mhello\x1b[m",
 		},
 		{
 			"truecolor",
-			termenv.TrueColor,
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			TrueColor,
+			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 	}
 
@@ -89,76 +87,76 @@ func TestHexToColor(t *testing.T) {
 
 func TestRGBA(t *testing.T) {
 	tt := []struct {
-		profile  termenv.Profile
+		profile  Profile
 		darkBg   bool
 		input    TerminalColor
 		expected uint
 	}{
 		// lipgloss.Color
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			Color("#FF0000"),
 			0xFF0000,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			Color("9"),
 			0xFF0000,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			Color("21"),
 			0x0000FF,
 		},
 		// lipgloss.AdaptiveColor
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			AdaptiveColor{Light: "#0000FF", Dark: "#FF0000"},
 			0xFF0000,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			false,
 			AdaptiveColor{Light: "#0000FF", Dark: "#FF0000"},
 			0x0000FF,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			AdaptiveColor{Light: "21", Dark: "9"},
 			0xFF0000,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			false,
 			AdaptiveColor{Light: "21", Dark: "9"},
 			0x0000FF,
 		},
 		// lipgloss.CompleteColor
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			0xFF0000,
 		},
 		{
-			termenv.ANSI256,
+			ANSI256,
 			true,
 			CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			0xFFFFFF,
 		},
 		{
-			termenv.ANSI,
+			ANSI,
 			true,
 			CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "12"},
 			0x0000FF,
 		},
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			CompleteColor{TrueColor: "", ANSI256: "231", ANSI: "12"},
 			0x000000,
@@ -166,7 +164,7 @@ func TestRGBA(t *testing.T) {
 		// lipgloss.CompleteAdaptiveColor
 		// dark
 		{
-			termenv.TrueColor,
+			TrueColor,
 			true,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#0000FF", ANSI256: "231", ANSI: "12"},
@@ -175,7 +173,7 @@ func TestRGBA(t *testing.T) {
 			0xFF0000,
 		},
 		{
-			termenv.ANSI256,
+			ANSI256,
 			true,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "21", ANSI: "12"},
@@ -184,7 +182,7 @@ func TestRGBA(t *testing.T) {
 			0xFFFFFF,
 		},
 		{
-			termenv.ANSI,
+			ANSI,
 			true,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "9"},
@@ -194,7 +192,7 @@ func TestRGBA(t *testing.T) {
 		},
 		// light
 		{
-			termenv.TrueColor,
+			TrueColor,
 			false,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#0000FF", ANSI256: "231", ANSI: "12"},
@@ -203,7 +201,7 @@ func TestRGBA(t *testing.T) {
 			0x0000FF,
 		},
 		{
-			termenv.ANSI256,
+			ANSI256,
 			false,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "21", ANSI: "12"},
@@ -212,7 +210,7 @@ func TestRGBA(t *testing.T) {
 			0x0000FF,
 		},
 		{
-			termenv.ANSI,
+			ANSI,
 			false,
 			CompleteAdaptiveColor{
 				Light: CompleteColor{TrueColor: "#FF0000", ANSI256: "231", ANSI: "9"},
