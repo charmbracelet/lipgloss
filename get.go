@@ -3,7 +3,7 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
+	"github.com/charmbracelet/x/exp/term/ansi"
 )
 
 // GetBold returns the style's bold value. If no value is set false is returned.
@@ -489,10 +489,11 @@ func (s Style) getAsTransform(k propKey) func(string) string {
 // Split a string into lines, additionally returning the size of the widest
 // line.
 func getLines(s string) (lines []string, widest int) {
+	s = strings.ReplaceAll(s, "\t", "    ")
 	lines = strings.Split(s, "\n")
 
 	for _, l := range lines {
-		w := ansi.PrintableRuneWidth(l)
+		w := ansi.StringWidth(l)
 		if widest < w {
 			widest = w
 		}

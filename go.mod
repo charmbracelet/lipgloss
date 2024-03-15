@@ -5,8 +5,7 @@ retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
 go 1.18
 
 require (
-	github.com/charmbracelet/x/exp/term v0.0.0-20240315000626-435a7f02d93f
-	github.com/muesli/reflow v0.3.0
+	github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd
 	github.com/muesli/termenv v0.15.2
 	github.com/rivo/uniseg v0.4.7
 )
