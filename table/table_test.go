@@ -5,8 +5,8 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/acarl005/stripansi"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/exp/term/ansi"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -981,7 +981,7 @@ func debug(s string) string {
 }
 
 func stripString(str string) string {
-	s := stripansi.Strip(str)
+	s := ansi.Strip(str)
 	ss := strings.Split(s, "\n")
 
 	var lines []string
