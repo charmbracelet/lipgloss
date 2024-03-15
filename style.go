@@ -402,7 +402,10 @@ func (s Style) Render(strs ...string) string {
 	// Truncate according to MaxHeight
 	if maxHeight > 0 {
 		lines := strings.Split(str, "\n")
-		str = strings.Join(lines[:min(maxHeight, len(lines))], "\n")
+		height := min(maxHeight, len(lines))
+		if len(lines) > 0 {
+			str = strings.Join(lines[:height], "\n")
+		}
 	}
 
 	if transform != nil {
