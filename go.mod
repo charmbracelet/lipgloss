@@ -6,7 +6,7 @@ go 1.18
 
 require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/charmbracelet/x/exp/term v0.0.0-20240314160115-133d340736ca
+	github.com/charmbracelet/x/exp/term v0.0.0-20240315000626-435a7f02d93f
 	github.com/muesli/termenv v0.15.2
 	github.com/rivo/uniseg v0.4.7
 )
