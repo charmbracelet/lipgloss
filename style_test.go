@@ -50,8 +50,8 @@ func TestStyleRender(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("hello")
-		res := s.Render()
+		SetColorProfile(termenv.TrueColor)
+		res := tc.style.Render("hello")
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
 				i, tc.expected, formatEscapes(tc.expected),
