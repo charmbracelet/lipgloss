@@ -7,7 +7,6 @@ go 1.18
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd
-	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2
 	github.com/rivo/uniseg v0.4.7
 )
