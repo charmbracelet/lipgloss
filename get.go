@@ -456,12 +456,12 @@ func (s Style) getAsInt(k propKey) int {
 func (s Style) getAsPosition(k propKey) Position {
 	v, ok := s.rules[k]
 	if !ok {
-		return Position(0)
+		return NotAligned
 	}
 	if p, ok := v.(Position); ok {
 		return p
 	}
-	return Position(0)
+	return NotAligned
 }
 
 func (s Style) getBorderStyle() Border {
