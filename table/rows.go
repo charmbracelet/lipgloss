@@ -79,7 +79,7 @@ func (m *Filter) Filter(f func(row int) bool) *Filter {
 	return m
 }
 
-// Row returns the row at the given index.
+// At returns the row at the given index.
 func (m *Filter) At(row, cell int) string {
 	j := 0
 	for i := 0; i < m.data.Rows(); i++ {

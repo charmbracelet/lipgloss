@@ -1,5 +1,4 @@
-Lip Gloss
-=========
+# Lip Gloss
 
 <p>
     <a href="https://stuff.charm.sh/lipgloss/lipgloss-mascot-2k.png"><img width="340" alt="Lip Gloss title treatment" src="https://github.com/charmbracelet/lipgloss/assets/25087/147cadb1-4254-43ec-ae6b-8d6ca7b029a1"></a><br>
@@ -9,7 +8,6 @@ Lip Gloss
     <a href="https://www.phorm.ai/query?projectId=a0e324b6-b706-4546-b951-6671ea60c13f"><img src="https://stuff.charm.sh/misc/phorm-badge.svg" alt="phorm.ai"></a>
     
 </p>
-
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 
 ![Lip Gloss example](https://stuff.charm.sh/lipgloss/lipgloss-example.png)
@@ -18,7 +16,6 @@ Lip Gloss takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Lip Gloss.
 
 ```go
-
 import "github.com/charmbracelet/lipgloss"
 
 var style = lipgloss.NewStyle().
@@ -66,7 +63,6 @@ The terminal's color profile will be automatically detected, and colors outside
 the gamut of the current palette will be automatically coerced to their closest
 available value.
 
-
 ### Adaptive Colors
 
 You can also specify color options for light and dark backgrounds:
@@ -97,8 +93,8 @@ light and dark backgrounds without automatic color degradation.
 
 ```go
 lipgloss.CompleteAdaptiveColor{
-    Light: CompleteColor{TrueColor: "#d7ffae", ANSI256: "193", ANSI: "11"},
-    Dark:  CompleteColor{TrueColor: "#d75fee", ANSI256: "163", ANSI: "5"},
+	Light: CompleteColor{TrueColor: "#d7ffae", ANSI256: "193", ANSI: "11"},
+	Dark:  CompleteColor{TrueColor: "#d75fee", ANSI256: "163", ANSI: "5"},
 }
 ```
 
@@ -108,15 +104,14 @@ Lip Gloss supports the usual ANSI text formatting options:
 
 ```go
 var style = lipgloss.NewStyle().
-    Bold(true).
-    Italic(true).
-    Faint(true).
-    Blink(true).
-    Strikethrough(true).
-    Underline(true).
-    Reverse(true)
+	Bold(true).
+	Italic(true).
+	Faint(true).
+	Blink(true).
+	Strikethrough(true).
+	Underline(true).
+	Reverse(true)
 ```
-
 
 ## Block-Level Formatting
 
@@ -125,17 +120,17 @@ Lip Gloss also supports rules for block-level formatting:
 ```go
 // Padding
 var style = lipgloss.NewStyle().
-    PaddingTop(2).
-    PaddingRight(4).
-    PaddingBottom(2).
-    PaddingLeft(4)
+	PaddingTop(2).
+	PaddingRight(4).
+	PaddingBottom(2).
+	PaddingLeft(4)
 
 // Margins
 var style = lipgloss.NewStyle().
-    MarginTop(2).
-    MarginRight(4).
-    MarginBottom(2).
-    MarginLeft(4)
+	MarginTop(2).
+	MarginRight(4).
+	MarginBottom(2).
+	MarginLeft(4)
 ```
 
 There is also shorthand syntax for margins and padding, which follows the same
@@ -156,19 +151,17 @@ lipgloss.NewStyle().Padding(1, 4, 2)
 lipgloss.NewStyle().Margin(2, 4, 3, 1)
 ```
 
-
 ## Aligning Text
 
 You can align paragraphs of text to the left, right, or center.
 
 ```go
 var style = lipgloss.NewStyle().
-    Width(24).
-    Align(lipgloss.Left).  // align it left
-    Align(lipgloss.Right). // no wait, align it right
-    Align(lipgloss.Center) // just kidding, align it in the center
+	Width(24).
+	Align(lipgloss.Left).  // align it left
+	Align(lipgloss.Right). // no wait, align it right
+	Align(lipgloss.Center) // just kidding, align it in the center
 ```
-
 
 ## Width and Height
 
@@ -176,12 +169,11 @@ Setting a minimum width and height is simple and straightforward.
 
 ```go
 var style = lipgloss.NewStyle().
-    SetString("What’s for lunch?").
-    Width(24).
-    Height(32).
-    Foreground(lipgloss.Color("63"))
+	SetString("What’s for lunch?").
+	Width(24).
+	Height(32).
+	Foreground(lipgloss.Color("63"))
 ```
-
 
 ## Borders
 
@@ -190,27 +182,27 @@ Adding borders is easy:
 ```go
 // Add a purple, rectangular border
 var style = lipgloss.NewStyle().
-    BorderStyle(lipgloss.NormalBorder()).
-    BorderForeground(lipgloss.Color("63"))
+	BorderStyle(lipgloss.NormalBorder()).
+	BorderForeground(lipgloss.Color("63"))
 
 // Set a rounded, yellow-on-purple border to the top and left
 var anotherStyle = lipgloss.NewStyle().
-    BorderStyle(lipgloss.RoundedBorder()).
-    BorderForeground(lipgloss.Color("228")).
-    BorderBackground(lipgloss.Color("63")).
-    BorderTop(true).
-    BorderLeft(true)
+	BorderStyle(lipgloss.RoundedBorder()).
+	BorderForeground(lipgloss.Color("228")).
+	BorderBackground(lipgloss.Color("63")).
+	BorderTop(true).
+	BorderLeft(true)
 
 // Make your own border
 var myCuteBorder = lipgloss.Border{
-    Top:         "._.:*:",
-    Bottom:      "._.:*:",
-    Left:        "|*",
-    Right:       "|*",
-    TopLeft:     "*",
-    TopRight:    "*",
-    BottomLeft:  "*",
-    BottomRight: "*",
+	Top:         "._.:*:",
+	Bottom:      "._.:*:",
+	Left:        "|*",
+	Right:       "|*",
+	TopLeft:     "*",
+	TopRight:    "*",
+	BottomLeft:  "*",
+	BottomRight: "*",
 }
 ```
 
@@ -220,16 +212,15 @@ pattern to the margin and padding shorthand functions.
 ```go
 // Add a thick border to the top and bottom
 lipgloss.NewStyle().
-    Border(lipgloss.ThickBorder(), true, false)
+	Border(lipgloss.ThickBorder(), true, false)
 
 // Add a double border to the top and left sides. Rules are set clockwise
 // from top.
 lipgloss.NewStyle().
-    Border(lipgloss.DoubleBorder(), true, false, false, true)
+	Border(lipgloss.DoubleBorder(), true, false, false, true)
 ```
 
 For more on borders see [the docs][docs].
-
 
 ## Copying Styles
 
@@ -245,7 +236,6 @@ var wildStyle = style.Copy().Blink(true)
 a true, dereferenced copy of a style. Without copying, it's possible to mutate
 styles.
 
-
 ## Inheritance
 
 Styles can inherit rules from other styles. When inheriting, only unset rules
@@ -253,16 +243,15 @@ on the receiver are inherited.
 
 ```go
 var styleA = lipgloss.NewStyle().
-    Foreground(lipgloss.Color("229")).
-    Background(lipgloss.Color("63"))
+	Foreground(lipgloss.Color("229")).
+	Background(lipgloss.Color("63"))
 
 // Only the background color will be inherited here, because the foreground
 // color will have been already set:
 var styleB = lipgloss.NewStyle().
-    Foreground(lipgloss.Color("201")).
-    Inherit(styleA)
+	Foreground(lipgloss.Color("201")).
+	Inherit(styleA)
 ```
-
 
 ## Unsetting Rules
 
@@ -270,14 +259,13 @@ All rules can be unset:
 
 ```go
 var style = lipgloss.NewStyle().
-    Bold(true).                        // make it bold
-    UnsetBold().                       // jk don't make it bold
-    Background(lipgloss.Color("227")). // yellow background
-    UnsetBackground()                  // never mind
+	Bold(true).                        // make it bold
+	UnsetBold().                       // jk don't make it bold
+	Background(lipgloss.Color("227")). // yellow background
+	UnsetBackground()                  // never mind
 ```
 
 When a rule is unset, it won't be inherited or copied.
-
 
 ## Enforcing Rules
 
@@ -304,9 +292,9 @@ tabs to 4 spaces at render time. This behavior can be changed on a per-style
 basis, however:
 
 ```go
-style := lipgloss.NewStyle() // tabs will render as 4 spaces, the default
-style = style.TabWidth(2)    // render tabs as 2 spaces
-style = style.TabWidth(0)    // remove tabs entirely
+style := lipgloss.NewStyle()                     // tabs will render as 4 spaces, the default
+style = style.TabWidth(2)                        // render tabs as 2 spaces
+style = style.TabWidth(0)                        // remove tabs entirely
 style = style.TabWidth(lipgloss.NoTabConversion) // leave tabs intact
 ```
 
@@ -323,7 +311,7 @@ fmt.Println(style.Render("puppy.")) // Hello, puppy.
 But you could also use the Stringer interface:
 
 ```go
-var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
+style := lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 fmt.Println(style) // 你好，猫咪。
 ```
 
@@ -336,14 +324,14 @@ in a server-client situation.
 
 ```go
 func myLittleHandler(sess ssh.Session) {
-    // Create a renderer for the client.
-    renderer := lipgloss.NewRenderer(sess)
+	// Create a renderer for the client.
+	renderer := lipgloss.NewRenderer(sess)
 
-    // Create a new style on the renderer.
-    style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+	// Create a new style on the renderer.
+	style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
 
-    // Render. The color profile and dark background state will be correctly detected.
-    io.WriteString(sess, style.Render("Heyyyyyyy"))
+	// Render. The color profile and dark background state will be correctly detected.
+	io.WriteString(sess, style.Render("Heyyyyyyy"))
 }
 ```
 
@@ -354,7 +342,6 @@ For an example on using a custom renderer over SSH with [Wish][wish] see the
 
 In addition to pure styling, Lip Gloss also ships with some utilities to help
 assemble your layouts.
-
 
 ### Joining Paragraphs
 
@@ -372,7 +359,6 @@ lipgloss.JoinVertical(lipgloss.Center, paragraphA, paragraphB)
 lipgloss.JoinHorizontal(0.2, paragraphA, paragraphB, paragraphC)
 ```
 
-
 ### Measuring Width and Height
 
 Sometimes you’ll want to know the width and height of text blocks when building
@@ -380,9 +366,9 @@ your layouts.
 
 ```go
 // Render a block of text.
-var style = lipgloss.NewStyle().
-    Width(40).
-    Padding(2)
+style := lipgloss.NewStyle().
+	Width(40).
+	Padding(2)
 var block string = style.Render(someLongString)
 
 // Get the actual, physical dimensions of the text block.
@@ -424,11 +410,11 @@ Define some rows of data.
 
 ```go
 rows := [][]string{
-    {"Chinese", "您好", "你好"},
-    {"Japanese", "こんにちは", "やあ"},
-    {"Arabic", "أهلين", "أهلا"},
-    {"Russian", "Здравствуйте", "Привет"},
-    {"Spanish", "Hola", "¿Qué tal?"},
+	{"Chinese", "您好", "你好"},
+	{"Japanese", "こんにちは", "やあ"},
+	{"Arabic", "أهلين", "أهلا"},
+	{"Russian", "Здравствуйте", "Привет"},
+	{"Spanish", "Hola", "¿Qué tal?"},
 }
 ```
 
@@ -436,20 +422,20 @@ Use the table package to style and render the table.
 
 ```go
 t := table.New().
-    Border(lipgloss.NormalBorder()).
-    BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
-    StyleFunc(func(row, col int) lipgloss.Style {
-        switch {
-        case row == 0:
-            return HeaderStyle
-        case row%2 == 0:
-            return EvenRowStyle
-        default:
-            return OddRowStyle
-        }
-    }).
-    Headers("LANGUAGE", "FORMAL", "INFORMAL").
-    Rows(rows...)
+	Border(lipgloss.NormalBorder()).
+	BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+	StyleFunc(func(row, col int) lipgloss.Style {
+		switch {
+		case row == 0:
+			return HeaderStyle
+		case row%2 == 0:
+			return EvenRowStyle
+		default:
+			return OddRowStyle
+		}
+	}).
+	Headers("LANGUAGE", "FORMAL", "INFORMAL").
+	Rows(rows...)
 
 // You can also add tables row-by-row
 t.Row("English", "You look absolutely fabulous.", "How's it going?")
@@ -461,37 +447,252 @@ Print the table.
 fmt.Println(t)
 ```
 
-![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
-
+<p align="center">
+  <img
+    src="https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d"
+    width="800"
+  />
+</p>
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
-***
+## Rendering Trees
+
+Lip Gloss ships with a tree rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/tree"
+```
+
+Define a new tree.
+
+```go
+t := tree.New("root", "child 1", "child 2", tree.New("child 3", "child 3.1"))
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+
+// root
+// ├── child 1
+// ├── child 2
+// └── child 3
+//     └── child 3.1
+```
+
+### Customization
+
+Trees can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+style1 := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+style2 := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+
+t := tree.New().
+	Items(
+		"Glossier",
+		"Claire’s Boutique",
+		tree.New().
+			Root("Nyx").
+			Items("Qux", "Quux").
+			EnumeratorStyle(style2),
+		"Mac",
+		"Milk",
+	).
+	EnumeratorStyle(style1)
+```
+
+Print the tree:
+
+<p align="center">
+  <img
+    width="600"
+    alt="Tree example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/5a875269-f6d6-43fa-9916-5d8360e66964"
+  />
+</p>
+You may also define custom enumerator implementations:
+
+```go
+t := tree.New().
+	Items(
+		"Glossier",
+		"Claire’s Boutique",
+		tree.New().
+			Root("Nyx").
+			Items(
+				"Qux",
+				"Quux",
+			),
+		"Mac",
+		"Milk",
+	).
+	Enumerator(func(tree.Data, int) (string, string) {
+		return "->", "->"
+	})
+```
+
+Print the tree.
+
+<p align="center">
+  <img
+    width="600"
+    alt="Tree example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/811e8b39-124f-48bb-b3dd-e015a65b1065"
+  />
+</p>
+### Building
+
+If you need, you can also build trees incrementally:
+
+```go
+t := tree.New("")
+
+for i := 0; i < repeat; i++ {
+	t.Item("Lip Gloss")
+}
+```
+
+### Building
+
+If you need, you can also build lists incrementally:
+
+```go
+l := list.New()
+
+for i := 0; i < repeat; i++ {
+	l.Item("Lip Gloss")
+}
+```
+
+## Rendering Lists
+
+Lip Gloss ships with a list rendering sub-package.
+Implementation-wise, lists are still trees.
+The `list` package provides many common `Enumerator` implementations, as well as
+some syntactic sugar.
+
+```go
+import "github.com/charmbracelet/lipgloss/list"
+```
+
+Define a new list.
+
+```go
+l := list.New("A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+
+// • A
+// • B
+// • C
+```
+
+### Customization
+
+Lists can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+
+l := list.New(
+	"Glossier",
+	"Claire’s Boutique",
+	"Nyx",
+	"Mac",
+	"Milk",
+).
+	Enumerator(list.Roman).
+	EnumeratorStyle(enumeratorStyle).
+	ItemStyle(itemStyle)
+```
+
+Print the list.
+
+<p align="center">
+  <img
+    width="600"
+    alt="List example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/8f5e5e0b-7bf9-4e3b-a8ba-3af10825320e"
+  />
+</p>
+In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
+you may also define your own custom enumerator:
+
+```go
+var DuckDuckGooseEnumerator Enumerator = func(l *List, i int) string {
+	if l.At(i) == "Goose" {
+		return "Honk →"
+	}
+	return ""
+}
+```
+
+Use it in a list:
+
+```go
+l := list.New("Duck", "Duck", "Duck", "Duck", "Goose", "Duck", "Duck")
+l.Enumerator(DuckDuckGooseEnumerator)
+```
+
+Print the list:
+
+<p align="center">
+  <img
+    width="600"
+    alt="image"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/44e37a5b-5124-4f49-a332-1756a355002e"
+  />
+</p>
+---
 
 ## FAQ
 
 <details>
-<summary>
-Why are things misaligning? Why are borders at the wrong widths?
-</summary>
-<p>This is most likely due to your locale and encoding, particularly with
-regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code>
-or <code>ja_JP.UTF-8</code>). The most direct way to fix this is to set
-<code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
+  <summary>
+    Why are things misaligning? Why are borders at the wrong widths?
+  </summary>
+  <p>
+    This is most likely due to your locale and encoding, particularly with
+    regard to Chinese, Japanese, and Korean (for example,
+    <code>zh_CN.UTF-8</code> or <code>ja_JP.UTF-8</code>). The most direct way
+    to fix this is to set <code>RUNEWIDTH_EASTASIAN=0</code> in your
+    environment.
+  </p>
 
-<p>For details see <a href="https://github.com/charmbracelet/lipgloss/issues/40">https://github.com/charmbracelet/lipgloss/issues/40.</a></p>
+  <p>
+    For details see
+    <a href="https://github.com/charmbracelet/lipgloss/issues/40"
+      >https://github.com/charmbracelet/lipgloss/issues/40.</a
+    >
+  </p>
 </details>
 
 <details>
-<summary>
-Why isn't Lip Gloss displaying colors?
-</summary>
-<p>Lip Gloss automatically degrades colors to the best available option in the
-given terminal, and if output's not a TTY it will remove color output entirely.
-This is common when running tests, CI, or when piping output elsewhere.</p>
+  <summary>Why isn't Lip Gloss displaying colors?</summary>
+  <p>
+    Lip Gloss automatically degrades colors to the best available option in the
+    given terminal, and if output's not a TTY it will remove color output
+    entirely. This is common when running tests, CI, or when piping output
+    elsewhere.
+  </p>
 
-<p>If necessary, you can force a color profile in your tests with
-<a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"><code>SetColorProfile</code></a>.</p>
-
+  <p>
+    If necessary, you can force a color profile in your tests with
+    <a
+      href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"
+      ><code>SetColorProfile</code></a
+    >.
+  </p>
+</details>
 ```go
 import (
     "github.com/charmbracelet/lipgloss"
@@ -501,10 +702,11 @@ import (
 lipgloss.SetColorProfile(termenv.TrueColor)
 ```
 
-*Note:* this option limits the flexibility of your application and can cause
+_Note_: this option limits the flexibility of your application and can cause
 ANSI escape codes to be output in cases where that might not be desired. Take
 careful note of your use case and environment before choosing to force a color
 profile.
+
 </details>
 
 ## What about [Bubble Tea][tea]?
@@ -518,7 +720,6 @@ In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
 
 [tea]: https://github.com/charmbracelet/tea
 
-
 ## Under the Hood
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
@@ -528,7 +729,6 @@ For many use cases Termenv and Reflow will be sufficient for your needs.
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
 
-
 ## Rendering Markdown
 
 For a more document-centric rendering solution with support for things like
@@ -537,27 +737,26 @@ the stylesheet-based Markdown renderer.
 
 [glamour]: https://github.com/charmbracelet/glamour
 
-
 ## Feedback
 
 We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
-* [Twitter](https://twitter.com/charmcli)
-* [The Fediverse](https://mastodon.social/@charmcli)
-* [Discord](https://charm.sh/chat)
+- [Twitter](https://twitter.com/charmcli)
+- [The Fediverse](https://mastodon.social/@charmcli)
+- [Discord](https://charm.sh/chat)
 
 ## License
 
 [MIT](https://github.com/charmbracelet/lipgloss/raw/master/LICENSE)
 
-***
+---
 
 Part of [Charm](https://charm.sh).
 
 <a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge.jpg" width="400"></a>
 
+<!--prettier-ignore-->
 Charm热爱开源 • Charm loves open source
-
 
 [docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
 [wish]: https://github.com/charmbracelet/wish
