@@ -231,6 +231,10 @@ func (s Style) Render(strs ...string) string {
 		transform = s.getAsTransform(transformKey)
 	)
 
+	if transform != nil {
+		str = transform(str)
+	}
+
 	if len(s.rules) == 0 {
 		return s.maybeConvertTabs(str)
 	}
@@ -402,11 +406,10 @@ func (s Style) Render(strs ...string) string {
 	// Truncate according to MaxHeight
 	if maxHeight > 0 {
 		lines := strings.Split(str, "\n")
-		str = strings.Join(lines[:min(maxHeight, len(lines))], "\n")
-	}
-
-	if transform != nil {
-		return transform(str)
+		height := min(maxHeight, len(lines))
+		if len(lines) > 0 {
+			str = strings.Join(lines[:height], "\n")
+		}
 	}
 
 	return str

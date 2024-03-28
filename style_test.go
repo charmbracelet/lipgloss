@@ -410,11 +410,19 @@ func TestStringTransform(t *testing.T) {
 		fn       func(string) string
 		expected string
 	}{
+		// No-op.
+		{
+			"hello",
+			func(s string) string { return s },
+			"hello",
+		},
+		// Uppercase.
 		{
 			"raow",
 			strings.ToUpper,
 			"RAOW",
 		},
+		// English and Chinese.
 		{
 			"The quick brown 狐 jumped over the lazy 犬",
 			func(s string) string {
@@ -433,9 +441,10 @@ func TestStringTransform(t *testing.T) {
 			"犬 yzal eht revo depmuj 狐 nworb kciuq ehT",
 		},
 	} {
-		res := NewStyle().Transform(tc.fn).Render(tc.input)
-		if res != tc.expected {
-			t.Errorf("Test #%d:\nExpected: %q\nGot: %q", i+1, tc.expected, res)
+		res := NewStyle().Bold(true).Transform(tc.fn).Render(tc.input)
+		expected := "\x1b[1m" + tc.expected + "\x1b[0m"
+		if res != expected {
+			t.Errorf("Test #%d:\nExpected: %q\nGot:      %q", i+1, expected, res)
 		}
 	}
 }
