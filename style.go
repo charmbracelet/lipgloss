@@ -4,9 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/muesli/reflow/truncate"
-	"github.com/muesli/reflow/wordwrap"
-	"github.com/muesli/reflow/wrap"
+	"github.com/charmbracelet/x/exp/term/ansi"
 	"github.com/muesli/termenv"
 )
 
@@ -310,8 +308,8 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = wordwrap.String(str, wrapAt)
-		str = wrap.String(str, wrapAt) // force-wrap long strings
+		str = ansi.Wordwrap(str, wrapAt, "")
+		str = ansi.Wrap(str, wrapAt, false) // force-wrap long strings
 	}
 
 	// Render core text
@@ -397,7 +395,7 @@ func (s Style) Render(strs ...string) string {
 		lines := strings.Split(str, "\n")
 
 		for i := range lines {
-			lines[i] = truncate.String(lines[i], uint(maxWidth))
+			lines[i] = ansi.Truncate(lines[i], maxWidth, "")
 		}
 
 		str = strings.Join(lines, "\n")
