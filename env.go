@@ -3,6 +3,8 @@ package lipgloss
 import (
 	"strconv"
 	"strings"
+
+	"github.com/xo/terminfo"
 )
 
 // envNoColor returns true if the environment variables explicitly disable color output
@@ -91,6 +93,29 @@ func (o *Renderer) detectColorProfile() (p Profile) {
 	}
 	if strings.Contains(term, "ansi") {
 		setProfile(ANSI)
+	}
+
+	ti, _ := terminfo.Load(term)
+	if ti != nil {
+		extbools := ti.ExtBoolCapsShort()
+		if _, ok := extbools["RGB"]; ok {
+			setProfile(TrueColor)
+		}
+
+		if _, ok := extbools["Tc"]; ok {
+			setProfile(TrueColor)
+		}
+
+		nums := ti.NumCapsShort()
+		if colors, ok := nums["colors"]; ok {
+			if colors >= 0x1000000 {
+				setProfile(TrueColor)
+			} else if colors >= 0x100 {
+				setProfile(ANSI256)
+			} else if colors >= 0x10 {
+				setProfile(ANSI)
+			}
+		}
 	}
 
 	return
