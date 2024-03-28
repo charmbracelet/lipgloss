@@ -17,13 +17,20 @@ type propKey int
 
 // Available properties.
 const (
-	boldKey propKey = iota
+	// bool props come first
+	boldKey propKey = 1 << iota
 	italicKey
 	underlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
 	faintKey
+	underlineSpacesKey
+	strikethroughSpacesKey
+	colorWhitespaceKey
+
+	// non-bool props
+
 	foregroundKey
 	backgroundKey
 	widthKey
@@ -36,8 +43,6 @@ const (
 	paddingRightKey
 	paddingBottomKey
 	paddingLeftKey
-
-	colorWhitespaceKey
 
 	// Margins.
 	marginTopKey
@@ -71,14 +76,27 @@ const (
 	maxWidthKey
 	maxHeightKey
 	tabWidthKey
-	underlineSpacesKey
-	strikethroughSpacesKey
 
 	transformKey
 )
 
-// A set of properties.
-type rules map[propKey]interface{}
+// props is a set of properties.
+type props int
+
+// set sets a property.
+func (p props) set(k propKey) props {
+	return p | props(k)
+}
+
+// unset unsets a property.
+func (p props) unset(k propKey) props {
+	return p &^ props(k)
+}
+
+// has checks if a property is set.
+func (p props) has(k propKey) bool {
+	return p&props(k) != 0
+}
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
@@ -100,8 +118,48 @@ func (r *Renderer) NewStyle() Style {
 // Style contains a set of rules that comprise a style as a whole.
 type Style struct {
 	r     *Renderer
-	rules map[propKey]interface{}
+	props props
 	value string
+
+	// we store bool props values here
+	attrs int
+
+	// props that have values
+	fgColor TerminalColor
+	bgColor TerminalColor
+
+	width  int
+	height int
+
+	alignHorizontal Position
+	alignVertical   Position
+
+	paddingTop    int
+	paddingRight  int
+	paddingBottom int
+	paddingLeft   int
+
+	marginTop     int
+	marginRight   int
+	marginBottom  int
+	marginLeft    int
+	marginBgColor TerminalColor
+
+	borderStyle         Border
+	borderTopFgColor    TerminalColor
+	borderRightFgColor  TerminalColor
+	borderBottomFgColor TerminalColor
+	borderLeftFgColor   TerminalColor
+	borderTopBgColor    TerminalColor
+	borderRightBgColor  TerminalColor
+	borderBottomBgColor TerminalColor
+	borderLeftBgColor   TerminalColor
+
+	maxWidth  int
+	maxHeight int
+	tabWidth  int
+
+	transform func(string) string
 }
 
 // joinString joins a list of strings into a single string separated with a
@@ -133,15 +191,10 @@ func (s Style) String() string {
 }
 
 // Copy returns a copy of this style, including any underlying string values.
+//
+// Deprecated: Copy is deprecated and will be removed in a future release.
 func (s Style) Copy() Style {
-	o := NewStyle()
-	o.init()
-	for k, v := range s.rules {
-		o.rules[k] = v
-	}
-	o.r = s.r
-	o.value = s.value
-	return o
+	return s
 }
 
 // Inherit overlays the style in the argument onto this style by copying each explicitly
@@ -150,9 +203,11 @@ func (s Style) Copy() Style {
 //
 // Margins, padding, and underlying string values are not inherited.
 func (s Style) Inherit(i Style) Style {
-	s.init()
+	for k := boldKey; k <= transformKey; k <<= 1 {
+		if !i.isSet(k) {
+			continue
+		}
 
-	for k, v := range i.rules {
 		switch k { //nolint:exhaustive
 		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
 			// Margins are not inherited
@@ -163,14 +218,15 @@ func (s Style) Inherit(i Style) Style {
 		case backgroundKey:
 			// The margins also inherit the background color
 			if !s.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
-				s.rules[marginBackgroundKey] = v
+				s.set(marginBackgroundKey, i.bgColor)
 			}
 		}
 
-		if _, exists := s.rules[k]; exists {
+		if s.isSet(k) {
 			continue
 		}
-		s.rules[k] = v
+
+		s.setFrom(k, i)
 	}
 	return s
 }
@@ -235,7 +291,7 @@ func (s Style) Render(strs ...string) string {
 		str = transform(str)
 	}
 
-	if len(s.rules) == 0 {
+	if s.props == 0 {
 		return s.maybeConvertTabs(str)
 	}
 
@@ -511,7 +567,7 @@ func pad(str string, n int, style *termenv.Style) string {
 	return b.String()
 }
 
-func max(a, b int) int {
+func max(a, b int) int { // nolint:unparam
 	if a > b {
 		return a
 	}

@@ -1,34 +1,161 @@
 package lipgloss
 
-// This could (should) probably just be moved into NewStyle(). We've broken it
-// out, so we can call it in a lazy way.
-func (s *Style) init() {
-	if s.rules == nil {
-		s.rules = make(rules)
+// Set a value on the underlying rules map.
+func (s *Style) set(key propKey, value interface{}) {
+	// We don't allow negative integers on any of our other values, so just keep
+	// them at zero or above. We could use uints instead, but the
+	// conversions are a little tedious, so we're sticking with ints for
+	// sake of usability.
+	switch key {
+	case foregroundKey:
+		s.fgColor = colorOrNil(value)
+	case backgroundKey:
+		s.bgColor = colorOrNil(value)
+	case widthKey:
+		s.width = max(0, value.(int))
+	case heightKey:
+		s.height = max(0, value.(int))
+	case alignHorizontalKey:
+		s.alignHorizontal = value.(Position)
+	case alignVerticalKey:
+		s.alignVertical = value.(Position)
+	case paddingTopKey:
+		s.paddingTop = max(0, value.(int))
+	case paddingRightKey:
+		s.paddingRight = max(0, value.(int))
+	case paddingBottomKey:
+		s.paddingBottom = max(0, value.(int))
+	case paddingLeftKey:
+		s.paddingLeft = max(0, value.(int))
+	case marginTopKey:
+		s.marginTop = max(0, value.(int))
+	case marginRightKey:
+		s.marginRight = max(0, value.(int))
+	case marginBottomKey:
+		s.marginBottom = max(0, value.(int))
+	case marginLeftKey:
+		s.marginLeft = max(0, value.(int))
+	case marginBackgroundKey:
+		s.marginBgColor = colorOrNil(value)
+	case borderStyleKey:
+		s.borderStyle = value.(Border)
+	case borderTopForegroundKey:
+		s.borderTopFgColor = colorOrNil(value)
+	case borderRightForegroundKey:
+		s.borderRightFgColor = colorOrNil(value)
+	case borderBottomForegroundKey:
+		s.borderBottomFgColor = colorOrNil(value)
+	case borderLeftForegroundKey:
+		s.borderLeftFgColor = colorOrNil(value)
+	case borderTopBackgroundKey:
+		s.borderTopBgColor = colorOrNil(value)
+	case borderRightBackgroundKey:
+		s.borderRightBgColor = colorOrNil(value)
+	case borderBottomBackgroundKey:
+		s.borderBottomBgColor = colorOrNil(value)
+	case borderLeftBackgroundKey:
+		s.borderLeftBgColor = colorOrNil(value)
+	case maxWidthKey:
+		s.maxWidth = max(0, value.(int))
+	case maxHeightKey:
+		s.maxHeight = max(0, value.(int))
+	case tabWidthKey:
+		// TabWidth is the only property that may have a negative value (and
+		// that negative value can be no less than -1).
+		s.tabWidth = value.(int)
+	case transformKey:
+		s.transform = value.(func(string) string)
+	default:
+		if v, ok := value.(bool); ok {
+			if v {
+				s.attrs |= int(key)
+			} else {
+				s.attrs &^= int(key)
+			}
+		} else if attrs, ok := value.(int); ok {
+			// bool attrs
+			if attrs&int(key) != 0 {
+				s.attrs |= int(key)
+			} else {
+				s.attrs &^= int(key)
+			}
+		}
+	}
+
+	// Set the prop on
+	s.props = s.props.set(key)
+}
+
+// setFrom sets the property from another style.
+func (s *Style) setFrom(key propKey, i Style) {
+	switch key {
+	case foregroundKey:
+		s.set(foregroundKey, i.fgColor)
+	case backgroundKey:
+		s.set(backgroundKey, i.bgColor)
+	case widthKey:
+		s.set(widthKey, i.width)
+	case heightKey:
+		s.set(heightKey, i.height)
+	case alignHorizontalKey:
+		s.set(alignHorizontalKey, i.alignHorizontal)
+	case alignVerticalKey:
+		s.set(alignVerticalKey, i.alignVertical)
+	case paddingTopKey:
+		s.set(paddingTopKey, i.paddingTop)
+	case paddingRightKey:
+		s.set(paddingRightKey, i.paddingRight)
+	case paddingBottomKey:
+		s.set(paddingBottomKey, i.paddingBottom)
+	case paddingLeftKey:
+		s.set(paddingLeftKey, i.paddingLeft)
+	case marginTopKey:
+		s.set(marginTopKey, i.marginTop)
+	case marginRightKey:
+		s.set(marginRightKey, i.marginRight)
+	case marginBottomKey:
+		s.set(marginBottomKey, i.marginBottom)
+	case marginLeftKey:
+		s.set(marginLeftKey, i.marginLeft)
+	case marginBackgroundKey:
+		s.set(marginBackgroundKey, i.marginBgColor)
+	case borderStyleKey:
+		s.set(borderStyleKey, i.borderStyle)
+	case borderTopForegroundKey:
+		s.set(borderTopForegroundKey, i.borderTopFgColor)
+	case borderRightForegroundKey:
+		s.set(borderRightForegroundKey, i.borderRightFgColor)
+	case borderBottomForegroundKey:
+		s.set(borderBottomForegroundKey, i.borderBottomFgColor)
+	case borderLeftForegroundKey:
+		s.set(borderLeftForegroundKey, i.borderLeftFgColor)
+	case borderTopBackgroundKey:
+		s.set(borderTopBackgroundKey, i.borderTopBgColor)
+	case borderRightBackgroundKey:
+		s.set(borderRightBackgroundKey, i.borderRightBgColor)
+	case borderBottomBackgroundKey:
+		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
+	case borderLeftBackgroundKey:
+		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
+	case maxWidthKey:
+		s.set(maxWidthKey, i.maxWidth)
+	case maxHeightKey:
+		s.set(maxHeightKey, i.maxHeight)
+	case tabWidthKey:
+		s.set(tabWidthKey, i.tabWidth)
+	case transformKey:
+		s.set(transformKey, i.transform)
+	default:
+		// Set attributes for set bool properties
+		s.set(key, i.attrs)
 	}
 }
 
-// Set a value on the underlying rules map.
-func (s *Style) set(key propKey, value interface{}) {
-	s.init()
-
-	switch v := value.(type) {
-	case int:
-		// TabWidth is the only property that may have a negative value (and
-		// that negative value can be no less than -1).
-		if key == tabWidthKey {
-			s.rules[key] = v
-			break
-		}
-
-		// We don't allow negative integers on any of our other values, so just keep
-		// them at zero or above. We could use uints instead, but the
-		// conversions are a little tedious, so we're sticking with ints for
-		// sake of usability.
-		s.rules[key] = max(0, v)
-	default:
-		s.rules[key] = v
+func colorOrNil(c interface{}) TerminalColor {
+	if c, ok := c.(TerminalColor); ok {
+		return c
 	}
+	return nil
 }
 
 // Bold sets a bold formatting rule.
