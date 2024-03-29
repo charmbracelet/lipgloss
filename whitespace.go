@@ -10,7 +10,7 @@ import (
 type whitespace struct {
 	re    *Renderer
 	chars string
-	style style
+	style Sequence
 }
 
 // newWhitespace creates a new whitespace renderer. The order of the options
@@ -19,7 +19,7 @@ type whitespace struct {
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 	w := &whitespace{
 		re:    r,
-		style: r.ColorProfile().string(),
+		style: r.ColorProfile().Sequence(),
 	}
 	for _, opt := range opts {
 		opt(w)

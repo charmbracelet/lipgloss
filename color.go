@@ -46,7 +46,7 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 type Color string
 
 func (c Color) color(r *Renderer) ansi.Color {
-	return r.ColorProfile().color(string(c))
+	return r.ColorProfile().Color(string(c))
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
@@ -59,19 +59,16 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 	return c.color(DefaultRenderer()).RGBA()
 }
 
-// ANSIColor is a color specified by an ANSI color value. It's merely syntactic
-// sugar for the more general Color function. Invalid colors will render as
-// black.
+// ANSIColor is a color specified by an ANSI256 color value.
 //
 // Example usage:
 //
-//	// These two statements are equivalent.
-//	colorA := lipgloss.ANSIColor(21)
-//	colorB := lipgloss.Color("21")
-type ANSIColor uint
+//	colorA := lipgloss.ANSIColor(8)
+//	colorB := lipgloss.ANSIColor(134)
+type ANSIColor uint8
 
 func (ac ANSIColor) color(r *Renderer) ansi.Color {
-	return Color(strconv.FormatUint(uint64(ac), 10)).color(r)
+	return r.ColorProfile().Convert(ansi.ExtendedColor(ac))
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
@@ -126,11 +123,11 @@ func (c CompleteColor) color(r *Renderer) ansi.Color {
 	p := r.ColorProfile()
 	switch p { //nolint:exhaustive
 	case TrueColor:
-		return p.color(c.TrueColor)
+		return p.Color(c.TrueColor)
 	case ANSI256:
-		return p.color(c.ANSI256)
+		return p.Color(c.ANSI256)
 	case ANSI:
-		return p.color(c.ANSI)
+		return p.Color(c.ANSI)
 	default:
 		return NoColor{}
 	}

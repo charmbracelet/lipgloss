@@ -185,9 +185,9 @@ func (s Style) Render(strs ...string) string {
 		str = joinString(strs...)
 
 		p            = s.r.ColorProfile()
-		te           = p.string()
-		teSpace      = p.string()
-		teWhitespace = p.string()
+		te           = p.Sequence()
+		teSpace      = p.Sequence()
+		teWhitespace = p.Sequence()
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)
@@ -335,7 +335,7 @@ func (s Style) Render(strs ...string) string {
 	// Padding
 	if !inline {
 		if leftPadding > 0 {
-			var st *style
+			var st *Sequence
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -343,7 +343,7 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		if rightPadding > 0 {
-			var st *style
+			var st *Sequence
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -371,7 +371,7 @@ func (s Style) Render(strs ...string) string {
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
-			var st *style
+			var st *Sequence
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -429,7 +429,7 @@ func (s Style) applyMargins(str string, inline bool) string {
 		bottomMargin = s.getAsInt(marginBottomKey)
 		leftMargin   = s.getAsInt(marginLeftKey)
 
-		styler = s.r.ColorProfile().string()
+		styler = s.r.ColorProfile().Sequence()
 	)
 
 	bgc := s.getAsColor(marginBackgroundKey)
@@ -458,19 +458,19 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *style) string {
+func padLeft(str string, n int, style *Sequence) string {
 	return pad(str, -n, style)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *style) string {
+func padRight(str string, n int, style *Sequence) string {
 	return pad(str, n, style)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *style) string {
+func pad(str string, n int, style *Sequence) string {
 	if n == 0 {
 		return str
 	}
@@ -523,56 +523,4 @@ func abs(a int) int {
 	}
 
 	return a
-}
-
-type style struct {
-	ansi.Style
-	Profile
-}
-
-func (s style) Styled(str string) string {
-	if s.Profile == Ascii {
-		return str
-	}
-	return s.Style.Styled(str)
-}
-
-func (s style) Bold() style {
-	return style{s.Style.Bold(), s.Profile}
-}
-
-func (s style) Italic() style {
-	return style{s.Style.Italic(), s.Profile}
-}
-
-func (s style) Underline() style {
-	return style{s.Style.Underline(), s.Profile}
-}
-
-func (s style) Strikethrough() style {
-	return style{s.Style.Strikethrough(), s.Profile}
-}
-
-func (s style) Reverse() style {
-	return style{s.Style.Reverse(), s.Profile}
-}
-
-func (s style) SlowBlink() style {
-	return style{s.Style.SlowBlink(), s.Profile}
-}
-
-func (s style) RapidBlink() style {
-	return style{s.Style.RapidBlink(), s.Profile}
-}
-
-func (s style) Faint() style {
-	return style{s.Style.Faint(), s.Profile}
-}
-
-func (s style) ForegroundColor(c ansi.Color) style {
-	return style{s.Style.ForegroundColor(c), s.Profile}
-}
-
-func (s style) BackgroundColor(c ansi.Color) style {
-	return style{s.Style.BackgroundColor(c), s.Profile}
 }

@@ -14,8 +14,10 @@ import (
 type Profile int
 
 const (
+	// NoTTY, no terminal profile
+	NoTTY Profile = iota
 	// Ascii, uncolored profile
-	Ascii Profile = iota //nolint:revive
+	Ascii // nolint: revive
 	// ANSI, 4-bit color profile
 	ANSI
 	// ANSI256, 8-bit color profile
@@ -24,14 +26,85 @@ const (
 	TrueColor
 )
 
-func (p Profile) string() style {
-	return style{Profile: p}
+// Sequence returns a style sequence for the profile.
+func (p Profile) Sequence() Sequence {
+	return Sequence{Profile: p}
 }
 
-// convert transforms a given Color to a Color supported within the Profile.
-func (p Profile) convert(c ansi.Color) ansi.Color {
-	if p == Ascii {
-		return NoColor{}
+// Sequence represents a text ANSI sequence style.
+type Sequence struct {
+	ansi.Style
+	Profile
+}
+
+// Styled returns a styled string.
+func (s Sequence) Styled(str string) string {
+	if s.Profile <= NoTTY {
+		return str
+	}
+	return s.Style.Styled(str)
+}
+
+// Bold returns a sequence with bold enabled.
+func (s Sequence) Bold() Sequence {
+	return Sequence{s.Style.Bold(), s.Profile}
+}
+
+// Italic returns a sequence with italic enabled.
+func (s Sequence) Italic() Sequence {
+	return Sequence{s.Style.Italic(), s.Profile}
+}
+
+// Underline returns a sequence with underline enabled.
+func (s Sequence) Underline() Sequence {
+	return Sequence{s.Style.Underline(), s.Profile}
+}
+
+// Strikethrough returns a sequence with strikethrough enabled.
+func (s Sequence) Strikethrough() Sequence {
+	return Sequence{s.Style.Strikethrough(), s.Profile}
+}
+
+// Inverse returns a sequence with inverse enabled.
+func (s Sequence) Reverse() Sequence {
+	return Sequence{s.Style.Reverse(), s.Profile}
+}
+
+// SlowBlink returns a sequence with slow blink enabled.
+func (s Sequence) SlowBlink() Sequence {
+	return Sequence{s.Style.SlowBlink(), s.Profile}
+}
+
+// RapidBlink returns a sequence with rapid blink enabled.
+func (s Sequence) RapidBlink() Sequence {
+	return Sequence{s.Style.RapidBlink(), s.Profile}
+}
+
+// Faint returns a sequence with faint enabled.
+func (s Sequence) Faint() Sequence {
+	return Sequence{s.Style.Faint(), s.Profile}
+}
+
+// ForegroundColor returns a sequence with the foreground color set.
+func (s Sequence) ForegroundColor(c ansi.Color) Sequence {
+	if s.Profile <= Ascii {
+		return s
+	}
+	return Sequence{s.Style.ForegroundColor(c), s.Profile}
+}
+
+// BackgroundColor returns a sequence with the background color set.
+func (s Sequence) BackgroundColor(c ansi.Color) Sequence {
+	if s.Profile <= Ascii {
+		return s
+	}
+	return Sequence{s.Style.BackgroundColor(c), s.Profile}
+}
+
+// Convert transforms a given Color to a Color supported within the Profile.
+func (p Profile) Convert(c ansi.Color) ansi.Color {
+	if p <= Ascii {
+		return noColor
 	}
 
 	switch v := c.(type) {
@@ -62,25 +135,25 @@ func (p Profile) convert(c ansi.Color) ansi.Color {
 	return c
 }
 
-// color creates a color from a string. Valid inputs are hex colors, as well as
-// ANSI color codes (0-15, 16-255).
-func (p Profile) color(s string) ansi.Color {
+// Color creates a Color from a string. Valid inputs are hex colors, as well as
+// ANSI Color codes (0-15, 16-255).
+func (p Profile) Color(s string) ansi.Color {
 	if len(s) == 0 {
-		return color.Black
+		return noColor
 	}
 
 	var c ansi.Color
 	if strings.HasPrefix(s, "#") {
 		h, err := colorful.Hex(s)
 		if err != nil {
-			return nil
+			return noColor
 		}
 		tc := uint32(h.R*255)<<16 + uint32(h.G*255)<<8 + uint32(h.B*255)
 		c = ansi.TrueColor(tc)
 	} else {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			return nil
+			return noColor
 		}
 
 		if i < 16 {
@@ -90,7 +163,7 @@ func (p Profile) color(s string) ansi.Color {
 		}
 	}
 
-	return p.convert(c)
+	return p.Convert(c)
 }
 
 func hexToANSI256Color(c colorful.Color) ansi.ExtendedColor {

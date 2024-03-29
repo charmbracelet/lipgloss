@@ -406,7 +406,7 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	style := s.r.ColorProfile().string()
+	style := s.r.ColorProfile().Sequence()
 
 	if fg != noColor {
 		style = style.ForegroundColor(fg.color(s.r))
