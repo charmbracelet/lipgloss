@@ -4,6 +4,8 @@ go 1.17
 
 replace github.com/charmbracelet/lipgloss => ../
 
+replace github.com/charmbracelet/x/exp/term => ../../x/exp/term
+
 require (
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/charmbracelet/wish v0.5.0

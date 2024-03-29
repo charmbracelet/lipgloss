@@ -14,7 +14,7 @@ import (
 // If NO_COLOR is set, this will return true, ignoring CLICOLOR/CLICOLOR_FORCE
 // If CLICOLOR=="0", it will be true only if CLICOLOR_FORCE is also "0" or is unset.
 func envNoColor(env map[string]string) bool {
-	return env["NO_COLOR"] != "" || (env["CLICOLOR"] == "0" && !cliColorForced(env))
+	return isTrue(env["NO_COLOR"]) || (!isTrue(env["CLICOLOR"]) && !cliColorForced(env))
 }
 
 // EnvColorProfile returns the color profile based on environment variables set

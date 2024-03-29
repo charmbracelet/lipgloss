@@ -185,17 +185,17 @@ func (s Style) Render(strs ...string) string {
 		str = joinString(strs...)
 
 		p            = s.r.ColorProfile()
-		te           = p.Sequence()
-		teSpace      = p.Sequence()
-		teWhitespace = p.Sequence()
+		te           ansi.Style
+		teSpace      ansi.Style
+		teWhitespace ansi.Style
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold          = s.getAsBool(boldKey, false) && p >= Ascii
+		italic        = s.getAsBool(italicKey, false) && p >= Ascii
+		underline     = s.getAsBool(underlineKey, false) && p >= Ascii
+		strikethrough = s.getAsBool(strikethroughKey, false) && p >= Ascii
+		reverse       = s.getAsBool(reverseKey, false) && p >= Ascii
+		blink         = s.getAsBool(blinkKey, false) && p >= Ascii
+		faint         = s.getAsBool(faintKey, false) && p >= Ascii
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -227,6 +227,12 @@ func (s Style) Render(strs ...string) string {
 
 		transform = s.getAsTransform(transformKey)
 	)
+
+	// Disable colors for Ascii and below profiles.
+	if p <= Ascii {
+		fg = noColor
+		bg = noColor
+	}
 
 	if transform != nil {
 		str = transform(str)
@@ -335,7 +341,7 @@ func (s Style) Render(strs ...string) string {
 	// Padding
 	if !inline {
 		if leftPadding > 0 {
-			var st *Sequence
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -343,7 +349,7 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		if rightPadding > 0 {
-			var st *Sequence
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -371,7 +377,7 @@ func (s Style) Render(strs ...string) string {
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
-			var st *Sequence
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -429,17 +435,18 @@ func (s Style) applyMargins(str string, inline bool) string {
 		bottomMargin = s.getAsInt(marginBottomKey)
 		leftMargin   = s.getAsInt(marginLeftKey)
 
-		styler = s.r.ColorProfile().Sequence()
+		p     = s.r.ColorProfile()
+		style ansi.Style
 	)
 
 	bgc := s.getAsColor(marginBackgroundKey)
-	if bgc != noColor {
-		styler = styler.BackgroundColor(bgc.color(s.r))
+	if bgc != noColor && p > Ascii {
+		style = style.BackgroundColor(bgc.color(s.r))
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &styler)
-	str = padRight(str, rightMargin, &styler)
+	str = padLeft(str, leftMargin, &style)
+	str = padRight(str, rightMargin, &style)
 
 	// Top/bottom margin
 	if !inline {
@@ -447,10 +454,10 @@ func (s Style) applyMargins(str string, inline bool) string {
 		spaces := strings.Repeat(" ", width)
 
 		if topMargin > 0 {
-			str = styler.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
+			str = style.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
 		}
 		if bottomMargin > 0 {
-			str += styler.Styled(strings.Repeat("\n"+spaces, bottomMargin))
+			str += style.Styled(strings.Repeat("\n"+spaces, bottomMargin))
 		}
 	}
 
@@ -458,19 +465,19 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *Sequence) string {
+func padLeft(str string, n int, style *ansi.Style) string {
 	return pad(str, -n, style)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *Sequence) string {
+func padRight(str string, n int, style *ansi.Style) string {
 	return pad(str, n, style)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *Sequence) string {
+func pad(str string, n int, style *ansi.Style) string {
 	if n == 0 {
 		return str
 	}

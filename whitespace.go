@@ -10,7 +10,7 @@ import (
 type whitespace struct {
 	re    *Renderer
 	chars string
-	style Sequence
+	style ansi.Style
 }
 
 // newWhitespace creates a new whitespace renderer. The order of the options
@@ -18,8 +18,7 @@ type whitespace struct {
 // other options might depend on it.
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 	w := &whitespace{
-		re:    r,
-		style: r.ColorProfile().Sequence(),
+		re: r,
 	}
 	for _, opt := range opts {
 		opt(w)
@@ -63,14 +62,18 @@ type WhitespaceOption func(*whitespace)
 // WithWhitespaceForeground sets the color of the characters in the whitespace.
 func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
-		w.style = w.style.ForegroundColor(c.color(w.re))
+		if w.re.ColorProfile() > Ascii {
+			w.style = w.style.ForegroundColor(c.color(w.re))
+		}
 	}
 }
 
 // WithWhitespaceBackground sets the background color of the whitespace.
 func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 	return func(w *whitespace) {
-		w.style = w.style.BackgroundColor(c.color(w.re))
+		if w.re.ColorProfile() > Ascii {
+			w.style = w.style.BackgroundColor(c.color(w.re))
+		}
 	}
 }
 

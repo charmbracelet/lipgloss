@@ -406,12 +406,13 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	style := s.r.ColorProfile().Sequence()
+	p := s.r.ColorProfile()
 
-	if fg != noColor {
+	var style ansi.Style
+	if fg != noColor && p > Ascii {
 		style = style.ForegroundColor(fg.color(s.r))
 	}
-	if bg != noColor {
+	if bg != noColor && p > Ascii {
 		style = style.BackgroundColor(bg.color(s.r))
 	}
 

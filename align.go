@@ -9,7 +9,7 @@ import (
 // Perform text alignment. If the string is multi-lined, we also make all lines
 // the same width by padding them with spaces. If a style is passed, use that
 // to style the spaces added.
-func alignTextHorizontal(str string, pos Position, width int, style *Sequence) string {
+func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style) string {
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
@@ -58,7 +58,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *Sequence) s
 	return b.String()
 }
 
-func alignTextVertical(str string, pos Position, height int, _ *Sequence) string {
+func alignTextVertical(str string, pos Position, height int, _ *ansi.Style) string {
 	strHeight := strings.Count(str, "\n") + 1
 	if height < strHeight {
 		return str
