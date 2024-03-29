@@ -17,15 +17,10 @@ var (
 
 // Renderer is a lipgloss terminal renderer.
 type Renderer struct {
-	environ           map[string]string
 	colorProfile      Profile
 	mtx               sync.RWMutex
 	hasDarkBackground bool
-	isatty            bool
 }
-
-// RendererOption is a function that can be used to configure a [Renderer].
-type RendererOption func(r *Renderer)
 
 // DefaultRenderer returns the default renderer.
 func DefaultRenderer() *Renderer {
@@ -35,8 +30,7 @@ func DefaultRenderer() *Renderer {
 			return
 		}
 		hasDarkBackground := true // Assume dark background by default
-		isatty := term.IsTerminal(os.Stdout.Fd())
-		if isatty {
+		if term.IsTerminal(os.Stdout.Fd()) {
 			if bg := term.BackgroundColor(os.Stdin, os.Stdout); bg != nil {
 				c, ok := colorful.MakeColor(bg)
 				if ok {
@@ -48,12 +42,11 @@ func DefaultRenderer() *Renderer {
 			// Enable support for ANSI on the legacy Windows cmd.exe console. This is a
 			// no-op on non-Windows systems and on Windows runs only once.
 			// When using a custom renderer, this should be called manually.
-			enableLegacyWindowsANSI()
+			EnableLegacyWindowsANSI(os.Stdout)
 		}
-		// we already know whether the terminal isatty and we want to use
-		// os.Environ() by default
-		renderer = NewRenderer(nil, nil, hasDarkBackground)
-		renderer.SetIsTerminal(isatty)
+
+		cp := EnvColorProfile(os.Stdout, os.Environ())
+		renderer = NewRenderer(cp, hasDarkBackground)
 	})
 	return renderer
 }
@@ -71,17 +64,11 @@ func SetDefaultRenderer(r *Renderer) {
 // The environ argument is used to detect the color profile based on the
 // environment variables. If it's nil, os.Environ() will be used.
 // Set hasDarkBackground to true if the terminal has a dark background.
-func NewRenderer(stdout *os.File, environ []string, hasDarkBackground bool) *Renderer {
-	r := &Renderer{
+func NewRenderer(cp Profile, hasDarkBackground bool) *Renderer {
+	return &Renderer{
+		colorProfile:      cp,
 		hasDarkBackground: hasDarkBackground,
 	}
-	r.isatty = stdout != nil && term.IsTerminal(stdout.Fd())
-	if environ == nil {
-		environ = os.Environ()
-	}
-	r.environ = environMap(environ)
-	r.colorProfile = r.envColorProfile()
-	return r
 }
 
 // ColorProfile returns the detected color profile.
@@ -95,33 +82,6 @@ func (r *Renderer) ColorProfile() Profile {
 // ColorProfile returns the detected color profile.
 func ColorProfile() Profile {
 	return DefaultRenderer().ColorProfile()
-}
-
-// IsTerminal returns whether or not the renderer is thinking it's writing to a
-// terminal.
-func (r *Renderer) IsTerminal() bool {
-	r.mtx.RLock()
-	defer r.mtx.RUnlock()
-
-	return r.isatty
-}
-
-// IsTerminal returns whether or not the default renderer is thinking it's
-// writing to a terminal.
-func IsTerminal() bool {
-	return DefaultRenderer().IsTerminal()
-}
-
-// SetIsTerminal sets whether or not the renderer is writing to a terminal.
-func (r *Renderer) SetIsTerminal(b bool) {
-	r.mtx.Lock()
-	defer r.mtx.Unlock()
-	r.isatty = b
-}
-
-// SetIsTerminal sets whether or not the renderer is writing to a terminal.
-func SetIsTerminal(b bool) {
-	DefaultRenderer().SetIsTerminal(b)
 }
 
 // SetColorProfile sets the color profile on the renderer. This function exists

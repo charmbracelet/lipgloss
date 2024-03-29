@@ -8,8 +8,7 @@ import (
 )
 
 func TestStyleRender(t *testing.T) {
-	r := NewRenderer(os.Stdout, nil, true)
-	r.SetColorProfile(TrueColor)
+	r := NewRenderer(TrueColor, true)
 	r.SetHasDarkBackground(true)
 	t.Parallel()
 
@@ -59,9 +58,7 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(os.Stdout, nil, true)
-	r.SetHasDarkBackground(false)
-	r.SetColorProfile(TrueColor)
+	r := NewRenderer(TrueColor, false)
 	tt := []struct {
 		style    Style
 		expected string
@@ -112,7 +109,7 @@ func TestStyleCustomRender(t *testing.T) {
 }
 
 func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(os.Stdout, nil, true)
+	r := NewRenderer(EnvColorProfile(os.Stdout, nil), true)
 	s1 := NewStyle().Bold(true)
 	s2 := s1.Renderer(r)
 	if s1.r == s2.r {

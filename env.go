@@ -1,8 +1,11 @@
 package lipgloss
 
 import (
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/charmbracelet/x/exp/term"
 )
 
 // envNoColor returns true if the environment variables explicitly disable color output
@@ -10,30 +13,34 @@ import (
 // or CLICOLOR/CLICOLOR_FORCE (https://bixense.com/clicolors/)
 // If NO_COLOR is set, this will return true, ignoring CLICOLOR/CLICOLOR_FORCE
 // If CLICOLOR=="0", it will be true only if CLICOLOR_FORCE is also "0" or is unset.
-func (o *Renderer) envNoColor() bool {
-	return o.environ["NO_COLOR"] != "" || (o.environ["CLICOLOR"] == "0" && !o.cliColorForced())
+func envNoColor(env map[string]string) bool {
+	return env["NO_COLOR"] != "" || (env["CLICOLOR"] == "0" && !cliColorForced(env))
 }
 
-// envColorProfile returns the color profile based on environment variables set
+// EnvColorProfile returns the color profile based on environment variables set
 // Supports NO_COLOR (https://no-color.org/)
 // and CLICOLOR/CLICOLOR_FORCE (https://bixense.com/clicolors/)
 // If none of these environment variables are set, this behaves the same as ColorProfile()
 // It will return the Ascii color profile if EnvNoColor() returns true
 // If the terminal does not support any colors, but CLICOLOR_FORCE is set and not "0"
 // then the ANSI color profile will be returned.
-func (o *Renderer) envColorProfile() Profile {
-	if o.envNoColor() {
+func EnvColorProfile(stdout *os.File, environ []string) Profile {
+	if environ == nil {
+		environ = os.Environ()
+	}
+	env := environMap(environ)
+	if envNoColor(env) {
 		return Ascii
 	}
-	p := o.detectColorProfile()
-	if o.cliColorForced() && p == Ascii {
+	p := detectColorProfile(stdout, env)
+	if cliColorForced(env) && p == Ascii {
 		return ANSI
 	}
 	return p
 }
 
-func (o *Renderer) cliColorForced() bool {
-	if forced := o.environ["CLICOLOR_FORCE"]; forced != "" {
+func cliColorForced(env map[string]string) bool {
+	if forced := env["CLICOLOR_FORCE"]; forced != "" {
 		return !isTrue(forced)
 	}
 	return false
@@ -41,8 +48,8 @@ func (o *Renderer) cliColorForced() bool {
 
 // detectColorProfile returns the supported color profile:
 // Ascii, ANSI, ANSI256, or TrueColor.
-func (o *Renderer) detectColorProfile() (p Profile) {
-	if !o.isatty {
+func detectColorProfile(stdout *os.File, env map[string]string) (p Profile) {
+	if stdout == nil || !term.IsTerminal(stdout.Fd()) {
 		return Ascii
 	}
 
@@ -52,12 +59,12 @@ func (o *Renderer) detectColorProfile() (p Profile) {
 		}
 	}
 
-	if isTrue(o.environ["GOOGLE_CLOUD_SHELL"]) {
+	if isTrue(env["GOOGLE_CLOUD_SHELL"]) {
 		setProfile(TrueColor)
 	}
 
-	term := o.environ["TERM"]
-	colorTerm := o.environ["COLORTERM"]
+	term := env["TERM"]
+	colorTerm := env["COLORTERM"]
 
 	switch strings.ToLower(colorTerm) {
 	case "24bit":
@@ -65,7 +72,7 @@ func (o *Renderer) detectColorProfile() (p Profile) {
 	case "truecolor":
 		if strings.HasPrefix(term, "screen") {
 			// tmux supports TrueColor, screen only ANSI256
-			if o.environ["TERM_PROGRAM"] != "tmux" {
+			if env["TERM_PROGRAM"] != "tmux" {
 				setProfile(ANSI256)
 			}
 		}
