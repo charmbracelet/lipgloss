@@ -489,7 +489,6 @@ func (s Style) getAsTransform(k propKey) func(string) string {
 // Split a string into lines, additionally returning the size of the widest
 // line.
 func getLines(s string) (lines []string, widest int) {
-	s = strings.ReplaceAll(s, "\t", "    ")
 	lines = strings.Split(s, "\n")
 
 	for _, l := range lines {
