@@ -308,8 +308,7 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = ansi.Wordwrap(str, wrapAt, "")
-		str = ansi.Wrap(str, wrapAt, false) // force-wrap long strings
+		str = ansi.Wrap(str, wrapAt, "")
 	}
 
 	// Render core text

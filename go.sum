@@ -1,7 +1,7 @@
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
-github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd h1:HqBjkSFXXfW4IgX3TMKipWoPEN08T3Pi4SA/3DLss/U=
-github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd/go.mod h1:6GZ13FjIP6eOCqWU4lqgveGnYxQo9c3qBzHPeFu4HBE=
+github.com/charmbracelet/x/exp/term v0.0.0-20240329185201-62a6965a9fad h1:ixybSpyIZys0qK4JF0asuuxdr9fMXHrOQa7/G9eO+nc=
+github.com/charmbracelet/x/exp/term v0.0.0-20240329185201-62a6965a9fad/go.mod h1:6GZ13FjIP6eOCqWU4lqgveGnYxQo9c3qBzHPeFu4HBE=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-isatty v0.0.18 h1:DOKFKCQ7FNG2L1rbrmstDN4QVRdS89Nkh85u68Uwp98=
