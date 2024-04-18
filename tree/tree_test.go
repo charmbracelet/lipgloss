@@ -42,6 +42,39 @@ func TestTree(t *testing.T) {
 	require.Equal(t, expected, tree.String())
 }
 
+func TestTreeRounded(t *testing.T) {
+	tree := tree.New().
+		Items(
+			"Foo",
+			tree.New().
+				Root("Bar").
+				Items(
+					"Qux",
+					tree.New().
+						Root("Quux").
+						Items(
+							"Foo",
+							"Bar",
+						),
+					"Quuux",
+				),
+			"Baz",
+		).
+		Enumerator(tree.RoundedEnumerator)
+
+	expected := `
+├── Foo
+├── Bar
+│   ├── Qux
+│   ├── Quux
+│   │   ├── Foo
+│   │   ╰── Bar
+│   ╰── Quuux
+╰── Baz
+	`
+	require.Equal(t, expected, tree.String())
+}
+
 func TestTreeHidden(t *testing.T) {
 	tree := tree.New().
 		Items(
