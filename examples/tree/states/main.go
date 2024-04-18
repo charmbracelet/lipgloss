@@ -7,18 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
-func openEnumerator(data tree.Data, i int) (indent, prefix string) {
-	if data.Length()-1 == i {
-		return "   ", "▼ "
-	}
-	return "  ", "▼ "
-}
-
-func closedEnumerator(data tree.Data, i int) (indent, prefix string) {
-	if data.Length()-1 == i {
+func enumerator(data tree.Data, i int) (indent, prefix string) {
+	if data.At(i).Hidden() {
 		return "   ", "▶ "
 	}
-	return "  ", "▶ "
+	return "  ", "▼ "
 }
 
 func normalEnumerator(data tree.Data, _ int) (indent, prefix string) {
@@ -46,7 +39,7 @@ func main() {
 					"Cat Food",
 					"Nutella",
 					"Powdered Sugar",
-				).EnumeratorStyle(gray).Enumerator(closedEnumerator).Hide(true),
+				).EnumeratorStyle(gray).Enumerator(normalEnumerator).Hide(true),
 			tree.New().
 				Root("Veggies").
 				Items(
@@ -56,7 +49,7 @@ func main() {
 		).
 		ItemStyle(pink).
 		EnumeratorStyle(gray).
-		Enumerator(openEnumerator)
+		Enumerator(enumerator)
 
 	fmt.Println(t)
 }
