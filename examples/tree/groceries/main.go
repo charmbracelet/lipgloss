@@ -35,7 +35,7 @@ func main() {
 					"Leek",
 					"Artichoke",
 				),
-		).ItemStyle(pink).EnumeratorStyle(gray)
+		).ItemStyle(pink).EnumeratorStyle(gray).Enumerator(tree.RoundedEnumerator)
 
 	fmt.Println(t)
 }

@@ -11,3 +11,11 @@ func DefaultEnumerator(data Data, i int) (indent, prefix string) {
 	}
 	return "│  ", "├──"
 }
+
+// RoundedEnumerator enumerates items.
+func RoundedEnumerator(data Data, i int) (indent, prefix string) {
+	if data.Length()-1 == i {
+		return "   ", "╰──"
+	}
+	return "│  ", "├──"
+}
