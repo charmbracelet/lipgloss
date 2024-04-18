@@ -59,7 +59,7 @@ type Filter struct {
 	filter func(index int) bool
 }
 
-// Append implements Data.
+// Append allows Filter to implement Data. It adds an element to the Tree.
 func (m *Filter) Append(item Node) Data {
 	m.data = m.data.Append(item)
 	return m
@@ -70,7 +70,7 @@ func NewFilter(data Data) *Filter {
 	return &Filter{data: data}
 }
 
-// Remove implements Data.
+// Remove allows Filter to implement Data. It removes an element from the Tree.
 func (m *Filter) Remove(index int) Data {
 	m.data = m.data.Remove(index)
 	return m
@@ -92,7 +92,7 @@ func (m *Filter) At(index int) Node {
 	return nil
 }
 
-// Filter applies the given filter function to the data.
+// Filter uses a filter function to set a condition that all the data must satisfy to be in the Tree.
 func (m *Filter) Filter(f func(index int) bool) *Filter {
 	m.filter = f
 	return m

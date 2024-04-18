@@ -77,10 +77,10 @@ func Asterisk(Data, int) string {
 
 // Dash is an enumeration using dashes.
 //
-// * Foo
-// * Bar
-// * Baz
-// * Qux.
+// - Foo
+// - Bar
+// - Baz
+// - Qux.
 func Dash(Data, int) string {
 	return "-"
 }
