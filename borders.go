@@ -228,11 +228,6 @@ func HiddenBorder() Border {
 
 func (s Style) applyBorder(str string) string {
 	var (
-		topSet    = s.isSet(borderTopKey)
-		rightSet  = s.isSet(borderRightKey)
-		bottomSet = s.isSet(borderBottomKey)
-		leftSet   = s.isSet(borderLeftKey)
-
 		border    = s.getBorderStyle()
 		hasTop    = s.getAsBool(borderTopKey, false)
 		hasRight  = s.getAsBool(borderRightKey, false)
@@ -252,7 +247,7 @@ func (s Style) applyBorder(str string) string {
 
 	// If a border is set and no sides have been specifically turned on or off
 	// render borders on all sides.
-	if border != noBorder && !(topSet || rightSet || bottomSet || leftSet) {
+	if s.shouldAutoEnableBorder() {
 		hasTop = true
 		hasRight = true
 		hasBottom = true
@@ -372,6 +367,19 @@ func (s Style) applyBorder(str string) string {
 	}
 
 	return out.String()
+}
+
+func (s Style) shouldAutoEnableBorder() bool {
+	// If a border style is set and no sides have been specifically turned on
+	// or off, render borders on all sides.
+	var (
+		border    = s.getBorderStyle()
+		topSet    = s.isSet(borderTopKey)
+		leftSet   = s.isSet(borderLeftKey)
+		rightSet  = s.isSet(borderRightKey)
+		bottomSet = s.isSet(borderBottomKey)
+	)
+	return border != noBorder && !(topSet || rightSet || bottomSet || leftSet)
 }
 
 // Render the horizontal (top or bottom) portion of a border.
