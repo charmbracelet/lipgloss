@@ -300,40 +300,40 @@ func (s Style) GetBorderTopWidth() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopSize() int {
-	if !s.getAsBool(borderTopKey, false) {
-		return 0
+	if s.shouldAutoEnableBorder() || s.getAsBool(borderTopKey, false) {
+		return s.getBorderStyle().GetTopSize()
 	}
-	return s.getBorderStyle().GetTopSize()
+	return 0
 }
 
 // GetBorderLeftSize returns the width of the left border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftSize() int {
-	if !s.getAsBool(borderLeftKey, false) {
-		return 0
+	if s.shouldAutoEnableBorder() || s.getAsBool(borderLeftKey, false) {
+		return s.getBorderStyle().GetLeftSize()
 	}
-	return s.getBorderStyle().GetLeftSize()
+	return 0
 }
 
 // GetBorderBottomSize returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomSize() int {
-	if !s.getAsBool(borderBottomKey, false) {
-		return 0
+	if s.shouldAutoEnableBorder() || s.getAsBool(borderBottomKey, false) {
+		return s.getBorderStyle().GetBottomSize()
 	}
-	return s.getBorderStyle().GetBottomSize()
+	return 0
 }
 
 // GetBorderRightSize returns the width of the right border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightSize() int {
-	if !s.getAsBool(borderRightKey, false) {
-		return 0
+	if s.shouldAutoEnableBorder() || s.getAsBool(borderRightKey, false) {
+		return s.getBorderStyle().GetRightSize()
 	}
-	return s.getBorderStyle().GetRightSize()
+	return 0
 }
 
 // GetHorizontalBorderSize returns the width of the horizontal borders. If
