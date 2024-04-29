@@ -8,8 +8,6 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-// We're manually creating the struct here to avoid initializing the output and
-// query the terminal multiple times.
 var (
 	renderer     *Renderer
 	rendererOnce sync.Once
@@ -41,7 +39,7 @@ func DefaultRenderer() *Renderer {
 			EnableLegacyWindowsANSI(os.Stdout)
 		}
 
-		cp := EnvColorProfile(os.Stdout, os.Environ())
+		cp := DetectColorProfile(os.Stdout, os.Environ())
 		renderer = NewRenderer(cp, hasDarkBackground)
 	})
 	return renderer
@@ -52,14 +50,11 @@ func SetDefaultRenderer(r *Renderer) {
 	rendererOnce.Do(func() { renderer = r })
 }
 
-// NewRenderer creates a new Renderer.
+// NewRenderer creates a new Lip Gloss Renderer.
 //
-// The stdout argument is used to detect if the renderer is writing to a
-// terminal. If it is nil, the renderer will assume it's not writing to a
-// terminal.
-// The environ argument is used to detect the color profile based on the
-// environment variables. If it's nil, os.Environ() will be used.
-// Set hasDarkBackground to true if the terminal has a dark background.
+// It takes a color profile and a boolean indicating whether the terminal has a
+// dark background.
+// These values are then used to determine how to render colors and styles.
 func NewRenderer(cp Profile, hasDarkBackground bool) *Renderer {
 	return &Renderer{
 		colorProfile:      cp,
@@ -67,7 +62,7 @@ func NewRenderer(cp Profile, hasDarkBackground bool) *Renderer {
 	}
 }
 
-// ColorProfile returns the detected color profile.
+// ColorProfile returns the current color profile.
 func (r *Renderer) ColorProfile() Profile {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
@@ -75,23 +70,18 @@ func (r *Renderer) ColorProfile() Profile {
 	return r.colorProfile
 }
 
-// ColorProfile returns the detected color profile.
+// ColorProfile returns the ren color profile.
 func ColorProfile() Profile {
 	return DefaultRenderer().ColorProfile()
 }
 
-// SetColorProfile sets the color profile on the renderer. This function exists
-// mostly for testing purposes so that you can assure you're testing against
-// a specific profile.
-//
-// Outside of testing you likely won't want to use this function as the color
-// profile will detect and cache the terminal's color capabilities and choose
-// the best available profile.
+// SetColorProfile sets the color profile on the renderer.
 //
 // Available color profiles are:
 //
-//	Ascii     // no color, 1-bit
-//	ANSI      //16 colors, 4-bit
+//	NoTTY     // no colors or styles
+//	Ascii     // no colors, other styles are allowed (bold, italic, underline)
+//	ANSI      // 16 colors, 4-bit
 //	ANSI256   // 256 colors, 8-bit
 //	TrueColor // 16,777,216 colors, 24-bit
 //
@@ -103,18 +93,13 @@ func (r *Renderer) SetColorProfile(p Profile) {
 	r.colorProfile = p
 }
 
-// SetColorProfile sets the color profile on the default renderer. This
-// function exists mostly for testing purposes so that you can assure you're
-// testing against a specific profile.
-//
-// Outside of testing you likely won't want to use this function as the color
-// profile will detect and cache the terminal's color capabilities and choose
-// the best available profile.
+// SetColorProfile sets the color profile on the renderer.
 //
 // Available color profiles are:
 //
-//	Ascii     // no color, 1-bit
-//	ANSI      //16 colors, 4-bit
+//	NoTTY     // no colors or styles
+//	Ascii     // no colors, other styles are allowed (bold, italic, underline)
+//	ANSI      // 16 colors, 4-bit
 //	ANSI256   // 256 colors, 8-bit
 //	TrueColor // 16,777,216 colors, 24-bit
 //
@@ -123,14 +108,12 @@ func SetColorProfile(p Profile) {
 	DefaultRenderer().SetColorProfile(p)
 }
 
-// HasDarkBackground returns whether or not the terminal has a dark background.
+// HasDarkBackground returns whether or not the renderer has a dark background.
 func HasDarkBackground() bool {
 	return DefaultRenderer().HasDarkBackground()
 }
 
-// HasDarkBackground returns whether or not the renderer will render to a dark
-// background. A dark background can either be auto-detected, or set explicitly
-// on the renderer.
+// HasDarkBackground returns whether or not the renderer has a dark background.
 func (r *Renderer) HasDarkBackground() bool {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
@@ -139,25 +122,15 @@ func (r *Renderer) HasDarkBackground() bool {
 }
 
 // SetHasDarkBackground sets the background color detection value for the
-// default renderer. This function exists mostly for testing purposes so that
-// you can assure you're testing against a specific background color setting.
-//
-// Outside of testing you likely won't want to use this function as the
-// backgrounds value will be automatically detected and cached against the
-// terminal's current background color setting.
+// default renderer.
 //
 // This function is thread-safe.
 func SetHasDarkBackground(b bool) {
 	DefaultRenderer().SetHasDarkBackground(b)
 }
 
-// SetHasDarkBackground sets the background color detection value on the
-// renderer. This function exists mostly for testing purposes so that you can
-// assure you're testing against a specific background color setting.
-//
-// Outside of testing you likely won't want to use this function as the
-// backgrounds value will be automatically detected and cached against the
-// terminal's current background color setting.
+// SetHasDarkBackground sets the background color detection value for the
+// default renderer.
 //
 // This function is thread-safe.
 func (r *Renderer) SetHasDarkBackground(b bool) {

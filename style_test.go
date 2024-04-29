@@ -109,7 +109,7 @@ func TestStyleCustomRender(t *testing.T) {
 }
 
 func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(EnvColorProfile(os.Stdout, nil), true)
+	r := NewRenderer(DetectColorProfile(os.Stdout, nil), true)
 	s1 := NewStyle().Bold(true)
 	s2 := s1.Renderer(r)
 	if s1.r == s2.r {
