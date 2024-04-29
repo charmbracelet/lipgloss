@@ -7,7 +7,7 @@ go 1.18
 replace github.com/charmbracelet/x/exp/term => ../x/exp/term
 
 require (
-	github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd
+	github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/rivo/uniseg v0.4.7
 	golang.org/x/sys v0.19.0
