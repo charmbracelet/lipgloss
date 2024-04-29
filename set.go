@@ -462,6 +462,18 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	return s
 }
 
+// BorderInfoStyle set border info style
+func (s Style) BorderInfoStyle(style Style) Style {
+	s.set(borderInfoStyleKey, style)
+	return s
+}
+
+// BorderInfo set border info
+func (s Style) BorderInfo(info string) Style {
+	s.set(borderInfoKey, info)
+	return s
+}
+
 // Inline makes rendering output one line and disables the rendering of
 // margins, padding and borders. This is useful when you need a style to apply
 // only to font rendering and don't want it to change any physical dimensions.
