@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"math"
 	"strconv"
-	"strings"
 
 	"github.com/charmbracelet/x/exp/term/ansi"
 	"github.com/lucasb-eyer/go-colorful"
@@ -68,24 +67,17 @@ func (p Profile) Color(s string) ansi.Color {
 	}
 
 	var c ansi.Color
-	if strings.HasPrefix(s, "#") {
-		h, err := colorful.Hex(s)
-		if err != nil {
-			return noColor
-		}
+	if h, err := colorful.Hex(s); err == nil {
 		tc := uint32(h.R*255)<<16 + uint32(h.G*255)<<8 + uint32(h.B*255)
 		c = ansi.TrueColor(tc)
-	} else {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return noColor
-		}
-
+	} else if i, err := strconv.Atoi(s); err == nil {
 		if i < 16 {
 			c = ansi.BasicColor(i)
 		} else {
 			c = ansi.ExtendedColor(i)
 		}
+	} else {
+		return noColor
 	}
 
 	return p.Convert(c)
