@@ -25,10 +25,6 @@ type Renderer struct {
 // DefaultRenderer returns the default renderer.
 func DefaultRenderer() *Renderer {
 	rendererOnce.Do(func() {
-		if renderer != nil {
-			// Alredy set by SetDefaultRenderer
-			return
-		}
 		hasDarkBackground := true // Assume dark background by default
 		if term.IsTerminal(os.Stdout.Fd()) {
 			if bg := term.BackgroundColor(os.Stdin, os.Stdout); bg != nil {
@@ -53,7 +49,7 @@ func DefaultRenderer() *Renderer {
 
 // SetDefaultRenderer sets the default global renderer.
 func SetDefaultRenderer(r *Renderer) {
-	renderer = r
+	rendererOnce.Do(func() { renderer = r })
 }
 
 // NewRenderer creates a new Renderer.
