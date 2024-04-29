@@ -4,8 +4,6 @@ retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
 
 go 1.18
 
-replace github.com/charmbracelet/x/exp/term => ../x/exp/term
-
 require (
 	github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f
 	github.com/lucasb-eyer/go-colorful v1.2.0

@@ -1,3 +1,5 @@
+github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f h1:1BXkZqDueTOBECyDoFGRi0xMYgjJ6vvoPIkWyKOwzTc=
+github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f/go.mod h1:yQqGHmheaQfkqiJWjklPHVAq1dKbk8uGbcoS/lcKCJ0=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
