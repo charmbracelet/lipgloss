@@ -9,11 +9,11 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-// Profile is a color profile: Ascii, ANSI, ANSI256, or TrueColor.
+// Profile is a color profile: NoTTY, Ascii, ANSI, ANSI256, or TrueColor.
 type Profile int
 
 const (
-	// NoTTY, no terminal profile
+	// NoTTY, not a terminal profile
 	NoTTY Profile = iota
 	// Ascii, uncolored profile
 	Ascii // nolint: revive

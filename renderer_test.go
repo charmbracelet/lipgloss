@@ -6,12 +6,12 @@ import (
 )
 
 func TestRendererHasDarkBackground(t *testing.T) {
-	r1 := NewRenderer(EnvColorProfile(os.Stdout, nil), true)
+	r1 := NewRenderer(DetectColorProfile(os.Stdout, nil), true)
 	r1.SetHasDarkBackground(false)
 	if r1.HasDarkBackground() {
 		t.Error("Expected renderer to have light background")
 	}
-	r2 := NewRenderer(EnvColorProfile(os.Stdout, nil), false)
+	r2 := NewRenderer(DetectColorProfile(os.Stdout, nil), false)
 	r2.SetHasDarkBackground(true)
 	if !r2.HasDarkBackground() {
 		t.Error("Expected renderer to have dark background")
@@ -25,7 +25,7 @@ func TestRendererWithOutput(t *testing.T) {
 	}
 	defer f.Close()
 	defer os.Remove(f.Name())
-	r := NewRenderer(EnvColorProfile(f, nil), true)
+	r := NewRenderer(DetectColorProfile(f, nil), true)
 	r.SetColorProfile(TrueColor)
 	if r.ColorProfile() != TrueColor {
 		t.Error("Expected renderer to use true color")
@@ -33,7 +33,7 @@ func TestRendererWithOutput(t *testing.T) {
 }
 
 func TestRace(t *testing.T) {
-	r := NewRenderer(EnvColorProfile(os.Stdout, nil), true)
+	r := NewRenderer(DetectColorProfile(os.Stdout, nil), true)
 
 	for i := 0; i < 100; i++ {
 		t.Run("SetColorProfile", func(t *testing.T) {
