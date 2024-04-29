@@ -14,7 +14,7 @@ import (
 // If NO_COLOR is set, this will return true, ignoring CLICOLOR/CLICOLOR_FORCE
 // If CLICOLOR=="0", it will be true only if CLICOLOR_FORCE is also "0" or is unset.
 func envNoColor(env map[string]string) bool {
-	return isTrue(env["NO_COLOR"]) || (!isTrue(env["CLICOLOR"]) && !cliColorForced(env))
+	return isTrue(env["NO_COLOR"]) && !isTrue(env["CLICOLOR"]) && !cliColorForced(env)
 }
 
 // EnvColorProfile returns the color profile based on environment variables set
@@ -25,27 +25,33 @@ func envNoColor(env map[string]string) bool {
 // If the terminal does not support any colors, but CLICOLOR_FORCE is set and not "0"
 // then the ANSI color profile will be returned.
 func EnvColorProfile(stdout *os.File, environ []string) Profile {
-	if stdout == nil || !term.IsTerminal(stdout.Fd()) {
-		return NoTTY
-	}
 	if environ == nil {
 		environ = os.Environ()
 	}
 
 	env := environMap(environ)
-	if envNoColor(env) {
+	p := detectColorProfile(env)
+	if stdout == nil || !term.IsTerminal(stdout.Fd()) {
+		p = NoTTY
+	}
+
+	if envNoColor(env) && p > Ascii {
 		return Ascii
 	}
-	p := detectColorProfile(env)
-	if cliColorForced(env) && p <= NoTTY {
-		return ANSI
+
+	if cliColorForced(env) && p <= Ascii {
+		p = ANSI
+		if cp := detectColorProfile(env); cp > p {
+			p = cp
+		}
 	}
+
 	return p
 }
 
 func cliColorForced(env map[string]string) bool {
 	if forced := env["CLICOLOR_FORCE"]; forced != "" {
-		return !isTrue(forced)
+		return isTrue(forced)
 	}
 	return false
 }
