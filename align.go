@@ -3,7 +3,7 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
+	"github.com/charmbracelet/x/exp/term/ansi"
 	"github.com/muesli/termenv"
 )
 
@@ -15,7 +15,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 	var b strings.Builder
 
 	for i, l := range lines {
-		lineWidth := ansi.PrintableRuneWidth(l)
+		lineWidth := ansi.StringWidth(l)
 
 		shortAmount := widestLine - lineWidth                // difference from the widest line
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set

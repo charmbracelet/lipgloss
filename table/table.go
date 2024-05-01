@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/reflow/truncate"
+	"github.com/charmbracelet/x/exp/term/ansi"
 )
 
 // StyleFunc is the style function that determines the style of a Cell.
@@ -437,7 +437,7 @@ func (t *Table) constructHeaders() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(truncate.StringWithTail(header, uint(t.widths[i]), "…")))
+			Render(ansi.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
@@ -488,7 +488,7 @@ func (t *Table) constructRow(index int) string {
 			MaxHeight(height).
 			Width(t.widths[c]).
 			MaxWidth(t.widths[c]).
-			Render(truncate.StringWithTail(cell, uint(t.widths[c]*height), "…")))
+			Render(ansi.Truncate(cell, t.widths[c]*height, "…")))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
