@@ -15,7 +15,7 @@ type propKey int
 
 // Available properties.
 const (
-	// bool props come first
+	// Boolean props come first.
 	boldKey propKey = 1 << iota
 	italicKey
 	underlineKey
@@ -27,8 +27,7 @@ const (
 	strikethroughSpacesKey
 	colorWhitespaceKey
 
-	// non-bool props
-
+	// Non-boolean props.
 	foregroundKey
 	backgroundKey
 	widthKey
