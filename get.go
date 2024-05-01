@@ -432,7 +432,7 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 	}
 
 	var c TerminalColor
-	switch k {
+	switch k { //nolint:exhaustive
 	case foregroundKey:
 		c = s.fgColor
 	case backgroundKey:
@@ -468,7 +468,7 @@ func (s Style) getAsInt(k propKey) int {
 	if !s.isSet(k) {
 		return 0
 	}
-	switch k {
+	switch k { //nolint:exhaustive
 	case widthKey:
 		return s.width
 	case heightKey:
@@ -503,7 +503,7 @@ func (s Style) getAsPosition(k propKey) Position {
 	if !s.isSet(k) {
 		return Position(0)
 	}
-	switch k {
+	switch k { //nolint:exhaustive
 	case alignHorizontalKey:
 		return s.alignHorizontal
 	case alignVerticalKey:

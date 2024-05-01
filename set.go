@@ -6,7 +6,7 @@ func (s *Style) set(key propKey, value interface{}) {
 	// them at zero or above. We could use uints instead, but the
 	// conversions are a little tedious, so we're sticking with ints for
 	// sake of usability.
-	switch key {
+	switch key { //nolint:exhaustive
 	case foregroundKey:
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
@@ -66,7 +66,7 @@ func (s *Style) set(key propKey, value interface{}) {
 	case transformKey:
 		s.transform = value.(func(string) string)
 	default:
-		if v, ok := value.(bool); ok {
+		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
 				s.attrs |= int(key)
 			} else {
@@ -88,7 +88,7 @@ func (s *Style) set(key propKey, value interface{}) {
 
 // setFrom sets the property from another style.
 func (s *Style) setFrom(key propKey, i Style) {
-	switch key {
+	switch key { //nolint:exhaustive
 	case foregroundKey:
 		s.set(foregroundKey, i.fgColor)
 	case backgroundKey:

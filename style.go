@@ -394,7 +394,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	// Padding
-	if !inline {
+	if !inline { //nolint:nestif
 		if leftPadding > 0 {
 			var st *termenv.Style
 			if colorWhitespace || styleWhitespace {
@@ -564,7 +564,7 @@ func pad(str string, n int, style *termenv.Style) string {
 	return b.String()
 }
 
-func max(a, b int) int { // nolint:unparam
+func max(a, b int) int { //nolint:unparam
 	if a > b {
 		return a
 	}
