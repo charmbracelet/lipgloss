@@ -234,7 +234,7 @@ var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 var wildStyle = style.Blink(true)
 ```
 
-Since `Style` data structure contains only primitive types, assigning a style
+Since `Style` data structures contains only primitive types, assigning a style
 to another effectively creates a new copy of the style without mutating the
 original.
 
