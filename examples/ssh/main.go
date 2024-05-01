@@ -161,7 +161,7 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.gray,
 		)
 
-		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.Copy().UnsetString().Render("Has dark background?"),
+		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
 			renderer.HasDarkBackground(),
 			renderer.Output().BackgroundColor())
 

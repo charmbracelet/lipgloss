@@ -23,9 +23,9 @@ func main() {
 		// CellStyle is the base lipgloss style used for the table rows.
 		CellStyle = re.NewStyle().Padding(0, 1).Width(14)
 		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
-		OddRowStyle = CellStyle.Copy().Foreground(gray)
+		OddRowStyle = CellStyle.Foreground(gray)
 		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
-		EvenRowStyle = CellStyle.Copy().Foreground(lightGray)
+		EvenRowStyle = CellStyle.Foreground(lightGray)
 		// BorderStyle is the lipgloss style used for the table border.
 		BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
@@ -55,12 +55,12 @@ func main() {
 
 			// Make the second column a little wider.
 			if col == 1 {
-				style = style.Copy().Width(22)
+				style = style.Width(22)
 			}
 
 			// Arabic is a right-to-left language, so right align the text.
 			if row < len(rows) && rows[row-1][0] == "Arabic" && col != 0 {
-				style = style.Copy().Align(lipgloss.Right)
+				style = style.Align(lipgloss.Right)
 			}
 
 			return style
