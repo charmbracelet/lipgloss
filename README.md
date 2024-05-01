@@ -1,5 +1,4 @@
-Lip Gloss
-=========
+# Lip Gloss
 
 <p>
     <a href="https://stuff.charm.sh/lipgloss/lipgloss-mascot-2k.png"><img width="340" alt="Lip Gloss title treatment" src="https://github.com/charmbracelet/lipgloss/assets/25087/147cadb1-4254-43ec-ae6b-8d6ca7b029a1"></a><br>
@@ -66,7 +65,6 @@ The terminal's color profile will be automatically detected, and colors outside
 the gamut of the current palette will be automatically coerced to their closest
 available value.
 
-
 ### Adaptive Colors
 
 You can also specify color options for light and dark backgrounds:
@@ -117,7 +115,6 @@ var style = lipgloss.NewStyle().
     Reverse(true)
 ```
 
-
 ## Block-Level Formatting
 
 Lip Gloss also supports rules for block-level formatting:
@@ -156,7 +153,6 @@ lipgloss.NewStyle().Padding(1, 4, 2)
 lipgloss.NewStyle().Margin(2, 4, 3, 1)
 ```
 
-
 ## Aligning Text
 
 You can align paragraphs of text to the left, right, or center.
@@ -169,7 +165,6 @@ var style = lipgloss.NewStyle().
     Align(lipgloss.Center) // just kidding, align it in the center
 ```
 
-
 ## Width and Height
 
 Setting a minimum width and height is simple and straightforward.
@@ -181,7 +176,6 @@ var style = lipgloss.NewStyle().
     Height(32).
     Foreground(lipgloss.Color("63"))
 ```
-
 
 ## Borders
 
@@ -230,21 +224,19 @@ lipgloss.NewStyle().
 
 For more on borders see [the docs][docs].
 
-
 ## Copying Styles
 
-Just use `Copy()`:
+Just use assignment
 
 ```go
 var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 
-var wildStyle = style.Copy().Blink(true)
+var wildStyle = style.Blink(true)
 ```
 
-`Copy()` performs a copy on the underlying data structure ensuring that you get
-a true, dereferenced copy of a style. Without copying, it's possible to mutate
-styles.
-
+Since `Style` data structure contains only primitive types, assigning a style
+to another effectively creates a new copy of the style without mutating the
+original.
 
 ## Inheritance
 
@@ -263,7 +255,6 @@ var styleB = lipgloss.NewStyle().
     Inherit(styleA)
 ```
 
-
 ## Unsetting Rules
 
 All rules can be unset:
@@ -277,7 +268,6 @@ var style = lipgloss.NewStyle().
 ```
 
 When a rule is unset, it won't be inherited or copied.
-
 
 ## Enforcing Rules
 
@@ -355,7 +345,6 @@ For an example on using a custom renderer over SSH with [Wish][wish] see the
 In addition to pure styling, Lip Gloss also ships with some utilities to help
 assemble your layouts.
 
-
 ### Joining Paragraphs
 
 Horizontally and vertically joining paragraphs is a cinch.
@@ -371,7 +360,6 @@ lipgloss.JoinVertical(lipgloss.Center, paragraphA, paragraphB)
 // from the top of the tallest
 lipgloss.JoinHorizontal(0.2, paragraphA, paragraphB, paragraphC)
 ```
-
 
 ### Measuring Width and Height
 
@@ -465,7 +453,7 @@ fmt.Println(t)
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
-***
+---
 
 ## FAQ
 
@@ -501,10 +489,11 @@ import (
 lipgloss.SetColorProfile(termenv.TrueColor)
 ```
 
-*Note:* this option limits the flexibility of your application and can cause
+_Note:_ this option limits the flexibility of your application and can cause
 ANSI escape codes to be output in cases where that might not be desired. Take
 careful note of your use case and environment before choosing to force a color
 profile.
+
 </details>
 
 ## What about [Bubble Tea][tea]?
@@ -518,7 +507,6 @@ In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
 
 [tea]: https://github.com/charmbracelet/tea
 
-
 ## Under the Hood
 
 Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
@@ -528,7 +516,6 @@ For many use cases Termenv and Reflow will be sufficient for your needs.
 [termenv]: https://github.com/muesli/termenv
 [reflow]: https://github.com/muesli/reflow
 
-
 ## Rendering Markdown
 
 For a more document-centric rendering solution with support for things like
@@ -537,27 +524,25 @@ the stylesheet-based Markdown renderer.
 
 [glamour]: https://github.com/charmbracelet/glamour
 
-
 ## Feedback
 
 We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
-* [Twitter](https://twitter.com/charmcli)
-* [The Fediverse](https://mastodon.social/@charmcli)
-* [Discord](https://charm.sh/chat)
+- [Twitter](https://twitter.com/charmcli)
+- [The Fediverse](https://mastodon.social/@charmcli)
+- [Discord](https://charm.sh/chat)
 
 ## License
 
 [MIT](https://github.com/charmbracelet/lipgloss/raw/master/LICENSE)
 
-***
+---
 
 Part of [Charm](https://charm.sh).
 
 <a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
-
 
 [docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
 [wish]: https://github.com/charmbracelet/wish
