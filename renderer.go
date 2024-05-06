@@ -28,9 +28,6 @@ type Renderer struct {
 	mtx sync.RWMutex
 }
 
-// RendererOption is a function that can be used to configure a [Renderer].
-type RendererOption func(r *Renderer)
-
 // DefaultRenderer returns the default renderer.
 func DefaultRenderer() *Renderer {
 	return renderer
