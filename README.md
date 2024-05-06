@@ -6,7 +6,6 @@
     <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
     <a href="https://www.phorm.ai/query?projectId=a0e324b6-b706-4546-b951-6671ea60c13f"><img src="https://stuff.charm.sh/misc/phorm-badge.svg" alt="phorm.ai"></a>
-    
 </p>
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
@@ -226,12 +225,15 @@ For more on borders see [the docs][docs].
 
 ## Copying Styles
 
-Just use assignment
+Just use assignment:
 
 ```go
-var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
+style := lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 
-var wildStyle = style.Blink(true)
+copiedStyle := style // this is a true copy
+
+wildStyle := style.Blink(true) // this is also true copy, with blink added
+
 ```
 
 Since `Style` data structures contains only primitive types, assigning a style
