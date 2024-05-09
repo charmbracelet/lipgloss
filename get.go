@@ -416,74 +416,114 @@ func (s Style) GetTransform() func(string) string {
 
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
-	_, exists := s.rules[k]
-	return exists
+	return s.props.has(k)
 }
 
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
-	v, ok := s.rules[k]
-	if !ok {
+	if !s.isSet(k) {
 		return defaultVal
 	}
-	if b, ok := v.(bool); ok {
-		return b
-	}
-	return defaultVal
+	return s.attrs&int(k) != 0
 }
 
 func (s Style) getAsColor(k propKey) TerminalColor {
-	v, ok := s.rules[k]
-	if !ok {
+	if !s.isSet(k) {
 		return noColor
 	}
-	if c, ok := v.(TerminalColor); ok {
+
+	var c TerminalColor
+	switch k { //nolint:exhaustive
+	case foregroundKey:
+		c = s.fgColor
+	case backgroundKey:
+		c = s.bgColor
+	case marginBackgroundKey:
+		c = s.marginBgColor
+	case borderTopForegroundKey:
+		c = s.borderTopFgColor
+	case borderRightForegroundKey:
+		c = s.borderRightFgColor
+	case borderBottomForegroundKey:
+		c = s.borderBottomFgColor
+	case borderLeftForegroundKey:
+		c = s.borderLeftFgColor
+	case borderTopBackgroundKey:
+		c = s.borderTopBgColor
+	case borderRightBackgroundKey:
+		c = s.borderRightBgColor
+	case borderBottomBackgroundKey:
+		c = s.borderBottomBgColor
+	case borderLeftBackgroundKey:
+		c = s.borderLeftBgColor
+	}
+
+	if c != nil {
 		return c
 	}
+
 	return noColor
 }
 
 func (s Style) getAsInt(k propKey) int {
-	v, ok := s.rules[k]
-	if !ok {
+	if !s.isSet(k) {
 		return 0
 	}
-	if i, ok := v.(int); ok {
-		return i
+	switch k { //nolint:exhaustive
+	case widthKey:
+		return s.width
+	case heightKey:
+		return s.height
+	case paddingTopKey:
+		return s.paddingTop
+	case paddingRightKey:
+		return s.paddingRight
+	case paddingBottomKey:
+		return s.paddingBottom
+	case paddingLeftKey:
+		return s.paddingLeft
+	case marginTopKey:
+		return s.marginTop
+	case marginRightKey:
+		return s.marginRight
+	case marginBottomKey:
+		return s.marginBottom
+	case marginLeftKey:
+		return s.marginLeft
+	case maxWidthKey:
+		return s.maxWidth
+	case maxHeightKey:
+		return s.maxHeight
+	case tabWidthKey:
+		return s.tabWidth
 	}
 	return 0
 }
 
 func (s Style) getAsPosition(k propKey) Position {
-	v, ok := s.rules[k]
-	if !ok {
+	if !s.isSet(k) {
 		return Position(0)
 	}
-	if p, ok := v.(Position); ok {
-		return p
+	switch k { //nolint:exhaustive
+	case alignHorizontalKey:
+		return s.alignHorizontal
+	case alignVerticalKey:
+		return s.alignVertical
 	}
 	return Position(0)
 }
 
 func (s Style) getBorderStyle() Border {
-	v, ok := s.rules[borderStyleKey]
-	if !ok {
+	if !s.isSet(borderStyleKey) {
 		return noBorder
 	}
-	if b, ok := v.(Border); ok {
-		return b
-	}
-	return noBorder
+	return s.borderStyle
 }
 
-func (s Style) getAsTransform(k propKey) func(string) string {
-	v, ok := s.rules[k]
-	if !ok {
+func (s Style) getAsTransform(propKey) func(string) string {
+	if !s.isSet(transformKey) {
 		return nil
 	}
-	if fn, ok := v.(func(string) string); ok {
-		return fn
-	}
-	return nil
+	return s.transform
 }
 
 // Split a string into lines, additionally returning the size of the widest
