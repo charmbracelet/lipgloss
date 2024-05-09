@@ -11,7 +11,7 @@ import (
 const tabWidthDefault = 4
 
 // Property for a key.
-type propKey int
+type propKey int64
 
 // Available properties.
 const (
@@ -78,7 +78,7 @@ const (
 )
 
 // props is a set of properties.
-type props int
+type props int64
 
 // set sets a property.
 func (p props) set(k propKey) props {
