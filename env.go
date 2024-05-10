@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/exp/term"
+	"github.com/xo/terminfo"
 )
 
 // DetectColorProfile returns the color profile based on the terminal output,
@@ -131,6 +132,28 @@ func envColorProfile(env map[string]string) (p Profile) {
 	}
 	if strings.Contains(term, "ansi") {
 		setProfile(ANSI)
+	}
+
+	if ti, err := terminfo.Load(term); err == nil {
+		extbools := ti.ExtBoolCapsShort()
+		if _, ok := extbools["RGB"]; ok {
+			setProfile(TrueColor)
+		}
+
+		if _, ok := extbools["Tc"]; ok {
+			setProfile(TrueColor)
+		}
+
+		nums := ti.NumCapsShort()
+		if colors, ok := nums["colors"]; ok {
+			if colors >= 0x1000000 {
+				setProfile(TrueColor)
+			} else if colors >= 0x100 {
+				setProfile(ANSI256)
+			} else if colors >= 0x10 {
+				setProfile(ANSI)
+			}
+		}
 	}
 
 	return
