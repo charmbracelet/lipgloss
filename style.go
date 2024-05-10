@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 const tabWidthDefault = 4
@@ -96,24 +96,19 @@ func (p props) has(k propKey) bool {
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
-// in case the underlying implementation changes. It takes an optional string
-// value to be set as the underlying string value for this style.
+// in case the underlying implementation changes.
 func NewStyle() Style {
-	return DefaultRenderer().NewStyle()
-}
-
-// NewStyle returns a new, empty Style. While it's syntactic sugar for the
-// Style{} primitive, it's recommended to use this function for creating styles
-// in case the underlying implementation changes. It takes an optional string
-// value to be set as the underlying string value for this style.
-func (r *Renderer) NewStyle() Style {
-	s := Style{r: r}
-	return s
+	return Style{
+		profile:            ColorProfile,
+		hasLightBackground: HasLightBackground,
+	}
 }
 
 // Style contains a set of rules that comprise a style as a whole.
 type Style struct {
-	r     *Renderer
+	profile            Profile
+	hasLightBackground bool
+
 	props props
 	value string
 
@@ -229,9 +224,6 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
-	if s.r == nil {
-		s.r = DefaultRenderer()
-	}
 	if s.value != "" {
 		strs = append([]string{s.value}, strs...)
 	}
@@ -239,18 +231,20 @@ func (s Style) Render(strs ...string) string {
 	var (
 		str = joinString(strs...)
 
-		p            = s.r.ColorProfile()
 		te           ansi.Style
 		teSpace      ansi.Style
 		teWhitespace ansi.Style
 
-		bold          = s.getAsBool(boldKey, false) && p >= Ascii
-		italic        = s.getAsBool(italicKey, false) && p >= Ascii
-		underline     = s.getAsBool(underlineKey, false) && p >= Ascii
-		strikethrough = s.getAsBool(strikethroughKey, false) && p >= Ascii
-		reverse       = s.getAsBool(reverseKey, false) && p >= Ascii
-		blink         = s.getAsBool(blinkKey, false) && p >= Ascii
-		faint         = s.getAsBool(faintKey, false) && p >= Ascii
+		isColorable = s.profile < Ascii
+		isDecorable = s.profile <= Ascii
+
+		bold          = s.getAsBool(boldKey, false) && isDecorable
+		italic        = s.getAsBool(italicKey, false) && isDecorable
+		underline     = s.getAsBool(underlineKey, false) && isDecorable
+		strikethrough = s.getAsBool(strikethroughKey, false) && isDecorable
+		reverse       = s.getAsBool(reverseKey, false) && isDecorable
+		blink         = s.getAsBool(blinkKey, false) && isDecorable
+		faint         = s.getAsBool(faintKey, false) && isDecorable
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -284,7 +278,7 @@ func (s Style) Render(strs ...string) string {
 	)
 
 	// Disable colors for Ascii and below profiles.
-	if p <= Ascii {
+	if !isColorable {
 		fg = noColor
 		bg = noColor
 	}
@@ -320,22 +314,22 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if fg != noColor {
-		te = te.ForegroundColor(fg.color(s.r))
+		te = te.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
 		if styleWhitespace {
-			teWhitespace = teWhitespace.ForegroundColor(fg.color(s.r))
+			teWhitespace = teWhitespace.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.ForegroundColor(fg.color(s.r))
+			teSpace = teSpace.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
 		}
 	}
 
 	if bg != noColor {
-		te = te.BackgroundColor(bg.color(s.r))
+		te = te.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
 		if colorWhitespace {
-			teWhitespace = teWhitespace.BackgroundColor(bg.color(s.r))
+			teWhitespace = teWhitespace.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.BackgroundColor(bg.color(s.r))
+			teSpace = teSpace.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
 		}
 	}
 
@@ -490,13 +484,13 @@ func (s Style) applyMargins(str string, inline bool) string {
 		bottomMargin = s.getAsInt(marginBottomKey)
 		leftMargin   = s.getAsInt(marginLeftKey)
 
-		p     = s.r.ColorProfile()
 		style ansi.Style
 	)
 
+	isColorable := s.profile < Ascii
 	bgc := s.getAsColor(marginBackgroundKey)
-	if bgc != noColor && p > Ascii {
-		style = style.BackgroundColor(bgc.color(s.r))
+	if bgc != noColor && isColorable {
+		style = style.BackgroundColor(bgc.color(s.profile, s.hasLightBackground))
 	}
 
 	// Add left and right margin

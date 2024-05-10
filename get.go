@@ -3,7 +3,7 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // GetBold returns the style's bold value. If no value is set false is returned.

@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Position represents a position along a horizontal or vertical axis. It's in
@@ -34,26 +34,13 @@ const (
 // Place places a string or text block vertically in an unstyled box of a given
 // width or height.
 func Place(width, height int, hPos, vPos Position, str string, opts ...WhitespaceOption) string {
-	return DefaultRenderer().Place(width, height, hPos, vPos, str, opts...)
-}
-
-// Place places a string or text block vertically in an unstyled box of a given
-// width or height.
-func (r *Renderer) Place(width, height int, hPos, vPos Position, str string, opts ...WhitespaceOption) string {
-	return r.PlaceVertical(height, vPos, r.PlaceHorizontal(width, hPos, str, opts...), opts...)
+	return PlaceVertical(height, vPos, PlaceHorizontal(width, hPos, str, opts...), opts...)
 }
 
 // PlaceHorizontal places a string or text block horizontally in an unstyled
 // block of a given width. If the given width is shorter than the max width of
 // the string (measured by its longest line) this will be a noop.
 func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOption) string {
-	return DefaultRenderer().PlaceHorizontal(width, pos, str, opts...)
-}
-
-// PlaceHorizontal places a string or text block horizontally in an unstyled
-// block of a given width. If the given width is shorter than the max width of
-// the string (measured by its longest line) this will be a noöp.
-func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOption) string {
 	lines, contentWidth := getLines(str)
 	gap := width - contentWidth
 
@@ -61,7 +48,7 @@ func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...
 		return str
 	}
 
-	ws := newWhitespace(r, opts...)
+	ws := newWhitespace(opts...)
 
 	var b strings.Builder
 	for i, l := range lines {
@@ -101,13 +88,6 @@ func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...
 // of a given height. If the given height is shorter than the height of the
 // string (measured by its newlines) then this will be a noop.
 func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOption) string {
-	return DefaultRenderer().PlaceVertical(height, pos, str, opts...)
-}
-
-// PlaceVertical places a string or text block vertically in an unstyled block
-// of a given height. If the given height is shorter than the height of the
-// string (measured by its newlines) then this will be a noöp.
-func (r *Renderer) PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOption) string {
 	contentHeight := strings.Count(str, "\n") + 1
 	gap := height - contentHeight
 
@@ -115,7 +95,7 @@ func (r *Renderer) PlaceVertical(height int, pos Position, str string, opts ...W
 		return str
 	}
 
-	ws := newWhitespace(r, opts...)
+	ws := newWhitespace(opts...)
 
 	_, width := getLines(str)
 	emptyLine := ws.render(width)

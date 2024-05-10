@@ -5,7 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term"
+	"github.com/charmbracelet/x/term"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 // DetectColorProfile returns the color profile based on the terminal output,
@@ -16,7 +17,7 @@ import (
 // CLICOLOR/CLICOLOR_FORCE environment variables.
 //
 // See https://no-color.org/ and https://bixense.com/clicolors/ for more information.
-func DetectColorProfile(stdout *os.File, environ []string) Profile {
+func DetectColorProfile(stdout term.File, environ []string) Profile {
 	if environ == nil {
 		environ = os.Environ()
 	}
@@ -27,18 +28,45 @@ func DetectColorProfile(stdout *os.File, environ []string) Profile {
 		p = NoTTY
 	}
 
-	if envNoColor(env) && p > Ascii {
+	if envNoColor(env) && p < Ascii {
 		return Ascii
 	}
 
-	if cliColorForced(env) && p <= Ascii {
+	if cliColorForced(env) && p >= Ascii {
 		p = ANSI
-		if cp := envColorProfile(env); cp > p {
+		if cp := envColorProfile(env); cp < p {
 			p = cp
 		}
 	}
 
 	return p
+}
+
+// QueryHasLightBackground returns true if the terminal has a light background.
+func QueryHasLightBackground(in term.File, out term.File) bool {
+	if !term.IsTerminal(out.Fd()) {
+		return false
+	}
+
+	state, err := term.MakeRaw(in.Fd())
+	if err != nil {
+		return false
+	}
+
+	defer term.Restore(in.Fd(), state) // nolint:errcheck
+
+	c, err := term.QueryBackgroundColor(in, out)
+	if err != nil {
+		return false
+	}
+
+	col, ok := colorful.MakeColor(c)
+	if !ok {
+		return false
+	}
+
+	_, _, l := col.Hsl()
+	return l > 0.5
 }
 
 // EnvColorProfile returns the color profile based on environment variables.
@@ -54,13 +82,13 @@ func EnvColorProfile(environ []string) Profile {
 
 	env := environMap(environ)
 	p := envColorProfile(env)
-	if envNoColor(env) && p > Ascii {
+	if envNoColor(env) && p < Ascii {
 		return Ascii
 	}
 
-	if cliColorForced(env) && p <= Ascii {
+	if cliColorForced(env) && p >= Ascii {
 		p = ANSI
-		if cp := envColorProfile(env); cp > p {
+		if cp := envColorProfile(env); cp < p {
 			p = cp
 		}
 	}
@@ -86,8 +114,9 @@ func cliColorForced(env map[string]string) bool {
 
 // envColorProfile returns infers the color profile from the environment.
 func envColorProfile(env map[string]string) (p Profile) {
+	p = Ascii // Default to ASCII
 	setProfile := func(profile Profile) {
-		if profile > p {
+		if profile < p {
 			p = profile
 		}
 	}

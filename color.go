@@ -3,13 +3,13 @@ package lipgloss
 import (
 	"image/color"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
 // TerminalColor is a color intended to be rendered in the terminal.
 type TerminalColor interface {
-	color(*Renderer) ansi.Color
+	color(p Profile, hasLightBg bool) ansi.Color
 }
 
 var noColor = NoColor{}
@@ -23,7 +23,7 @@ var noColor = NoColor{}
 //	var style = someStyle.Copy().Background(lipgloss.NoColor{})
 type NoColor struct{}
 
-func (NoColor) color(*Renderer) ansi.Color {
+func (NoColor) color(Profile, bool) ansi.Color {
 	return color.Black
 }
 
@@ -42,8 +42,8 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	hexColor := lipgloss.Color("#0000ff")
 type Color string
 
-func (c Color) color(r *Renderer) ansi.Color {
-	return r.ColorProfile().Color(string(c))
+func (c Color) color(p Profile, _ bool) ansi.Color {
+	return p.Color(string(c))
 }
 
 // ANSIColor is a color specified by an ANSI256 color value.
@@ -54,8 +54,8 @@ func (c Color) color(r *Renderer) ansi.Color {
 //	colorB := lipgloss.ANSIColor(134)
 type ANSIColor uint8
 
-func (ac ANSIColor) color(r *Renderer) ansi.Color {
-	return r.ColorProfile().Convert(ansi.ExtendedColor(ac))
+func (ac ANSIColor) color(p Profile, _ bool) ansi.Color {
+	return p.Convert(ansi.ExtendedColor(ac))
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -70,11 +70,11 @@ type AdaptiveColor struct {
 	Dark  string
 }
 
-func (ac AdaptiveColor) color(r *Renderer) ansi.Color {
-	if r.HasDarkBackground() {
-		return Color(ac.Dark).color(r)
+func (ac AdaptiveColor) color(p Profile, hasLightBg bool) ansi.Color {
+	if hasLightBg {
+		return Color(ac.Light).color(p, hasLightBg)
 	}
-	return Color(ac.Light).color(r)
+	return Color(ac.Dark).color(p, hasLightBg)
 }
 
 // CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
@@ -85,8 +85,7 @@ type CompleteColor struct {
 	ANSI      string
 }
 
-func (c CompleteColor) color(r *Renderer) ansi.Color {
-	p := r.ColorProfile()
+func (c CompleteColor) color(p Profile, hasLightBg bool) ansi.Color {
 	switch p { //nolint:exhaustive
 	case TrueColor:
 		return p.Color(c.TrueColor)
@@ -107,11 +106,11 @@ type CompleteAdaptiveColor struct {
 	Dark  CompleteColor
 }
 
-func (cac CompleteAdaptiveColor) color(r *Renderer) ansi.Color {
-	if r.HasDarkBackground() {
-		return cac.Dark.color(r)
+func (cac CompleteAdaptiveColor) color(p Profile, hasLightBg bool) ansi.Color {
+	if hasLightBg {
+		return cac.Light.color(p, hasLightBg)
 	}
-	return cac.Light.color(r)
+	return cac.Light.color(p, hasLightBg)
 }
 
 // ConvertToRGB converts a Color to a colorful.Color.

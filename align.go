@@ -3,7 +3,7 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Perform text alignment. If the string is multi-lined, we also make all lines

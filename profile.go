@@ -5,29 +5,46 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
 // Profile is a color profile: NoTTY, Ascii, ANSI, ANSI256, or TrueColor.
-type Profile int
+type Profile byte
 
 const (
-	// NoTTY, not a terminal profile
-	NoTTY Profile = iota
-	// Ascii, uncolored profile
-	Ascii // nolint: revive
-	// ANSI, 4-bit color profile
-	ANSI
+	// TrueColor, 24-bit color profile
+	TrueColor Profile = iota
 	// ANSI256, 8-bit color profile
 	ANSI256
-	// TrueColor, 24-bit color profile
-	TrueColor
+	// ANSI, 4-bit color profile
+	ANSI
+	// Ascii, uncolored profile
+	Ascii // nolint: revive
+	// NoTTY, not a terminal profile
+	NoTTY
 )
+
+// String returns the string representation of a Profile.
+func (p Profile) String() string {
+	switch p {
+	case TrueColor:
+		return "TrueColor"
+	case ANSI256:
+		return "ANSI256"
+	case ANSI:
+		return "ANSI"
+	case Ascii:
+		return "Ascii"
+	case NoTTY:
+		return "NoTTY"
+	}
+	return "Unknown"
+}
 
 // Convert transforms a given Color to a Color supported within the Profile.
 func (p Profile) Convert(c ansi.Color) ansi.Color {
-	if p <= Ascii {
+	if p >= Ascii {
 		return noColor
 	}
 

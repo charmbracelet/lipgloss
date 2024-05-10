@@ -3,7 +3,7 @@ package lipgloss
 import (
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/rivo/uniseg"
 )
 
@@ -406,14 +406,13 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	p := s.r.ColorProfile()
-
 	var style ansi.Style
-	if fg != noColor && p > Ascii {
-		style = style.ForegroundColor(fg.color(s.r))
+	isColorable := s.profile < Ascii
+	if fg != noColor && isColorable {
+		style = style.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
 	}
-	if bg != noColor && p > Ascii {
-		style = style.BackgroundColor(bg.color(s.r))
+	if bg != noColor && isColorable {
+		style = style.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
 	}
 
 	return style.Styled(border)

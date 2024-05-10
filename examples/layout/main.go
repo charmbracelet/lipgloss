@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	_ "github.com/charmbracelet/lipgloss/defaults" // use std profile defaults
 	"github.com/lucasb-eyer/go-colorful"
 	"golang.org/x/term"
 )
@@ -243,7 +244,7 @@ func main() {
 			lipgloss.Center, lipgloss.Center,
 			dialogBoxStyle.Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
-			lipgloss.WithWhitespaceForeground(subtle),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(subtle)),
 		)
 
 		doc.WriteString(dialog + "\n\n")
