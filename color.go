@@ -1,15 +1,15 @@
 package lipgloss
 
 import (
-	"strconv"
+	"image/color"
 
-	"github.com/muesli/termenv"
+	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 // TerminalColor is a color intended to be rendered in the terminal.
 type TerminalColor interface {
-	color(*Renderer) termenv.Color
-	RGBA() (r, g, b, a uint32)
+	color(*Renderer) ansi.Color
 }
 
 var noColor = NoColor{}
@@ -23,8 +23,8 @@ var noColor = NoColor{}
 //	var style = someStyle.Copy().Background(lipgloss.NoColor{})
 type NoColor struct{}
 
-func (NoColor) color(*Renderer) termenv.Color {
-	return termenv.NoColor{}
+func (NoColor) color(*Renderer) ansi.Color {
+	return color.Black
 }
 
 // RGBA returns the RGBA value of this color. Because we have to return
@@ -32,8 +32,6 @@ func (NoColor) color(*Renderer) termenv.Color {
 // black with 100% opacity.
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-//
-// Deprecated.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
 	return 0x0, 0x0, 0x0, 0xFFFF //nolint:gomnd
 }
@@ -44,44 +42,20 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	hexColor := lipgloss.Color("#0000ff")
 type Color string
 
-func (c Color) color(r *Renderer) termenv.Color {
+func (c Color) color(r *Renderer) ansi.Color {
 	return r.ColorProfile().Color(string(c))
 }
 
-// RGBA returns the RGBA value of this color. This satisfies the Go Color
-// interface. Note that on error we return black with 100% opacity, or:
-//
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-//
-// Deprecated.
-func (c Color) RGBA() (r, g, b, a uint32) {
-	return termenv.ConvertToRGB(c.color(renderer)).RGBA()
-}
-
-// ANSIColor is a color specified by an ANSI color value. It's merely syntactic
-// sugar for the more general Color function. Invalid colors will render as
-// black.
+// ANSIColor is a color specified by an ANSI256 color value.
 //
 // Example usage:
 //
-//	// These two statements are equivalent.
-//	colorA := lipgloss.ANSIColor(21)
-//	colorB := lipgloss.Color("21")
-type ANSIColor uint
+//	colorA := lipgloss.ANSIColor(8)
+//	colorB := lipgloss.ANSIColor(134)
+type ANSIColor uint8
 
-func (ac ANSIColor) color(r *Renderer) termenv.Color {
-	return Color(strconv.FormatUint(uint64(ac), 10)).color(r)
-}
-
-// RGBA returns the RGBA value of this color. This satisfies the Go Color
-// interface. Note that on error we return black with 100% opacity, or:
-//
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-//
-// Deprecated.
-func (ac ANSIColor) RGBA() (r, g, b, a uint32) {
-	cf := Color(strconv.FormatUint(uint64(ac), 10))
-	return cf.RGBA()
+func (ac ANSIColor) color(r *Renderer) ansi.Color {
+	return r.ColorProfile().Convert(ansi.ExtendedColor(ac))
 }
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -96,21 +70,11 @@ type AdaptiveColor struct {
 	Dark  string
 }
 
-func (ac AdaptiveColor) color(r *Renderer) termenv.Color {
+func (ac AdaptiveColor) color(r *Renderer) ansi.Color {
 	if r.HasDarkBackground() {
 		return Color(ac.Dark).color(r)
 	}
 	return Color(ac.Light).color(r)
-}
-
-// RGBA returns the RGBA value of this color. This satisfies the Go Color
-// interface. Note that on error we return black with 100% opacity, or:
-//
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-//
-// Deprecated.
-func (ac AdaptiveColor) RGBA() (r, g, b, a uint32) {
-	return termenv.ConvertToRGB(ac.color(renderer)).RGBA()
 }
 
 // CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
@@ -121,29 +85,18 @@ type CompleteColor struct {
 	ANSI      string
 }
 
-func (c CompleteColor) color(r *Renderer) termenv.Color {
+func (c CompleteColor) color(r *Renderer) ansi.Color {
 	p := r.ColorProfile()
 	switch p { //nolint:exhaustive
-	case termenv.TrueColor:
+	case TrueColor:
 		return p.Color(c.TrueColor)
-	case termenv.ANSI256:
+	case ANSI256:
 		return p.Color(c.ANSI256)
-	case termenv.ANSI:
+	case ANSI:
 		return p.Color(c.ANSI)
 	default:
-		return termenv.NoColor{}
+		return noColor
 	}
-}
-
-// RGBA returns the RGBA value of this color. This satisfies the Go Color
-// interface. Note that on error we return black with 100% opacity, or:
-//
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-// CompleteAdaptiveColor specifies exact values for truecolor, ANSI256, and ANSI color
-//
-// Deprecated.
-func (c CompleteColor) RGBA() (r, g, b, a uint32) {
-	return termenv.ConvertToRGB(c.color(renderer)).RGBA()
 }
 
 // CompleteAdaptiveColor specifies exact values for truecolor, ANSI256, and ANSI color
@@ -154,19 +107,15 @@ type CompleteAdaptiveColor struct {
 	Dark  CompleteColor
 }
 
-func (cac CompleteAdaptiveColor) color(r *Renderer) termenv.Color {
+func (cac CompleteAdaptiveColor) color(r *Renderer) ansi.Color {
 	if r.HasDarkBackground() {
 		return cac.Dark.color(r)
 	}
 	return cac.Light.color(r)
 }
 
-// RGBA returns the RGBA value of this color. This satisfies the Go Color
-// interface. Note that on error we return black with 100% opacity, or:
-//
-// Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
-//
-// Deprecated.
-func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
-	return termenv.ConvertToRGB(cac.color(renderer)).RGBA()
+// ConvertToRGB converts a Color to a colorful.Color.
+func ConvertToRGB(c ansi.Color) colorful.Color {
+	ch, _ := colorful.MakeColor(c)
+	return ch
 }

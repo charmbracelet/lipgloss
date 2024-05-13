@@ -5,7 +5,6 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/exp/term/ansi"
-	"github.com/muesli/termenv"
 )
 
 const tabWidthDefault = 4
@@ -100,7 +99,7 @@ func (p props) has(k propKey) bool {
 // in case the underlying implementation changes. It takes an optional string
 // value to be set as the underlying string value for this style.
 func NewStyle() Style {
-	return renderer.NewStyle()
+	return DefaultRenderer().NewStyle()
 }
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
@@ -231,7 +230,7 @@ func (s Style) Inherit(i Style) Style {
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
 	if s.r == nil {
-		s.r = renderer
+		s.r = DefaultRenderer()
 	}
 	if s.value != "" {
 		strs = append([]string{s.value}, strs...)
@@ -241,17 +240,17 @@ func (s Style) Render(strs ...string) string {
 		str = joinString(strs...)
 
 		p            = s.r.ColorProfile()
-		te           = p.String()
-		teSpace      = p.String()
-		teWhitespace = p.String()
+		te           ansi.Style
+		teSpace      ansi.Style
+		teWhitespace ansi.Style
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold          = s.getAsBool(boldKey, false) && p >= Ascii
+		italic        = s.getAsBool(italicKey, false) && p >= Ascii
+		underline     = s.getAsBool(underlineKey, false) && p >= Ascii
+		strikethrough = s.getAsBool(strikethroughKey, false) && p >= Ascii
+		reverse       = s.getAsBool(reverseKey, false) && p >= Ascii
+		blink         = s.getAsBool(blinkKey, false) && p >= Ascii
+		faint         = s.getAsBool(faintKey, false) && p >= Ascii
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -284,6 +283,12 @@ func (s Style) Render(strs ...string) string {
 		transform = s.getAsTransform(transformKey)
 	)
 
+	// Disable colors for Ascii and below profiles.
+	if p <= Ascii {
+		fg = noColor
+		bg = noColor
+	}
+
 	if transform != nil {
 		str = transform(str)
 	}
@@ -291,10 +296,6 @@ func (s Style) Render(strs ...string) string {
 	if s.props == 0 {
 		return s.maybeConvertTabs(str)
 	}
-
-	// Enable support for ANSI on the legacy Windows cmd.exe console. This is a
-	// no-op on non-Windows systems and on Windows runs only once.
-	enableLegacyWindowsANSI()
 
 	if bold {
 		te = te.Bold()
@@ -312,29 +313,29 @@ func (s Style) Render(strs ...string) string {
 		te = te.Reverse()
 	}
 	if blink {
-		te = te.Blink()
+		te = te.SlowBlink()
 	}
 	if faint {
 		te = te.Faint()
 	}
 
 	if fg != noColor {
-		te = te.Foreground(fg.color(s.r))
+		te = te.ForegroundColor(fg.color(s.r))
 		if styleWhitespace {
-			teWhitespace = teWhitespace.Foreground(fg.color(s.r))
+			teWhitespace = teWhitespace.ForegroundColor(fg.color(s.r))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Foreground(fg.color(s.r))
+			teSpace = teSpace.ForegroundColor(fg.color(s.r))
 		}
 	}
 
 	if bg != noColor {
-		te = te.Background(bg.color(s.r))
+		te = te.BackgroundColor(bg.color(s.r))
 		if colorWhitespace {
-			teWhitespace = teWhitespace.Background(bg.color(s.r))
+			teWhitespace = teWhitespace.BackgroundColor(bg.color(s.r))
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.Background(bg.color(s.r))
+			teSpace = teSpace.BackgroundColor(bg.color(s.r))
 		}
 	}
 
@@ -342,14 +343,14 @@ func (s Style) Render(strs ...string) string {
 		te = te.Underline()
 	}
 	if strikethrough {
-		te = te.CrossOut()
+		te = te.Strikethrough()
 	}
 
 	if underlineSpaces {
 		teSpace = teSpace.Underline()
 	}
 	if strikethroughSpaces {
-		teSpace = teSpace.CrossOut()
+		teSpace = teSpace.Strikethrough()
 	}
 
 	// Potentially convert tabs to spaces
@@ -395,7 +396,7 @@ func (s Style) Render(strs ...string) string {
 	// Padding
 	if !inline { //nolint:nestif
 		if leftPadding > 0 {
-			var st *termenv.Style
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -403,7 +404,7 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		if rightPadding > 0 {
-			var st *termenv.Style
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -431,7 +432,7 @@ func (s Style) Render(strs ...string) string {
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
-			var st *termenv.Style
+			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
@@ -489,17 +490,18 @@ func (s Style) applyMargins(str string, inline bool) string {
 		bottomMargin = s.getAsInt(marginBottomKey)
 		leftMargin   = s.getAsInt(marginLeftKey)
 
-		styler termenv.Style
+		p     = s.r.ColorProfile()
+		style ansi.Style
 	)
 
 	bgc := s.getAsColor(marginBackgroundKey)
-	if bgc != noColor {
-		styler = styler.Background(bgc.color(s.r))
+	if bgc != noColor && p > Ascii {
+		style = style.BackgroundColor(bgc.color(s.r))
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &styler)
-	str = padRight(str, rightMargin, &styler)
+	str = padLeft(str, leftMargin, &style)
+	str = padRight(str, rightMargin, &style)
 
 	// Top/bottom margin
 	if !inline {
@@ -507,10 +509,10 @@ func (s Style) applyMargins(str string, inline bool) string {
 		spaces := strings.Repeat(" ", width)
 
 		if topMargin > 0 {
-			str = styler.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
+			str = style.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
 		}
 		if bottomMargin > 0 {
-			str += styler.Styled(strings.Repeat("\n"+spaces, bottomMargin))
+			str += style.Styled(strings.Repeat("\n"+spaces, bottomMargin))
 		}
 	}
 
@@ -518,19 +520,19 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *termenv.Style) string {
+func padLeft(str string, n int, style *ansi.Style) string {
 	return pad(str, -n, style)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *termenv.Style) string {
+func padRight(str string, n int, style *ansi.Style) string {
 	return pad(str, n, style)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *termenv.Style) string {
+func pad(str string, n int, style *ansi.Style) string {
 	if n == 0 {
 		return str
 	}
