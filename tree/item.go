@@ -53,7 +53,7 @@ func NewStringData(data ...string) Data {
 
 var _ Data = NewFilter(nil)
 
-// Filter applies a filter on some data. You could use this to create a new 
+// Filter applies a filter on some data. You could use this to create a new
 // tree whose values all satisfy the condition provided in the Filter() function.
 type Filter struct {
 	data   Data
