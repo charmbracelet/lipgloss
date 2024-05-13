@@ -1,6 +1,8 @@
 package lipgloss
 
 import (
+	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -17,14 +19,14 @@ import (
 // CLICOLOR/CLICOLOR_FORCE environment variables.
 //
 // See https://no-color.org/ and https://bixense.com/clicolors/ for more information.
-func DetectColorProfile(stdout term.File, environ []string) Profile {
+func DetectColorProfile(output io.Writer, environ []string) Profile {
 	if environ == nil {
 		environ = os.Environ()
 	}
 
 	env := environMap(environ)
 	p := envColorProfile(env)
-	if stdout == nil || !term.IsTerminal(stdout.Fd()) {
+	if out, ok := output.(term.File); !ok || !term.IsTerminal(out.Fd()) {
 		p = NoTTY
 	}
 
@@ -117,6 +119,7 @@ func envColorProfile(env map[string]string) (p Profile) {
 	p = Ascii // Default to ASCII
 	setProfile := func(profile Profile) {
 		if profile < p {
+			log.Output(3, "Setting profile to "+profile.String())
 			p = profile
 		}
 	}
