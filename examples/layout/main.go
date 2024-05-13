@@ -1,5 +1,7 @@
 package main
 
+// This example demonstrates various Lip Gloss style and layout features.
+
 import (
 	"fmt"
 	"image/color"
@@ -69,9 +71,9 @@ var (
 		BorderForeground(highlight).
 		Padding(0, 1)
 
-	activeTab = tab.Copy().Border(activeTabBorder, true)
+	activeTab = tab.Border(activeTabBorder, true)
 
-	tabGap = tab.Copy().
+	tabGap = tab.
 		BorderTop(false).
 		BorderLeft(false).
 		BorderRight(false)
@@ -110,7 +112,7 @@ var (
 			Padding(0, 3).
 			MarginTop(1)
 
-	activeButtonStyle = buttonStyle.Copy().
+	activeButtonStyle = buttonStyle.
 				Foreground(lipgloss.Color("#FFF7DB")).
 				Background(lipgloss.Color("#F25D94")).
 				MarginRight(2).
@@ -174,13 +176,13 @@ var (
 			Padding(0, 1).
 			MarginRight(1)
 
-	encodingStyle = statusNugget.Copy().
+	encodingStyle = statusNugget.
 			Background(lipgloss.Color("#A550DF")).
 			Align(lipgloss.Right)
 
 	statusText = lipgloss.NewStyle().Inherit(statusBarStyle)
 
-	fishCakeStyle = statusNugget.Copy().Background(lipgloss.Color("#6124DF"))
+	fishCakeStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
 
 	// Page.
 
@@ -216,7 +218,7 @@ func main() {
 		for i, v := range colors {
 			const offset = 2
 			c := lipgloss.Color(v[0])
-			fmt.Fprint(&title, titleStyle.Copy().MarginLeft(i*offset).Background(c))
+			fmt.Fprint(&title, titleStyle.MarginLeft(i*offset).Background(c))
 			if i < len(colors)-1 {
 				title.WriteRune('\n')
 			}
@@ -277,7 +279,7 @@ func main() {
 				listItem("Pomelo"),
 			),
 		),
-		list.Copy().Width(columnWidth).Render(
+		list.Width(columnWidth).Render(
 			lipgloss.JoinVertical(lipgloss.Left,
 				listHeader("Actual Lip Gloss Vendors"),
 				listItem("Glossier"),
@@ -301,9 +303,9 @@ func main() {
 
 		doc.WriteString(lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			historyStyle.Copy().Align(lipgloss.Right).Render(historyA),
-			historyStyle.Copy().Align(lipgloss.Center).Render(historyB),
-			historyStyle.Copy().MarginRight(0).Render(historyC),
+			historyStyle.Align(lipgloss.Right).Render(historyA),
+			historyStyle.Align(lipgloss.Center).Render(historyB),
+			historyStyle.MarginRight(0).Render(historyC),
 		))
 
 		doc.WriteString("\n\n")
@@ -316,7 +318,7 @@ func main() {
 		statusKey := statusStyle.Render("STATUS")
 		encoding := encodingStyle.Render("UTF-8")
 		fishCake := fishCakeStyle.Render("🍥 Fish Cake")
-		statusVal := statusText.Copy().
+		statusVal := statusText.
 			Width(width - w(statusKey) - w(encoding) - w(fishCake)).
 			Render("Ravishing")
 
@@ -377,7 +379,7 @@ func rainbow(base lipgloss.Style, s string, colors []color.Color) string {
 	var str string
 	for i, ss := range s {
 		color, _ := colorful.MakeColor(colors[i%len(colors)])
-		str = str + base.Copy().Foreground(lipgloss.Color(color.Hex())).Render(string(ss))
+		str = str + base.Foreground(lipgloss.Color(color.Hex())).Render(string(ss))
 	}
 	return str
 }

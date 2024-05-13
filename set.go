@@ -1,27 +1,161 @@
 package lipgloss
 
-// This could (should) probably just be moved into NewStyle(). We've broken it
-// out so we can call it in a lazy way.
-func (s *Style) init() {
-	if s.rules == nil {
-		s.rules = make(rules)
+// Set a value on the underlying rules map.
+func (s *Style) set(key propKey, value interface{}) {
+	// We don't allow negative integers on any of our other values, so just keep
+	// them at zero or above. We could use uints instead, but the
+	// conversions are a little tedious, so we're sticking with ints for
+	// sake of usability.
+	switch key { //nolint:exhaustive
+	case foregroundKey:
+		s.fgColor = colorOrNil(value)
+	case backgroundKey:
+		s.bgColor = colorOrNil(value)
+	case widthKey:
+		s.width = max(0, value.(int))
+	case heightKey:
+		s.height = max(0, value.(int))
+	case alignHorizontalKey:
+		s.alignHorizontal = value.(Position)
+	case alignVerticalKey:
+		s.alignVertical = value.(Position)
+	case paddingTopKey:
+		s.paddingTop = max(0, value.(int))
+	case paddingRightKey:
+		s.paddingRight = max(0, value.(int))
+	case paddingBottomKey:
+		s.paddingBottom = max(0, value.(int))
+	case paddingLeftKey:
+		s.paddingLeft = max(0, value.(int))
+	case marginTopKey:
+		s.marginTop = max(0, value.(int))
+	case marginRightKey:
+		s.marginRight = max(0, value.(int))
+	case marginBottomKey:
+		s.marginBottom = max(0, value.(int))
+	case marginLeftKey:
+		s.marginLeft = max(0, value.(int))
+	case marginBackgroundKey:
+		s.marginBgColor = colorOrNil(value)
+	case borderStyleKey:
+		s.borderStyle = value.(Border)
+	case borderTopForegroundKey:
+		s.borderTopFgColor = colorOrNil(value)
+	case borderRightForegroundKey:
+		s.borderRightFgColor = colorOrNil(value)
+	case borderBottomForegroundKey:
+		s.borderBottomFgColor = colorOrNil(value)
+	case borderLeftForegroundKey:
+		s.borderLeftFgColor = colorOrNil(value)
+	case borderTopBackgroundKey:
+		s.borderTopBgColor = colorOrNil(value)
+	case borderRightBackgroundKey:
+		s.borderRightBgColor = colorOrNil(value)
+	case borderBottomBackgroundKey:
+		s.borderBottomBgColor = colorOrNil(value)
+	case borderLeftBackgroundKey:
+		s.borderLeftBgColor = colorOrNil(value)
+	case maxWidthKey:
+		s.maxWidth = max(0, value.(int))
+	case maxHeightKey:
+		s.maxHeight = max(0, value.(int))
+	case tabWidthKey:
+		// TabWidth is the only property that may have a negative value (and
+		// that negative value can be no less than -1).
+		s.tabWidth = value.(int)
+	case transformKey:
+		s.transform = value.(func(string) string)
+	default:
+		if v, ok := value.(bool); ok { //nolint:nestif
+			if v {
+				s.attrs |= int(key)
+			} else {
+				s.attrs &^= int(key)
+			}
+		} else if attrs, ok := value.(int); ok {
+			// bool attrs
+			if attrs&int(key) != 0 {
+				s.attrs |= int(key)
+			} else {
+				s.attrs &^= int(key)
+			}
+		}
+	}
+
+	// Set the prop on
+	s.props = s.props.set(key)
+}
+
+// setFrom sets the property from another style.
+func (s *Style) setFrom(key propKey, i Style) {
+	switch key { //nolint:exhaustive
+	case foregroundKey:
+		s.set(foregroundKey, i.fgColor)
+	case backgroundKey:
+		s.set(backgroundKey, i.bgColor)
+	case widthKey:
+		s.set(widthKey, i.width)
+	case heightKey:
+		s.set(heightKey, i.height)
+	case alignHorizontalKey:
+		s.set(alignHorizontalKey, i.alignHorizontal)
+	case alignVerticalKey:
+		s.set(alignVerticalKey, i.alignVertical)
+	case paddingTopKey:
+		s.set(paddingTopKey, i.paddingTop)
+	case paddingRightKey:
+		s.set(paddingRightKey, i.paddingRight)
+	case paddingBottomKey:
+		s.set(paddingBottomKey, i.paddingBottom)
+	case paddingLeftKey:
+		s.set(paddingLeftKey, i.paddingLeft)
+	case marginTopKey:
+		s.set(marginTopKey, i.marginTop)
+	case marginRightKey:
+		s.set(marginRightKey, i.marginRight)
+	case marginBottomKey:
+		s.set(marginBottomKey, i.marginBottom)
+	case marginLeftKey:
+		s.set(marginLeftKey, i.marginLeft)
+	case marginBackgroundKey:
+		s.set(marginBackgroundKey, i.marginBgColor)
+	case borderStyleKey:
+		s.set(borderStyleKey, i.borderStyle)
+	case borderTopForegroundKey:
+		s.set(borderTopForegroundKey, i.borderTopFgColor)
+	case borderRightForegroundKey:
+		s.set(borderRightForegroundKey, i.borderRightFgColor)
+	case borderBottomForegroundKey:
+		s.set(borderBottomForegroundKey, i.borderBottomFgColor)
+	case borderLeftForegroundKey:
+		s.set(borderLeftForegroundKey, i.borderLeftFgColor)
+	case borderTopBackgroundKey:
+		s.set(borderTopBackgroundKey, i.borderTopBgColor)
+	case borderRightBackgroundKey:
+		s.set(borderRightBackgroundKey, i.borderRightBgColor)
+	case borderBottomBackgroundKey:
+		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
+	case borderLeftBackgroundKey:
+		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
+	case maxWidthKey:
+		s.set(maxWidthKey, i.maxWidth)
+	case maxHeightKey:
+		s.set(maxHeightKey, i.maxHeight)
+	case tabWidthKey:
+		s.set(tabWidthKey, i.tabWidth)
+	case transformKey:
+		s.set(transformKey, i.transform)
+	default:
+		// Set attributes for set bool properties
+		s.set(key, i.attrs)
 	}
 }
 
-// Set a value on the underlying rules map.
-func (s *Style) set(key propKey, value interface{}) {
-	s.init()
-
-	switch v := value.(type) {
-	case int:
-		// We don't allow negative integers on any of our values, so just keep
-		// them at zero or above. We could use uints instead, but the
-		// conversions are a little tedious so we're sticking with ints for
-		// sake of usability.
-		s.rules[key] = max(0, v)
-	default:
-		s.rules[key] = v
+func colorOrNil(c interface{}) TerminalColor {
+	if c, ok := c.(TerminalColor); ok {
+		return c
 	}
+	return nil
 }
 
 // Bold sets a bold formatting rule.
@@ -39,7 +173,7 @@ func (s Style) Italic(v bool) Style {
 
 // Underline sets an underline rule. By default, underlines will not be drawn on
 // whitespace like margins and padding. To change this behavior set
-// renderUnderlinesOnSpaces.
+// UnderlineSpaces.
 func (s Style) Underline(v bool) Style {
 	s.set(underlineKey, v)
 	return s
@@ -47,7 +181,7 @@ func (s Style) Underline(v bool) Style {
 
 // Strikethrough sets a strikethrough rule. By default, strikes will not be
 // drawn on whitespace like margins and padding. To change this behavior set
-// renderStrikethroughOnSpaces.
+// StrikethroughSpaces.
 func (s Style) Strikethrough(v bool) Style {
 	s.set(strikethroughKey, v)
 	return s
@@ -73,12 +207,11 @@ func (s Style) Faint(v bool) Style {
 
 // Foreground sets a foreground color.
 //
-//     // Sets the foreground to blue
-//     s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
+//	// Sets the foreground to blue
+//	s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
 //
-//     // Removes the foreground color
-//     s.Foreground(lipgloss.NoColor)
-//
+//	// Removes the foreground color
+//	s.Foreground(lipgloss.NoColor)
 func (s Style) Foreground(c TerminalColor) Style {
 	s.set(foregroundKey, c)
 	return s
@@ -97,7 +230,7 @@ func (s Style) Width(i int) Style {
 	return s
 }
 
-// Height sets the width of the block before applying margins. If the height of
+// Height sets the height of the block before applying margins. If the height of
 // the text block is less than this value after applying padding (or not), the
 // block will be set to this height.
 func (s Style) Height(i int) Style {
@@ -105,9 +238,31 @@ func (s Style) Height(i int) Style {
 	return s
 }
 
-// Align sets a text alignment rule.
-func (s Style) Align(p Position) Style {
-	s.set(alignKey, p)
+// Align is a shorthand method for setting horizontal and vertical alignment.
+//
+// With one argument, the position value is applied to the horizontal alignment.
+//
+// With two arguments, the value is applied to the horizontal and vertical
+// alignments, in that order.
+func (s Style) Align(p ...Position) Style {
+	if len(p) > 0 {
+		s.set(alignHorizontalKey, p[0])
+	}
+	if len(p) > 1 {
+		s.set(alignVerticalKey, p[1])
+	}
+	return s
+}
+
+// AlignHorizontal sets a horizontal text alignment rule.
+func (s Style) AlignHorizontal(p Position) Style {
+	s.set(alignHorizontalKey, p)
+	return s
+}
+
+// AlignVertical sets a vertical text alignment rule.
+func (s Style) AlignVertical(p Position) Style {
+	s.set(alignVerticalKey, p)
 	return s
 }
 
@@ -230,7 +385,7 @@ func (s Style) MarginBackground(c TerminalColor) Style {
 	return s
 }
 
-// Border is shorthand for setting a the border style and which sides should
+// Border is shorthand for setting the border style and which sides should
 // have a border at once. The variadic argument sides works as follows:
 //
 // With one value, the value is applied to all sides.
@@ -248,12 +403,11 @@ func (s Style) MarginBackground(c TerminalColor) Style {
 //
 // Examples:
 //
-//     // Applies borders to the top and bottom only
-//     lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true, false)
+//	// Applies borders to the top and bottom only
+//	lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true, false)
 //
-//     // Applies rounded borders to the right and bottom only
-//     lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
-//
+//	// Applies rounded borders to the right and bottom only
+//	lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
 func (s Style) Border(b Border, sides ...bool) Style {
 	s.set(borderStyleKey, b)
 
@@ -280,13 +434,13 @@ func (s Style) Border(b Border, sides ...bool) Style {
 // the border style, the border will be enabled for all sides during rendering.
 //
 // You can define border characters as you'd like, though several default
-// styles are included: NormalBorder(), RoundedBorder(), ThickBorder(), and
-// DoubleBorder().
+// styles are included: NormalBorder(), RoundedBorder(), BlockBorder(),
+// OuterHalfBlockBorder(), InnerHalfBlockBorder(), ThickBorder(),
+// and DoubleBorder().
 //
 // Example:
 //
-//     lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
-//
+//	lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
 func (s Style) BorderStyle(b Border) Style {
 	s.set(borderStyleKey, b)
 	return s
@@ -445,10 +599,9 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 //
 // Example:
 //
-//     var userInput string = "..."
-//     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.Inline(true).Render(userInput))
-//
+//	var userInput string = "..."
+//	var userStyle = text.Style{ /* ... */ }
+//	fmt.Println(userStyle.Inline(true).Render(userInput))
 func (s Style) Inline(v bool) Style {
 	o := s.Copy()
 	o.set(inlineKey, v)
@@ -464,30 +617,46 @@ func (s Style) Inline(v bool) Style {
 //
 // Example:
 //
-//     var userInput string = "..."
-//     var userStyle = text.Style{ /* ... */ }
-//     fmt.Println(userStyle.MaxWidth(16).Render(userInput))
-//
+//	var userInput string = "..."
+//	var userStyle = text.Style{ /* ... */ }
+//	fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 func (s Style) MaxWidth(n int) Style {
 	o := s.Copy()
 	o.set(maxWidthKey, n)
 	return o
 }
 
-// MaxHeight applies a max width to a given style. This is useful in enforcing
-// a certain width at render time, particularly with arbitrary strings and
+// MaxHeight applies a max height to a given style. This is useful in enforcing
+// a certain height at render time, particularly with arbitrary strings and
 // styles.
 //
 // Because this in intended to be used at the time of render, this method will
-// not mutate the style and instead return a copy.
+// not mutate the style and instead returns a copy.
 func (s Style) MaxHeight(n int) Style {
 	o := s.Copy()
 	o.set(maxHeightKey, n)
 	return o
 }
 
+// NoTabConversion can be passed to [Style.TabWidth] to disable the replacement
+// of tabs with spaces at render time.
+const NoTabConversion = -1
+
+// TabWidth sets the number of spaces that a tab (/t) should be rendered as.
+// When set to 0, tabs will be removed. To disable the replacement of tabs with
+// spaces entirely, set this to [NoTabConversion].
+//
+// By default, tabs will be replaced with 4 spaces.
+func (s Style) TabWidth(n int) Style {
+	if n <= -1 {
+		n = -1
+	}
+	s.set(tabWidthKey, n)
+	return s
+}
+
 // UnderlineSpaces determines whether to underline spaces between words. By
-// default this is true. Spaces can also be underlined without underlining the
+// default, this is true. Spaces can also be underlined without underlining the
 // text itself.
 func (s Style) UnderlineSpaces(v bool) Style {
 	s.set(underlineSpacesKey, v)
@@ -495,10 +664,29 @@ func (s Style) UnderlineSpaces(v bool) Style {
 }
 
 // StrikethroughSpaces determines whether to apply strikethroughs to spaces
-// between words. By default this is true. Spaces can also be struck without
+// between words. By default, this is true. Spaces can also be struck without
 // underlining the text itself.
 func (s Style) StrikethroughSpaces(v bool) Style {
 	s.set(strikethroughSpacesKey, v)
+	return s
+}
+
+// Transform applies a given function to a string at render time, allowing for
+// the string being rendered to be manipuated.
+//
+// Example:
+//
+//	s := NewStyle().Transform(strings.ToUpper)
+//	fmt.Println(s.Render("raow!") // "RAOW!"
+func (s Style) Transform(fn func(string) string) Style {
+	s.set(transformKey, fn)
+	return s
+}
+
+// Renderer sets the renderer for the style. This is useful for changing the
+// renderer for a style that is being used in a different context.
+func (s Style) Renderer(r *Renderer) Style {
+	s.r = r
 	return s
 }
 
@@ -520,19 +708,19 @@ func whichSidesInt(i ...int) (top, right, bottom, left int, ok bool) {
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]
@@ -553,19 +741,19 @@ func whichSidesBool(i ...bool) (top, right, bottom, left bool, ok bool) {
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]
@@ -586,19 +774,19 @@ func whichSidesColor(i ...TerminalColor) (top, right, bottom, left TerminalColor
 		left = i[0]
 		right = i[0]
 		ok = true
-	case 2:
+	case 2: //nolint:gomnd
 		top = i[0]
 		bottom = i[0]
 		left = i[1]
 		right = i[1]
 		ok = true
-	case 3:
+	case 3: //nolint:gomnd
 		top = i[0]
 		left = i[1]
 		right = i[1]
 		bottom = i[2]
 		ok = true
-	case 4:
+	case 4: //nolint:gomnd
 		top = i[0]
 		right = i[1]
 		bottom = i[2]

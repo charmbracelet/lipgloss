@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
+	"github.com/charmbracelet/x/exp/term/ansi"
 )
 
 // JoinHorizontal is a utility function for horizontally joining two
@@ -12,20 +12,19 @@ import (
 // the position, with 0 being all the way at the top and 1 being all the way
 // at the bottom.
 //
-// If you just want to align to the left, right or center you may as well just
+// If you just want to align to the top, center or bottom you may as well just
 // use the helper constants Top, Center, and Bottom.
 //
 // Example:
 //
-//     blockB := "...\n...\n..."
-//     blockA := "...\n...\n...\n...\n..."
+//	blockB := "...\n...\n..."
+//	blockA := "...\n...\n...\n...\n..."
 //
-//     // Join 20% from the top
-//     str := lipgloss.JoinHorizontal(0.2, blockA, blockB)
+//	// Join 20% from the top
+//	str := lipgloss.JoinHorizontal(0.2, blockA, blockB)
 //
-//     // Join on the top edge
-//     str := lipgloss.JoinHorizontal(lipgloss.Top, blockA, blockB)
-//
+//	// Join on the top edge
+//	str := lipgloss.JoinHorizontal(lipgloss.Top, blockA, blockB)
 func JoinHorizontal(pos Position, strs ...string) string {
 	if len(strs) == 0 {
 		return ""
@@ -61,7 +60,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 
 		extraLines := make([]string, maxHeight-len(blocks[i]))
 
-		switch pos {
+		switch pos { //nolint:exhaustive
 		case Top:
 			blocks[i] = append(blocks[i], extraLines...)
 
@@ -86,7 +85,7 @@ func JoinHorizontal(pos Position, strs ...string) string {
 			b.WriteString(block[i])
 
 			// Also make lines the same length
-			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.PrintableRuneWidth(block[i])))
+			b.WriteString(strings.Repeat(" ", maxWidths[j]-ansi.StringWidth(block[i])))
 		}
 		if i < len(blocks[0])-1 {
 			b.WriteRune('\n')
@@ -106,15 +105,14 @@ func JoinHorizontal(pos Position, strs ...string) string {
 //
 // Example:
 //
-//     blockB := "...\n...\n..."
-//     blockA := "...\n...\n...\n...\n..."
+//	blockB := "...\n...\n..."
+//	blockA := "...\n...\n...\n...\n..."
 //
-//     // Join 20% from the top
-//     str := lipgloss.JoinVertical(0.2, blockA, blockB)
+//	// Join 20% from the top
+//	str := lipgloss.JoinVertical(0.2, blockA, blockB)
 //
-//     // Join on the right edge
-//     str := lipgloss.JoinVertical(lipgloss.Right, blockA, blockB)
-//
+//	// Join on the right edge
+//	str := lipgloss.JoinVertical(lipgloss.Right, blockA, blockB)
 func JoinVertical(pos Position, strs ...string) string {
 	if len(strs) == 0 {
 		return ""
@@ -139,9 +137,9 @@ func JoinVertical(pos Position, strs ...string) string {
 	var b strings.Builder
 	for i, block := range blocks {
 		for j, line := range block {
-			w := maxWidth - ansi.PrintableRuneWidth(line)
+			w := maxWidth - ansi.StringWidth(line)
 
-			switch pos {
+			switch pos { //nolint:exhaustive
 			case Left:
 				b.WriteString(line)
 				b.WriteString(strings.Repeat(" ", w))

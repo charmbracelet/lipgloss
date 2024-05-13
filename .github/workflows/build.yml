@@ -4,19 +4,19 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [~1.13, ^1]
+        go-version: [~1.18, ^1]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       GO111MODULE: "on"
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Download Go modules
         run: go mod download
@@ -26,3 +26,22 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+  test-goos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          cache: true
+      # https://go.dev/doc/install/source#environment
+      - run: GOOS=darwin GOARCH=amd64 go test -c -v ./...
+      - run: GOOS=darwin GOARCH=arm64 go test -c -v ./...
+      - run: GOOS=linux GOARCH=386 go test -c -v ./...
+      - run: GOOS=linux GOARCH=amd64 go test -c -v ./...
+      - run: GOOS=linux GOARCH=arm go test -c -v ./...
+      - run: GOOS=linux GOARCH=arm64 go test -c -v ./...
+      - run: GOOS=windows GOARCH=amd64 go test -c -v ./...
+      - run: GOOS=windows GOARCH=386 go test -c -v ./...
+      - run: GOOS=windows GOARCH=arm go test -c -v ./...
+      - run: GOOS=windows GOARCH=arm64 go test -c -v ./...
