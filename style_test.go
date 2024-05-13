@@ -213,114 +213,114 @@ func TestStyleUnset(t *testing.T) {
 
 	s := NewStyle().Bold(true)
 	requireTrue(t, s.GetBold())
-	s.UnsetBold()
+	s = s.UnsetBold()
 	requireFalse(t, s.GetBold())
 
 	s = NewStyle().Italic(true)
 	requireTrue(t, s.GetItalic())
-	s.UnsetItalic()
+	s = s.UnsetItalic()
 	requireFalse(t, s.GetItalic())
 
 	s = NewStyle().Underline(true)
 	requireTrue(t, s.GetUnderline())
-	s.UnsetUnderline()
+	s = s.UnsetUnderline()
 	requireFalse(t, s.GetUnderline())
 
 	s = NewStyle().Strikethrough(true)
 	requireTrue(t, s.GetStrikethrough())
-	s.UnsetStrikethrough()
+	s = s.UnsetStrikethrough()
 	requireFalse(t, s.GetStrikethrough())
 
 	s = NewStyle().Reverse(true)
 	requireTrue(t, s.GetReverse())
-	s.UnsetReverse()
+	s = s.UnsetReverse()
 	requireFalse(t, s.GetReverse())
 
 	s = NewStyle().Blink(true)
 	requireTrue(t, s.GetBlink())
-	s.UnsetBlink()
+	s = s.UnsetBlink()
 	requireFalse(t, s.GetBlink())
 
 	s = NewStyle().Faint(true)
 	requireTrue(t, s.GetFaint())
-	s.UnsetFaint()
+	s = s.UnsetFaint()
 	requireFalse(t, s.GetFaint())
 
 	s = NewStyle().Inline(true)
 	requireTrue(t, s.GetInline())
-	s.UnsetInline()
+	s = s.UnsetInline()
 	requireFalse(t, s.GetInline())
 
 	// colors
 	col := Color("#ffffff")
 	s = NewStyle().Foreground(col)
 	requireEqual(t, col, s.GetForeground())
-	s.UnsetForeground()
+	s = s.UnsetForeground()
 	requireNotEqual(t, col, s.GetForeground())
 
 	s = NewStyle().Background(col)
 	requireEqual(t, col, s.GetBackground())
-	s.UnsetBackground()
+	s = s.UnsetBackground()
 	requireNotEqual(t, col, s.GetBackground())
 
 	// margins
 	s = NewStyle().Margin(1, 2, 3, 4)
 	requireEqual(t, 1, s.GetMarginTop())
-	s.UnsetMarginTop()
+	s = s.UnsetMarginTop()
 	requireEqual(t, 0, s.GetMarginTop())
 
 	requireEqual(t, 2, s.GetMarginRight())
-	s.UnsetMarginRight()
+	s = s.UnsetMarginRight()
 	requireEqual(t, 0, s.GetMarginRight())
 
 	requireEqual(t, 3, s.GetMarginBottom())
-	s.UnsetMarginBottom()
+	s = s.UnsetMarginBottom()
 	requireEqual(t, 0, s.GetMarginBottom())
 
 	requireEqual(t, 4, s.GetMarginLeft())
-	s.UnsetMarginLeft()
+	s = s.UnsetMarginLeft()
 	requireEqual(t, 0, s.GetMarginLeft())
 
 	// padding
 	s = NewStyle().Padding(1, 2, 3, 4)
 	requireEqual(t, 1, s.GetPaddingTop())
-	s.UnsetPaddingTop()
+	s = s.UnsetPaddingTop()
 	requireEqual(t, 0, s.GetPaddingTop())
 
 	requireEqual(t, 2, s.GetPaddingRight())
-	s.UnsetPaddingRight()
+	s = s.UnsetPaddingRight()
 	requireEqual(t, 0, s.GetPaddingRight())
 
 	requireEqual(t, 3, s.GetPaddingBottom())
-	s.UnsetPaddingBottom()
+	s = s.UnsetPaddingBottom()
 	requireEqual(t, 0, s.GetPaddingBottom())
 
 	requireEqual(t, 4, s.GetPaddingLeft())
-	s.UnsetPaddingLeft()
+	s = s.UnsetPaddingLeft()
 	requireEqual(t, 0, s.GetPaddingLeft())
 
 	// border
 	s = NewStyle().Border(normalBorder, true, true, true, true)
 	requireTrue(t, s.GetBorderTop())
-	s.UnsetBorderTop()
+	s = s.UnsetBorderTop()
 	requireFalse(t, s.GetBorderTop())
 
 	requireTrue(t, s.GetBorderRight())
-	s.UnsetBorderRight()
+	s = s.UnsetBorderRight()
 	requireFalse(t, s.GetBorderRight())
 
 	requireTrue(t, s.GetBorderBottom())
-	s.UnsetBorderBottom()
+	s = s.UnsetBorderBottom()
 	requireFalse(t, s.GetBorderBottom())
 
 	requireTrue(t, s.GetBorderLeft())
-	s.UnsetBorderLeft()
+	s = s.UnsetBorderLeft()
 	requireFalse(t, s.GetBorderLeft())
 
 	// tab width
 	s = NewStyle().TabWidth(2)
 	requireEqual(t, s.GetTabWidth(), 2)
-	s.UnsetTabWidth()
+	s = s.UnsetTabWidth()
 	requireNotEqual(t, s.GetTabWidth(), 4)
 }
 
@@ -460,10 +460,12 @@ func BenchmarkStyleRender(b *testing.B) {
 }
 
 func requireTrue(tb testing.TB, b bool) {
+	tb.Helper()
 	requireEqual(tb, true, b)
 }
 
 func requireFalse(tb testing.TB, b bool) {
+	tb.Helper()
 	requireEqual(tb, false, b)
 }
 

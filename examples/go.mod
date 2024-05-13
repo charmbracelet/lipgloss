@@ -19,7 +19,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/caarlos0/sshmarshal v0.1.0 // indirect
 	github.com/charmbracelet/keygen v0.3.0 // indirect
-	github.com/charmbracelet/x/exp/term v0.0.0-20240408110044-525ba71bb562 // indirect
+	github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect

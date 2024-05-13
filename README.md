@@ -6,7 +6,6 @@
     <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
     <a href="https://www.phorm.ai/query?projectId=a0e324b6-b706-4546-b951-6671ea60c13f"><img src="https://stuff.charm.sh/misc/phorm-badge.svg" alt="phorm.ai"></a>
-    
 </p>
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 
@@ -224,17 +223,20 @@ For more on borders see [the docs][docs].
 
 ## Copying Styles
 
-Just use `Copy()`:
+Just use assignment:
 
 ```go
-var style = lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
+style := lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 
-var wildStyle = style.Copy().Blink(true)
+copiedStyle := style // this is a true copy
+
+wildStyle := style.Blink(true) // this is also true copy, with blink added
+
 ```
 
-`Copy()` performs a copy on the underlying data structure ensuring that you get
-a true, dereferenced copy of a style. Without copying, it's possible to mutate
-styles.
+Since `Style` data structures contains only primitive types, assigning a style
+to another effectively creates a new copy of the style without mutating the
+original.
 
 ## Inheritance
 
@@ -652,6 +654,7 @@ Print the list:
     src="https://github.com/charmbracelet/lipgloss/assets/245435/44e37a5b-5124-4f49-a332-1756a355002e"
   />
 </p>
+
 ---
 
 ## FAQ
@@ -700,6 +703,7 @@ import (
 )
 
 lipgloss.SetColorProfile(termenv.TrueColor)
+
 ```
 
 _Note_: this option limits the flexibility of your application and can cause
@@ -761,3 +765,4 @@ Charm热爱开源 • Charm loves open source
 [docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
 [wish]: https://github.com/charmbracelet/wish
 [ssh-example]: examples/ssh
+```
