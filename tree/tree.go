@@ -86,10 +86,13 @@ func (n *Tree) String() string {
 //	New().Root("foo").Items(New().Root("bar").Item("zaz"), "qux")
 //
 // The resulting tree would be:
+//
 // ├── foo
 // ├── bar
 // │   └── zaz
 // └── qux
+//
+// You may also change the tree style using Enumerator.
 func (n *Tree) Item(item any) *Tree {
 	switch item := item.(type) {
 	case *Tree:
