@@ -2,7 +2,6 @@ package lipgloss
 
 import (
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -119,7 +118,6 @@ func envColorProfile(env map[string]string) (p Profile) {
 	p = Ascii // Default to ASCII
 	setProfile := func(profile Profile) {
 		if profile < p {
-			log.Output(3, "Setting profile to "+profile.String())
 			p = profile
 		}
 	}
