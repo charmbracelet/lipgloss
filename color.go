@@ -46,7 +46,7 @@ var noColor = NoColor{}
 type NoColor struct{}
 
 func (NoColor) color(Profile, bool) ansi.Color {
-	return color.Black
+	return color.White
 }
 
 // RGBA returns the RGBA value of this color. Because we have to return
@@ -66,11 +66,12 @@ type Color string
 
 // Color returns a color.Color from a hex or ANSI value (0-16, 16-255).
 func (c Color) Color() (col ansi.Color) {
-	s := string(c)
-	if len(s) == 0 {
-		return noColor
+	col = noColor
+	if len(c) == 0 {
+		return
 	}
 
+	s := string(c)
 	if h, err := colorful.Hex(s); err == nil {
 		tc := uint32(h.R*255)<<16 + uint32(h.G*255)<<8 + uint32(h.B*255)
 		col = ansi.TrueColor(tc)
@@ -84,7 +85,7 @@ func (c Color) Color() (col ansi.Color) {
 		}
 	}
 
-	return noColor
+	return
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
