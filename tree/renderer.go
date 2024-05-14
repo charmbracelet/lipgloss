@@ -15,10 +15,9 @@ type Style struct {
 	itemFunc       StyleFunc
 }
 
-// NewDefaultRenderer returns the default renderer with the given style and
-// enumerator.
-func newDefaultRenderer() *defaultRenderer {
-	return &defaultRenderer{
+// newRenderer returns the renderer used to render a tree.
+func newRenderer() *renderer {
+	return &renderer{
 		style: Style{
 			enumeratorFunc: func(Data, int) lipgloss.Style {
 				return lipgloss.NewStyle().MarginRight(1)
@@ -31,14 +30,13 @@ func newDefaultRenderer() *defaultRenderer {
 	}
 }
 
-// defaultRenderer is the default renderer used by the tree.
-type defaultRenderer struct {
+type renderer struct {
 	style      Style
 	enumerator Enumerator
 }
 
-// Render conforms with the Renderer interface.
-func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
+// render is responsible for actually rendering the tree.
+func (r *renderer) render(node Node, root bool, prefix string) string {
 	if node.Hidden() {
 		return ""
 	}
@@ -115,7 +113,7 @@ func (r *defaultRenderer) Render(node Node, root bool, prefix string) string {
 					renderer = child.renderer
 				}
 			}
-			if s := renderer.Render(
+			if s := renderer.render(
 				child,
 				false,
 				prefix+enumStyle.Render(indent),

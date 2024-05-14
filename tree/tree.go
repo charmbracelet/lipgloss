@@ -7,35 +7,40 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// Node is a node in a tree.
+// Node defines a node in a tree.
 type Node interface {
+	fmt.Stringer
 	Name() string
-	String() string
 	Children() Data
 	Hidden() bool
 }
 
-// StringNode is a node without children.
+// StringNode is a node without children and with a string describing it.
 type StringNode string
 
 // Children conforms with Node.
-// StringNodes have no children.
+//
+// Always returns no children.
 func (StringNode) Children() Data { return nodeData(nil) }
 
 // Name conforms with Node.
+//
 // Returns the value of the string itself.
 func (s StringNode) Name() string { return string(s) }
 
 // Hidden conforms with Node.
+//
 // Always returns false.
 func (s StringNode) Hidden() bool { return false }
 
+// String returns conforms with Stringer.
 func (s StringNode) String() string { return s.Name() }
 
-// Tree implements the Node interface with String data.
+// Tree implements the Node interface.
+// It has a name and, optionally, children.
 type Tree struct { //nolint:revive
 	name         string
-	renderer     *defaultRenderer
+	renderer     *renderer
 	rendererOnce sync.Once
 	children     Data
 	hide         bool
@@ -69,8 +74,9 @@ func (n *Tree) OffsetEnd(offset int) *Tree {
 // Name returns the root name of this node.
 func (n *Tree) Name() string { return n.name }
 
+// String conforms with Stringer.
 func (n *Tree) String() string {
-	return n.ensureRenderer().Render(n, true, "")
+	return n.ensureRenderer().render(n, true, "")
 }
 
 // Item appends an item to a list.
@@ -169,9 +175,10 @@ func ensureParent(nodes Data, item *Tree) (*Tree, int) {
 	return item, -1
 }
 
-func (n *Tree) ensureRenderer() *defaultRenderer {
+// Ensure the tree node has a renderer.
+func (n *Tree) ensureRenderer() *renderer {
 	n.rendererOnce.Do(func() {
-		n.renderer = newDefaultRenderer()
+		n.renderer = newRenderer()
 	})
 	return n.renderer
 }
@@ -209,12 +216,14 @@ func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 }
 
 // Enumerator sets the enumerator implementation.
+//
+// This can be used to change the way the branches indicators look.
 func (n *Tree) Enumerator(enum Enumerator) *Tree {
 	n.ensureRenderer().enumerator = enum
 	return n
 }
 
-// Children returns the children of a string node.
+// Children returns the children of a node.
 func (n *Tree) Children() Data {
 	var data []Node
 	for i := n.offset[0]; i < n.children.Length()-n.offset[1]; i++ {
