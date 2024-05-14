@@ -3,7 +3,6 @@ package lipgloss
 import (
 	"image/color"
 	"math"
-	"strconv"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
@@ -74,30 +73,6 @@ func (p Profile) Convert(c ansi.Color) ansi.Color {
 	}
 
 	return c
-}
-
-// Color creates a Color from a string. Valid inputs are hex colors, as well as
-// ANSI Color codes (0-15, 16-255).
-func (p Profile) Color(s string) ansi.Color {
-	if len(s) == 0 {
-		return noColor
-	}
-
-	var c ansi.Color
-	if h, err := colorful.Hex(s); err == nil {
-		tc := uint32(h.R*255)<<16 + uint32(h.G*255)<<8 + uint32(h.B*255)
-		c = ansi.TrueColor(tc)
-	} else if i, err := strconv.Atoi(s); err == nil {
-		if i < 16 {
-			c = ansi.BasicColor(i)
-		} else {
-			c = ansi.ExtendedColor(i)
-		}
-	} else {
-		return noColor
-	}
-
-	return p.Convert(c)
 }
 
 func hexToANSI256Color(c colorful.Color) ansi.ExtendedColor {
