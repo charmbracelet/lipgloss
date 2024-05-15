@@ -4,7 +4,7 @@
 // stacked on top of each other. Like the following:
 //
 //	list.New("A", "B", "C").
-//	  (list.Bullet).
+//	  Enumerator(list.Bullet).
 //	  String()
 //
 // • A
@@ -67,11 +67,26 @@ func New(items ...Item) List {
 		enumeratorStyleFunc: func(_ int) lipgloss.Style {
 			return lipgloss.NewStyle().MarginRight(1)
 		},
+		itemStyleFunc: func(_ int) lipgloss.Style {
+			return lipgloss.NewStyle()
+		},
 	}
 }
 
 // Item appends the given item to the list.
+// Alias for AddItem for a more fluent API.
+//
+//	New().
+//	  Item("A").
+//	  Item("B").
+//	  Item("C").
+//	  Item("D").
 func (l List) Item(item Item) List {
+	return l.AddItem(item)
+}
+
+// AddItem appends the given item to the list.
+func (l List) AddItem(item Item) List {
 	l.items = append(l.items, item)
 	return l
 }
@@ -87,13 +102,9 @@ func (l List) Separator(s lipgloss.Style) List {
 //
 // list.New(...).Prefix(s) is equivalent to:
 //
-//	list.New(...).Enumerator(func(_ int) string {
-//	  return s
-//	})
+//	list.New(...).Enumerator(func(_ int) string { return s })
 func (l List) Prefix(s string) List {
-	l.enumerator = func(_ int) string {
-		return s
-	}
+	l.enumerator = func(_ int) string { return s }
 	return l
 }
 
@@ -172,7 +183,7 @@ func (l List) String() string {
 				lipgloss.Top,
 				indent,
 				enumerator,
-				fmt.Sprintf("%v", item),
+				l.itemStyleFunc(i).Render(fmt.Sprintf("%v", item)),
 			)
 			s.WriteString(listItem)
 			if i != last {

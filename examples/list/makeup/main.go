@@ -8,8 +8,13 @@ import (
 )
 
 func main() {
-	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
-	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+	enumeratorStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("99")).
+		MarginRight(1)
+
+	itemStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("255")).
+		MarginRight(1)
 
 	l := list.New(
 		"Glossier",
