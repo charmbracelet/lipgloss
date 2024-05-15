@@ -475,7 +475,29 @@ LXXXVIII. Foo
     XCIX. Foo
        C. Foo`, "\n")
 
-	if l.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n", expected, l.String())
-	}
+	require.Equal(t, expected, l.String())
+}
+
+func TestSubListItems(t *testing.T) {
+	l := list.New().Items(
+		"S",
+		list.New().Items("neovim", "vscode"),
+		"HI",
+		list.New().Items([]string{"vim", "doom emacs"}),
+		"Parent 2",
+		list.New().Item("I like fuzzy socks"),
+	)
+
+	expected := `
+• S
+  • neovim
+  • vscode
+• HI
+  • vim
+  • doom emacs
+• Parent 2
+  • I like fuzzy socks
+	`
+
+	require.Equal(t, expected, l.String())
 }

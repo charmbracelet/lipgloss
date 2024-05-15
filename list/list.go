@@ -92,7 +92,9 @@ func (n *List) Item(item any) *List {
 
 // Items add multiple items to the tree.
 func (n *List) Items(items ...any) *List {
-	n.inner.Items(items)
+	for _, item := range items {
+		n.Item(item)
+	}
 	return n
 }
 
