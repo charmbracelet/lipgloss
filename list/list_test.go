@@ -40,15 +40,16 @@ func TestSublist(t *testing.T) {
 	l := list.New().
 		Item("Foo").
 		Item("Bar").
-		Item(list.New("Hi", "Hello")).Enumerator(list.Roman).
+		Item(list.New("Hi", "Hello", "Halo").Enumerator(list.Roman)).
 		Item("Qux")
 
 	expected := `
-  I. Foo
- II. Bar
-  • Hi
-  • Hello
-III. Qux
+• Foo
+• Bar
+    I. Hi
+   II. Hello
+  III. Halo
+• Qux
 	`
 	require.Equal(t, expected, l.String())
 }
