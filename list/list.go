@@ -1,3 +1,21 @@
+// Package list provides an API to create printable list structures that can be
+// included in any command line application. This package includes full support
+// for nested lists. Here's how you do it:
+//
+//	l := list.New(
+//		"A",
+//		"B",
+//		"C",
+//		list.New(
+//			"D",
+//			"E",
+//			"F",
+//		).Enumerator(list.Roman),
+//	)
+//	fmt.Println(l)
+//
+// The list package provides built-in enumerator styles to help glamourize your
+// lists. Lists are fully customizable, so let your creativity flow.
 package list
 
 import (
