@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"os"
+	"sync"
 
 	"github.com/charmbracelet/x/term"
 )
@@ -16,6 +17,8 @@ var (
 	// HasLightBackground is true if the terminal has a light background.
 	// This is the default value used to create new styles.
 	HasLightBackground bool
+
+	onceStdDefaults sync.Once
 )
 
 // UseDefault will set the default color profile and background color detection

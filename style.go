@@ -98,6 +98,7 @@ func (p props) has(k propKey) bool {
 // Style{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes.
 func NewStyle() Style {
+	onceStdDefaults.Do(UseStdDefaults)
 	return Style{
 		profile:            ColorProfile,
 		hasLightBackground: HasLightBackground,
