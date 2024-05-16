@@ -77,7 +77,7 @@ func (n *Tree) Hidden() bool {
 }
 
 // Hide sets whether or not to hide the tree.
-// This is useful for collapsing / hiding sub-tree.
+// This is useful for collapsing or hiding sub-trees.
 func (n *Tree) Hide(hide bool) *Tree {
 	n.hide = hide
 	return n
@@ -164,6 +164,10 @@ func (n *Tree) Item(item any) *Tree {
 }
 
 // Items add multiple items to the tree.
+//
+//	t := tree.New().
+//		Root("Nyx").
+//		Items("Qux", "Quux").
 func (n *Tree) Items(items ...any) *Tree {
 	for _, item := range items {
 		n.Item(item)
@@ -208,14 +212,27 @@ func (n *Tree) ensureRenderer() *renderer {
 }
 
 // EnumeratorStyle sets the enumeration style.
-// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
+// Margins and paddings should usually be set only in ItemStyle or ItemStyleFunc.
+//
+//	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
+//		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")))
 func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 	n.ensureRenderer().style.enumeratorFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
-// EnumeratorStyleFunc sets the enumeration style function.
+// EnumeratorStyleFunc sets the enumeration style function. Use this function
+// for conditional styling.
+//
 // Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
+//
+//	t := tree.New().
+//		EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+//		    if i == 1 {
+//		        return lipgloss.NewStyle().Foreground(hightlightColor)
+//		    }
+//		    return lipgloss.NewStyle().Foreground(dimColor)
+//		})
 func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
 		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
@@ -225,12 +242,25 @@ func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 }
 
 // ItemStyle sets the item style.
+//
+//	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
+//		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(255)))
 func (n *Tree) ItemStyle(style lipgloss.Style) *Tree {
 	n.ensureRenderer().style.itemFunc = func(Data, int) lipgloss.Style { return style }
 	return n
 }
 
-// ItemStyleFunc sets the item style function.
+// ItemStyleFunc sets the item style function. Use this for conditional styling.
+// For example:
+//
+//	t := tree.New().
+//		ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+//			st := baseStyle.Copy()
+//			if selectedIndex == i {
+//				return st.Foreground(hightlightColor)
+//			}
+//			return st.Foreground(dimColor)
+//		})
 func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
 		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
@@ -239,9 +269,12 @@ func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	return n
 }
 
-// Enumerator sets the enumerator implementation.
+// Enumerator sets the enumerator implementation. This can be used to change the way the branches indicators look.
+// Lipgloss includes predefined enumerators including bullets, roman numerals, and more. For
+// example, you can have a numbered list:
 //
-// This can be used to change the way the branches indicators look.
+//	tree.New().
+//		Enumerator(Arabic)
 func (n *Tree) Enumerator(enum Enumerator) *Tree {
 	n.ensureRenderer().enumerator = enum
 	return n
