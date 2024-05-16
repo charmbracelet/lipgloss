@@ -117,10 +117,10 @@ func (n *Tree) String() string {
 //
 // The resulting tree would be:
 //
-// ├── foo
-// ├── bar
-// │   └── zaz
-// └── qux
+//	├── foo
+//	├── bar
+//	│   └── zaz
+//	└── qux
 //
 // You may also change the tree style using Enumerator.
 func (n *Tree) Item(item any) *Tree {
