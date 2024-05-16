@@ -35,10 +35,10 @@ func Arabic(_ Data, i int) string {
 
 // Roman is the enumeration for roman numerals listing.
 //
-// /   I. Foo
-// /  II. Bar
-// / III. Baz
-// /  IV. Qux.
+//	  I. Foo
+//	 II. Bar
+//	III. Baz
+//	 IV. Qux.
 func Roman(_ Data, i int) string {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
