@@ -1,10 +1,14 @@
 package lipgloss
 
 import (
+	"bytes"
 	"strings"
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
+	"github.com/mattn/go-runewidth"
+	reflowAnsi "github.com/muesli/reflow/ansi"
+	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/termenv"
 )
 
@@ -108,8 +112,14 @@ func NewStyle() Style {
 // in case the underlying implementation changes. It takes an optional string
 // value to be set as the underlying string value for this style.
 func (r *Renderer) NewStyle() Style {
-	s := Style{r: r}
+	s := Style{r: r, overlays: []overlay{}}
 	return s
+}
+
+type overlay struct {
+	backingValue string
+	x            int
+	y            int
 }
 
 // Style contains a set of rules that comprise a style as a whole.
@@ -117,6 +127,8 @@ type Style struct {
 	r     *Renderer
 	props props
 	value string
+
+	overlays []overlay
 
 	// we store bool props values here
 	attrs int
@@ -173,6 +185,74 @@ func joinString(strs ...string) string {
 func (s Style) SetString(strs ...string) Style {
 	s.value = joinString(strs...)
 	return s
+}
+
+func (s Style) AddOverlay(x int, y int, str string) Style {
+	s.overlays = append(s.overlays, overlay{
+		backingValue: str,
+		x:            x,
+		y:            y,
+	})
+	return s
+}
+
+// OverlayString overlays the foreground string over background string.
+// When the foreground string "overhangs" over the background string,
+// any runes outside of the existing boundaries are discarded.
+func OverlayString(x int, y int, background string, overlay string, opts ...WhitespaceOption) string {
+	fgLines := strings.Split(overlay, "\n")
+	bgLines := strings.Split(background, "\n")
+	fgHeight := len(fgLines)
+
+	ws := &whitespace{}
+	for _, opt := range opts {
+		opt(ws)
+	}
+
+	var b strings.Builder
+	for i, bgLine := range bgLines {
+		if i > 0 {
+			b.WriteByte('\n')
+		}
+		if i < y || i >= y+fgHeight {
+			b.WriteString(bgLine)
+			continue
+		}
+
+		pos := 0
+		if x > 0 {
+			left := truncate.String(bgLine, uint(x))
+			pos = reflowAnsi.PrintableRuneWidth(left)
+			b.WriteString(left)
+			if pos < x {
+				b.WriteString(ws.render(x - pos))
+				pos = x
+			}
+		}
+
+		fgLine := fgLines[i-y]
+		start := clamp(0, -x, reflowAnsi.PrintableRuneWidth(bgLine))
+		end := reflowAnsi.PrintableRuneWidth(fgLine)
+		if x+end > reflowAnsi.PrintableRuneWidth(bgLine) {
+			overhang := x + reflowAnsi.PrintableRuneWidth(fgLine) - reflowAnsi.PrintableRuneWidth(bgLine)
+			end = end - overhang
+		}
+		fgWrite := fgLine[start:end]
+		b.WriteString(fgWrite)
+		pos += reflowAnsi.PrintableRuneWidth(fgWrite)
+
+		right := cutLeft(bgLine, pos)
+		bgWidth := reflowAnsi.PrintableRuneWidth(bgLine)
+		rightWidth := reflowAnsi.PrintableRuneWidth(right)
+		if rightWidth <= bgWidth-pos {
+			b.WriteString(ws.render(bgWidth - rightWidth - pos))
+		}
+
+		b.WriteString(right)
+	}
+
+	// s = b.String()
+	return b.String()
 }
 
 // Value returns the raw, unformatted, underlying string value for this style.
@@ -463,7 +543,9 @@ func (s Style) Render(strs ...string) string {
 			str = strings.Join(lines[:height], "\n")
 		}
 	}
-
+	for _, overlay := range s.overlays {
+		str = OverlayString(overlay.x, overlay.y, str, overlay.backingValue)
+	}
 	return str
 }
 
@@ -515,6 +597,51 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	return str
+}
+
+// cutLeft cuts printable characters from the left.
+// This function is heavily based on muesli's ansi and truncate packages.
+func cutLeft(s string, cutWidth int) string {
+	var (
+		pos    int
+		isAnsi bool
+		ab     bytes.Buffer
+		b      bytes.Buffer
+	)
+	for _, c := range s {
+		var w int
+		if c == reflowAnsi.Marker || isAnsi {
+			isAnsi = true
+			ab.WriteRune(c)
+			if reflowAnsi.IsTerminator(c) {
+				isAnsi = false
+				if bytes.HasSuffix(ab.Bytes(), []byte("[0m")) {
+					ab.Reset()
+				}
+			}
+		} else {
+			w = runewidth.RuneWidth(c)
+		}
+
+		if pos >= cutWidth {
+			if b.Len() == 0 {
+				if ab.Len() > 0 {
+					b.Write(ab.Bytes())
+				}
+				if pos-cutWidth > 1 {
+					b.WriteByte(' ')
+					continue
+				}
+			}
+			b.WriteRune(c)
+		}
+		pos += w
+	}
+	return b.String()
+}
+
+func clamp(v, lower, upper int) int {
+	return min(max(v, lower), upper)
 }
 
 // Apply left padding.

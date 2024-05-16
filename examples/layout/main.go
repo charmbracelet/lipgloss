@@ -298,11 +298,17 @@ func main() {
 			historyC = "In 1524, Henry VIII, King of England, received a “box of marmalade” from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
 		)
 
+		overwriteStyle := lipgloss.NewStyle().Background(lipgloss.Color("#ff0000")).Width(15).Height(16)
+		overwrite := lipgloss.NewStyle().Background(lipgloss.Color("#ff0000")).Width(15).Height(16).Render("sorry to interrupt, but...")
+		overwrite2 := overwriteStyle.Background(lipgloss.Color("#00ff00")).
+			Foreground(lipgloss.Color("#000000")).Width(8).Height(8).Render("more text for interruptions")
+
+		styledHistoryA := historyStyle.Align(lipgloss.Right).Render(historyA)
 		doc.WriteString(lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			historyStyle.Align(lipgloss.Right).Render(historyA),
+			lipgloss.OverlayString(5, 5, styledHistoryA, overwrite),
 			historyStyle.Align(lipgloss.Center).Render(historyB),
-			historyStyle.MarginRight(0).Render(historyC),
+			historyStyle.MarginRight(0).SetString(historyC).AddOverlay(3, 3, overwrite).AddOverlay(2, 2, overwrite2).Render(),
 		))
 
 		doc.WriteString("\n\n")

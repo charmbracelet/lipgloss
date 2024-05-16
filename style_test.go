@@ -404,6 +404,66 @@ func TestTabConversion(t *testing.T) {
 	requireEqual(t, "[\t]", s.Render("[\t]"))
 }
 
+func TestStringOverlay(t *testing.T) {
+	line := "ooo"
+	background := JoinVertical(Left, line, line, line)
+	result := OverlayString(1, 1, background, "x")
+	expected := "ooo\noxo\nooo"
+	if result != expected {
+		t.Errorf("Basic string overlay is not overlaying as expected.\n\nExpected:\n%s\n\nActual:\n%s", expected, result)
+	}
+}
+
+func TestStringOverlay_RendersOverhangProperly(t *testing.T) {
+	bgLine := "ooo"
+	background := JoinVertical(Left, bgLine, bgLine, bgLine)
+	fgLine := "xxx"
+	foreground := JoinVertical(Left, fgLine, fgLine, fgLine)
+	result := OverlayString(1, 1, background, foreground)
+	expected := "ooo\noxx\noxx"
+	if result != expected {
+		t.Errorf("Overhanging string overlay is not overlaying as expected.\n\nExpected:\n%s\n\nActual:\n%s", expected, result)
+	}
+}
+
+func TestStringOverlay_RendersNegativeStartingPointsProperly(t *testing.T) {
+	bgLine := "ooo"
+	background := JoinVertical(Left, bgLine, bgLine, bgLine)
+	fgLine := "123"
+	foreground := JoinVertical(Left, fgLine, fgLine, fgLine)
+	result := OverlayString(-1, -1, background, foreground)
+	expected := "23o\n23o\nooo"
+	if result != expected {
+		t.Errorf("Overhanging string overlay is not overlaying as expected.\n\nExpected:\n%s\n\nActual:\n%s", expected, result)
+	}
+}
+
+func TestStringOverlay_ColorBackground(t *testing.T) {
+	line := "ooo"
+	middleLine := NewStyle().Foreground(Color("#ff0000")).Render(line)
+	background := JoinVertical(Left, line, middleLine, line)
+
+	result := OverlayString(1, 1, background, "x")
+
+	colorO := NewStyle().Foreground(Color("#ff0000")).Render("o")
+	expectedMiddleLine := colorO + "x" + colorO
+	expected := "ooo\n" + expectedMiddleLine + "\nooo"
+	if result != expected {
+		t.Errorf("String overlay is not overlaying on colored background as expected.\n\nExpected:\n%s\n\nActual:\n%s", expected, result)
+	}
+}
+
+func TestStyleString_AddOverlay_PushesItemToBackingList(t *testing.T) {
+	line := "ooo"
+	background := JoinVertical(Left, line, line, line)
+	s := NewStyle().SetString(background).AddOverlay(1, 1, "x").AddOverlay(2, 2, "y")
+	expected := 2
+	result := len(s.overlays)
+	if result != expected {
+		t.Errorf("Basic string overlay is not adding to backing overlay list as expected.\n\nExpected length:\n%d\n\nActual length:\n%d", expected, result)
+	}
+}
+
 func TestStringTransform(t *testing.T) {
 	for i, tc := range []struct {
 		input    string
