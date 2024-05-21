@@ -73,6 +73,30 @@ func TestSublist(t *testing.T) {
 	require.Equal(t, expected, l.String())
 }
 
+func TestSublistItems(t *testing.T) {
+	l := list.New(
+		"A",
+		"B",
+		"C",
+		list.New(
+			"D",
+			"E",
+			"F",
+		).Enumerator(list.Roman),
+		"G",
+	)
+	expected := `
+• A
+• B
+• C
+    I. D
+   II. E
+  III. F
+• G
+	`
+	require.Equal(t, expected, l.String())
+}
+
 func TestComplexSublist(t *testing.T) {
 	style1 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
