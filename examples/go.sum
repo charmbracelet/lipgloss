@@ -9,8 +9,8 @@ github.com/charmbracelet/keygen v0.3.0 h1:mXpsQcH7DDlST5TddmXNXjS0L7ECk4/kLQYyBc
 github.com/charmbracelet/keygen v0.3.0/go.mod h1:1ukgO8806O25lUZ5s0IrNur+RlwTBERlezdgW71F5rM=
 github.com/charmbracelet/wish v0.5.0 h1:FkkdNBFqrLABR1ciNrAL2KCxoyWfKhXnIGZw6GfAtPg=
 github.com/charmbracelet/wish v0.5.0/go.mod h1:5GAn5SrDSZ7cgKjnC+3kDmiIo7I6k4/AYiRzC4+tpCk=
-github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f h1:1BXkZqDueTOBECyDoFGRi0xMYgjJ6vvoPIkWyKOwzTc=
-github.com/charmbracelet/x/exp/term v0.0.0-20240425164147-ba2a9512b05f/go.mod h1:yQqGHmheaQfkqiJWjklPHVAq1dKbk8uGbcoS/lcKCJ0=
+github.com/charmbracelet/x/ansi v0.1.1 h1:CGAduulr6egay/YVbGc8Hsu8deMg1xZ/bkaXTPi1JDk=
+github.com/charmbracelet/x/ansi v0.1.1/go.mod h1:dk73KoMTT5AX5BsX0KrqhsTqAnhZZoCBjs7dGWp4Ktw=
 github.com/gliderlabs/ssh v0.3.4 h1:+AXBtim7MTKaLVPgvE+3mhewYRawNLTd+jEEz/wExZw=
 github.com/gliderlabs/ssh v0.3.4/go.mod h1:ZSS+CUoKHDrqVakTfTWUlKSr9MtMFkC4UvtQKD7O914=
 github.com/kr/pty v1.1.1 h1:VkoXIwSboBpnk99O/KFauAEILuNHv5DVFKZMBN/gUgw=
