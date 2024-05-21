@@ -46,9 +46,17 @@ func enumStyleFunc(data tree.Data, i int) lipgloss.Style {
 	return dimEnumStyle
 }
 
-func main() {
+func itemStyleFunc(data tree.Data, i int) lipgloss.Style {
 	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("255"))
+	for _, p := range purchased {
+		if data.At(i).Name() == p {
+			return itemStyle.Strikethrough(true)
+		}
+	}
+	return itemStyle
+}
 
+func main() {
 	l := list.New(
 		"Artichoke",
 		"Baking Flour", "Bananas", "Barley", "Bean Sprouts",
@@ -62,7 +70,7 @@ func main() {
 	).
 		Enumerator(groceryEnumerator).
 		EnumeratorStyleFunc(enumStyleFunc).
-		ItemStyle(itemStyle)
+		ItemStyleFunc(itemStyleFunc)
 
 	fmt.Println(l)
 }

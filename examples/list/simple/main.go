@@ -16,6 +16,7 @@ func main() {
 			"E",
 			"F",
 		).Enumerator(list.Roman),
+		"G",
 	)
 	fmt.Println(l)
 }

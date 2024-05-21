@@ -9,6 +9,10 @@ import (
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
+// This example abuses both lists and trees.
+// Its a list that goes deep, and items varies from other lists, trees, tables,
+// etc.
+
 func main() {
 	style1 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
