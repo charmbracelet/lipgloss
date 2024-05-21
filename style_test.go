@@ -9,7 +9,7 @@ import (
 	"github.com/muesli/termenv"
 )
 
-func TestStyleRender(t *testing.T) {
+func TestUnderline(t *testing.T) {
 	r := NewRenderer(io.Discard)
 	r.SetColorProfile(termenv.TrueColor)
 	r.SetHasDarkBackground(true)
@@ -19,22 +19,6 @@ func TestStyleRender(t *testing.T) {
 		style    Style
 		expected string
 	}{
-		{
-			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mab c\x1b[0m",
-		},
-		{
-			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;89;86;224mab c\x1b[0m",
-		},
-		{
-			r.NewStyle().Bold(true),
-			"\x1b[1mab c\x1b[0m",
-		},
-		{
-			r.NewStyle().Italic(true),
-			"\x1b[3mab c\x1b[0m",
-		},
 		{
 			r.NewStyle().Underline(true),
 			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
@@ -51,6 +35,29 @@ func TestStyleRender(t *testing.T) {
             r.NewStyle().UnderlineSpaces(true),
             "ab\x1b[4m \x1b[0mc",
         },
+    }
+
+	for i, tc := range tt {
+		s := tc.style.Copy().SetString("ab c")
+		res := s.Render()
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+}
+
+func TestStrikethrough(t *testing.T) {
+	r := NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.TrueColor)
+	r.SetHasDarkBackground(true)
+	t.Parallel()
+
+	tt := []struct {
+		style    Style
+		expected string
+	}{
 		{
 			r.NewStyle().Strikethrough(true),
 			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
@@ -67,18 +74,61 @@ func TestStyleRender(t *testing.T) {
             r.NewStyle().StrikethroughSpaces(true),
             "ab\x1b[9m \x1b[0mc",
         },
+    }
+
+	for i, tc := range tt {
+		s := tc.style.Copy().SetString("ab c")
+		res := s.Render()
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+}
+
+func TestStyleRender(t *testing.T) {
+	r := NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.TrueColor)
+	r.SetHasDarkBackground(true)
+	t.Parallel()
+
+	tt := []struct {
+		style    Style
+		expected string
+	}{
+		{
+			r.NewStyle().Foreground(Color("#5A56E0")),
+			"\x1b[38;2;89;86;224mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
+			"\x1b[38;2;89;86;224mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Bold(true),
+			"\x1b[1mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Italic(true),
+			"\x1b[3mhello\x1b[0m",
+		},
+		{
+			r.NewStyle().Underline(true),
+			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
+		},
 		{
 			r.NewStyle().Blink(true),
-			"\x1b[5mab c\x1b[0m",
+			"\x1b[5mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Faint(true),
-			"\x1b[2mab c\x1b[0m",
+			"\x1b[2mhello\x1b[0m",
 		},
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("ab c")
+		s := tc.style.Copy().SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -98,64 +148,40 @@ func TestStyleCustomRender(t *testing.T) {
 	}{
 		{
 			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mab c\x1b[0m",
+			"\x1b[38;2;89;86;224mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;255;254;18mab c\x1b[0m",
+			"\x1b[38;2;255;254;18mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Bold(true),
-			"\x1b[1mab c\x1b[0m",
+			"\x1b[1mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Italic(true),
-			"\x1b[3mab c\x1b[0m",
+			"\x1b[3mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Underline(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
 		},
-        {
-            r.NewStyle().Underline(true).UnderlineSpaces(true),
-            "\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
-        },
-        {
-            r.NewStyle().Underline(true).UnderlineSpaces(false),
-            "\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
-        },
-        {
-            r.NewStyle().UnderlineSpaces(true),
-            "ab\x1b[4m \x1b[0mc",
-        },
-		{
-			r.NewStyle().Strikethrough(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
-		},
-        {
-            r.NewStyle().Strikethrough(true).StrikethroughSpaces(true),
-            "\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
-        },
-        {
-            r.NewStyle().Strikethrough(true).StrikethroughSpaces(false),
-            "\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
-        },
-        {
-            r.NewStyle().StrikethroughSpaces(true),
-            "ab\x1b[9m \x1b[0mc",
-        },
 		{
 			r.NewStyle().Blink(true),
-			"\x1b[5mab c\x1b[0m",
+			"\x1b[5mhello\x1b[0m",
 		},
 		{
 			r.NewStyle().Faint(true),
-			"\x1b[2mab c\x1b[0m",
+			"\x1b[2mhello\x1b[0m",
+		},
+		{
+			NewStyle().Faint(true).Renderer(r),
+			"\x1b[2mhello\x1b[0m",
 		},
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("ab c")
+		s := tc.style.Copy().SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
