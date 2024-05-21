@@ -1,6 +1,7 @@
 package tree_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/charmbracelet/lipgloss"
@@ -9,6 +10,28 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/lipgloss/tree"
 )
+
+func ExampleNew() {
+	tree := tree.New().
+		Item("First")
+	fmt.Print(tree)
+	// Output: └── First
+}
+
+func ExampleNew_root() {
+	tree := tree.New().
+		Root("Root")
+	fmt.Print(tree)
+	// Output: Root
+}
+
+func ExampleNew_round() {
+	tree := tree.New().
+		Enumerator(tree.RoundedEnumerator).
+		Item("First")
+	fmt.Print(tree)
+	// Output: ╰── First
+}
 
 func TestTree(t *testing.T) {
 	tree := tree.New().

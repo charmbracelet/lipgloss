@@ -1,6 +1,7 @@
 package list_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -9,6 +10,24 @@ import (
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/tree"
 )
+
+// XXX: can't write multi-line examples if the underlying string uses
+// lipgloss.JoinVertical.
+
+func ExampleNew() {
+	list := list.New().
+		Item("First")
+	fmt.Print(list)
+	// Output:• First
+}
+
+func ExampleNew_customEnumerator() {
+	list := list.New().
+		Enumerator(list.Arabic).
+		Item("First")
+	fmt.Print(list)
+	// Output:1. First
+}
 
 func TestList(t *testing.T) {
 	l := list.New().
