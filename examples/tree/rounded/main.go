@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	pink := lipgloss.NewStyle().MarginRight(1)
-	gray := lipgloss.NewStyle().Foreground(lipgloss.Color("8")).MarginRight(1)
+	itemStyle := lipgloss.NewStyle().MarginRight(1)
+	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8")).MarginRight(1)
 
 	t := tree.New().
 		Root("Groceries").
@@ -35,7 +35,7 @@ func main() {
 					"Leek",
 					"Artichoke",
 				),
-		).ItemStyle(pink).EnumeratorStyle(gray).Enumerator(tree.RoundedEnumerator)
+		).ItemStyle(itemStyle).EnumeratorStyle(enumeratorStyle).Enumerator(tree.RoundedEnumerator)
 
 	fmt.Println(t)
 }
