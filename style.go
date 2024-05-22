@@ -271,15 +271,15 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
-		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
+		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
-		useSpaceStyler = underlineSpaces || strikethroughSpaces
+		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
 	)
