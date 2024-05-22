@@ -20,7 +20,7 @@ func newRenderer() *renderer {
 	return &renderer{
 		style: Style{
 			enumeratorFunc: func(Data, int) lipgloss.Style {
-				return lipgloss.NewStyle().MarginRight(1)
+				return lipgloss.NewStyle().PaddingRight(1)
 			},
 			itemFunc: func(Data, int) lipgloss.Style {
 				return lipgloss.NewStyle()

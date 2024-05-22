@@ -302,7 +302,7 @@ func TestTreeCustom(t *testing.T) {
 			"Baz",
 		).
 		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
-		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).MarginRight(1)).
+		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).PaddingRight(1)).
 		Enumerator(func(tree.Data, int) (indent string, prefix string) {
 			return "->", "->"
 		})
@@ -374,7 +374,7 @@ func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
 				EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("+").
-						MarginRight(1)
+						PaddingRight(1)
 				}),
 			"Baz",
 		)
@@ -724,7 +724,7 @@ func TestEmbedListWithinTree(t *testing.T) {
 }
 
 func TestMultilinePrefix(t *testing.T) {
-	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Enumerator(func(_ tree.Data, i int) (string, string) {
 			if i == 1 {
@@ -732,7 +732,7 @@ func TestMultilinePrefix(t *testing.T) {
 			}
 			return "", " "
 		}).
-		ItemStyle(marginsStyle).
+		ItemStyle(paddingsStyle).
 		Item("Document 0\nSome tagline").
 		Item("Document 1\nHello world").
 		Item("Document 2\nSome other tagline")
@@ -750,7 +750,7 @@ func TestMultilinePrefix(t *testing.T) {
 }
 
 func TestMultilinePrefixSingleLineItem(t *testing.T) {
-	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Enumerator(func(_ tree.Data, i int) (string, string) {
 			if i == 1 {
@@ -758,7 +758,7 @@ func TestMultilinePrefixSingleLineItem(t *testing.T) {
 			}
 			return "", " "
 		}).
-		ItemStyle(marginsStyle).
+		ItemStyle(paddingsStyle).
 		Item("Document 0\nhello").
 		Item("Document 1\n").
 		Item("Document 2\nhello again")
@@ -776,7 +776,7 @@ func TestMultilinePrefixSingleLineItem(t *testing.T) {
 }
 
 func TestMultilinePrefixSubtree(t *testing.T) {
-	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Item("Hello").
 		Item("Foo").
@@ -789,7 +789,7 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 					}
 					return "", " "
 				}).
-				ItemStyle(marginsStyle).
+				ItemStyle(paddingsStyle).
 				Item("Document 0\nSome tagline").
 				Item("Document 1\nHello world").
 				Item("Document 2\nSome other tagline"),
@@ -820,16 +820,16 @@ func TestMultilinePrefixInception(t *testing.T) {
 		}
 		return "  ", " "
 	}
-	marginsStyle := lipgloss.NewStyle().MarginLeft(1).MarginBottom(1)
+	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Enumerator(glowEnum).
-		ItemStyle(marginsStyle).
+		ItemStyle(paddingsStyle).
 		Item("Document 0\nSome tagline").
 		Item("Document 1\nHello world").
 		Item(
 			tree.New().
 				Enumerator(glowEnum).
-				ItemStyle(marginsStyle).
+				ItemStyle(paddingsStyle).
 				Item("Document 1a\nnothing important").
 				Item("Document 1b\nsomething").
 				Item("Document 1c\nsomething else"),

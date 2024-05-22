@@ -100,10 +100,10 @@ func TestSublistItems(t *testing.T) {
 func TestComplexSublist(t *testing.T) {
 	style1 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
-		MarginRight(1)
+		PaddingRight(1)
 	style2 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("212")).
-		MarginRight(1)
+		PaddingRight(1)
 
 	l := list.New().
 		Item("Foo").
@@ -320,7 +320,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 	}{
 		"alphabet lower": {
 			enumeration: list.Alphabet,
-			style:       lipgloss.NewStyle().MarginRight(1).Transform(strings.ToLower),
+			style:       lipgloss.NewStyle().PaddingRight(1).Transform(strings.ToLower),
 			expected: `
 a. Foo
 b. Bar
@@ -329,7 +329,7 @@ c. Baz
 		},
 		"arabic)": {
 			enumeration: list.Arabic,
-			style: lipgloss.NewStyle().MarginRight(1).Transform(func(s string) string {
+			style: lipgloss.NewStyle().PaddingRight(1).Transform(func(s string) string {
 				return strings.Replace(s, ".", ")", 1)
 			}),
 			expected: `
