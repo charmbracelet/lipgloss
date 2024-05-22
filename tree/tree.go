@@ -1,18 +1,16 @@
 // Package tree provides an API to create printable tree-like structures that
 // can be included in any command line application. It goes something like:
 //
-//	t := tree.New().
-//		Root(".").
+//	t := tree.New(".").
 //		Item("Item 1").
 //		Item(
-//		tree.New().Root("Item 2").
+//		tree.New("Item 2").
 //			Item("Item 2.1").
 //			Item("Item 2.2").
 //			Item("Item 2.3"),
 //		).
 //		Item(
-//		tree.New().
-//			Root("Item 3").
+//		tree.New("Item 3").
 //			Item("Item 3.1").
 //			Item("Item 3.2"),
 //		)
@@ -112,8 +110,8 @@ func (n *Tree) String() string {
 //
 // Both of these should result in the same thing:
 //
-//	New().Root("foo").Items("bar", New().Item("zaz"), "qux")
-//	New().Root("foo").Items(New().Root("bar").Item("zaz"), "qux")
+//	New("foo").Items("bar", New().Item("zaz"), "qux")
+//	New("foo").Items(New("bar").Item("zaz"), "qux")
 //
 // The resulting tree would be:
 //
@@ -165,8 +163,7 @@ func (n *Tree) Item(item any) *Tree {
 
 // Items add multiple items to the tree.
 //
-//	t := tree.New().
-//		Root("Nyx").
+//	t := tree.New("Nyx").
 //		Items("Qux", "Quux").
 func (n *Tree) Items(items ...any) *Tree {
 	for _, item := range items {
@@ -295,9 +292,10 @@ func (n *Tree) Root(root string) *Tree {
 	return n
 }
 
-// New returns a new tree.
-func New() *Tree {
+// New returns a new tree, with the argument being the name at the root.
+func New(root string) *Tree {
 	return &Tree{
+		name:     root,
 		children: nodeData(nil),
 	}
 }

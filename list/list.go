@@ -160,7 +160,7 @@ func (n *List) Enumerator(enum Enumerator) *List {
 // New returns a new list with a bullet enumerator.
 func New(items ...any) *List {
 	l := &List{
-		inner: tree.New(),
+		inner: tree.New(""),
 	}
 	return l.Items(items...).Enumerator(Bullet)
 }
