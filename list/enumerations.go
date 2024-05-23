@@ -57,10 +57,10 @@ func Roman(_ Data, i int) string {
 
 // Bullet is the enumeration for bullet listing.
 //
-//   • Foo
-//   • Bar
-//   • Baz
-//   • Qux.
+//	\• Foo
+//	\• Bar
+//	\• Baz
+//	\• Qux.
 func Bullet(Data, int) string {
 	return "•"
 }
