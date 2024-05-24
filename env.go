@@ -25,19 +25,17 @@ func DetectColorProfile(output io.Writer, environ []string) Profile {
 
 	env := environMap(environ)
 	p := envColorProfile(env)
-	if out, ok := output.(term.File); !ok || !term.IsTerminal(out.Fd()) {
-		p = NoTTY
-	}
 
 	if envNoColor(env) && p < Ascii {
 		return Ascii
 	}
 
 	if cliColorForced(env) && p >= Ascii {
-		p = ANSI
-		if cp := envColorProfile(env); cp < p {
-			p = cp
-		}
+		return p
+	}
+
+	if out, ok := output.(term.File); !ok || !term.IsTerminal(out.Fd()) {
+		return NoTTY
 	}
 
 	return p
