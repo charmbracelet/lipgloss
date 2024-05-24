@@ -18,6 +18,9 @@ var (
 	// This is the default value used to create new styles.
 	HasLightBackground bool
 
+	// DefaultOutput is the default output used by Lip Gloss UseStdDefaults.
+	DefaultOutput = os.Stdout
+
 	onceStdDefaults sync.Once
 )
 
@@ -31,5 +34,5 @@ func UseDefault(in term.File, out term.File, env []string) {
 // UseStdDefaults will set the default color profile and background color
 // detection from the standard input, output, and OS environment variables.
 func UseStdDefaults() {
-	UseDefault(os.Stdin, os.Stdout, os.Environ())
+	UseDefault(os.Stdin, DefaultOutput, os.Environ())
 }
