@@ -25,19 +25,20 @@ func DetectColorProfile(output io.Writer, environ []string) Profile {
 
 	env := environMap(environ)
 	p := envColorProfile(env)
-	if out, ok := output.(term.File); !ok || !term.IsTerminal(out.Fd()) {
-		p = NoTTY
-	}
+	out, ok := output.(term.File)
+	isatty := ok && term.IsTerminal(out.Fd())
 
-	if envNoColor(env) && p < Ascii {
-		return Ascii
-	}
-
-	if cliColorForced(env) && p >= Ascii {
-		p = ANSI
-		if cp := envColorProfile(env); cp < p {
-			p = cp
+	if isTrue(env["NO_COLOR"]) {
+		if isatty {
+			return Ascii
 		}
+		return NoTTY
+	} else if isTrue(env["CLICOLOR_FORCE"]) {
+		return p
+	}
+
+	if !isatty {
+		return NoTTY
 	}
 
 	return p
@@ -82,35 +83,7 @@ func EnvColorProfile(environ []string) Profile {
 	}
 
 	env := environMap(environ)
-	p := envColorProfile(env)
-	if envNoColor(env) && p < Ascii {
-		return Ascii
-	}
-
-	if cliColorForced(env) && p >= Ascii {
-		p = ANSI
-		if cp := envColorProfile(env); cp < p {
-			p = cp
-		}
-	}
-
-	return p
-}
-
-// envNoColor returns true if the environment variables explicitly disable color output
-// by setting NO_COLOR (https://no-color.org/)
-// or CLICOLOR/CLICOLOR_FORCE (https://bixense.com/clicolors/)
-// If NO_COLOR is set, this will return true, ignoring CLICOLOR/CLICOLOR_FORCE
-// If CLICOLOR is false, it will be true only if CLICOLOR_FORCE is also false or is unset.
-func envNoColor(env map[string]string) bool {
-	return isTrue(env["NO_COLOR"]) && !isTrue(env["CLICOLOR"]) && !cliColorForced(env)
-}
-
-func cliColorForced(env map[string]string) bool {
-	if forced := env["CLICOLOR_FORCE"]; forced != "" {
-		return isTrue(forced)
-	}
-	return false
+	return envColorProfile(env)
 }
 
 // envColorProfile returns infers the color profile from the environment.
