@@ -7,7 +7,7 @@ import (
 )
 
 // StyleFunc allows the list to be styled per item.
-type StyleFunc func(data Data, i int) lipgloss.Style
+type StyleFunc func(data Children, i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {
@@ -19,10 +19,10 @@ type Style struct {
 func newRenderer() *renderer {
 	return &renderer{
 		style: Style{
-			enumeratorFunc: func(Data, int) lipgloss.Style {
+			enumeratorFunc: func(Children, int) lipgloss.Style {
 				return lipgloss.NewStyle().PaddingRight(1)
 			},
-			itemFunc: func(Data, int) lipgloss.Style {
+			itemFunc: func(Children, int) lipgloss.Style {
 				return lipgloss.NewStyle()
 			},
 		},

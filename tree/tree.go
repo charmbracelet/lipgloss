@@ -35,7 +35,7 @@ import (
 type Node interface {
 	fmt.Stringer
 	Name() string
-	Children() Data
+	Children() Children
 	Hidden() bool
 }
 
@@ -45,7 +45,7 @@ type StringNode string
 // Children conforms with Node.
 //
 // Always returns no children.
-func (StringNode) Children() Data { return nodeData(nil) }
+func (StringNode) Children() Children { return NodeData(nil) }
 
 // Name conforms with Node.
 //
@@ -66,7 +66,7 @@ type Tree struct { //nolint:revive
 	name         string
 	renderer     *renderer
 	rendererOnce sync.Once
-	children     Data
+	children     Children
 	hide         bool
 	offset       [2]int
 }
@@ -131,7 +131,7 @@ func (n *Tree) Item(item any) *Tree {
 			n.children = n.children.Remove(rm)
 		}
 		n.children = n.children.Append(newItem)
-	case Data:
+	case Children:
 		for i := 0; i < item.Length(); i++ {
 			n.children = n.children.Append(item.At(i))
 		}
@@ -181,7 +181,7 @@ func (n *Tree) Items(items ...any) *Tree {
 // last item's of the list type:
 // 1. IFF it's a TreeNode, it'll append item's children to it, and return it.
 // 1. IFF it's a StringNode, it'll set its content as item's name, and remove it.
-func ensureParent(nodes Data, item *Tree) (*Tree, int) {
+func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 	if item.Name() != "" || nodes.Length() == 0 {
 		return item, -1
 	}
@@ -217,7 +217,7 @@ func (n *Tree) ensureRenderer() *renderer {
 //	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")))
 func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
-	n.ensureRenderer().style.enumeratorFunc = func(Data, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style { return style }
 	return n
 }
 
@@ -235,7 +235,7 @@ func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 //		})
 func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
-		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
+		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	n.ensureRenderer().style.enumeratorFunc = fn
 	return n
@@ -246,7 +246,7 @@ func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 //	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(255)))
 func (n *Tree) ItemStyle(style lipgloss.Style) *Tree {
-	n.ensureRenderer().style.itemFunc = func(Data, int) lipgloss.Style { return style }
+	n.ensureRenderer().style.itemFunc = func(Children, int) lipgloss.Style { return style }
 	return n
 }
 
@@ -263,7 +263,7 @@ func (n *Tree) ItemStyle(style lipgloss.Style) *Tree {
 //		})
 func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
-		fn = func(Data, int) lipgloss.Style { return lipgloss.NewStyle() }
+		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	n.ensureRenderer().style.itemFunc = fn
 	return n
@@ -281,12 +281,12 @@ func (n *Tree) Enumerator(enum Enumerator) *Tree {
 }
 
 // Children returns the children of a node.
-func (n *Tree) Children() Data {
+func (n *Tree) Children() Children {
 	var data []Node
 	for i := n.offset[0]; i < n.children.Length()-n.offset[1]; i++ {
 		data = append(data, n.children.At(i))
 	}
-	return nodeData(data)
+	return NodeData(data)
 }
 
 // Root sets the tree node root name.
@@ -298,6 +298,6 @@ func (n *Tree) Root(root string) *Tree {
 // New returns a new tree.
 func New() *Tree {
 	return &Tree{
-		children: nodeData(nil),
+		children: NodeData(nil),
 	}
 }

@@ -13,7 +13,7 @@ const abcLen = 26
 //	b. Bar
 //	c. Baz
 //	d. Qux.
-func Alphabet(_ Data, i int) string {
+func Alphabet(_ Items, i int) string {
 	if i >= abcLen*abcLen+abcLen {
 		return fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
 	}
@@ -29,7 +29,7 @@ func Alphabet(_ Data, i int) string {
 //  2. Bar
 //  3. Baz
 //  4. Qux.
-func Arabic(_ Data, i int) string {
+func Arabic(_ Items, i int) string {
 	return fmt.Sprintf("%d.", i+1)
 }
 
@@ -39,7 +39,7 @@ func Arabic(_ Data, i int) string {
 //	 II. Bar
 //	III. Baz
 //	 IV. Qux.
-func Roman(_ Data, i int) string {
+func Roman(_ Items, i int) string {
 	var (
 		roman  = []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
 		arabic = []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
@@ -61,7 +61,7 @@ func Roman(_ Data, i int) string {
 //	\• Bar
 //	\• Baz
 //	\• Qux.
-func Bullet(Data, int) string {
+func Bullet(Items, int) string {
 	return "•"
 }
 
@@ -71,7 +71,7 @@ func Bullet(Data, int) string {
 //	\* Bar
 //	\* Baz
 //	\* Qux.
-func Asterisk(Data, int) string {
+func Asterisk(Items, int) string {
 	return "*"
 }
 
@@ -81,6 +81,6 @@ func Asterisk(Data, int) string {
 //	\- Bar
 //	\- Baz
 //	\- Qux.
-func Dash(Data, int) string {
+func Dash(Items, int) string {
 	return "-"
 }

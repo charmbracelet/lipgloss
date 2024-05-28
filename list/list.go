@@ -27,15 +27,15 @@ import (
 type (
 	// Enumerator is the type of enumeration to use for the list styling.
 	// It is the prefix for the list.
-	Enumerator func(data Data, i int) string
+	Enumerator func(items Items, i int) string
 
 	// List is a list of items.
 	List struct {
-		inner *tree.Tree
+		tree *tree.Tree
 	}
 
-	// Data is the interface that wraps the basic methods of a list model.
-	Data tree.Data
+	// Items is the interface that wraps the basic methods of a list model.
+	Items tree.Children
 
 	// StyleFunc allows the list to be styled per item.
 	StyleFunc tree.StyleFunc
@@ -43,39 +43,39 @@ type (
 
 // Returns true if this node is hidden.
 func (n *List) Hidden() bool {
-	return n.inner.Hidden()
+	return n.tree.Hidden()
 }
 
 // Hide sets whether or not to hide the tree.
 // This is useful for collapsing or hiding sub-lists.
 func (n *List) Hide(hide bool) *List {
-	n.inner.Hide(hide)
+	n.tree.Hide(hide)
 	return n
 }
 
 // Offset sets the tree children offsets.
 func (n *List) OffsetStart(offset int) *List {
-	n.inner.OffsetStart(offset)
+	n.tree.OffsetStart(offset)
 	return n
 }
 
 // Offset sets the tree children offsets.
 func (n *List) OffsetEnd(offset int) *List {
-	n.inner.OffsetEnd(offset)
+	n.tree.OffsetEnd(offset)
 	return n
 }
 
 // Name returns the root name of this node.
-func (n *List) Name() string { return n.inner.Name() }
+func (n *List) Name() string { return n.tree.Name() }
 
 func (n *List) String() string {
-	return n.inner.String()
+	return n.tree.String()
 }
 
 // EnumeratorStyle sets the enumeration style.
 // Margins and paddings should usually be set only in ItemStyle or ItemStyleFunc.
 func (n *List) EnumeratorStyle(style lipgloss.Style) *List {
-	n.inner.EnumeratorStyle(style)
+	n.tree.EnumeratorStyle(style)
 	return n
 }
 
@@ -92,7 +92,7 @@ func (n *List) EnumeratorStyle(style lipgloss.Style) *List {
 //		    return lipgloss.NewStyle().Foreground(dimColor)
 //		})
 func (n *List) EnumeratorStyleFunc(fn StyleFunc) *List {
-	n.inner.EnumeratorStyleFunc(tree.StyleFunc(fn))
+	n.tree.EnumeratorStyleFunc(tree.StyleFunc(fn))
 	return n
 }
 
@@ -101,7 +101,7 @@ func (n *List) EnumeratorStyleFunc(fn StyleFunc) *List {
 //	l := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(255)))
 func (n *List) ItemStyle(style lipgloss.Style) *List {
-	n.inner.ItemStyle(style)
+	n.tree.ItemStyle(style)
 	return n
 }
 
@@ -117,7 +117,7 @@ func (n *List) ItemStyle(style lipgloss.Style) *List {
 //			return st.Foreground(dimColor)
 //		})
 func (n *List) ItemStyleFunc(fn StyleFunc) *List {
-	n.inner.ItemStyleFunc(tree.StyleFunc(fn))
+	n.tree.ItemStyleFunc(tree.StyleFunc(fn))
 	return n
 }
 
@@ -129,9 +129,9 @@ func (n *List) ItemStyleFunc(fn StyleFunc) *List {
 func (n *List) Item(item any) *List {
 	switch item := item.(type) {
 	case *List:
-		n.inner.Item(item.inner)
+		n.tree.Item(item.tree)
 	default:
-		n.inner.Item(item)
+		n.tree.Item(item)
 	}
 	return n
 }
@@ -151,7 +151,7 @@ func (n *List) Items(items ...any) *List {
 //	list.New().
 //		Enumerator(Arabic)
 func (n *List) Enumerator(enum Enumerator) *List {
-	n.inner.Enumerator(func(data tree.Data, i int) (string, string) {
+	n.tree.Enumerator(func(data tree.Children, i int) (string, string) {
 		return " ", enum(data, i)
 	})
 	return n
@@ -160,7 +160,7 @@ func (n *List) Enumerator(enum Enumerator) *List {
 // New returns a new list with a bullet enumerator.
 func New(items ...any) *List {
 	l := &List{
-		inner: tree.New(),
+		tree: tree.New(),
 	}
 	return l.Items(items...).Enumerator(Bullet)
 }

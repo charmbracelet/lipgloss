@@ -267,7 +267,7 @@ func TestTreeCustom(t *testing.T) {
 		EnumeratorStyle(lipgloss.NewStyle().
 			Foreground(lipgloss.Color("12")).
 			PaddingRight(1)).
-		Enumerator(func(tree.Data, int) (indent string, prefix string) {
+		Enumerator(func(tree.Children, int) (indent string, prefix string) {
 			return "->", "->"
 		})
 
@@ -331,11 +331,11 @@ func TestTreeSubTreeWithCustomEnumerator(t *testing.T) {
 			tree.New().
 				Root("Parent").
 				Items("child 1", "child 2").
-				ItemStyleFunc(func(tree.Data, int) lipgloss.Style {
+				ItemStyleFunc(func(tree.Children, int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("*")
 				}).
-				EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+				EnumeratorStyleFunc(func(_ tree.Children, i int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("+").
 						PaddingRight(1)
@@ -362,7 +362,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 			"Foo",
 			"Foo",
 			"Foo",
-		).Enumerator(func(_ tree.Data, i int) (indent string, prefix string) {
+		).Enumerator(func(_ tree.Children, i int) (indent string, prefix string) {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -406,7 +406,7 @@ func TestTreeStyleAt(t *testing.T) {
 		Items(
 			"Foo",
 			"Baz",
-		).Enumerator(func(data tree.Data, i int) (indent string, prefix string) {
+		).Enumerator(func(data tree.Children, i int) (indent string, prefix string) {
 		if data.At(i).Name() == "Foo" {
 			return "", ">"
 		}
@@ -565,7 +565,7 @@ func TestEmbedListWithinTree(t *testing.T) {
 func TestMultilinePrefix(t *testing.T) {
 	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
-		Enumerator(func(_ tree.Data, i int) (string, string) {
+		Enumerator(func(_ tree.Children, i int) (string, string) {
 			if i == 1 {
 				return "", "│\n│"
 			}
@@ -598,7 +598,7 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 		Item(
 			tree.New().
 				Root("Baz").
-				Enumerator(func(_ tree.Data, i int) (string, string) {
+				Enumerator(func(_ tree.Children, i int) (string, string) {
 					if i == 1 {
 						return "", "│\n│"
 					}
@@ -629,7 +629,7 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 }
 
 func TestMultilinePrefixInception(t *testing.T) {
-	glowEnum := func(_ tree.Data, i int) (string, string) {
+	glowEnum := func(_ tree.Children, i int) (string, string) {
 		if i == 1 {
 			return "  ", "│\n│"
 		}

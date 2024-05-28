@@ -1,7 +1,7 @@
 package tree
 
-// Data is the interface that wraps the basic methods of a list model.
-type Data interface {
+// Children is the interface that wraps the basic methods of a list model.
+type Children interface {
 	// At returns the content item of the given index.
 	At(index int) Node
 
@@ -9,70 +9,72 @@ type Data interface {
 	Length() int
 
 	// Removes the given index returning the Data without it.
-	Remove(index int) Data
+	Remove(index int) Children
 
 	// Append adds the given node to the underlying data.
-	Append(item Node) Data
+	Append(item Node) Children
 }
 
-type nodeData []Node
+type NodeData []Node
 
-var _ Data = nodeData(nil)
+var _ Children = NodeData(nil)
 
-func (a nodeData) Append(item Node) Data {
-	a = append(a, item)
-	return a
+func (n NodeData) Append(item Node) Children {
+	n = append(n, item)
+	return n
 }
 
-func (a nodeData) Remove(i int) Data {
-	if i < 0 || len(a) < i+1 {
-		return a
+func (n NodeData) Remove(i int) Children {
+	if i < 0 || len(n) < i+1 {
+		return n
 	}
-	a = append(a[:i], a[i+1:]...)
-	return a
+	n = append(n[:i], n[i+1:]...)
+	return n
 }
 
-func (a nodeData) Length() int { return len(a) }
+func (n NodeData) Length() int {
+	return len(n)
+}
 
-func (a nodeData) At(i int) Node {
-	if i >= 0 && i < len(a) {
-		return a[i]
+func (n NodeData) At(i int) Node {
+	if i >= 0 && i < len(n) {
+		return n[i]
 	}
 	return nil
 }
 
 // NewStringData returns a Data of strings.
-func NewStringData(data ...string) Data {
+func NewStringData(data ...string) Children {
 	result := make([]Node, 0, len(data))
 	for _, d := range data {
 		s := StringNode(d)
 		result = append(result, &s)
 	}
-	return nodeData(result)
+	return NodeData(result)
 }
 
-var _ Data = NewFilter(nil)
+var _ Children = NewFilter(nil)
 
 // Filter applies a filter on some data. You could use this to create a new
 // tree whose values all satisfy the condition provided in the Filter() function.
 type Filter struct {
-	data   Data
+	data   Children
 	filter func(index int) bool
 }
 
 // Append allows Filter to implement Data. It adds an element to the Tree.
-func (m *Filter) Append(item Node) Data {
+func (m *Filter) Append(item Node) Children {
 	m.data = m.data.Append(item)
 	return m
 }
 
 // NewFilter initializes a new Filter.
-func NewFilter(data Data) *Filter {
+func NewFilter(data Children) *Filter {
 	return &Filter{data: data}
 }
 
 // Remove allows Filter to implement Data. It removes an element from the Tree.
-func (m *Filter) Remove(index int) Data {
+func (m *Filter) Remove(index int) Children {
 	m.data = m.data.Remove(index)
 	return m
 }
