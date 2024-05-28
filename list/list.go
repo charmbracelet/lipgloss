@@ -40,41 +40,43 @@ type Items tree.Children
 type StyleFunc tree.StyleFunc
 
 // Returns true if this node is hidden.
-func (n *List) Hidden() bool {
-	return n.tree.Hidden()
+func (l *List) Hidden() bool {
+	return l.tree.Hidden()
 }
 
 // Hide sets whether or not to hide the tree.
 // This is useful for collapsing or hiding sub-lists.
-func (n *List) Hide(hide bool) *List {
-	n.tree.Hide(hide)
-	return n
+func (l *List) Hide(hide bool) *List {
+	l.tree.Hide(hide)
+	return l
 }
 
 // Offset sets the tree children offsets.
-func (n *List) OffsetStart(offset int) *List {
-	n.tree.OffsetStart(offset)
-	return n
+func (l *List) OffsetStart(offset int) *List {
+	l.tree.OffsetStart(offset)
+	return l
 }
 
 // Offset sets the tree children offsets.
-func (n *List) OffsetEnd(offset int) *List {
-	n.tree.OffsetEnd(offset)
-	return n
+func (l *List) OffsetEnd(offset int) *List {
+	l.tree.OffsetEnd(offset)
+	return l
 }
 
-// Name returns the root name of this node.
-func (n *List) Name() string { return n.tree.Value() }
+// Value returns the root name of this node.
+func (l *List) Value() string {
+	return l.tree.Value()
+}
 
-func (n *List) String() string {
-	return n.tree.String()
+func (l *List) String() string {
+	return l.tree.String()
 }
 
 // EnumeratorStyle sets the enumeration style.
 // Margins and paddings should usually be set only in ItemStyle or ItemStyleFunc.
-func (n *List) EnumeratorStyle(style lipgloss.Style) *List {
-	n.tree.EnumeratorStyle(style)
-	return n
+func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
+	l.tree.EnumeratorStyle(style)
+	return l
 }
 
 // EnumeratorStyleFunc sets the enumeration style function. Use this function
@@ -89,18 +91,18 @@ func (n *List) EnumeratorStyle(style lipgloss.Style) *List {
 //		    }
 //		    return lipgloss.NewStyle().Foreground(dimColor)
 //		})
-func (n *List) EnumeratorStyleFunc(fn StyleFunc) *List {
-	n.tree.EnumeratorStyleFunc(tree.StyleFunc(fn))
-	return n
+func (l *List) EnumeratorStyleFunc(fn StyleFunc) *List {
+	l.tree.EnumeratorStyleFunc(tree.StyleFunc(fn))
+	return l
 }
 
 // ItemStyle sets the item style.
 //
 //	l := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(255)))
-func (n *List) ItemStyle(style lipgloss.Style) *List {
-	n.tree.ItemStyle(style)
-	return n
+func (l *List) ItemStyle(style lipgloss.Style) *List {
+	l.tree.ItemStyle(style)
+	return l
 }
 
 // ItemStyleFunc sets the item style function. Use this for conditional styling.
@@ -114,9 +116,9 @@ func (n *List) ItemStyle(style lipgloss.Style) *List {
 //			}
 //			return st.Foreground(dimColor)
 //		})
-func (n *List) ItemStyleFunc(fn StyleFunc) *List {
-	n.tree.ItemStyleFunc(tree.StyleFunc(fn))
-	return n
+func (l *List) ItemStyleFunc(fn StyleFunc) *List {
+	l.tree.ItemStyleFunc(tree.StyleFunc(fn))
+	return l
 }
 
 // Item appends an item to a list. Lists support nesting.
@@ -124,41 +126,38 @@ func (n *List) ItemStyleFunc(fn StyleFunc) *List {
 //	l := list.New().
 //	Item("Item 1").
 //	Item(list.New("Item 1.1", "Item 1.2"))
-func (n *List) Item(item any) *List {
+func (l *List) Item(item any) *List {
 	switch item := item.(type) {
 	case *List:
-		n.tree.Item(item.tree)
+		l.tree.Item(item.tree)
 	default:
-		n.tree.Item(item)
+		l.tree.Item(item)
 	}
-	return n
+	return l
 }
 
 // Items add multiple items to the tree.
-func (n *List) Items(items ...any) *List {
+func (l *List) Items(items ...any) *List {
 	for _, item := range items {
-		n.Item(item)
+		l.Item(item)
 	}
-	return n
+	return l
 }
 
 // Enumerator sets the enumerator implementation. Lipgloss includes
 // predefined enumerators including bullets, roman numerals, and more. For
 // example, you can have a numbered list:
 //
-//	list.New().
-//		Enumerator(Arabic)
-func (n *List) Enumerator(enum Enumerator) *List {
-	n.tree.Enumerator(func(data tree.Children, i int) (string, string) {
-		return " ", enum(data, i)
+//	list.New().Enumerator(Arabic)
+func (l *List) Enumerator(enum Enumerator) *List {
+	l.tree.Enumerator(func(children tree.Children, index int) (string, string) {
+		return " ", enum(children, index)
 	})
-	return n
+	return l
 }
 
 // New returns a new list with a bullet enumerator.
 func New(items ...any) *List {
-	l := &List{
-		tree: tree.New(),
-	}
+	l := &List{tree: tree.New()}
 	return l.Items(items...).Enumerator(Bullet)
 }
