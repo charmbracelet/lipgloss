@@ -422,22 +422,19 @@ Root
 }
 
 func TestAt(t *testing.T) {
-	nodes := tree.NewStringData("foo", "bar")
-	t.Run("0", func(t *testing.T) {
-		if s := nodes.At(0).String(); s != "foo" {
-			t.Errorf("want 'foo', got '%s'", s)
-		}
-	})
-	t.Run("10", func(t *testing.T) {
-		if n := nodes.At(10); n != nil {
-			t.Errorf("want nil, got '%s'", n)
-		}
-	})
-	t.Run("-1", func(t *testing.T) {
-		if n := nodes.At(10); n != nil {
-			t.Errorf("want nil, got '%s'", n)
-		}
-	})
+	data := tree.NewStringData("Foo", "Bar")
+
+	if s := data.At(0).String(); s != "Foo" {
+		t.Errorf("want 'Foo', got '%s'", s)
+	}
+
+	if n := data.At(10); n != nil {
+		t.Errorf("want nil, got '%s'", n)
+	}
+
+	if n := data.At(-1); n != nil {
+		t.Errorf("want nil, got '%s'", n)
+	}
 }
 
 func TestFilter(t *testing.T) {
