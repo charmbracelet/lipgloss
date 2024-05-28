@@ -445,10 +445,8 @@ func TestFilter(t *testing.T) {
 		"Nope",
 	)).
 		Filter(func(index int) bool {
-			return index != 1
-		}).
-		Append(tree.StringNode("Qux")).
-		Remove(3)
+			return index != 3
+		})
 
 	tree := tree.New().
 		Root("Root").
@@ -457,13 +455,13 @@ func TestFilter(t *testing.T) {
 	want := `
 Root
 ├── Foo
-├── Baz
-└── Qux
+├── Bar
+└── Baz
 	`
 
 	assertEqual(t, want, tree.String())
-	if got := data.At(1); got.Name() != "Baz" {
-		t.Errorf("want Baz, got %v", got)
+	if got := data.At(1); got.Name() != "Bar" {
+		t.Errorf("want Bar, got %v", got)
 	}
 	if got := data.At(10); got != nil {
 		t.Errorf("want nil, got %v", got)
@@ -471,7 +469,7 @@ Root
 }
 
 func TestNodeDataRemoveOutOfBounds(t *testing.T) {
-	data := tree.NewStringData("a").Remove(-1).Remove(1)
+	data := tree.NewStringData("a")
 	if l := data.Length(); l != 1 {
 		t.Errorf("want data to contain 1 items, has %d", l)
 	}

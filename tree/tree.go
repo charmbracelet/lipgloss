@@ -72,35 +72,37 @@ type Tree struct { //nolint:revive
 }
 
 // Returns true if this node is hidden.
-func (n *Tree) Hidden() bool {
-	return n.hide
+func (t *Tree) Hidden() bool {
+	return t.hide
 }
 
 // Hide sets whether or not to hide the tree.
 // This is useful for collapsing or hiding sub-trees.
-func (n *Tree) Hide(hide bool) *Tree {
-	n.hide = hide
-	return n
+func (t *Tree) Hide(hide bool) *Tree {
+	t.hide = hide
+	return t
 }
 
 // Offset sets the tree children offsets.
-func (n *Tree) OffsetStart(offset int) *Tree {
-	n.offset[0] = offset
-	return n
+func (t *Tree) OffsetStart(offset int) *Tree {
+	t.offset[0] = offset
+	return t
 }
 
 // Offset sets the tree children offsets.
-func (n *Tree) OffsetEnd(offset int) *Tree {
-	n.offset[1] = offset
-	return n
+func (t *Tree) OffsetEnd(offset int) *Tree {
+	t.offset[1] = offset
+	return t
 }
 
 // Name returns the root name of this node.
-func (n *Tree) Name() string { return n.name }
+func (t *Tree) Name() string {
+	return t.name
+}
 
 // String conforms with Stringer.
-func (n *Tree) String() string {
-	return n.ensureRenderer().render(n, true, "")
+func (t *Tree) String() string {
+	return t.ensureRenderer().render(t, true, "")
 }
 
 // Item appends an item to a list.
@@ -123,44 +125,44 @@ func (n *Tree) String() string {
 //	└── qux
 //
 // You may also change the tree style using Enumerator.
-func (n *Tree) Item(item any) *Tree {
+func (t *Tree) Item(item any) *Tree {
 	switch item := item.(type) {
 	case *Tree:
-		newItem, rm := ensureParent(n.children, item)
+		newItem, rm := ensureParent(t.children, item)
 		if rm >= 0 {
-			n.children = n.children.Remove(rm)
+			t.children = t.children.(NodeData).Remove(rm)
 		}
-		n.children = n.children.Append(newItem)
+		t.children = t.children.(NodeData).Append(newItem)
 	case Children:
 		for i := 0; i < item.Length(); i++ {
-			n.children = n.children.Append(item.At(i))
+			t.children = t.children.(NodeData).Append(item.At(i))
 		}
 	case Node:
-		n.children = n.children.Append(item)
+		t.children = t.children.(NodeData).Append(item)
 	case fmt.Stringer:
 		s := StringNode(item.String())
-		n.children = n.children.Append(&s)
+		t.children = t.children.(NodeData).Append(s)
 	case string:
 		s := StringNode(item)
-		n.children = n.children.Append(&s)
+		t.children = t.children.(NodeData).Append(&s)
 	// XXX: passing []any and []string would be the most common errors it
 	// seems, this fixes it, but doesn't handle other types of slices...
 	// Maybe it's best to not handle any of these?
 	case []any:
-		return n.Items(item...)
+		return t.Items(item...)
 	case []string:
 		ss := make([]any, 0, len(item))
 		for _, s := range item {
 			ss = append(ss, s)
 		}
-		return n.Items(ss...)
+		return t.Items(ss...)
 	case nil:
-		return n
+		return t
 	default:
 		// optimistically try to convert to a string...
-		return n.Item(fmt.Sprintf("%v", item))
+		return t.Item(fmt.Sprintf("%v", item))
 	}
-	return n
+	return t
 }
 
 // Items add multiple items to the tree.
@@ -168,11 +170,11 @@ func (n *Tree) Item(item any) *Tree {
 //	t := tree.New().
 //		Root("Nyx").
 //		Items("Qux", "Quux").
-func (n *Tree) Items(items ...any) *Tree {
+func (t *Tree) Items(items ...any) *Tree {
 	for _, item := range items {
-		n.Item(item)
+		t.Item(item)
 	}
-	return n
+	return t
 }
 
 // Ensures the TreeItem being added is in good shape.
@@ -204,11 +206,11 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 }
 
 // Ensure the tree node has a renderer.
-func (n *Tree) ensureRenderer() *renderer {
-	n.rendererOnce.Do(func() {
-		n.renderer = newRenderer()
+func (t *Tree) ensureRenderer() *renderer {
+	t.rendererOnce.Do(func() {
+		t.renderer = newRenderer()
 	})
-	return n.renderer
+	return t.renderer
 }
 
 // EnumeratorStyle sets the enumeration style.
@@ -216,9 +218,9 @@ func (n *Tree) ensureRenderer() *renderer {
 //
 //	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")))
-func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
-	n.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style { return style }
-	return n
+func (t *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
+	t.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style { return style }
+	return t
 }
 
 // EnumeratorStyleFunc sets the enumeration style function. Use this function
@@ -233,21 +235,21 @@ func (n *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 //		    }
 //		    return lipgloss.NewStyle().Foreground(dimColor)
 //		})
-func (n *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
+func (t *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
 		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
-	n.ensureRenderer().style.enumeratorFunc = fn
-	return n
+	t.ensureRenderer().style.enumeratorFunc = fn
+	return t
 }
 
 // ItemStyle sets the item style.
 //
 //	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(255)))
-func (n *Tree) ItemStyle(style lipgloss.Style) *Tree {
-	n.ensureRenderer().style.itemFunc = func(Children, int) lipgloss.Style { return style }
-	return n
+func (t *Tree) ItemStyle(style lipgloss.Style) *Tree {
+	t.ensureRenderer().style.itemFunc = func(Children, int) lipgloss.Style { return style }
+	return t
 }
 
 // ItemStyleFunc sets the item style function. Use this for conditional styling.
@@ -261,12 +263,12 @@ func (n *Tree) ItemStyle(style lipgloss.Style) *Tree {
 //			}
 //			return st.Foreground(dimColor)
 //		})
-func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
+func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
 		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
-	n.ensureRenderer().style.itemFunc = fn
-	return n
+	t.ensureRenderer().style.itemFunc = fn
+	return t
 }
 
 // Enumerator sets the enumerator implementation. This can be used to change the way the branches indicators look.
@@ -275,24 +277,24 @@ func (n *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 //
 //	tree.New().
 //		Enumerator(Arabic)
-func (n *Tree) Enumerator(enum Enumerator) *Tree {
-	n.ensureRenderer().enumerator = enum
-	return n
+func (t *Tree) Enumerator(enum Enumerator) *Tree {
+	t.ensureRenderer().enumerator = enum
+	return t
 }
 
 // Children returns the children of a node.
-func (n *Tree) Children() Children {
+func (t *Tree) Children() Children {
 	var data []Node
-	for i := n.offset[0]; i < n.children.Length()-n.offset[1]; i++ {
-		data = append(data, n.children.At(i))
+	for i := t.offset[0]; i < t.children.Length()-t.offset[1]; i++ {
+		data = append(data, t.children.At(i))
 	}
 	return NodeData(data)
 }
 
 // Root sets the tree node root name.
-func (n *Tree) Root(root string) *Tree {
-	n.name = root
-	return n
+func (t *Tree) Root(root string) *Tree {
+	t.name = root
+	return t
 }
 
 // New returns a new tree.

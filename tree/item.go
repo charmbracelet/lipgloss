@@ -7,17 +7,9 @@ type Children interface {
 
 	// Length returns the number of items in the list.
 	Length() int
-
-	// Removes the given index returning the Data without it.
-	Remove(index int) Children
-
-	// Append adds the given node to the underlying data.
-	Append(item Node) Children
 }
 
 type NodeData []Node
-
-var _ Children = NodeData(nil)
 
 func (n NodeData) Append(item Node) Children {
 	n = append(n, item)
@@ -62,21 +54,9 @@ type Filter struct {
 	filter func(index int) bool
 }
 
-// Append allows Filter to implement Data. It adds an element to the Tree.
-func (m *Filter) Append(item Node) Children {
-	m.data = m.data.Append(item)
-	return m
-}
-
 // NewFilter initializes a new Filter.
 func NewFilter(data Children) *Filter {
 	return &Filter{data: data}
-}
-
-// Remove allows Filter to implement Data. It removes an element from the Tree.
-func (m *Filter) Remove(index int) Children {
-	m.data = m.data.Remove(index)
-	return m
 }
 
 // At returns the item at the given index.
