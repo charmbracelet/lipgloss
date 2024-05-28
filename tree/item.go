@@ -9,26 +9,31 @@ type Children interface {
 	Length() int
 }
 
-type NodeData []Node
+// NodeChildren is the implementation of the Children interface with tree Nodes.
+type NodeChildren []Node
 
-func (n NodeData) Append(item Node) Children {
-	n = append(n, item)
+// Append appends a child to the list of children.
+func (n NodeChildren) Append(child Node) NodeChildren {
+	n = append(n, child)
 	return n
 }
 
-func (n NodeData) Remove(i int) Children {
-	if i < 0 || len(n) < i+1 {
+// Remove removes a child from the list at the given index.
+func (n NodeChildren) Remove(index int) NodeChildren {
+	if index < 0 || len(n) < index+1 {
 		return n
 	}
-	n = append(n[:i], n[i+1:]...)
+	n = append(n[:index], n[index+1:]...)
 	return n
 }
 
-func (n NodeData) Length() int {
+// Length returns the number of children in the list.
+func (n NodeChildren) Length() int {
 	return len(n)
 }
 
-func (n NodeData) At(i int) Node {
+// At returns the child at the given index.
+func (n NodeChildren) At(i int) Node {
 	if i >= 0 && i < len(n) {
 		return n[i]
 	}
@@ -42,7 +47,7 @@ func NewStringData(data ...string) Children {
 		s := StringNode(d)
 		result = append(result, &s)
 	}
-	return NodeData(result)
+	return NodeChildren(result)
 }
 
 var _ Children = NewFilter(nil)

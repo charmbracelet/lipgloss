@@ -24,22 +24,20 @@ import (
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
-type (
-	// Enumerator is the type of enumeration to use for the list styling.
-	// It is the prefix for the list.
-	Enumerator func(items Items, i int) string
+// Enumerator is the type of enumeration to use for the list styling.
+// It is the prefix for the list.
+type Enumerator func(items Items, i int) string
 
-	// List is a list of items.
-	List struct {
-		tree *tree.Tree
-	}
+// List is a list of items.
+type List struct {
+	tree *tree.Tree
+}
 
-	// Items is the interface that wraps the basic methods of a list model.
-	Items tree.Children
+// Items is the interface that wraps the basic methods of a list model.
+type Items tree.Children
 
-	// StyleFunc allows the list to be styled per item.
-	StyleFunc tree.StyleFunc
-)
+// StyleFunc allows the list to be styled per item.
+type StyleFunc tree.StyleFunc
 
 // Returns true if this node is hidden.
 func (n *List) Hidden() bool {
@@ -66,7 +64,7 @@ func (n *List) OffsetEnd(offset int) *List {
 }
 
 // Name returns the root name of this node.
-func (n *List) Name() string { return n.tree.Name() }
+func (n *List) Name() string { return n.tree.Value() }
 
 func (n *List) String() string {
 	return n.tree.String()

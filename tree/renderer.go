@@ -46,7 +46,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	enumerator := r.enumerator
 
 	// print the root node name if its not empty.
-	if name := node.Name(); name != "" && root {
+	if name := node.Value(); name != "" && root {
 		strs = append(strs, r.style.itemFunc(children, -1).Render(name))
 	}
 
@@ -70,7 +70,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			nodePrefix = strings.Repeat(" ", l) + nodePrefix
 		}
 
-		item := itemStyle.Render(child.Name())
+		item := itemStyle.Render(child.Value())
 		multineLinePrefix := prefix
 
 		// This dance below is to account for multiline prefixes, e.g. "|\n|".

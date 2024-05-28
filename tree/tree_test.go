@@ -407,7 +407,7 @@ func TestTreeStyleAt(t *testing.T) {
 			"Foo",
 			"Baz",
 		).Enumerator(func(data tree.Children, i int) (indent string, prefix string) {
-		if data.At(i).Name() == "Foo" {
+		if data.At(i).Value() == "Foo" {
 			return "", ">"
 		}
 		return "", "-"
@@ -460,7 +460,7 @@ Root
 	`
 
 	assertEqual(t, want, tree.String())
-	if got := data.At(1); got.Name() != "Bar" {
+	if got := data.At(1); got.Value() != "Bar" {
 		t.Errorf("want Bar, got %v", got)
 	}
 	if got := data.At(10); got != nil {

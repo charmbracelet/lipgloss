@@ -34,7 +34,7 @@ import (
 // Node defines a node in a tree.
 type Node interface {
 	fmt.Stringer
-	Name() string
+	Value() string
 	Children() Children
 	Hidden() bool
 }
@@ -45,12 +45,12 @@ type StringNode string
 // Children conforms with Node.
 //
 // Always returns no children.
-func (StringNode) Children() Children { return NodeData(nil) }
+func (StringNode) Children() Children { return NodeChildren(nil) }
 
-// Name conforms with Node.
+// Value conforms with Node.
 //
 // Returns the value of the string itself.
-func (s StringNode) Name() string { return string(s) }
+func (s StringNode) Value() string { return string(s) }
 
 // Hidden conforms with Node.
 //
@@ -58,7 +58,7 @@ func (s StringNode) Name() string { return string(s) }
 func (s StringNode) Hidden() bool { return false }
 
 // String returns conforms with Stringer.
-func (s StringNode) String() string { return s.Name() }
+func (s StringNode) String() string { return s.Value() }
 
 // Tree implements the Node interface.
 // It has a name and, optionally, children.
@@ -95,8 +95,8 @@ func (t *Tree) OffsetEnd(offset int) *Tree {
 	return t
 }
 
-// Name returns the root name of this node.
-func (t *Tree) Name() string {
+// Value returns the root name of this node.
+func (t *Tree) Value() string {
 	return t.name
 }
 
@@ -130,21 +130,21 @@ func (t *Tree) Item(item any) *Tree {
 	case *Tree:
 		newItem, rm := ensureParent(t.children, item)
 		if rm >= 0 {
-			t.children = t.children.(NodeData).Remove(rm)
+			t.children = t.children.(NodeChildren).Remove(rm)
 		}
-		t.children = t.children.(NodeData).Append(newItem)
+		t.children = t.children.(NodeChildren).Append(newItem)
 	case Children:
 		for i := 0; i < item.Length(); i++ {
-			t.children = t.children.(NodeData).Append(item.At(i))
+			t.children = t.children.(NodeChildren).Append(item.At(i))
 		}
 	case Node:
-		t.children = t.children.(NodeData).Append(item)
+		t.children = t.children.(NodeChildren).Append(item)
 	case fmt.Stringer:
 		s := StringNode(item.String())
-		t.children = t.children.(NodeData).Append(s)
+		t.children = t.children.(NodeChildren).Append(s)
 	case string:
 		s := StringNode(item)
-		t.children = t.children.(NodeData).Append(&s)
+		t.children = t.children.(NodeChildren).Append(&s)
 	// XXX: passing []any and []string would be the most common errors it
 	// seems, this fixes it, but doesn't handle other types of slices...
 	// Maybe it's best to not handle any of these?
@@ -184,7 +184,7 @@ func (t *Tree) Items(items ...any) *Tree {
 // 1. IFF it's a TreeNode, it'll append item's children to it, and return it.
 // 1. IFF it's a StringNode, it'll set its content as item's name, and remove it.
 func ensureParent(nodes Children, item *Tree) (*Tree, int) {
-	if item.Name() != "" || nodes.Length() == 0 {
+	if item.Value() != "" || nodes.Length() == 0 {
 		return item, -1
 	}
 	j := nodes.Length() - 1
@@ -196,10 +196,10 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 		}
 		return parent, j
 	case StringNode:
-		item.name = parent.Name()
+		item.name = parent.Value()
 		return item, j
 	case *StringNode:
-		item.name = parent.Name()
+		item.name = parent.Value()
 		return item, j
 	}
 	return item, -1
@@ -288,7 +288,7 @@ func (t *Tree) Children() Children {
 	for i := t.offset[0]; i < t.children.Length()-t.offset[1]; i++ {
 		data = append(data, t.children.At(i))
 	}
-	return NodeData(data)
+	return NodeChildren(data)
 }
 
 // Root sets the tree node root name.
@@ -300,6 +300,6 @@ func (t *Tree) Root(root string) *Tree {
 // New returns a new tree.
 func New() *Tree {
 	return &Tree{
-		children: NodeData(nil),
+		children: NodeChildren(nil),
 	}
 }
