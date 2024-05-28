@@ -24,10 +24,6 @@ import (
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
-// Enumerator is the type of enumeration to use for the list styling.
-// It is the prefix for the list.
-type Enumerator func(items Items, i int) string
-
 // List is a list of items.
 type List struct {
 	tree *tree.Tree

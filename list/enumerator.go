@@ -5,7 +5,9 @@ import (
 	"strings"
 )
 
-const abcLen = 26
+// Enumerator is the type of enumeration to use for the list styling.
+// It is the prefix for the list.
+type Enumerator func(items Items, index int) string
 
 // Alphabet is the enumeration for alphabetical listing.
 //
@@ -14,14 +16,16 @@ const abcLen = 26
 //	c. Baz
 //	d. Qux.
 func Alphabet(_ Items, i int) string {
-	if i >= abcLen*abcLen+abcLen {
-		return fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
+	if i >= alphabetLen*alphabetLen+alphabetLen {
+		return fmt.Sprintf("%c%c%c.", 'A'+i/alphabetLen/alphabetLen-1, 'A'+(i/alphabetLen)%alphabetLen-1, 'A'+i%alphabetLen)
 	}
-	if i >= abcLen {
-		return fmt.Sprintf("%c%c.", 'A'+i/abcLen-1, 'A'+(i)%abcLen)
+	if i >= alphabetLen {
+		return fmt.Sprintf("%c%c.", 'A'+i/alphabetLen-1, 'A'+(i)%alphabetLen)
 	}
-	return fmt.Sprintf("%c.", 'A'+i%abcLen)
+	return fmt.Sprintf("%c.", 'A'+i%alphabetLen)
 }
+
+const alphabetLen = 26
 
 // Arabic is the enumeration for arabic numerals listing.
 //
