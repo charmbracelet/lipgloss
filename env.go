@@ -57,7 +57,7 @@ func QueryHasLightBackground(in term.File, out term.File) bool {
 	defer term.Restore(in.Fd(), state) // nolint:errcheck
 
 	c, err := term.QueryBackgroundColor(in, out)
-	if err != nil {
+	if err != nil || c == nil {
 		return false
 	}
 
