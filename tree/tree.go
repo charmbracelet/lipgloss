@@ -63,7 +63,7 @@ func (s StringNode) String() string { return s.Value() }
 // Tree implements the Node interface.
 // It has a name and, optionally, children.
 type Tree struct { //nolint:revive
-	name         string
+	value        string
 	renderer     *renderer
 	rendererOnce sync.Once
 	children     Children
@@ -84,20 +84,28 @@ func (t *Tree) Hide(hide bool) *Tree {
 }
 
 // Offset sets the tree children offsets.
-func (t *Tree) OffsetStart(offset int) *Tree {
-	t.offset[0] = offset
-	return t
-}
+func (t *Tree) Offset(start, end int) *Tree {
+	if start > end {
+		_start := start
+		start = end
+		end = _start
+	}
 
-// Offset sets the tree children offsets.
-func (t *Tree) OffsetEnd(offset int) *Tree {
-	t.offset[1] = offset
+	if start < 0 {
+		start = 0
+	}
+	if end < 0 || end > t.children.Length() {
+		end = t.children.Length()
+	}
+
+	t.offset[0] = start
+	t.offset[1] = end
 	return t
 }
 
 // Value returns the root name of this node.
 func (t *Tree) Value() string {
-	return t.name
+	return t.value
 }
 
 // String conforms with Stringer.
@@ -196,10 +204,10 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 		}
 		return parent, j
 	case StringNode:
-		item.name = parent.Value()
+		item.value = parent.Value()
 		return item, j
 	case *StringNode:
-		item.name = parent.Value()
+		item.value = parent.Value()
 		return item, j
 	}
 	return item, -1
@@ -219,7 +227,9 @@ func (t *Tree) ensureRenderer() *renderer {
 //	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
 //		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")))
 func (t *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
-	t.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style { return style }
+	t.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style {
+		return style
+	}
 	return t
 }
 
@@ -293,7 +303,7 @@ func (t *Tree) Children() Children {
 
 // Root sets the tree node root name.
 func (t *Tree) Root(root string) *Tree {
-	t.name = root
+	t.value = root
 	return t
 }
 
