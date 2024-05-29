@@ -20,7 +20,7 @@ var noColor = NoColor{}
 //
 // Example usage:
 //
-//	var style = someStyle.Copy().Background(lipgloss.NoColor{})
+//	var style = someStyle.Background(lipgloss.NoColor{})
 type NoColor struct{}
 
 func (NoColor) color(*Renderer) termenv.Color {
