@@ -5,34 +5,50 @@ import (
 	"strings"
 )
 
-// Enumerator is the type of enumeration to use for the list styling.
-// It is the prefix for the list.
+// Enumerator enumerates a list. Given a list of items and the index of the
+// current enumeration, it returns the prefix that should be displayed for the
+// current item.
+//
+// For example, a simple Arabic numeral enumeration would be:
+//
+//	func Arabic(_ Items, i int) string {
+//	  return fmt.Sprintf("%d.", i+1)
+//	}
+//
+// There are several predefined enumerators:
+// • Alphabet
+// • Arabic
+// • Bullet
+// • Dash
+// • Roman
+//
+// Or, define your own.
 type Enumerator func(items Items, index int) string
 
 // Alphabet is the enumeration for alphabetical listing.
 //
-//	a. Foo
-//	b. Bar
-//	c. Baz
-//	d. Qux.
+// a. Foo
+// b. Bar
+// c. Baz
+// d. Qux.
 func Alphabet(_ Items, i int) string {
-	if i >= alphabetLen*alphabetLen+alphabetLen {
-		return fmt.Sprintf("%c%c%c.", 'A'+i/alphabetLen/alphabetLen-1, 'A'+(i/alphabetLen)%alphabetLen-1, 'A'+i%alphabetLen)
+	if i >= abcLen*abcLen+abcLen {
+		return fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
 	}
-	if i >= alphabetLen {
-		return fmt.Sprintf("%c%c.", 'A'+i/alphabetLen-1, 'A'+(i)%alphabetLen)
+	if i >= abcLen {
+		return fmt.Sprintf("%c%c.", 'A'+i/abcLen-1, 'A'+(i)%abcLen)
 	}
-	return fmt.Sprintf("%c.", 'A'+i%alphabetLen)
+	return fmt.Sprintf("%c.", 'A'+i%abcLen)
 }
 
-const alphabetLen = 26
+const abcLen = 26
 
 // Arabic is the enumeration for arabic numerals listing.
 //
-//  1. Foo
-//  2. Bar
-//  3. Baz
-//  4. Qux.
+// 1. Foo
+// 2. Bar
+// 3. Baz
+// 4. Qux.
 func Arabic(_ Items, i int) string {
 	return fmt.Sprintf("%d.", i+1)
 }
@@ -61,30 +77,30 @@ func Roman(_ Items, i int) string {
 
 // Bullet is the enumeration for bullet listing.
 //
-//	\• Foo
-//	\• Bar
-//	\• Baz
-//	\• Qux.
+// • Foo
+// • Bar
+// • Baz
+// • Qux.
 func Bullet(Items, int) string {
 	return "•"
 }
 
 // Asterisk is an enumeration using asterisks.
 //
-//	\* Foo
-//	\* Bar
-//	\* Baz
-//	\* Qux.
+// * Foo
+// * Bar
+// * Baz
+// * Qux.
 func Asterisk(Items, int) string {
 	return "*"
 }
 
 // Dash is an enumeration using dashes.
 //
-//	\- Foo
-//	\- Bar
-//	\- Baz
-//	\- Qux.
+// - Foo
+// - Bar
+// - Baz
+// - Qux.
 func Dash(Items, int) string {
 	return "-"
 }
