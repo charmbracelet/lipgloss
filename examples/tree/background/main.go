@@ -21,9 +21,7 @@ func main() {
 	itemStyle := headerItemStyle.Background(lipgloss.Color("0"))
 
 	t := tree.New().
-		ItemStyleFunc(func(t tree.Data, i int) lipgloss.Style {
-			return itemStyle
-		}).
+		ItemStyle(itemStyle).
 		EnumeratorStyle(enumeratorStyle).
 		Root("# Table of Contents").
 		Item(
