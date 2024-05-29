@@ -27,12 +27,14 @@ func newRenderer() *renderer {
 			},
 		},
 		enumerator: DefaultEnumerator,
+		indenter:   DefaultIndenter,
 	}
 }
 
 type renderer struct {
 	style      Style
 	enumerator Enumerator
+	indenter   Indenter
 }
 
 // render is responsible for actually rendering the tree.
@@ -44,6 +46,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	var maxLen int
 	children := node.Children()
 	enumerator := r.enumerator
+	indenter := r.indenter
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {
@@ -51,7 +54,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	}
 
 	for i := 0; i < children.Length(); i++ {
-		_, prefix := enumerator(children, i)
+		prefix := enumerator(children, i)
 		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
@@ -61,7 +64,8 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		if child.Hidden() {
 			continue
 		}
-		indent, nodePrefix := enumerator(children, i)
+		indent := indenter(children, i)
+		nodePrefix := enumerator(children, i)
 		enumStyle := r.style.enumeratorFunc(children, i)
 		itemStyle := r.style.itemFunc(children, i)
 

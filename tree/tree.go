@@ -292,6 +292,11 @@ func (t *Tree) Enumerator(enum Enumerator) *Tree {
 	return t
 }
 
+func (t *Tree) Indenter(indenter Indenter) *Tree {
+	t.ensureRenderer().indenter = indenter
+	return t
+}
+
 // Children returns the children of a node.
 func (t *Tree) Children() Children {
 	var data []Node

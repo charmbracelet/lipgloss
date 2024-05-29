@@ -224,8 +224,11 @@ func (l *List) Items(items ...any) *List {
 //	 Bar. Bar
 //	 Baz. Baz
 func (l *List) Enumerator(enumerator Enumerator) *List {
-	l.tree.Enumerator(func(children tree.Children, index int) (string, string) {
-		return " ", enumerator(children, index)
+	l.tree.Enumerator(func(children tree.Children, index int) string {
+		return enumerator(children, index)
+	})
+	l.tree.Indenter(func(children tree.Children, index int) string {
+		return " "
 	})
 	return l
 }

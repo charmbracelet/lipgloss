@@ -267,8 +267,11 @@ func TestTreeCustom(t *testing.T) {
 		EnumeratorStyle(lipgloss.NewStyle().
 			Foreground(lipgloss.Color("12")).
 			PaddingRight(1)).
-		Enumerator(func(tree.Children, int) (indent string, prefix string) {
-			return "->", "->"
+		Enumerator(func(tree.Children, int) string {
+			return "->"
+		}).
+		Indenter(func(tree.Children, int) string {
+			return "->"
 		})
 
 	want := `
@@ -362,7 +365,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 			"Foo",
 			"Foo",
 			"Foo",
-		).Enumerator(func(_ tree.Children, i int) (indent string, prefix string) {
+		).Enumerator(func(_ tree.Children, i int) string {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -371,7 +374,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 			5: "V",
 			6: "VI",
 		}
-		return "", romans[i+1]
+		return romans[i+1]
 	})
 
 	want := `
@@ -406,11 +409,11 @@ func TestTreeStyleAt(t *testing.T) {
 		Items(
 			"Foo",
 			"Baz",
-		).Enumerator(func(data tree.Children, i int) (indent string, prefix string) {
+		).Enumerator(func(data tree.Children, i int) string {
 		if data.At(i).Value() == "Foo" {
-			return "", ">"
+			return ">"
 		}
-		return "", "-"
+		return "-"
 	})
 
 	want := `
@@ -563,11 +566,14 @@ func TestEmbedListWithinTree(t *testing.T) {
 func TestMultilinePrefix(t *testing.T) {
 	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
-		Enumerator(func(_ tree.Children, i int) (string, string) {
+		Enumerator(func(_ tree.Children, i int) string {
 			if i == 1 {
-				return "", "│\n│"
+				return "│\n│"
 			}
-			return "", " "
+			return " "
+		}).
+		Indenter(func(_ tree.Children, i int) string {
+			return " "
 		}).
 		ItemStyle(paddingsStyle).
 		Item("Foo Document\nThe Foo Files").
@@ -596,11 +602,14 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 		Item(
 			tree.New().
 				Root("Baz").
-				Enumerator(func(_ tree.Children, i int) (string, string) {
+				Enumerator(func(_ tree.Children, i int) string {
 					if i == 1 {
-						return "", "│\n│"
+						return "│\n│"
 					}
-					return "", " "
+					return " "
+				}).
+				Indenter(func(tree.Children, int) string {
+					return " "
 				}).
 				ItemStyle(paddingsStyle).
 				Item("Foo Document\nThe Foo Files").
@@ -627,21 +636,26 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 }
 
 func TestMultilinePrefixInception(t *testing.T) {
-	glowEnum := func(_ tree.Children, i int) (string, string) {
+	glowEnum := func(_ tree.Children, i int) string {
 		if i == 1 {
-			return "  ", "│\n│"
+			return "│\n│"
 		}
-		return "  ", " "
+		return " "
+	}
+	glowIndenter := func(_ tree.Children, i int) string {
+		return "  "
 	}
 	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Enumerator(glowEnum).
+		Indenter(glowIndenter).
 		ItemStyle(paddingsStyle).
 		Item("Foo Document\nThe Foo Files").
 		Item("Bar Document\nThe Bar Files").
 		Item(
 			tree.New().
 				Enumerator(glowEnum).
+				Indenter(glowIndenter).
 				ItemStyle(paddingsStyle).
 				Item("Qux Document\nThe Qux Files").
 				Item("Quux Document\nThe Quux Files").
