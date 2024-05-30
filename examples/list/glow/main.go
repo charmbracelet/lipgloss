@@ -25,7 +25,7 @@ var docs = []Document{
 	{"secrets.md", "1 week ago"},
 }
 
-const selectedIndex = 1
+const selected = 1
 
 func main() {
 	baseStyle := lipgloss.NewStyle().
@@ -36,20 +36,20 @@ func main() {
 
 	l := list.New().
 		Enumerator(func(_ list.Items, i int) string {
-			if i == selectedIndex {
+			if i == selected {
 				return "│\n│"
 			}
 			return " "
 		}).
 		ItemStyleFunc(func(_ list.Items, i int) lipgloss.Style {
 			st := baseStyle
-			if selectedIndex == i {
+			if selected == i {
 				return st.Foreground(hightlightColor)
 			}
 			return st.Foreground(dimColor)
 		}).
 		EnumeratorStyleFunc(func(_ list.Items, i int) lipgloss.Style {
-			if selectedIndex == i {
+			if selected == i {
 				return lipgloss.NewStyle().Foreground(hightlightColor)
 			}
 			return lipgloss.NewStyle().Foreground(dimColor)
