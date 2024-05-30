@@ -603,7 +603,7 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.Inline(true).Render(userInput))
 func (s Style) Inline(v bool) Style {
-	o := s.Copy()
+	o := s // copy
 	o.set(inlineKey, v)
 	return o
 }
@@ -621,7 +621,7 @@ func (s Style) Inline(v bool) Style {
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 func (s Style) MaxWidth(n int) Style {
-	o := s.Copy()
+	o := s // copy
 	o.set(maxWidthKey, n)
 	return o
 }
@@ -633,7 +633,7 @@ func (s Style) MaxWidth(n int) Style {
 // Because this in intended to be used at the time of render, this method will
 // not mutate the style and instead returns a copy.
 func (s Style) MaxHeight(n int) Style {
-	o := s.Copy()
+	o := s // copy
 	o.set(maxHeightKey, n)
 	return o
 }
