@@ -4,6 +4,10 @@ go 1.18
 
 replace github.com/charmbracelet/lipgloss => ../
 
+replace github.com/charmbracelet/lipgloss/tree => ../tree
+
+replace github.com/charmbracelet/lipgloss/list => ../list
+
 require (
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/charmbracelet/wish v0.5.0
