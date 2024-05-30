@@ -97,7 +97,7 @@ func main() {
 														Item(
 															table.New().
 																Width(40).
-																BorderStyle(style1.Copy().MarginRight(0)).
+																BorderStyle(style1.MarginRight(0)).
 																StyleFunc(func(row, col int) lipgloss.Style {
 																	style := lipgloss.NewStyle()
 																	if col == 1 {
