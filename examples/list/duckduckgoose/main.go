@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/lipgloss/list"
 )
 
-func duckDuckGooseEnumerator(data list.Data, i int) string {
-	if data.At(i).Name() == "Goose" {
+func duckDuckGooseEnumerator(items list.Items, i int) string {
+	if items.At(i).Value() == "Goose" {
 		return "Honk →"
 	}
 	return " "

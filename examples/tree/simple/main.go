@@ -11,7 +11,8 @@ func main() {
 		Root(".").
 		Item("Item 1").
 		Item(
-			tree.New().Root("Item 2").
+			tree.New().
+				Root("Item 2").
 				Item("Item 2.1").
 				Item("Item 2.2").
 				Item("Item 2.3"),

@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/tree"
 )
 
 var purchased = []string{
@@ -20,9 +19,9 @@ var purchased = []string{
 	"Papaya",
 }
 
-func groceryEnumerator(data list.Data, i int) string {
+func groceryEnumerator(items list.Items, i int) string {
 	for _, p := range purchased {
-		if data.At(i).Name() == p {
+		if items.At(i).Value() == p {
 			return "✓"
 		}
 	}
@@ -37,19 +36,19 @@ var highlightedEnumStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("10")).
 	MarginRight(1)
 
-func enumStyleFunc(data tree.Data, i int) lipgloss.Style {
+func enumStyleFunc(items list.Items, i int) lipgloss.Style {
 	for _, p := range purchased {
-		if data.At(i).Name() == p {
+		if items.At(i).Value() == p {
 			return highlightedEnumStyle
 		}
 	}
 	return dimEnumStyle
 }
 
-func itemStyleFunc(data tree.Data, i int) lipgloss.Style {
+func itemStyleFunc(items list.Items, i int) lipgloss.Style {
 	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("255"))
 	for _, p := range purchased {
-		if data.At(i).Name() == p {
+		if items.At(i).Value() == p {
 			return itemStyle.Strikethrough(true)
 		}
 	}

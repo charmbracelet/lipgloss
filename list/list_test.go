@@ -1,33 +1,18 @@
 package list_test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
+	"unicode"
 
+	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/require"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
 // XXX: can't write multi-line examples if the underlying string uses
 // lipgloss.JoinVertical.
-
-func ExampleNew() {
-	list := list.New().
-		Item("First")
-	fmt.Print(list)
-	// Output:• First
-}
-
-func ExampleNew_customEnumerator() {
-	list := list.New().
-		Enumerator(list.Arabic).
-		Item("First")
-	fmt.Print(list)
-	// Output:1. First
-}
 
 func TestList(t *testing.T) {
 	l := list.New().
@@ -40,7 +25,7 @@ func TestList(t *testing.T) {
 • Bar
 • Baz
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestListItems(t *testing.T) {
@@ -52,7 +37,7 @@ func TestListItems(t *testing.T) {
 • Bar
 • Baz
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestSublist(t *testing.T) {
@@ -70,7 +55,7 @@ func TestSublist(t *testing.T) {
   III. Halo
 • Qux
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestSublistItems(t *testing.T) {
@@ -94,7 +79,7 @@ func TestSublistItems(t *testing.T) {
   III. F
 • G
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestComplexSublist(t *testing.T) {
@@ -149,18 +134,18 @@ func TestComplexSublist(t *testing.T) {
 
 											tree.New().
 												EnumeratorStyle(style2).
-												Item("another\nmultine\nstring").
-												Item("something").
-												Item("a subtree").
-												Item(
+												Child("another\nmultine\nstring").
+												Child("something").
+												Child("a subtree").
+												Child(
 													tree.New().
 														EnumeratorStyle(style2).
-														Item("yup").
-														Item("many itens").
-														Item("another"),
+														Child("yup").
+														Child("many itens").
+														Child("another"),
 												).
-												Item("hallo").
-												Item("wunderbar!"),
+												Child("hallo").
+												Child("wunderbar!"),
 										).
 										Item("this is a tree\nand other obvious statements"),
 								),
@@ -209,7 +194,7 @@ func TestComplexSublist(t *testing.T) {
   C. bar
 • Baz
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestMultiline(t *testing.T) {
@@ -227,7 +212,7 @@ func TestMultiline(t *testing.T) {
   line 3
 • 3
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestListIntegers(t *testing.T) {
@@ -241,7 +226,7 @@ func TestListIntegers(t *testing.T) {
 • 2
 • 3
 	`
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestEnumerators(t *testing.T) {
@@ -307,7 +292,7 @@ III. Baz
 				Item("Bar").
 				Item("Baz")
 
-			require.Equal(t, test.expected, l.String())
+			assertEqual(t, test.expected, l.String())
 		})
 	}
 }
@@ -371,7 +356,7 @@ c. Baz
 				Item("Bar").
 				Item("Baz")
 
-			require.Equal(t, test.expected, l.String())
+			assertEqual(t, test.expected, l.String())
 		})
 	}
 }
@@ -519,7 +504,7 @@ LXXXVIII. Foo
     XCIX. Foo
        C. Foo`, "\n")
 
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
 }
 
 func TestSubListItems(t *testing.T) {
@@ -543,5 +528,29 @@ func TestSubListItems(t *testing.T) {
   • I like fuzzy socks
 	`
 
-	require.Equal(t, expected, l.String())
+	assertEqual(t, expected, l.String())
+}
+
+// assertEqual verifies the strings are equal, assuming its terminal output.
+func assertEqual(tb testing.TB, expected, got string) {
+	tb.Helper()
+
+	cleanExpected := trimSpace(expected)
+	cleanGot := trimSpace(got)
+	diff := udiff.Unified("expected", "got", cleanExpected, cleanGot)
+	if diff != "" {
+		tb.Fatalf("expected:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", cleanExpected, cleanGot, diff)
+	}
+}
+
+func trimSpace(s string) string {
+	var result []string //nolint: prealloc
+	ss := strings.Split(s, "\n")
+	for i, line := range ss {
+		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
+			continue
+		}
+		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
+	}
+	return strings.Join(result, "\n")
 }
