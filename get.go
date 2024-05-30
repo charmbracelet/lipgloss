@@ -414,6 +414,10 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
+func (s Style) GetHyperlink() (url string, params map[string]string) {
+	return s.getAsHyperlink(hyperlinkKey)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)
@@ -519,11 +523,32 @@ func (s Style) getBorderStyle() Border {
 	return s.borderStyle
 }
 
-func (s Style) getAsTransform(propKey) func(string) string {
-	if !s.isSet(transformKey) {
+func (s Style) getAsTransform(k propKey) func(string) string {
+	if !s.isSet(k) {
 		return nil
 	}
 	return s.transform
+}
+
+func (s Style) getAsHyperlink(k propKey) (string, map[string]string) {
+	if !s.isSet(k) || len(s.hyperlink) == 0 {
+		return "", nil
+	}
+
+	var (
+		url    = s.hyperlink[0]
+		params = s.hyperlink[1:]
+		m      map[string]string
+	)
+
+	if len(params) >= 2 {
+		m = make(map[string]string)
+		for i := 0; i < len(params); i += 2 {
+			m[params[i]] = params[i+1]
+		}
+	}
+
+	return url, m
 }
 
 // Split a string into lines, additionally returning the size of the widest

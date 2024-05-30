@@ -75,6 +75,8 @@ const (
 	tabWidthKey
 
 	transformKey
+
+	hyperlinkKey
 )
 
 // props is a set of properties.
@@ -157,6 +159,8 @@ type Style struct {
 	tabWidth  int
 
 	transform func(string) string
+
+	hyperlink []string
 }
 
 // joinString joins a list of strings into a single string separated with a

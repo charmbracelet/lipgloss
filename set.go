@@ -65,6 +65,8 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.tabWidth = value.(int)
 	case transformKey:
 		s.transform = value.(func(string) string)
+	case hyperlinkKey:
+		s.hyperlink = value.([]string)
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
@@ -145,6 +147,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(tabWidthKey, i.tabWidth)
 	case transformKey:
 		s.set(transformKey, i.transform)
+	case hyperlinkKey:
+		s.set(hyperlinkKey, i.hyperlink)
 	default:
 		// Set attributes for set bool properties
 		s.set(key, i.attrs)
@@ -682,6 +686,15 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 //	fmt.Println(s.Render("raow!") // "RAOW!"
 func (s Style) Transform(fn func(string) string) Style {
 	s.set(transformKey, fn)
+	return s
+}
+
+func (s Style) Hyperlink(url string, params ...string) Style {
+	if url == "" {
+		return s
+	}
+	params = append([]string{url}, params...)
+	s.set(hyperlinkKey, params)
 	return s
 }
 
