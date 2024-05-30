@@ -184,9 +184,9 @@ func (l *List) ItemStyleFunc(f StyleFunc) *List {
 func (l *List) Item(item any) *List {
 	switch item := item.(type) {
 	case *List:
-		l.tree.Item(item.tree)
+		l.tree.Child(item.tree)
 	default:
-		l.tree.Item(item)
+		l.tree.Child(item)
 	}
 	return l
 }

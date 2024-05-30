@@ -44,7 +44,7 @@ func (n NodeChildren) At(i int) Node {
 func NewStringData(data ...string) Children {
 	result := make([]Node, 0, len(data))
 	for _, d := range data {
-		s := StringNode(d)
+		s := Leaf{value: d}
 		result = append(result, &s)
 	}
 	return NodeChildren(result)

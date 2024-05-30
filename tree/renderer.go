@@ -113,8 +113,8 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			renderer := r
 			switch child := child.(type) {
 			case *Tree:
-				if child.renderer != nil {
-					renderer = child.renderer
+				if child.r != nil {
+					renderer = child.r
 				}
 			}
 			if s := renderer.render(

@@ -14,15 +14,13 @@ import (
 
 func TestTree(t *testing.T) {
 	tr := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items(
+					tree.Root("Quux").
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -60,15 +58,13 @@ func TestTree(t *testing.T) {
 
 func TestTreeHidden(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items("Foo", "Bar").
+					tree.Root("Quux").
+						Child("Foo", "Bar").
 						Hide(true),
 					"Quuux",
 				),
@@ -87,15 +83,13 @@ func TestTreeHidden(t *testing.T) {
 
 func TestTreeAllHidden(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items(
+					tree.Root("Quux").
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -112,11 +106,10 @@ func TestTreeAllHidden(t *testing.T) {
 func TestTreeRoot(t *testing.T) {
 	tree := tree.New().
 		Root("Root").
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items("Qux", "Quuux"),
+			tree.Root("Bar").
+				Child("Qux", "Quuux"),
 			"Baz",
 		)
 	want := `
@@ -132,10 +125,10 @@ Root
 
 func TestTreeStartsWithSubtree(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			tree.New().
 				Root("Bar").
-				Items("Qux", "Quuux"),
+				Child("Qux", "Quuux"),
 			"Baz",
 		)
 
@@ -150,11 +143,11 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Bar",
 			"Foo",
 			tree.New().
-				Items(
+				Child(
 					"Qux",
 					"Qux",
 					"Qux",
@@ -162,7 +155,7 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 					"Qux",
 				),
 			tree.New().
-				Items(
+				Child(
 					"Quux",
 					"Quux",
 					"Quux",
@@ -192,15 +185,11 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
-					"Qux",
-					tree.New().
-						Root("Quux").
-						Items("Foo", "Bar"),
+			tree.Root("Bar").
+				Child("Qux",
+					tree.Root("Quux").Child("Foo", "Bar"),
 					"Quuux",
 				),
 		)
@@ -219,15 +208,13 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 
 func TestTreeNil(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			nil,
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Item("Bar"),
+					tree.Root("Quux").
+						Child("Bar"),
 					"Quuux",
 				),
 			"Baz",
@@ -245,20 +232,19 @@ func TestTreeNil(t *testing.T) {
 }
 
 func TestTreeCustom(t *testing.T) {
-	quuux := tree.StringNode("Quuux")
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Items(
-					tree.StringNode("Qux"),
+				Child(
+					"Qux",
 					tree.New().
 						Root("Quux").
-						Items("Foo",
+						Child("Foo",
 							"Bar",
 						),
-					&quuux,
+					"Quuux",
 				),
 			"Baz",
 		).
@@ -290,15 +276,15 @@ func TestTreeCustom(t *testing.T) {
 func TestTreeMultilineNode(t *testing.T) {
 	tree := tree.New().
 		Root("Big\nRoot\nNode").
-		Items(
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Items(
+				Child(
 					"Line 1\nLine 2\nLine 3\nLine 4",
 					tree.New().
 						Root("Quux").
-						Items(
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -330,10 +316,10 @@ Node
 func TestTreeSubTreeWithCustomEnumerator(t *testing.T) {
 	tree := tree.New().
 		Root("The Root Node™").
-		Items(
+		Child(
 			tree.New().
 				Root("Parent").
-				Items("child 1", "child 2").
+				Child("child 1", "child 2").
 				ItemStyleFunc(func(tree.Children, int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("*")
@@ -359,7 +345,7 @@ The Root Node™
 func TestTreeMixedEnumeratorSize(t *testing.T) {
 	tree := tree.New().
 		Root("The Root Node™").
-		Items(
+		Child(
 			"Foo",
 			"Foo",
 			"Foo",
@@ -391,7 +377,7 @@ III Foo
 func TestTreeStyleNilFuncs(t *testing.T) {
 	tree := tree.New().
 		Root("Silly").
-		Items("Willy ", "Nilly").
+		Child("Willy ", "Nilly").
 		ItemStyleFunc(nil).
 		EnumeratorStyleFunc(nil)
 
@@ -406,7 +392,7 @@ Silly
 func TestTreeStyleAt(t *testing.T) {
 	tree := tree.New().
 		Root("Root").
-		Items(
+		Child(
 			"Foo",
 			"Baz",
 		).Enumerator(func(data tree.Children, i int) string {
@@ -453,7 +439,7 @@ func TestFilter(t *testing.T) {
 
 	tree := tree.New().
 		Root("Root").
-		Item(data)
+		Child(data)
 
 	want := `
 Root
@@ -480,11 +466,11 @@ func TestNodeDataRemoveOutOfBounds(t *testing.T) {
 
 func TestTreeTable(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Items(
+				Child(
 					"Baz",
 					"Baz",
 					table.New().
@@ -518,20 +504,20 @@ func TestTreeTable(t *testing.T) {
 
 func TestAddItemWithAndWithoutRoot(t *testing.T) {
 	t1 := tree.New().
-		Items(
+		Child(
 			"Foo",
 			"Bar",
 			tree.New().
-				Item("Baz"),
+				Child("Baz"),
 			"Qux",
 		)
 
 	t2 := tree.New().
-		Items(
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Item("Baz"),
+				Child("Baz"),
 			"Qux",
 		)
 
@@ -547,9 +533,9 @@ func TestAddItemWithAndWithoutRoot(t *testing.T) {
 
 func TestEmbedListWithinTree(t *testing.T) {
 	t1 := tree.New().
-		Item(list.New("A", "B", "C").
+		Child(list.New("A", "B", "C").
 			Enumerator(list.Arabic)).
-		Item(list.New("1", "2", "3").
+		Child(list.New("1", "2", "3").
 			Enumerator(list.Alphabet))
 
 	want := `
@@ -576,9 +562,9 @@ func TestMultilinePrefix(t *testing.T) {
 			return " "
 		}).
 		ItemStyle(paddingsStyle).
-		Item("Foo Document\nThe Foo Files").
-		Item("Bar Document\nThe Bar Files").
-		Item("Baz Document\nThe Baz Files")
+		Child("Foo Document\nThe Foo Files").
+		Child("Bar Document\nThe Bar Files").
+		Child("Baz Document\nThe Baz Files")
 	want := `
    Foo Document
    The Foo Files
@@ -597,9 +583,9 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 		Padding(0, 0, 1, 1)
 
 	tree := tree.New().
-		Item("Foo").
-		Item("Bar").
-		Item(
+		Child("Foo").
+		Child("Bar").
+		Child(
 			tree.New().
 				Root("Baz").
 				Enumerator(func(_ tree.Children, i int) string {
@@ -612,11 +598,11 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 					return " "
 				}).
 				ItemStyle(paddingsStyle).
-				Item("Foo Document\nThe Foo Files").
-				Item("Bar Document\nThe Bar Files").
-				Item("Baz Document\nThe Baz Files"),
+				Child("Foo Document\nThe Foo Files").
+				Child("Bar Document\nThe Bar Files").
+				Child("Baz Document\nThe Baz Files"),
 		).
-		Item("Qux")
+		Child("Qux")
 	want := `
 ├── Foo
 ├── Bar
@@ -650,18 +636,18 @@ func TestMultilinePrefixInception(t *testing.T) {
 		Enumerator(glowEnum).
 		Indenter(glowIndenter).
 		ItemStyle(paddingsStyle).
-		Item("Foo Document\nThe Foo Files").
-		Item("Bar Document\nThe Bar Files").
-		Item(
+		Child("Foo Document\nThe Foo Files").
+		Child("Bar Document\nThe Bar Files").
+		Child(
 			tree.New().
 				Enumerator(glowEnum).
 				Indenter(glowIndenter).
 				ItemStyle(paddingsStyle).
-				Item("Qux Document\nThe Qux Files").
-				Item("Quux Document\nThe Quux Files").
-				Item("Quuux Document\nThe Quuux Files"),
+				Child("Qux Document\nThe Qux Files").
+				Child("Quux Document\nThe Quux Files").
+				Child("Quuux Document\nThe Quuux Files"),
 		).
-		Item("Baz Document\nThe Baz Files")
+		Child("Baz Document\nThe Baz Files")
 	want := `
     Foo Document
     The Foo Files
@@ -686,10 +672,10 @@ func TestMultilinePrefixInception(t *testing.T) {
 
 func TestTypes(t *testing.T) {
 	tree := tree.New().
-		Item(0).
-		Item(true).
-		Item([]any{"Foo", "Bar"}).
-		Item([]string{"Qux", "Quux", "Quuux"})
+		Child(0).
+		Child(true).
+		Child([]any{"Foo", "Bar"}).
+		Child([]string{"Qux", "Quux", "Quuux"})
 
 	want := `
 ├── 0

@@ -134,18 +134,18 @@ func TestComplexSublist(t *testing.T) {
 
 											tree.New().
 												EnumeratorStyle(style2).
-												Item("another\nmultine\nstring").
-												Item("something").
-												Item("a subtree").
-												Item(
+												Child("another\nmultine\nstring").
+												Child("something").
+												Child("a subtree").
+												Child(
 													tree.New().
 														EnumeratorStyle(style2).
-														Item("yup").
-														Item("many itens").
-														Item("another"),
+														Child("yup").
+														Child("many itens").
+														Child("another"),
 												).
-												Item("hallo").
-												Item("wunderbar!"),
+												Child("hallo").
+												Child("wunderbar!"),
 										).
 										Item("this is a tree\nand other obvious statements"),
 								),
