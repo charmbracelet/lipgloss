@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/tree"
 )
 
 type Document struct {
@@ -36,20 +35,20 @@ func main() {
 	hightlightColor := lipgloss.Color("#EE6FF8")
 
 	l := list.New().
-		Enumerator(func(_ list.Data, i int) string {
+		Enumerator(func(_ list.Items, i int) string {
 			if i == selectedIndex {
 				return "│\n│"
 			}
 			return " "
 		}).
-		ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+		ItemStyleFunc(func(_ list.Items, i int) lipgloss.Style {
 			st := baseStyle
 			if selectedIndex == i {
 				return st.Foreground(hightlightColor)
 			}
 			return st.Foreground(dimColor)
 		}).
-		EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+		EnumeratorStyleFunc(func(_ list.Items, i int) lipgloss.Style {
 			if selectedIndex == i {
 				return lipgloss.NewStyle().Foreground(hightlightColor)
 			}

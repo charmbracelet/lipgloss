@@ -1,29 +1,74 @@
 package tree
 
-// Enumerator returns the indent (also known as branch) and tree prefixes of a
-// given item.
-type Enumerator func(data Data, i int) (indent string, prefix string)
-
-// DefaultEnumerator enumerates items.
+// Enumerator enumerates a tree. Typically, this is used to draw the branches
+// for the tree nodes and is different for the last child.
 //
-//	root
-//	├── foo
-//	└── bar
-func DefaultEnumerator(data Data, i int) (indent, prefix string) {
-	if data.Length()-1 == i {
-		return "   ", "└──"
+// For example, the default enumerator would be:
+//
+//	func TreeEnumerator(children Children, index int) string {
+//		if children.Length()-1 == index {
+//			return "└──"
+//		}
+//
+//		return "├──"
+//	}
+type Enumerator func(children Children, index int) string
+
+// DefaultEnumerator enumerates a tree.
+//
+// ├── Foo
+// ├── Bar
+// ├── Baz
+// └── Qux.
+func DefaultEnumerator(children Children, index int) string {
+	if children.Length()-1 == index {
+		return "└──"
 	}
-	return "│  ", "├──"
+	return "├──"
 }
 
-// RoundedEnumerator enumerates items.
+// RoundedEnumerator enumerates a tree with rounded edges.
 //
-//	root
-//	├── foo
-//	╰── bar
-func RoundedEnumerator(data Data, i int) (indent, prefix string) {
-	if data.Length()-1 == i {
-		return "   ", "╰──"
+// ├── Foo
+// ├── Bar
+// ├── Baz
+// ╰── Qux.
+func RoundedEnumerator(children Children, index int) string {
+	if children.Length()-1 == index {
+		return "╰──"
 	}
-	return "│  ", "├──"
+	return "├──"
+}
+
+// Indenter indents the children of a tree.
+//
+// Indenters allow for displaying nested tree items with connecting borders
+// to sibling nodes.
+//
+// For example, the default indenter would be:
+//
+//	func TreeIndenter(children Children, index int) string {
+//		if children.Length()-1 == index {
+//			return "│  "
+//		}
+//
+//		return "   "
+//	}
+type Indenter func(children Children, index int) string
+
+// DefaultIndenter indents a tree for nested trees and multiline content.
+//
+// ├── Foo
+// ├── Bar
+// │   ├── Qux
+// │   ├── Quux
+// │   │   ├── Foo
+// │   │   └── Bar
+// │   └── Quuux
+// └── Baz.
+func DefaultIndenter(children Children, index int) string {
+	if children.Length()-1 == index {
+		return "   "
+	}
+	return "│  "
 }

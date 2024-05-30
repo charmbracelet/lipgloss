@@ -1,49 +1,26 @@
 package tree_test
 
 import (
-	"fmt"
+	"strings"
 	"testing"
+	"unicode"
 
+	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/require"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/lipgloss/tree"
 )
 
-func ExampleNew() {
-	tree := tree.New().
-		Item("First")
-	fmt.Print(tree)
-	// Output: └── First
-}
-
-func ExampleNew_root() {
-	tree := tree.New().
-		Root("Root")
-	fmt.Print(tree)
-	// Output: Root
-}
-
-func ExampleNew_round() {
-	tree := tree.New().
-		Enumerator(tree.RoundedEnumerator).
-		Item("First")
-	fmt.Print(tree)
-	// Output: ╰── First
-}
-
 func TestTree(t *testing.T) {
-	tree := tree.New().
-		Items(
+	tr := tree.New().
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items(
+					tree.Root("Quux").
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -52,7 +29,7 @@ func TestTree(t *testing.T) {
 			"Baz",
 		)
 
-	expected := `
+	want := `
 ├── Foo
 ├── Bar
 │   ├── Qux
@@ -62,30 +39,11 @@ func TestTree(t *testing.T) {
 │   └── Quuux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
-}
+	assertEqual(t, want, tr.String())
 
-func TestTreeRounded(t *testing.T) {
-	tree := tree.New().
-		Items(
-			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
-					"Qux",
-					tree.New().
-						Root("Quux").
-						Items(
-							"Foo",
-							"Bar",
-						),
-					"Quuux",
-				),
-			"Baz",
-		).
-		Enumerator(tree.RoundedEnumerator)
+	tr.Enumerator(tree.RoundedEnumerator)
 
-	expected := `
+	want = `
 ├── Foo
 ├── Bar
 │   ├── Qux
@@ -94,48 +52,44 @@ func TestTreeRounded(t *testing.T) {
 │   │   ╰── Bar
 │   ╰── Quuux
 ╰── Baz
-	`
-	require.Equal(t, expected, tree.String())
+`
+	assertEqual(t, want, tr.String())
 }
 
 func TestTreeHidden(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items("Foo", "Bar").
+					tree.Root("Quux").
+						Child("Foo", "Bar").
 						Hide(true),
 					"Quuux",
 				),
 			"Baz",
 		)
 
-	expected := `
+	want := `
 ├── Foo
 ├── Bar
 │   ├── Qux
 │   └── Quuux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeAllHidden(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Items(
+					tree.Root("Quux").
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -144,107 +98,103 @@ func TestTreeAllHidden(t *testing.T) {
 			"Baz",
 		).Hide(true)
 
-	expected := ``
-	require.Equal(t, expected, tree.String())
+	want := ``
+
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeRoot(t *testing.T) {
 	tree := tree.New().
-		Root("The Root").
-		Items(
+		Root("Root").
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items("Qux", "Quuux"),
+			tree.Root("Bar").
+				Child("Qux", "Quuux"),
 			"Baz",
 		)
-	expected := `
-The Root
+	want := `
+Root
 ├── Foo
 ├── Bar
 │   ├── Qux
 │   └── Quuux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			tree.New().
 				Root("Bar").
-				Items("Qux", "Quuux"),
+				Child("Qux", "Quuux"),
 			"Baz",
 		)
 
-	expected := `
+	want := `
 ├── Bar
 │   ├── Qux
 │   └── Quuux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 	tree := tree.New().
-		Items(
-			"bar",
-			"foo",
+		Child(
+			"Bar",
+			"Foo",
 			tree.New().
-				Items(
-					"Bar 11",
-					"Bar 12",
-					"Bar 13",
-					"Bar 14",
-					"Bar 15",
+				Child(
+					"Qux",
+					"Qux",
+					"Qux",
+					"Qux",
+					"Qux",
 				),
 			tree.New().
-				Items(
-					"Bar 21",
-					"Bar 22",
-					"Bar 23",
-					"Bar 24",
-					"Bar 25",
+				Child(
+					"Quux",
+					"Quux",
+					"Quux",
+					"Quux",
+					"Quux",
 				),
 			"Baz",
 		)
 
-	expected := `
-├── bar
-├── foo
-│   ├── Bar 11
-│   ├── Bar 12
-│   ├── Bar 13
-│   ├── Bar 14
-│   ├── Bar 15
-│   ├── Bar 21
-│   ├── Bar 22
-│   ├── Bar 23
-│   ├── Bar 24
-│   └── Bar 25
+	want := `
+├── Bar
+├── Foo
+│   ├── Qux
+│   ├── Qux
+│   ├── Qux
+│   ├── Qux
+│   ├── Qux
+│   ├── Quux
+│   ├── Quux
+│   ├── Quux
+│   ├── Quux
+│   └── Quux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
-			tree.New().
-				Root("Bar").
-				Items(
-					"Qux",
-					tree.New().
-						Root("Quux").
-						Items("Foo", "Bar"),
+			tree.Root("Bar").
+				Child("Qux",
+					tree.Root("Quux").Child("Foo", "Bar"),
 					"Quuux",
 				),
 		)
 
-	expected := `
+	want := `
 ├── Foo
 └── Bar
     ├── Qux
@@ -253,26 +203,24 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
     │   └── Bar
     └── Quuux
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeNil(t *testing.T) {
 	tree := tree.New().
-		Items(
+		Child(
 			nil,
-			tree.New().
-				Root("Bar").
-				Items(
+			tree.Root("Bar").
+				Child(
 					"Qux",
-					tree.New().
-						Root("Quux").
-						Item("Bar"),
+					tree.Root("Quux").
+						Child("Bar"),
 					"Quuux",
 				),
 			"Baz",
 		)
 
-	expected := `
+	want := `
 ├── Bar
 │   ├── Qux
 │   ├── Quux
@@ -280,34 +228,39 @@ func TestTreeNil(t *testing.T) {
 │   └── Quuux
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeCustom(t *testing.T) {
-	quuux := tree.StringNode("Quuux")
 	tree := tree.New().
-		Items(
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Items(
-					tree.StringNode("Qux"),
+				Child(
+					"Qux",
 					tree.New().
 						Root("Quux").
-						Items("Foo",
+						Child("Foo",
 							"Bar",
 						),
-					&quuux,
+					"Quuux",
 				),
 			"Baz",
 		).
-		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("9"))).
-		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("12")).PaddingRight(1)).
-		Enumerator(func(tree.Data, int) (indent string, prefix string) {
-			return "->", "->"
+		ItemStyle(lipgloss.NewStyle().
+			Foreground(lipgloss.Color("9"))).
+		EnumeratorStyle(lipgloss.NewStyle().
+			Foreground(lipgloss.Color("12")).
+			PaddingRight(1)).
+		Enumerator(func(tree.Children, int) string {
+			return "->"
+		}).
+		Indenter(func(tree.Children, int) string {
+			return "->"
 		})
 
-	expected := `
+	want := `
 -> Foo
 -> Bar
 -> -> Qux
@@ -317,21 +270,21 @@ func TestTreeCustom(t *testing.T) {
 -> -> Quuux
 -> Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeMultilineNode(t *testing.T) {
 	tree := tree.New().
-		Root("Multiline\nRoot\nNode").
-		Items(
+		Root("Big\nRoot\nNode").
+		Child(
 			"Foo",
 			tree.New().
 				Root("Bar").
-				Items(
-					"Qux\nLine 2\nLine 3\nLine 4",
+				Child(
+					"Line 1\nLine 2\nLine 3\nLine 4",
 					tree.New().
 						Root("Quux").
-						Items(
+						Child(
 							"Foo",
 							"Bar",
 						),
@@ -340,13 +293,13 @@ func TestTreeMultilineNode(t *testing.T) {
 			"Baz\nLine 2",
 		)
 
-	expected := `
-Multiline
+	want := `
+Big
 Root
 Node
 ├── Foo
 ├── Bar
-│   ├── Qux
+│   ├── Line 1
 │   │   Line 2
 │   │   Line 3
 │   │   Line 4
@@ -357,21 +310,21 @@ Node
 └── Baz
     Line 2
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
-func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
+func TestTreeSubTreeWithCustomEnumerator(t *testing.T) {
 	tree := tree.New().
-		Root("The Root Node(tm)").
-		Items(
+		Root("The Root Node™").
+		Child(
 			tree.New().
 				Root("Parent").
-				Items("child 1", "child 2").
-				ItemStyleFunc(func(tree.Data, int) lipgloss.Style {
+				Child("child 1", "child 2").
+				ItemStyleFunc(func(tree.Children, int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("*")
 				}).
-				EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+				EnumeratorStyleFunc(func(_ tree.Children, i int) lipgloss.Style {
 					return lipgloss.NewStyle().
 						SetString("+").
 						PaddingRight(1)
@@ -379,26 +332,26 @@ func TestTreeSubTreeWithCustomRenderer(t *testing.T) {
 			"Baz",
 		)
 
-	expected := `
-The Root Node(tm)
+	want := `
+The Root Node™
 ├── Parent
 │   + ├── * child 1
 │   + └── * child 2
 └── Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeMixedEnumeratorSize(t *testing.T) {
 	tree := tree.New().
-		Root("The Root Node(tm)").
-		Items(
-			"child 1",
-			"child 2",
-			"child 3",
-			"child 4",
-			"child 5",
-		).Enumerator(func(_ tree.Data, i int) (indent string, prefix string) {
+		Root("The Root Node™").
+		Child(
+			"Foo",
+			"Foo",
+			"Foo",
+			"Foo",
+			"Foo",
+		).Enumerator(func(_ tree.Children, i int) string {
 		romans := map[int]string{
 			1: "I",
 			2: "II",
@@ -407,312 +360,185 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 			5: "V",
 			6: "VI",
 		}
-		return "", romans[i+1]
+		return romans[i+1]
 	})
 
-	expected := `
-The Root Node(tm)
-  I child 1
- II child 2
-III child 3
- IV child 4
-  V child 5
+	want := `
+The Root Node™
+  I Foo
+ II Foo
+III Foo
+ IV Foo
+  V Foo
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeStyleNilFuncs(t *testing.T) {
 	tree := tree.New().
-		Root("Multiline").
-		Items("Foo", "Baz").
+		Root("Silly").
+		Child("Willy ", "Nilly").
 		ItemStyleFunc(nil).
 		EnumeratorStyleFunc(nil)
 
-	expected := `
-Multiline
-├──Foo
-└──Baz
+	want := `
+Silly
+├──Willy
+└──Nilly
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTreeStyleAt(t *testing.T) {
 	tree := tree.New().
-		Root("Multiline").
-		Items(
+		Root("Root").
+		Child(
 			"Foo",
 			"Baz",
-		).Enumerator(func(data tree.Data, i int) (indent string, prefix string) {
-		if data.At(i).Name() == "Foo" {
-			return "", ">"
+		).Enumerator(func(data tree.Children, i int) string {
+		if data.At(i).Value() == "Foo" {
+			return ">"
 		}
-		return "", "-"
+		return "-"
 	})
 
-	expected := `
-Multiline
+	want := `
+Root
 > Foo
 - Baz
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestAt(t *testing.T) {
-	nodes := tree.NewStringData("foo", "bar")
-	t.Run("0", func(t *testing.T) {
-		if s := nodes.At(0).String(); s != "foo" {
-			t.Errorf("expected 'foo', got '%s'", s)
-		}
-	})
-	t.Run("10", func(t *testing.T) {
-		if n := nodes.At(10); n != nil {
-			t.Errorf("expected nil, got '%s'", n)
-		}
-	})
-	t.Run("-1", func(t *testing.T) {
-		if n := nodes.At(10); n != nil {
-			t.Errorf("expected nil, got '%s'", n)
-		}
-	})
+	data := tree.NewStringData("Foo", "Bar")
+
+	if s := data.At(0).String(); s != "Foo" {
+		t.Errorf("want 'Foo', got '%s'", s)
+	}
+
+	if n := data.At(10); n != nil {
+		t.Errorf("want nil, got '%s'", n)
+	}
+
+	if n := data.At(-1); n != nil {
+		t.Errorf("want nil, got '%s'", n)
+	}
 }
 
 func TestFilter(t *testing.T) {
-	data := tree.NewFilter(tree.NewStringData("Foo", "Bar", "Baz", "Nope")).
+	data := tree.NewFilter(tree.NewStringData(
+		"Foo",
+		"Bar",
+		"Baz",
+		"Nope",
+	)).
 		Filter(func(index int) bool {
-			return index != 1
-		}).
-		Append(tree.StringNode("Qux")).
-		Remove(3)
-	tree := tree.New().Root("Root").Item(data)
+			return index != 3
+		})
 
-	expected := `
+	tree := tree.New().
+		Root("Root").
+		Child(data)
+
+	want := `
 Root
 ├── Foo
-├── Baz
-└── Qux
+├── Bar
+└── Baz
 	`
 
-	require.Equal(t, expected, tree.String())
-	if got := data.At(1); got.Name() != "Baz" {
-		t.Errorf("expected to get Baz, got %v", got)
+	assertEqual(t, want, tree.String())
+	if got := data.At(1); got.Value() != "Bar" {
+		t.Errorf("want Bar, got %v", got)
 	}
 	if got := data.At(10); got != nil {
-		t.Errorf("expected to get nil, got %v", got)
+		t.Errorf("want nil, got %v", got)
 	}
 }
 
 func TestNodeDataRemoveOutOfBounds(t *testing.T) {
-	data := tree.NewStringData("a").Remove(-1).Remove(1)
+	data := tree.NewStringData("a")
 	if l := data.Length(); l != 1 {
-		t.Errorf("expected data to contain 1 items, has %d", l)
+		t.Errorf("want data to contain 1 items, has %d", l)
 	}
 }
 
 func TestTreeTable(t *testing.T) {
 	tree := tree.New().
-		Items(
-			"a",
+		Child(
+			"Foo",
 			tree.New().
-				Root("b").
-				Items(
-					"c",
-					"d",
+				Root("Bar").
+				Child(
+					"Baz",
+					"Baz",
 					table.New().
-						Width(40).
-						Headers("a", "b").
-						Row("1", "2").
-						Row("3", "4"),
-					"e",
+						Width(20).
+						StyleFunc(func(row, col int) lipgloss.Style {
+							return lipgloss.NewStyle().Padding(0, 1)
+						}).
+						Headers("Foo", "Bar").
+						Row("Qux", "Baz").
+						Row("Qux", "Baz"),
+					"Baz",
 				),
-			"c",
+			"Qux",
 		)
-	expected := `
-├── a
-├── b
-│   ├── c
-│   ├── d
-│   ├── ╭───────────────────┬──────────────────╮
-│   │   │a                  │b                 │
-│   │   ├───────────────────┼──────────────────┤
-│   │   │1                  │2                 │
-│   │   │3                  │4                 │
-│   │   ╰───────────────────┴──────────────────╯
-│   └── e
-└── c
+	want := `
+├── Foo
+├── Bar
+│   ├── Baz
+│   ├── Baz
+│   ├── ╭─────────┬────────╮
+│   │   │ Foo     │ Bar    │
+│   │   ├─────────┼────────┤
+│   │   │ Qux     │ Baz    │
+│   │   │ Qux     │ Baz    │
+│   │   ╰─────────┴────────╯
+│   └── Baz
+└── Qux
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
-func TestTreeOffset(t *testing.T) {
-	enum := func(tree.Data, int) (string, string) {
-		return "", "*"
-	}
-
-	t.Run("start", func(t *testing.T) {
-		t.Run("min", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetStart(0).
-				Enumerator(enum)
-
-			expected := `
-root
-* a
-* b
-* c
-* d
-		`
-			require.Equal(t, expected, tree.String())
-		})
-
-		t.Run("in bounds", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetStart(2).
-				Enumerator(enum)
-
-			expected := `
-root
-* c
-* d
-		`
-			require.Equal(t, expected, tree.String())
-		})
-
-		t.Run("max", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetStart(4).
-				Enumerator(enum)
-
-			expected := `
-root
-		`
-			require.Equal(t, expected, tree.String())
-		})
-		t.Run("out bounds", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetStart(6).
-				Enumerator(enum)
-
-			expected := `
-root
-		`
-			require.Equal(t, expected, tree.String())
-		})
-	})
-	t.Run("end", func(t *testing.T) {
-		t.Run("min", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetEnd(0).
-				Enumerator(enum)
-
-			expected := `
-root
-* a
-* b
-* c
-* d
-		`
-			require.Equal(t, expected, tree.String())
-		})
-
-		t.Run("in bounds", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetEnd(2).
-				Enumerator(enum)
-
-			expected := `
-root
-* a
-* b
-		`
-			require.Equal(t, expected, tree.String())
-		})
-
-		t.Run("max", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetEnd(4).
-				Enumerator(enum)
-
-			expected := `
-root
-		`
-			require.Equal(t, expected, tree.String())
-		})
-		t.Run("out bounds", func(t *testing.T) {
-			tree := tree.New().
-				Root("root").
-				Items("a", "b", "c", "d").
-				OffsetEnd(6).
-				Enumerator(enum)
-
-			expected := `
-root
-		`
-			require.Equal(t, expected, tree.String())
-		})
-	})
-
-	t.Run("start and end", func(t *testing.T) {
-		tree := tree.New().
-			Root("root").
-			Items("a", "b", "c", "d").
-			OffsetStart(1).
-			OffsetEnd(2).
-			Enumerator(enum)
-
-		expected := `
-root
-* b
-		`
-		require.Equal(t, expected, tree.String())
-	})
-}
-
-func TestAddItemWithoutRootAndWithRoot(t *testing.T) {
+func TestAddItemWithAndWithoutRoot(t *testing.T) {
 	t1 := tree.New().
-		Items(
-			"foo",
-			"bar",
+		Child(
+			"Foo",
+			"Bar",
 			tree.New().
-				Item("zaz"),
-			"qux",
+				Child("Baz"),
+			"Qux",
 		)
+
 	t2 := tree.New().
-		Items(
-			"foo",
+		Child(
+			"Foo",
 			tree.New().
-				Root("bar").
-				Item("zaz"),
-			"qux",
+				Root("Bar").
+				Child("Baz"),
+			"Qux",
 		)
-	expected := `
-├── foo
-├── bar
-│   └── zaz
-└── qux
+
+	want := `
+├── Foo
+├── Bar
+│   └── Baz
+└── Qux
 	`
-	require.Equal(t, expected, t1.String())
-	require.Equal(t, expected, t2.String())
+	assertEqual(t, want, t1.String())
+	assertEqual(t, want, t2.String())
 }
 
 func TestEmbedListWithinTree(t *testing.T) {
 	t1 := tree.New().
-		Item(list.New("A", "B", "C").Enumerator(list.Arabic)).
-		Item(list.New("1", "2", "3").Enumerator(list.Alphabet))
-	expected := `
+		Child(list.New("A", "B", "C").
+			Enumerator(list.Arabic)).
+		Child(list.New("1", "2", "3").
+			Enumerator(list.Alphabet))
+
+	want := `
 ├── 1. A
 │   2. B
 │   3. C
@@ -720,157 +546,170 @@ func TestEmbedListWithinTree(t *testing.T) {
     B. 2
     C. 3
 	`
-	require.Equal(t, expected, t1.String())
+	assertEqual(t, want, t1.String())
 }
 
 func TestMultilinePrefix(t *testing.T) {
 	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
-		Enumerator(func(_ tree.Data, i int) (string, string) {
+		Enumerator(func(_ tree.Children, i int) string {
 			if i == 1 {
-				return "", "│\n│"
+				return "│\n│"
 			}
-			return "", " "
+			return " "
+		}).
+		Indenter(func(_ tree.Children, i int) string {
+			return " "
 		}).
 		ItemStyle(paddingsStyle).
-		Item("Document 0\nSome tagline").
-		Item("Document 1\nHello world").
-		Item("Document 2\nSome other tagline")
-	expected := `
-   Document 0
-   Some tagline
+		Child("Foo Document\nThe Foo Files").
+		Child("Bar Document\nThe Bar Files").
+		Child("Baz Document\nThe Baz Files")
+	want := `
+   Foo Document
+   The Foo Files
 
-│  Document 1
-│  Hello world
+│  Bar Document
+│  The Bar Files
 
-   Document 2
-   Some other tagline
+   Baz Document
+   The Baz Files
 	`
-	require.Equal(t, expected, tree.String())
-}
-
-func TestMultilinePrefixSingleLineItem(t *testing.T) {
-	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
-	tree := tree.New().
-		Enumerator(func(_ tree.Data, i int) (string, string) {
-			if i == 1 {
-				return "", "│\n│"
-			}
-			return "", " "
-		}).
-		ItemStyle(paddingsStyle).
-		Item("Document 0\nhello").
-		Item("Document 1\n").
-		Item("Document 2\nhello again")
-	expected := `
-   Document 0
-   hello
-
-│  Document 1
-│
-
-   Document 2
-   hello again
-	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestMultilinePrefixSubtree(t *testing.T) {
-	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
+	paddingsStyle := lipgloss.NewStyle().
+		Padding(0, 0, 1, 1)
+
 	tree := tree.New().
-		Item("Hello").
-		Item("Foo").
-		Item(
+		Child("Foo").
+		Child("Bar").
+		Child(
 			tree.New().
-				Root("Bar").
-				Enumerator(func(_ tree.Data, i int) (string, string) {
+				Root("Baz").
+				Enumerator(func(_ tree.Children, i int) string {
 					if i == 1 {
-						return "", "│\n│"
+						return "│\n│"
 					}
-					return "", " "
+					return " "
+				}).
+				Indenter(func(tree.Children, int) string {
+					return " "
 				}).
 				ItemStyle(paddingsStyle).
-				Item("Document 0\nSome tagline").
-				Item("Document 1\nHello world").
-				Item("Document 2\nSome other tagline"),
+				Child("Foo Document\nThe Foo Files").
+				Child("Bar Document\nThe Bar Files").
+				Child("Baz Document\nThe Baz Files"),
 		).
-		Item("Fuss")
-	expected := `
-├── Hello
+		Child("Qux")
+	want := `
 ├── Foo
 ├── Bar
-│      Document 0
-│      Some tagline
+├── Baz
+│      Foo Document 
+│      The Foo Files
 │
-│   │  Document 1
-│   │  Hello world
+│   │  Bar Document
+│   │  The Bar Files
 │
-│      Document 2
-│      Some other tagline
+│      Baz Document
+│      The Baz Files
 │
-└── Fuss
+└── Qux
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestMultilinePrefixInception(t *testing.T) {
-	glowEnum := func(_ tree.Data, i int) (string, string) {
+	glowEnum := func(_ tree.Children, i int) string {
 		if i == 1 {
-			return "  ", "│\n│"
+			return "│\n│"
 		}
-		return "  ", " "
+		return " "
+	}
+	glowIndenter := func(_ tree.Children, i int) string {
+		return "  "
 	}
 	paddingsStyle := lipgloss.NewStyle().PaddingLeft(1).PaddingBottom(1)
 	tree := tree.New().
 		Enumerator(glowEnum).
+		Indenter(glowIndenter).
 		ItemStyle(paddingsStyle).
-		Item("Document 0\nSome tagline").
-		Item("Document 1\nHello world").
-		Item(
+		Child("Foo Document\nThe Foo Files").
+		Child("Bar Document\nThe Bar Files").
+		Child(
 			tree.New().
 				Enumerator(glowEnum).
+				Indenter(glowIndenter).
 				ItemStyle(paddingsStyle).
-				Item("Document 1a\nnothing important").
-				Item("Document 1b\nsomething").
-				Item("Document 1c\nsomething else"),
+				Child("Qux Document\nThe Qux Files").
+				Child("Quux Document\nThe Quux Files").
+				Child("Quuux Document\nThe Quuux Files"),
 		).
-		Item("Document 2\nSome other tagline")
-	expected := `
-    Document 0
-    Some tagline
+		Child("Baz Document\nThe Baz Files")
+	want := `
+    Foo Document
+    The Foo Files
 
-│   Document 1
-│   Hello world
+│   Bar Document
+│   The Bar Files
 
-       Document 1a
-       nothing important
+       Qux Document
+       The Qux Files
 
-   │   Document 1b
-   │   something
+   │   Quux Document
+   │   The Quux Files
 
-       Document 1c
-       something else
+       Quuux Document
+       The Quuux Files
 
-    Document 2
-    Some other tagline
+    Baz Document
+    The Baz Files
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
 }
 
 func TestTypes(t *testing.T) {
 	tree := tree.New().
-		Item(1).
-		Item(true).
-		Item([]any{"a", "b"}).
-		Item([]string{"a", "b", "c"})
-	expected := `
-├── 1
+		Child(0).
+		Child(true).
+		Child([]any{"Foo", "Bar"}).
+		Child([]string{"Qux", "Quux", "Quuux"})
+
+	want := `
+├── 0
 ├── true
-├── a
-├── b
-├── a
-├── b
-└── c
+├── Foo
+├── Bar
+├── Qux
+├── Quux
+└── Quuux
 	`
-	require.Equal(t, expected, tree.String())
+	assertEqual(t, want, tree.String())
+}
+
+// assertEqual verifies the strings are equal, assuming its terminal output.
+func assertEqual(tb testing.TB, want, got string) {
+	tb.Helper()
+
+	want = trimSpace(want)
+	got = trimSpace(got)
+
+	diff := udiff.Unified("want", "got", want, got)
+	if diff != "" {
+		tb.Fatalf("\nwant:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", want, got, diff)
+	}
+}
+
+func trimSpace(s string) string {
+	var result []string //nolint: prealloc
+	ss := strings.Split(s, "\n")
+	for i, line := range ss {
+		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
+			continue
+		}
+		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
+	}
+	return strings.Join(result, "\n")
 }

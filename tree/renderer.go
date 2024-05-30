@@ -7,7 +7,7 @@ import (
 )
 
 // StyleFunc allows the list to be styled per item.
-type StyleFunc func(data Data, i int) lipgloss.Style
+type StyleFunc func(children Children, i int) lipgloss.Style
 
 // Style is the styling applied to the list.
 type Style struct {
@@ -19,20 +19,22 @@ type Style struct {
 func newRenderer() *renderer {
 	return &renderer{
 		style: Style{
-			enumeratorFunc: func(Data, int) lipgloss.Style {
+			enumeratorFunc: func(Children, int) lipgloss.Style {
 				return lipgloss.NewStyle().PaddingRight(1)
 			},
-			itemFunc: func(Data, int) lipgloss.Style {
+			itemFunc: func(Children, int) lipgloss.Style {
 				return lipgloss.NewStyle()
 			},
 		},
 		enumerator: DefaultEnumerator,
+		indenter:   DefaultIndenter,
 	}
 }
 
 type renderer struct {
 	style      Style
 	enumerator Enumerator
+	indenter   Indenter
 }
 
 // render is responsible for actually rendering the tree.
@@ -44,14 +46,15 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	var maxLen int
 	children := node.Children()
 	enumerator := r.enumerator
+	indenter := r.indenter
 
 	// print the root node name if its not empty.
-	if name := node.Name(); name != "" && root {
+	if name := node.Value(); name != "" && root {
 		strs = append(strs, r.style.itemFunc(children, -1).Render(name))
 	}
 
 	for i := 0; i < children.Length(); i++ {
-		_, prefix := enumerator(children, i)
+		prefix := enumerator(children, i)
 		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
@@ -61,7 +64,8 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		if child.Hidden() {
 			continue
 		}
-		indent, nodePrefix := enumerator(children, i)
+		indent := indenter(children, i)
+		nodePrefix := enumerator(children, i)
 		enumStyle := r.style.enumeratorFunc(children, i)
 		itemStyle := r.style.itemFunc(children, i)
 
@@ -70,7 +74,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			nodePrefix = strings.Repeat(" ", l) + nodePrefix
 		}
 
-		item := itemStyle.Render(child.Name())
+		item := itemStyle.Render(child.Value())
 		multineLinePrefix := prefix
 
 		// This dance below is to account for multiline prefixes, e.g. "|\n|".
@@ -109,8 +113,8 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			renderer := r
 			switch child := child.(type) {
 			case *Tree:
-				if child.renderer != nil {
-					renderer = child.renderer
+				if child.r != nil {
+					renderer = child.r
 				}
 			}
 			if s := renderer.render(

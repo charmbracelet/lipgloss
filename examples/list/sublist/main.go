@@ -117,20 +117,20 @@ func main() {
 														Item("Item 4.2.3.3.4.3.3").
 														Item(
 															list.New().
-																Enumerator(func(_ list.Data, i int) string {
+																Enumerator(func(_ list.Items, i int) string {
 																	if i == 1 {
 																		return "│\n│"
 																	}
 																	return " "
 																}).
-																ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+																ItemStyleFunc(func(_ list.Items, i int) lipgloss.Style {
 																	st := baseStyle
 																	if i == 1 {
 																		return st.Foreground(hightlightColor)
 																	}
 																	return st.Foreground(dimColor)
 																}).
-																EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+																EnumeratorStyleFunc(func(_ list.Items, i int) lipgloss.Style {
 																	if i == 1 {
 																		return lipgloss.NewStyle().Foreground(hightlightColor)
 																	}
