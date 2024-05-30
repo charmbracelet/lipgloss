@@ -19,7 +19,7 @@ type Enumerator func(children Children, index int) string
 // ├── Foo
 // ├── Bar
 // ├── Baz
-// └── Qux
+// └── Qux.
 func DefaultEnumerator(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "└──"
@@ -32,7 +32,7 @@ func DefaultEnumerator(children Children, index int) string {
 // ├── Foo
 // ├── Bar
 // ├── Baz
-// ╰── Qux
+// ╰── Qux.
 func RoundedEnumerator(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "╰──"
@@ -65,7 +65,7 @@ type Indenter func(children Children, index int) string
 // │   │   ├── Foo
 // │   │   └── Bar
 // │   └── Quuux
-// └── Baz
+// └── Baz.
 func DefaultIndenter(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "   "

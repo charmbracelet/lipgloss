@@ -57,7 +57,7 @@ type Items tree.Children
 
 // StyleFunc is the style function that determines the style of an item.
 //
-// It takes the list items and index of the list and determins the lipgloss
+// It takes the list items and index of the list and determines the lipgloss
 // Style to use for that index.
 //
 // Example:
@@ -224,11 +224,7 @@ func (l *List) Items(items ...any) *List {
 //	 Bar. Bar
 //	 Baz. Baz
 func (l *List) Enumerator(enumerator Enumerator) *List {
-	l.tree.Enumerator(func(children tree.Children, index int) string {
-		return enumerator(children, index)
-	})
-	l.tree.Indenter(func(children tree.Children, index int) string {
-		return " "
-	})
+	l.tree.Enumerator(func(c tree.Children, i int) string { return enumerator(c, i) })
+	l.tree.Indenter(func(tree.Children, int) string { return " " })
 	return l
 }
