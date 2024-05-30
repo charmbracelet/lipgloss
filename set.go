@@ -1,5 +1,7 @@
 package lipgloss
 
+import "github.com/hashicorp/uuid"
+
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
 	// We don't allow negative integers on any of our other values, so just keep
@@ -689,12 +691,24 @@ func (s Style) Transform(fn func(string) string) Style {
 	return s
 }
 
-func (s Style) Hyperlink(url string, params ...string) Style {
+// Hyperlink sets a hyperlink on the style. You're responsible for setting
+// a style on the on the text so that it visually identifiable as a hyperlink
+// (or not).
+//
+// Note that hyperlinks are not available in all terminal emulators and there's
+// a no way to detect if hyperlinks are supported. If hyperlinks are not
+// the text will still render as normal.
+//
+// Hyperlinks in terminal emulators can contain an ID. This is important for
+// ensuring that when long links are wrapped and broken apart they are still
+// understood as a single hyperlink. In Lip Gloss, this ID is set
+// automatically.
+func (s Style) Hyperlink(url string) Style {
 	if url == "" {
 		return s
 	}
-	params = append([]string{url}, params...)
-	s.set(hyperlinkKey, params)
+
+	s.set(hyperlinkKey, []string{url, "id", uuid.GenerateUUID()})
 	return s
 }
 

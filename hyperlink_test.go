@@ -4,32 +4,42 @@ import "testing"
 
 func TestHyperlinkGetter(t *testing.T) {
 	for i, tt := range []struct {
-		style          Style
-		expectedURL    string
-		expectedParams map[string]string
+		style Style
+		url   string
 	}{
 		{
-			style:          NewStyle().Hyperlink("https://charm.sh"),
-			expectedURL:    "https://charm.sh",
-			expectedParams: nil,
+			style: NewStyle(),
+			url:   "https://charm.sh",
 		},
 		{
-			style:          NewStyle().Hyperlink("https://charm.sh", "id", "IDK"),
-			expectedURL:    "https://charm.sh",
-			expectedParams: map[string]string{"id": "IDK"},
+			style: NewStyle().Bold(true),
+			url:   "https://charm.sh/blog/",
 		},
 	} {
-		url, params := tt.style.GetHyperlink()
-		if url != tt.expectedURL {
-			t.Errorf("Test %d: expected URL %q, got %q", i, tt.expectedURL, url)
+		// Check that URL is set correctly.
+		s := tt.style.Hyperlink(tt.url)
+		url := s.GetHyperlink()
+		if url != tt.url {
+			t.Errorf("Test %d: expected URL %q, got %q", i, tt.url, url)
 		}
-		if len(params) != len(tt.expectedParams) {
-			t.Errorf("Test %d: expected %d params, got %d", i, len(tt.expectedParams), len(params))
+
+		if len(s.hyperlink) < 3 {
+			t.Errorf("Test %d: hyperlink parameters missing (we're looking for an ID)", i)
 		}
-		for k, v := range tt.expectedParams {
-			if params[k] != v {
-				t.Errorf("Test %d: expected param %q to be %q, got %q", i, k, v, params[k])
-			}
+
+		// slice to map
+		params := make(map[string]string)
+		for n := 1; n < len(s.hyperlink); n += 2 {
+			params[s.hyperlink[n]] = s.hyperlink[n+1]
+		}
+
+		// Check that ID is set.
+		id, ok := params["id"]
+		if !ok {
+			t.Errorf("Test %d: ID key missing in hyperlink data", i)
+		}
+		if id == "" {
+			t.Errorf("Test %d: value missing in hyperlink data", i)
 		}
 	}
 }

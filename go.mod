@@ -7,6 +7,7 @@ go 1.18
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/charmbracelet/x/ansi v0.1.1
+	github.com/hashicorp/uuid v0.0.0-20230117211644-212010c9d616
 	github.com/muesli/termenv v0.15.2
 	github.com/rivo/uniseg v0.4.7
 )

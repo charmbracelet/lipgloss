@@ -414,7 +414,9 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
-func (s Style) GetHyperlink() (url string, params map[string]string) {
+// GetHyperlink returns the hyperlink set on the style. If no hyperlink is set
+// the empty string and nil is returned.
+func (s Style) GetHyperlink() string {
 	return s.getAsHyperlink(hyperlinkKey)
 }
 
@@ -530,25 +532,18 @@ func (s Style) getAsTransform(k propKey) func(string) string {
 	return s.transform
 }
 
-func (s Style) getAsHyperlink(k propKey) (string, map[string]string) {
-	if !s.isSet(k) || len(s.hyperlink) == 0 {
-		return "", nil
+// getAsHyperlink returns the hyperlink URL set on the style. No other
+// parameters will be returned.
+func (s Style) getAsHyperlink(k propKey) string {
+	if !s.isSet(k) {
+		return ""
 	}
 
-	var (
-		url    = s.hyperlink[0]
-		params = s.hyperlink[1:]
-		m      map[string]string
-	)
-
-	if len(params) >= 2 {
-		m = make(map[string]string)
-		for i := 0; i < len(params); i += 2 {
-			m[params[i]] = params[i+1]
-		}
+	if len(s.hyperlink) == 0 {
+		return ""
 	}
 
-	return url, m
+	return s.hyperlink[0]
 }
 
 // Split a string into lines, additionally returning the size of the widest
