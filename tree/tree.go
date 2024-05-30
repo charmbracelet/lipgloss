@@ -4,24 +4,20 @@
 // as style, enumerators, etc...), and print it.
 //
 //	t := tree.New().
-//		Items(
+//		Child(
 //			".git",
-//			tree.New().
-//				Root("examples/").
-//				Items(
-//					tree.New().
-//						Root("list/").
-//						Items("main.go").
-//					tree.New().
-//						Root("table/").
-//						Items("main.go").
+//			tree.Root("examples/").
+//				Child(
+//					tree.Root("list/").
+//						Child("main.go").
+//					tree.Root("table/").
+//						Child("main.go").
 //				).
-//			tree.New().
-//				Root("list/").
-//				Items("list.go", "list_test.go").
+//			tree.Root("list/").
+//				Child("list.go", "list_test.go").
 //			tree.New().
 //				Root("table/").
-//				Items("table.go", "table_test.go").
+//				Child("table.go", "table_test.go").
 //			"align.go",
 //			"align_test.go",
 //			"join.go",
@@ -122,26 +118,18 @@ func (t *Tree) String() string {
 	return t.ensureRenderer().render(t, true, "")
 }
 
-// Child appends an item to a list.
+// Child adds a child to this tree.
 //
-// If the tree being added is a new TreeNode without a name, we add its
-// children to the previous string node.
+// If a Child Tree is passed without a root, it will be parented to it's sibling
+// child (auto-nesting).
 //
-// This is mostly syntactic sugar for adding items to lists.
+//	tree.Root("Foo").Child("Bar", tree.New().Child("Baz"), "Qux")
+//	tree.Root("Foo").Child(tree.Root("Bar").Child("Baz"), "Qux")
 //
-// Both of these should result in the same thing:
-//
-//	New().Root("foo").Items("bar", New().Child("zaz"), "qux")
-//	New().Root("foo").Items(New().Root("bar").Child("zaz"), "qux")
-//
-// The resulting tree would be:
-//
-//	├── foo
-//	├── bar
-//	│   └── zaz
-//	└── qux
-//
-// You may also change the tree style using Enumerator.
+//	├── Foo
+//	├── Bar
+//	│   └── Baz
+//	└── Qux
 func (t *Tree) Child(children ...any) *Tree {
 	for _, child := range children {
 		switch item := child.(type) {
@@ -163,9 +151,6 @@ func (t *Tree) Child(children ...any) *Tree {
 		case string:
 			s := Leaf{value: item}
 			t.children = t.children.(NodeChildren).Append(&s)
-		// XXX: passing []any and []string would be the most common errors it
-		// seems, this fixes it, but doesn't handle other types of slices...
-		// Maybe it's best to not handle any of these?
 		case []any:
 			return t.Child(item...)
 		case []string:
@@ -177,19 +162,12 @@ func (t *Tree) Child(children ...any) *Tree {
 		case nil:
 			continue
 		default:
-			// optimistically try to convert to a string...
 			return t.Child(fmt.Sprintf("%v", item))
 		}
 	}
 	return t
 }
 
-// Ensures the TreeItem being added is in good shape.
-//
-// If it has no name, and the current node list is empty, it will check the
-// last item's of the list type:
-// 1. IFF it's a TreeNode, it'll append item's children to it, and return it.
-// 1. IFF it's a StringNode, it'll set its content as item's name, and remove it.
 func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 	if item.Value() != "" || nodes.Length() == 0 {
 		return item, -1
@@ -212,19 +190,14 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 	return item, -1
 }
 
-// Ensure the tree node has a renderer.
 func (t *Tree) ensureRenderer() *renderer {
-	t.ronce.Do(func() {
-		t.r = newRenderer()
-	})
+	t.ronce.Do(func() { t.r = newRenderer() })
 	return t.r
 }
 
-// EnumeratorStyle sets the enumeration style.
-// Margins and paddings should usually be set only in ItemStyle or ItemStyleFunc.
+// EnumeratorStyle sets a static style for all enumerators.
 //
-//	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
-//		EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00d787")))
+// Use EnumeratorStyleFunc to conditionally set styles based on the tree node.
 func (t *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 	t.ensureRenderer().style.enumeratorFunc = func(Children, int) lipgloss.Style {
 		return style
@@ -235,11 +208,9 @@ func (t *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 // EnumeratorStyleFunc sets the enumeration style function. Use this function
 // for conditional styling.
 //
-// Margins and paddings should usually be set only in ItemStyle/ItemStyleFunc.
-//
 //	t := tree.New().
-//		EnumeratorStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
-//		    if i == 1 {
+//		EnumeratorStyleFunc(func(_ tree.Children, i int) lipgloss.Style {
+//		    if selected == i {
 //		        return lipgloss.NewStyle().Foreground(hightlightColor)
 //		    }
 //		    return lipgloss.NewStyle().Foreground(dimColor)
@@ -252,10 +223,9 @@ func (t *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
-// ItemStyle sets the item style.
+// ItemStyle sets a static style for all items.
 //
-//	t := tree.New("Duck", "Duck", "Duck", "Goose", "Duck").
-//		ItemStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("255")))
+// Use ItemStyleFunc to conditionally set styles based on the tree node.
 func (t *Tree) ItemStyle(style lipgloss.Style) *Tree {
 	t.ensureRenderer().style.itemFunc = func(Children, int) lipgloss.Style { return style }
 	return t
@@ -266,11 +236,10 @@ func (t *Tree) ItemStyle(style lipgloss.Style) *Tree {
 //
 //	t := tree.New().
 //		ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
-//			st := baseStyle.Copy()
-//			if selectedIndex == i {
-//				return st.Foreground(hightlightColor)
+//			if selected == i {
+//				return lipgloss.NewStyle().Foreground(hightlightColor)
 //			}
-//			return st.Foreground(dimColor)
+//			return lipgloss.NewStyle().Foreground(dimColor)
 //		})
 func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	if fn == nil {
@@ -291,7 +260,27 @@ func (t *Tree) Enumerator(enum Enumerator) *Tree {
 	return t
 }
 
-// Indenter sets the indenter implementation.
+// Indenter sets the indenter implementation. This is used to change the way
+// the tree is indented. The default indentor places a border connecting sibling
+// elements and no border for the last child.
+//
+//	└── Foo
+//	    └── Bar
+//	        └── Baz
+//	            └── Qux
+//	                └── Quux
+//
+// You can define your own indenter.
+//
+//	func ArrowIndenter(children tree.Children, index int) string {
+//		return "→ "
+//	}
+//
+//	→ Foo
+//	→ → Bar
+//	→ → → Baz
+//	→ → → → Qux
+//	→ → → → → Quux
 func (t *Tree) Indenter(indenter Indenter) *Tree {
 	t.ensureRenderer().indenter = indenter
 	return t
