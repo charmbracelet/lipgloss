@@ -1,27 +1,32 @@
-// Package tree provides an API to create printable tree-like structures that
-// can be included in any command line application. It goes something like:
+// Package tree allows you to build trees, as simple or complicated as you need.
+//
+// Define a tree with a root node, and children, set rendering properties (such
+// as style, enumerators, etc...), and print it.
 //
 //	t := tree.New().
-//		Root(".").
-//		Item("Item 1").
-//		Item(
-//		tree.New().Root("Item 2").
-//			Item("Item 2.1").
-//			Item("Item 2.2").
-//			Item("Item 2.3"),
-//		).
-//		Item(
-//		tree.New().
-//			Root("Item 3").
-//			Item("Item 3.1").
-//			Item("Item 3.2"),
+//		Items(
+//			".git",
+//			tree.New().
+//				Root("examples/").
+//				Items(
+//					tree.New().
+//						Root("list/").
+//						Items("main.go").
+//					tree.New().
+//						Root("table/").
+//						Items("main.go").
+//				).
+//			tree.New().
+//				Root("list/").
+//				Items("list.go", "list_test.go").
+//			tree.New().
+//				Root("table/").
+//				Items("table.go", "table_test.go").
+//			"align.go",
+//			"align_test.go",
+//			"join.go",
+//			"join_test.go",
 //		)
-//
-//	fmt.Println(t)
-//
-// If you're looking to create a list, you can use the list package which wraps
-// the tree package with bulleted enumerations. Trees are fully customizable, so
-// don't be shy, give 'em the 'ol razzle dazzle.
 package tree
 
 import (
