@@ -225,6 +225,10 @@ func (l *List) Items(items ...any) *List {
 //	 Baz. Baz
 func (l *List) Enumerator(enumerator Enumerator) *List {
 	l.tree.Enumerator(func(c tree.Children, i int) string { return enumerator(c, i) })
-	l.tree.Indenter(func(tree.Children, int) string { return " " })
+	return l
+}
+
+func (l *List) Indenter(indenter Indenter) *List {
+	l.tree.Indenter(func(c tree.Children, i int) string { return indenter(c, i) })
 	return l
 }

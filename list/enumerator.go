@@ -25,6 +25,9 @@ import (
 // Or, define your own.
 type Enumerator func(items Items, index int) string
 
+// Indenter defines the indenter for the list.
+type Indenter func(items Items, index int) string
+
 // Alphabet is the enumeration for alphabetical listing.
 //
 // a. Foo
@@ -103,4 +106,19 @@ func Asterisk(Items, int) string {
 // - Qux.
 func Dash(Items, int) string {
 	return "-"
+}
+
+func Tree(items Items, i int) string {
+	if items.Length()-1 == i {
+		return "└──"
+	}
+	return "├──"
+}
+
+func TreeIndent(items Items, i int) string {
+	if items.Length()-1 == i {
+		return "   "
+	} else {
+		return "│  "
+	}
 }
