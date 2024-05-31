@@ -24,6 +24,12 @@ jobs:
       - name: Build
         run: go build -v ./...
 
+      - name: Build examples
+        run: |
+          go mod tidy
+          go build -v ./...
+        working-directory: ./examples
+
       - name: Test
         run: go test ./...
 
