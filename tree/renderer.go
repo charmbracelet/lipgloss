@@ -45,6 +45,9 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	var strs []string
 	var maxLen int
 	children := node.Children()
+	if children == nil {
+		children = NodeChildren(nil)
+	}
 	enumerator := r.enumerator
 	indenter := r.indenter
 

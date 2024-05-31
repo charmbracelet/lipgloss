@@ -8,16 +8,21 @@ import (
 )
 
 func main() {
-	purple := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
-	pink := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+	purple := lipgloss.
+		NewStyle().
+		Foreground(lipgloss.Color("99")).
+		MarginRight(1)
+
+	pink := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("212")).
+		MarginRight(1)
 
 	t := tree.New().
-		Items(
+		Child(
 			"Glossier",
 			"Claire’s Boutique",
-			tree.New().
-				Root("Nyx").
-				Items("Lip Gloss", "Foundation").
+			tree.Root("Nyx").
+				Child("Lip Gloss", "Foundation").
 				EnumeratorStyle(pink),
 			"Mac",
 			"Milk",
