@@ -321,6 +321,8 @@ func (s Style) PaddingBottom(i int) Style {
 // applied to the padding. This is true by default as it's more than likely the
 // desired and expected behavior, but it can be disabled for certain graphic
 // effects.
+//
+// Deprecated: Just use margins and padding.
 func (s Style) ColorWhitespace(v bool) Style {
 	s.set(colorWhitespaceKey, v)
 	return s
