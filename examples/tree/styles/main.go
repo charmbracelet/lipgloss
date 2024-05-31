@@ -12,12 +12,12 @@ func main() {
 	pink := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
 
 	t := tree.New().
-		Items(
+		Child(
 			"Glossier",
 			"Claire’s Boutique",
 			tree.New().
 				Root("Nyx").
-				Items("Lip Gloss", "Foundation").
+				Child("Lip Gloss", "Foundation").
 				EnumeratorStyle(pink),
 			"Mac",
 			"Milk",
