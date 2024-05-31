@@ -19,7 +19,7 @@ import (
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	lm "github.com/charmbracelet/wish/logging"
-	"github.com/kr/pty"
+	"github.com/creack/pty"
 	"github.com/muesli/termenv"
 )
 
