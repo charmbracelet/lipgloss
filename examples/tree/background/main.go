@@ -24,17 +24,17 @@ func main() {
 		ItemStyle(itemStyle).
 		EnumeratorStyle(enumeratorStyle).
 		Root("# Table of Contents").
-		Item(
+		Child(
 			tree.New().
 				Root("## Chapter 1").
-				Item("Chapter 1.1").
-				Item("Chapter 1.2"),
+				Child("Chapter 1.1").
+				Child("Chapter 1.2"),
 		).
-		Item(
+		Child(
 			tree.New().
 				Root("## Chapter 2").
-				Item("Chapter 2.1").
-				Item("Chapter 2.2"),
+				Child("Chapter 2.1").
+				Child("Chapter 2.2"),
 		)
 
 	fmt.Println(t)
