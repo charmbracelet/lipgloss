@@ -68,7 +68,10 @@ func main() {
 		Foreground(lipgloss.Color("#FFF7DB"))
 
 	lipglossStyleFunc := func(items list.Items, index int) lipgloss.Style {
-		return titleStyle.Padding(0, index+1).Background(lipgloss.Color(colors[index][0]))
+		if index == items.Length()-1 {
+			return titleStyle.Padding(1, 2).Margin(0, 0, 1, 0).MaxWidth(20).Background(lipgloss.Color(colors[index][0]))
+		}
+		return titleStyle.Padding(0, 5-index, 0, index+2).MaxWidth(20).Background(lipgloss.Color(colors[index][0]))
 	}
 
 	history := "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
@@ -201,7 +204,7 @@ func main() {
 										).
 										Child("go get github.com/charmbracelet/lipgloss/list\n"),
 								).
-								Item("Lip Gloss"),
+								Item("See ya later"),
 						),
 				).
 				Item("List"),
