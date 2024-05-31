@@ -13,10 +13,10 @@ func main() {
 
 	t := tree.New().
 		Root("Groceries").
-		Items(
+		Child(
 			tree.New().
 				Root("Fruits").
-				Items(
+				Child(
 					"Blood Orange",
 					"Papaya",
 					"Dragonfruit",
@@ -24,14 +24,14 @@ func main() {
 				),
 			tree.New().
 				Root("Items").
-				Items(
+				Child(
 					"Cat Food",
 					"Nutella",
 					"Powdered Sugar",
 				),
 			tree.New().
 				Root("Veggies").
-				Items(
+				Child(
 					"Leek",
 					"Artichoke",
 				),

@@ -19,7 +19,7 @@ func main() {
 			return err
 		}
 		if info.IsDir() {
-			t.Item(tree.New().Root(path))
+			t.Child(tree.New().Root(path))
 		}
 		return nil
 	})
