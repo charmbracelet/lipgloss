@@ -1,7 +1,5 @@
 package lipgloss
 
-import "github.com/hashicorp/uuid"
-
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
 	// We don't allow negative integers on any of our other values, so just keep
@@ -67,8 +65,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.tabWidth = value.(int)
 	case transformKey:
 		s.transform = value.(func(string) string)
-	case hyperlinkKey:
-		s.hyperlink = value.([]string)
+	case hyperlinkURLKey:
+		s.hyperlinkURL = value.(string)
+	case hyperlinkParamsKey:
+		s.hyperlinkParams = value.(string)
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
@@ -149,8 +149,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(tabWidthKey, i.tabWidth)
 	case transformKey:
 		s.set(transformKey, i.transform)
-	case hyperlinkKey:
-		s.set(hyperlinkKey, i.hyperlink)
+	case hyperlinkURLKey:
+		s.set(hyperlinkURLKey, i.hyperlinkURL)
+	case hyperlinkParamsKey:
+		s.set(hyperlinkParamsKey, i.hyperlinkParams)
 	default:
 		// Set attributes for set bool properties
 		s.set(key, i.attrs)
@@ -699,16 +701,24 @@ func (s Style) Transform(fn func(string) string) Style {
 // a no way to detect if hyperlinks are supported. If hyperlinks are not
 // the text will still render as normal.
 //
-// Hyperlinks in terminal emulators can contain an ID. This is important for
-// ensuring that when long links are wrapped and broken apart they are still
-// understood as a single hyperlink. In Lip Gloss, this ID is set
-// automatically.
+// Hyperlinks in terminal emulators can optionally contain parameters. To set
+// those see [Style.hyperlinkParams].
 func (s Style) Hyperlink(url string) Style {
 	if url == "" {
 		return s
 	}
 
-	s.set(hyperlinkKey, []string{url, "id", uuid.GenerateUUID()})
+	s.set(hyperlinkURLKey, url)
+	return s
+}
+
+// HyperlinkParams sets parameters for a hyperlink, such as an ID. If no
+// URL is set via [Style.Hyperlink], hyperlink parameters will be ignored.
+func (s Style) HyperlinkParams(p map[string]string) Style {
+	if p == nil {
+		return s
+	}
+	s.set(hyperlinkParamsKey, encodeHyperlinkParams(p))
 	return s
 }
 

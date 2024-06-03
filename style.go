@@ -76,7 +76,8 @@ const (
 
 	transformKey
 
-	hyperlinkKey
+	hyperlinkURLKey
+	hyperlinkParamsKey
 )
 
 // props is a set of properties.
@@ -160,7 +161,8 @@ type Style struct {
 
 	transform func(string) string
 
-	hyperlink []string
+	hyperlinkURL    string
+	hyperlinkParams string
 }
 
 // joinString joins a list of strings into a single string separated with a
