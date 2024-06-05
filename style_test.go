@@ -7,6 +7,84 @@ import (
 	"testing"
 )
 
+func TestUnderline(t *testing.T) {
+	r := NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.TrueColor)
+	r.SetHasDarkBackground(true)
+	t.Parallel()
+
+	tt := []struct {
+		style    Style
+		expected string
+	}{
+		{
+			r.NewStyle().Underline(true),
+			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+		},
+		{
+			r.NewStyle().Underline(true).UnderlineSpaces(true),
+			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+		},
+		{
+			r.NewStyle().Underline(true).UnderlineSpaces(false),
+			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
+		},
+		{
+			r.NewStyle().UnderlineSpaces(true),
+			"ab\x1b[4m \x1b[0mc",
+		},
+	}
+
+	for i, tc := range tt {
+		s := tc.style.SetString("ab c")
+		res := s.Render()
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+}
+
+func TestStrikethrough(t *testing.T) {
+	r := NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.TrueColor)
+	r.SetHasDarkBackground(true)
+	t.Parallel()
+
+	tt := []struct {
+		style    Style
+		expected string
+	}{
+		{
+			r.NewStyle().Strikethrough(true),
+			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+		},
+		{
+			r.NewStyle().Strikethrough(true).StrikethroughSpaces(true),
+			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+		},
+		{
+			r.NewStyle().Strikethrough(true).StrikethroughSpaces(false),
+			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
+		},
+		{
+			r.NewStyle().StrikethroughSpaces(true),
+			"ab\x1b[9m \x1b[0mc",
+		},
+	}
+
+	for i, tc := range tt {
+		s := tc.style.SetString("ab c")
+		res := s.Render()
+		if res != tc.expected {
+			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
+				i, tc.expected, formatEscapes(tc.expected),
+				res, formatEscapes(res))
+		}
+	}
+}
+
 func TestStyleRender(t *testing.T) {
 	r := NewRenderer(TrueColor, true)
 	r.SetHasDarkBackground(true)
@@ -47,7 +125,7 @@ func TestStyleRender(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("hello")
+		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -98,7 +176,7 @@ func TestStyleCustomRender(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("hello")
+		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -149,7 +227,9 @@ func TestStyleInherit(t *testing.T) {
 	requireEqual(t, s.GetBold(), i.GetBold())
 	requireEqual(t, s.GetItalic(), i.GetItalic())
 	requireEqual(t, s.GetUnderline(), i.GetUnderline())
+	requireEqual(t, s.GetUnderlineSpaces(), i.GetUnderlineSpaces())
 	requireEqual(t, s.GetStrikethrough(), i.GetStrikethrough())
+	requireEqual(t, s.GetStrikethroughSpaces(), i.GetStrikethroughSpaces())
 	requireEqual(t, s.GetBlink(), i.GetBlink())
 	requireEqual(t, s.GetFaint(), i.GetFaint())
 	requireEqual(t, s.GetForeground(), i.GetForeground())
@@ -181,12 +261,14 @@ func TestStyleCopy(t *testing.T) {
 		Padding(1, 1, 1, 1).
 		TabWidth(2)
 
-	i := s.Copy()
+	i := s // copy
 
 	requireEqual(t, s.GetBold(), i.GetBold())
 	requireEqual(t, s.GetItalic(), i.GetItalic())
 	requireEqual(t, s.GetUnderline(), i.GetUnderline())
+	requireEqual(t, s.GetUnderlineSpaces(), i.GetUnderlineSpaces())
 	requireEqual(t, s.GetStrikethrough(), i.GetStrikethrough())
+	requireEqual(t, s.GetStrikethroughSpaces(), i.GetStrikethroughSpaces())
 	requireEqual(t, s.GetBlink(), i.GetBlink())
 	requireEqual(t, s.GetFaint(), i.GetFaint())
 	requireEqual(t, s.GetForeground(), i.GetForeground())
@@ -221,10 +303,20 @@ func TestStyleUnset(t *testing.T) {
 	s = s.UnsetUnderline()
 	requireFalse(t, s.GetUnderline())
 
+	s = NewStyle().UnderlineSpaces(true)
+	requireTrue(t, s.GetUnderlineSpaces())
+	s = s.UnsetUnderlineSpaces()
+	requireFalse(t, s.GetUnderlineSpaces())
+
 	s = NewStyle().Strikethrough(true)
 	requireTrue(t, s.GetStrikethrough())
 	s = s.UnsetStrikethrough()
 	requireFalse(t, s.GetStrikethrough())
+
+	s = NewStyle().StrikethroughSpaces(true)
+	requireTrue(t, s.GetStrikethroughSpaces())
+	s = s.UnsetStrikethroughSpaces()
+	requireFalse(t, s.GetStrikethroughSpaces())
 
 	s = NewStyle().Reverse(true)
 	requireTrue(t, s.GetReverse())

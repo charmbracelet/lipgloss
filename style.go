@@ -184,7 +184,8 @@ func (s Style) String() string {
 
 // Copy returns a copy of this style, including any underlying string values.
 //
-// Deprecated: to copy just use assignment (i.e. a := b). All methods also return a new style.
+// Deprecated: to copy just use assignment (i.e. a := b). All methods also
+// return a new style.
 func (s Style) Copy() Style {
 	return s
 }
@@ -265,15 +266,15 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
-		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
+		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
-		useSpaceStyler = underlineSpaces || strikethroughSpaces
+		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
 	)

@@ -455,6 +455,206 @@ fmt.Println(t)
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
+## Rendering Trees
+
+Lip Gloss ships with a tree rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/tree"
+```
+
+Define a new tree.
+
+```go
+t := tree.New("root", "child 1", "child 2", tree.New("child 3", "child 3.1"))
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+
+// root
+// ├── child 1
+// ├── child 2
+// └── child 3
+//     └── child 3.1
+```
+
+### Customization
+
+Trees can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+style1 := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+style2 := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+
+t := tree.New().
+	Items(
+		"Glossier",
+		"Claire’s Boutique",
+		tree.New().
+			Root("Nyx").
+			Items("Qux", "Quux").
+			EnumeratorStyle(style2),
+		"Mac",
+		"Milk",
+	).
+	EnumeratorStyle(style1)
+```
+
+Print the tree:
+
+<p align="center">
+  <img
+    width="600"
+    alt="Tree example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/5a875269-f6d6-43fa-9916-5d8360e66964"
+  />
+</p>
+You may also define custom enumerator implementations:
+
+```go
+t := tree.New().
+	Items(
+		"Glossier",
+		"Claire’s Boutique",
+		tree.New().
+			Root("Nyx").
+			Items(
+				"Qux",
+				"Quux",
+			),
+		"Mac",
+		"Milk",
+	).
+	Enumerator(func(tree.Data, int) (string, string) {
+		return "->", "->"
+	})
+```
+
+Print the tree.
+
+<p align="center">
+  <img
+    width="600"
+    alt="Tree example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/811e8b39-124f-48bb-b3dd-e015a65b1065"
+  />
+</p>
+
+### Building
+
+If you need, you can also build trees incrementally:
+
+```go
+t := tree.New("")
+
+for i := 0; i < repeat; i++ {
+	t.Item("Lip Gloss")
+}
+```
+
+
+## Rendering Lists
+
+Lip Gloss ships with a list rendering sub-package.
+Implementation-wise, lists are still trees.
+The `list` package provides many common `Enumerator` implementations, as well as
+some syntactic sugar.
+
+```go
+import "github.com/charmbracelet/lipgloss/list"
+```
+
+Define a new list.
+
+```go
+l := list.New("A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+
+// • A
+// • B
+// • C
+```
+
+
+### Customization
+
+Lists can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
+
+l := list.New(
+	"Glossier",
+	"Claire’s Boutique",
+	"Nyx",
+	"Mac",
+	"Milk",
+).
+	Enumerator(list.Roman).
+	EnumeratorStyle(enumeratorStyle).
+	ItemStyle(itemStyle)
+```
+
+Print the list.
+
+<p align="center">
+  <img
+    width="600"
+    alt="List example"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/8f5e5e0b-7bf9-4e3b-a8ba-3af10825320e"
+  />
+</p>
+In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
+you may also define your own custom enumerator:
+
+```go
+var DuckDuckGooseEnumerator Enumerator = func(l *List, i int) string {
+	if l.At(i) == "Goose" {
+		return "Honk →"
+	}
+	return ""
+}
+```
+
+Use it in a list:
+
+```go
+l := list.New("Duck", "Duck", "Duck", "Duck", "Goose", "Duck", "Duck")
+l.Enumerator(DuckDuckGooseEnumerator)
+```
+
+Print the list:
+
+<p align="center">
+  <img
+    width="600"
+    alt="image"
+    src="https://github.com/charmbracelet/lipgloss/assets/245435/44e37a5b-5124-4f49-a332-1756a355002e"
+  />
+</p>
+
+### Building
+
+If you need, you can also build trees incrementally:
+
+```go
+l := list.New()
+
+for i := 0; i < repeat; i++ {
+	l.Item("Lip Gloss")
+}
+```
 ---
 
 ## FAQ

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	_ "github.com/charmbracelet/lipgloss/defaults" // use std profile defaults
 	"github.com/lucasb-eyer/go-colorful"
 	"golang.org/x/term"
 )
