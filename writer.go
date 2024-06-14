@@ -208,6 +208,11 @@ func (w *Writer) Write(p []byte) (int, error) {
 	return int(n), err
 }
 
+// WriteString writes the given text to the underlying writer.
+func (w *Writer) WriteString(s string) (n int, err error) {
+	return w.Write([]byte(s))
+}
+
 func readColor(idxp *int, seq *ansi.CsiSequence) (c ansi.Color) {
 	i := *idxp
 	paramsLen := len(seq.Params)
