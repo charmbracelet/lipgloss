@@ -49,7 +49,7 @@ type List struct{ tree *tree.Tree }
 // anything you want, really.
 func New(items ...any) *List {
 	l := &List{tree: tree.New()}
-	return l.Items(items...).Enumerator(Bullet)
+	return l.Item(items...).Enumerator(Bullet)
 }
 
 // Items represents the list items.
@@ -175,31 +175,26 @@ func (l *List) ItemStyleFunc(f StyleFunc) *List {
 	return l
 }
 
-// Item appends an item to the list.
+// Item appends an item(s) to the list.
 //
 //	l := list.New().
 //		Item("Foo").
-//		Item("Bar").
-//		Item("Baz")
-func (l *List) Item(item any) *List {
-	switch item := item.(type) {
-	case *List:
-		l.tree.Child(item.tree)
-	default:
-		l.tree.Child(item)
+//		Item("Bar", "Baz")
+func (l *List) Item(items ...any) *List {
+	for _, item := range items {
+		switch item := item.(type) {
+		case *List:
+			l.tree.Child(item.tree)
+		default:
+			l.tree.Child(item)
+		}
 	}
 	return l
 }
 
-// Items appends multiple items to the list.
-//
-//	l := list.New().
-//		Items("Foo", "Bar", "Baz"),
-func (l *List) Items(items ...any) *List {
-	for _, item := range items {
-		l.Item(item)
-	}
-	return l
+// Items returns the items of the list.
+func (l *List) Items() Items {
+	return l.tree.Children()
 }
 
 // Enumerator sets the list enumerator.

@@ -118,7 +118,7 @@ func (t *Tree) String() string {
 	return t.ensureRenderer().render(t, true, "")
 }
 
-// Child adds a child to this tree.
+// Child adds a child(ren) to this tree.
 //
 // If a Child Tree is passed without a root, it will be parented to it's sibling
 // child (auto-nesting).

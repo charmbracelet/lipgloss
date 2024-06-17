@@ -28,9 +28,10 @@ func TestList(t *testing.T) {
 	assertEqual(t, expected, l.String())
 }
 
-func TestListItems(t *testing.T) {
+func TestListItem(t *testing.T) {
 	l := list.New().
-		Items([]string{"Foo", "Bar", "Baz"})
+		Item("Foo").
+		Item([]string{"Bar", "Baz"})
 
 	expected := `
 • Foo
@@ -38,6 +39,30 @@ func TestListItems(t *testing.T) {
 • Baz
 	`
 	assertEqual(t, expected, l.String())
+}
+
+func TestListItems(t *testing.T) {
+	strs := []string{"Foo", "Bar", "Baz"}
+
+	items := list.New(strs).Items()
+
+	length := items.Length()
+	expectedLength := 3
+	if length != expectedLength {
+		t.Fatalf("expected:%d got:%d", expectedLength, length)
+	}
+
+	for i := 0; i < 3; i++ {
+		item := items.At(i)
+		if item.Value() != strs[i] {
+			t.Fatalf("expected:%s got:%s", strs[i], item.Value())
+		}
+	}
+
+	item := items.At(4)
+	if item != nil {
+		t.Fatalf("expected:%v got:%v", nil, item)
+	}
 }
 
 func TestSublist(t *testing.T) {
@@ -508,11 +533,11 @@ LXXXVIII. Foo
 }
 
 func TestSubListItems(t *testing.T) {
-	l := list.New().Items(
+	l := list.New().Item(
 		"S",
-		list.New().Items("neovim", "vscode"),
+		list.New().Item("neovim", "vscode"),
 		"HI",
-		list.New().Items([]string{"vim", "doom emacs"}),
+		list.New().Item([]string{"vim", "doom emacs"}),
 		"Parent 2",
 		list.New().Item("I like fuzzy socks"),
 	)
