@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -15,13 +14,11 @@ const (
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-
 	var (
 		// HeaderStyle is the lipgloss style used for the table headers.
-		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+		HeaderStyle = lipgloss.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
 		// CellStyle is the base lipgloss style used for the table rows.
-		CellStyle = re.NewStyle().Padding(0, 1).Width(14)
+		CellStyle = lipgloss.NewStyle().Padding(0, 1).Width(14)
 		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
 		OddRowStyle = CellStyle.Foreground(gray)
 		// EvenRowStyle is the lipgloss style used for even-numbered table rows.

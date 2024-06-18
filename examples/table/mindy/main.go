@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-	labelStyle := re.NewStyle().Width(3).Align(lipgloss.Right)
-	swatchStyle := re.NewStyle().Width(6)
+	labelStyle := lipgloss.NewStyle().Width(3).Align(lipgloss.Right)
+	swatchStyle := lipgloss.NewStyle().Width(6)
 
 	data := [][]string{}
 	for i := 0; i < 13; i += 8 {
