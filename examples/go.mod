@@ -8,6 +8,8 @@ replace github.com/charmbracelet/lipgloss/tree => ../tree
 
 replace github.com/charmbracelet/lipgloss/list => ../list
 
+replace github.com/charmbracelet/lipgloss/adaptive => ../adaptive
+
 require (
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/charmbracelet/ssh v0.0.0-20240604154955-a40c6a0d028f
