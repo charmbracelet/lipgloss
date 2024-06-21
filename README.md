@@ -491,12 +491,12 @@ style1 := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
 style2 := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).MarginRight(1)
 
 t := tree.New().
-	Items(
+	Item(
 		"Glossier",
 		"Claire’s Boutique",
 		tree.New().
 			Root("Nyx").
-			Items("Qux", "Quux").
+			Item("Qux", "Quux").
 			EnumeratorStyle(style2),
 		"Mac",
 		"Milk",
