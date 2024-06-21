@@ -98,17 +98,11 @@ func (p props) has(k propKey) bool {
 // Style{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes.
 func NewStyle() Style {
-	return Style{
-		profile:            ColorProfile,
-		hasLightBackground: HasLightBackground,
-	}
+	return Style{}
 }
 
 // Style contains a set of rules that comprise a style as a whole.
 type Style struct {
-	profile            Profile
-	hasLightBackground bool
-
 	props props
 	value string
 
@@ -236,16 +230,13 @@ func (s Style) Render(strs ...string) string {
 		teSpace      ansi.Style
 		teWhitespace ansi.Style
 
-		isColorable = s.profile < Ascii
-		isDecorable = s.profile <= Ascii
-
-		bold          = s.getAsBool(boldKey, false) && isDecorable
-		italic        = s.getAsBool(italicKey, false) && isDecorable
-		underline     = s.getAsBool(underlineKey, false) && isDecorable
-		strikethrough = s.getAsBool(strikethroughKey, false) && isDecorable
-		reverse       = s.getAsBool(reverseKey, false) && isDecorable
-		blink         = s.getAsBool(blinkKey, false) && isDecorable
-		faint         = s.getAsBool(faintKey, false) && isDecorable
+		bold          = s.getAsBool(boldKey, false)
+		italic        = s.getAsBool(italicKey, false)
+		underline     = s.getAsBool(underlineKey, false)
+		strikethrough = s.getAsBool(strikethroughKey, false)
+		reverse       = s.getAsBool(reverseKey, false)
+		blink         = s.getAsBool(blinkKey, false)
+		faint         = s.getAsBool(faintKey, false)
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -278,12 +269,6 @@ func (s Style) Render(strs ...string) string {
 		transform = s.getAsTransform(transformKey)
 	)
 
-	// Disable colors for Ascii and below profiles.
-	if !isColorable {
-		fg = noColor
-		bg = noColor
-	}
-
 	if transform != nil {
 		str = transform(str)
 	}
@@ -315,22 +300,22 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if fg != noColor {
-		te = te.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
+		te = te.ForegroundColor(fg)
 		if styleWhitespace {
-			teWhitespace = teWhitespace.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
+			teWhitespace = teWhitespace.ForegroundColor(fg)
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
+			teSpace = teSpace.ForegroundColor(fg)
 		}
 	}
 
 	if bg != noColor {
-		te = te.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
+		te = te.BackgroundColor(bg)
 		if colorWhitespace {
-			teWhitespace = teWhitespace.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
+			teWhitespace = teWhitespace.BackgroundColor(bg)
 		}
 		if useSpaceStyler {
-			teSpace = teSpace.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
+			teSpace = teSpace.BackgroundColor(bg)
 		}
 	}
 
@@ -488,10 +473,9 @@ func (s Style) applyMargins(str string, inline bool) string {
 		style ansi.Style
 	)
 
-	isColorable := s.profile < Ascii
 	bgc := s.getAsColor(marginBackgroundKey)
-	if bgc != noColor && isColorable {
-		style = style.BackgroundColor(bgc.color(s.profile, s.hasLightBackground))
+	if bgc != noColor {
+		style = style.BackgroundColor(bgc)
 	}
 
 	// Add left and right margin

@@ -407,12 +407,11 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 	}
 
 	var style ansi.Style
-	isColorable := s.profile < Ascii
-	if fg != noColor && isColorable {
-		style = style.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
+	if fg != noColor {
+		style = style.ForegroundColor(fg)
 	}
-	if bg != noColor && isColorable {
-		style = style.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
+	if bg != noColor {
+		style = style.BackgroundColor(bg)
 	}
 
 	return style.Styled(border)
