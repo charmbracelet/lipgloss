@@ -170,3 +170,11 @@ func (cac CompleteAdaptiveColor) color(r *Renderer) termenv.Color {
 func (cac CompleteAdaptiveColor) RGBA() (r, g, b, a uint32) {
 	return termenv.ConvertToRGB(cac.color(renderer)).RGBA()
 }
+
+// Blend mixes b into a according to the specified fraction, which must
+// be between 0 and 1.
+func Blend(a, b string, fraction float64) string {
+	sc := termenv.ConvertToRGB(ColorProfile().Color(a))
+	ec := termenv.ConvertToRGB(ColorProfile().Color(b))
+	return sc.BlendLab(ec, fraction).Hex()
+}
