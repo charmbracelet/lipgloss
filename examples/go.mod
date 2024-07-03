@@ -4,8 +4,6 @@ go 1.19
 
 replace github.com/charmbracelet/lipgloss => ../
 
-replace github.com/charmbracelet/lipgloss/tree => ../tree
-
 replace github.com/charmbracelet/lipgloss/list => ../list
 
 require (

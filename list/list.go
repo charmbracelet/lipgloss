@@ -49,7 +49,9 @@ type List struct{ tree *tree.Tree }
 // anything you want, really.
 func New(items ...any) *List {
 	l := &List{tree: tree.New()}
-	return l.Items(items...).Enumerator(Bullet)
+	return l.Items(items...).
+		Enumerator(Bullet).
+		Indenter(func(Items, int) string { return " " })
 }
 
 // Items represents the list items.
@@ -145,6 +147,36 @@ func (l *List) EnumeratorStyleFunc(f StyleFunc) *List {
 	return l
 }
 
+// Indenter sets the indenter implementation. This is used to change the way
+// the tree is indented. The default indentor places a border connecting sibling
+// elements and no border for the last child.
+//
+//	└── Foo
+//	    └── Bar
+//	        └── Baz
+//	            └── Qux
+//	                └── Quux
+//
+// You can define your own indenter.
+//
+//	func ArrowIndenter(children tree.Children, index int) string {
+//		return "→ "
+//	}
+//
+//	→ Foo
+//	→ → Bar
+//	→ → → Baz
+//	→ → → → Qux
+//	→ → → → → Quux
+func (l *List) Indenter(indenter Indenter) *List {
+	l.tree.Indenter(
+		func(children tree.Children, index int) string {
+			return indenter(children, index)
+		},
+	)
+	return l
+}
+
 // ItemStyle sets the item style for all items.
 //
 // To set the item style conditionally based on the item value or index,
@@ -225,6 +257,5 @@ func (l *List) Items(items ...any) *List {
 //	 Baz. Baz
 func (l *List) Enumerator(enumerator Enumerator) *List {
 	l.tree.Enumerator(func(c tree.Children, i int) string { return enumerator(c, i) })
-	l.tree.Indenter(func(tree.Children, int) string { return " " })
 	return l
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/list"
 )
 
 func main() {
@@ -20,22 +20,25 @@ func main() {
 
 	itemStyle := headerItemStyle.Background(lipgloss.Color("0"))
 
-	t := tree.New().
+	t := list.New(
+		"# Table of Contents",
+		list.New(
+			"## Chapter 1",
+			list.New(
+				"Chapter 1.1",
+				"Chapter 1.2",
+			).Enumerator(list.Tree).Indenter(list.TreeIndenter),
+			"## Chapter 2",
+			list.New(
+				"Chapter 2.1",
+				"Chapter 2.2",
+			).Enumerator(list.Tree).Indenter(list.TreeIndenter),
+		).Enumerator(list.Tree).Indenter(list.TreeIndenter),
+	).
 		ItemStyle(itemStyle).
-		EnumeratorStyle(enumeratorStyle).
-		Root("# Table of Contents").
-		Child(
-			tree.New().
-				Root("## Chapter 1").
-				Child("Chapter 1.1").
-				Child("Chapter 1.2"),
-		).
-		Child(
-			tree.New().
-				Root("## Chapter 2").
-				Child("Chapter 2.1").
-				Child("Chapter 2.2"),
-		)
+		Enumerator(list.Tree).
+		Indenter(list.TreeIndenter).
+		EnumeratorStyle(enumeratorStyle)
 
 	fmt.Println(t)
 }

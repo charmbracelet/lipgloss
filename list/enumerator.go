@@ -25,6 +25,22 @@ import (
 // Or, define your own.
 type Enumerator func(items Items, index int) string
 
+// Indenter indents the children of a tree.
+//
+// Indenters allow for displaying nested tree items with connecting borders
+// to sibling nodes.
+//
+// For example, the default indenter would be:
+//
+//	func TreeIndenter(children Children, index int) string {
+//		if children.Length()-1 == index {
+//			return "│  "
+//		}
+//
+//		return "   "
+//	}
+type Indenter func(items Items, index int) string
+
 // Alphabet is the enumeration for alphabetical listing.
 //
 // a. Foo
@@ -103,4 +119,34 @@ func Asterisk(Items, int) string {
 // - Qux.
 func Dash(Items, int) string {
 	return "-"
+}
+
+// Tree enumerates a tree.
+//
+// ├── Foo
+// ├── Bar
+// ├── Baz
+// └── Qux.
+func Tree(items Items, index int) string {
+	if items.Length()-1 == index {
+		return "└──"
+	}
+	return "├──"
+}
+
+// DefaultIndenter indents a tree for nested trees and multiline content.
+//
+// ├── Foo
+// ├── Bar
+// │   ├── Qux
+// │   ├── Quux
+// │   │   ├── Foo
+// │   │   └── Bar
+// │   └── Quuux
+// └── Baz.
+func TreeIndenter(items Items, index int) string {
+	if items.Length()-1 == index {
+		return "   "
+	}
+	return "│  "
 }
