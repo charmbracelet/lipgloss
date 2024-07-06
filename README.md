@@ -571,6 +571,7 @@ for i := 0; i < repeat; i++ {
 }
 ```
 
+
 ## Rendering Lists
 
 Lip Gloss ships with a list rendering sub-package.
@@ -597,6 +598,7 @@ fmt.Println(l)
 // • B
 // • C
 ```
+
 
 ### Customization
 
@@ -668,7 +670,6 @@ for i := 0; i < repeat; i++ {
 	l.Item("Lip Gloss")
 }
 ```
-
 ---
 
 ## FAQ
