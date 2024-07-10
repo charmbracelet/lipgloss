@@ -110,9 +110,3 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 //	colorA := lipgloss.ANSIColor(8)
 //	colorB := lipgloss.ANSIColor(134)
 type ANSIColor = ansi.ExtendedColor
-
-// ConvertToRGB converts a Color to a colorful.Color.
-func ConvertToRGB(c ansi.Color) colorful.Color {
-	ch, _ := colorful.MakeColor(c)
-	return ch
-}
