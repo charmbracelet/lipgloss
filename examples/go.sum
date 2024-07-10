@@ -13,8 +13,8 @@ github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917 h1:NZKjJ7d/pzk/A
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917/go.mod h1:8/Ve8iGRRIGFM1kepYfRF2pEOF5Y3TEZYoJaA54228U=
 github.com/charmbracelet/wish v1.4.0 h1:pL1uVP/YuYgJheHEj98teZ/n6pMYnmlZq/fcHvomrfc=
 github.com/charmbracelet/wish v1.4.0/go.mod h1:ew4/MjJVfW/akEO9KmrQHQv1F7bQRGscRMrA+KtovTk=
-github.com/charmbracelet/x/ansi v0.1.1 h1:CGAduulr6egay/YVbGc8Hsu8deMg1xZ/bkaXTPi1JDk=
-github.com/charmbracelet/x/ansi v0.1.1/go.mod h1:dk73KoMTT5AX5BsX0KrqhsTqAnhZZoCBjs7dGWp4Ktw=
+github.com/charmbracelet/x/ansi v0.1.3 h1:RBh/eleNWML5R524mjUF0yVRePTwqN9tPtV+DPgO5Lw=
+github.com/charmbracelet/x/ansi v0.1.3/go.mod h1:dk73KoMTT5AX5BsX0KrqhsTqAnhZZoCBjs7dGWp4Ktw=
 github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 h1:3RXpZWGWTOeVXCTv0Dnzxdv/MhNUkBfEcbaTY0zrTQI=
 github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651/go.mod h1:2P0UgXMEa6TsToMSuFqKFQR+fZTO9CNGUNokkPatT/0=
 github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd h1:HqBjkSFXXfW4IgX3TMKipWoPEN08T3Pi4SA/3DLss/U=
