@@ -2,11 +2,13 @@ module github.com/charmbracelet/lipgloss
 
 retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
 
+retract v0.11.1 // v0.11.1 uses a broken version of x/ansi StringWidth that causes some lines to wrap incorrectly.
+
 go 1.18
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/charmbracelet/x/ansi v0.1.1
+	github.com/charmbracelet/x/ansi v0.1.0
 	github.com/charmbracelet/x/term v0.1.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/rivo/uniseg v0.4.7

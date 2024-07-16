@@ -249,7 +249,15 @@ func (s Style) UnsetBorderBackground() Style {
 
 // UnsetBorderTopBackgroundColor removes the top border background color rule,
 // if set.
+//
+// Deprecated: This function simply calls Style.UnsetBorderTopBackground.
 func (s Style) UnsetBorderTopBackgroundColor() Style {
+	return s.UnsetBorderTopBackground()
+}
+
+// UnsetBorderTopBackground removes the top border background color rule,
+// if set.
+func (s Style) UnsetBorderTopBackground() Style {
 	s.unset(borderTopBackgroundKey)
 	return s
 }
