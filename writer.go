@@ -5,57 +5,14 @@ import (
 	"fmt"
 	"image/color"
 	"io"
-	"os"
-	"sync"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/ansi/parser"
 )
 
-var (
-	output = NewWriter(os.Stdout, os.Environ())
-	mtx    sync.Mutex
-)
-
-// Default returns the default Lip Gloss writer that uses the standard output
-// and environment variables.
-func Default() *Writer {
-	return output
-}
-
-// SetOutput sets the default Lip Gloss writer to the given writer.
-func SetOutput(w io.Writer) {
-	mtx.Lock()
-	output.Forward = w
-	mtx.Unlock()
-}
-
-// SetProfile sets the default Lip Gloss writer's color profile to the given
-// profile.
-func SetProfile(p Profile) {
-	mtx.Lock()
-	output.Profile = p
-	mtx.Unlock()
-}
-
-// Print writes the given text to the default Lip Gloss writer.
-func Print(text string) (n int, err error) {
-	return output.Print(text)
-}
-
-// Println writes the given text to the default Lip Gloss writer followed by a
-// newline.
-func Println(text string) (n int, err error) {
-	return output.Println(text)
-}
-
-// Printf writes the given text to the default Lip Gloss writer with the given
-// format.
-func Printf(format string, a ...interface{}) (n int, err error) {
-	return output.Printf(format, a...)
-}
-
 // NewWriter creates a new Lip Gloss writer that writes text to the given writer.
+//
+// If environ is nil, it will use os.Environ() to get the environment variables.
 //
 // It queries the given writer to determine if it supports ANSI escape codes.
 // If it does, along with the given environment variables, it will determine
@@ -204,8 +161,7 @@ func (w *Writer) Write(p []byte) (int, error) {
 		}, b, i < len(p)-1)
 	}
 
-	n, err := buf.WriteTo(w.Forward)
-	return int(n), err
+	return w.Forward.Write(buf.Bytes())
 }
 
 // WriteString writes the given text to the underlying writer.
@@ -259,7 +215,7 @@ func ansiColorToParams(c ansi.Color, sel colorSelector) []int {
 		case background:
 			return []int{offset + 10 + int(c)}
 		case underline:
-			// XXX: ANSI doesn't have underline colors, use ANSI256.
+			// NOTE: ANSI doesn't have underline colors, use ANSI256.
 			return []int{58, 5, int(c)}
 		}
 	case ansi.ExtendedColor:

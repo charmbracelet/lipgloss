@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/term"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 // DetectColorProfile returns the color profile based on the terminal output,
@@ -41,33 +40,6 @@ func DetectColorProfile(output io.Writer, environ []string) Profile {
 	}
 
 	return p
-}
-
-// QueryHasLightBackground returns true if the terminal has a light background.
-func QueryHasLightBackground(in term.File, out term.File) bool {
-	if !term.IsTerminal(out.Fd()) {
-		return false
-	}
-
-	state, err := term.MakeRaw(in.Fd())
-	if err != nil {
-		return false
-	}
-
-	defer term.Restore(in.Fd(), state) // nolint:errcheck
-
-	c, err := term.QueryBackgroundColor(in, out)
-	if err != nil || c == nil {
-		return false
-	}
-
-	col, ok := colorful.MakeColor(c)
-	if !ok {
-		return false
-	}
-
-	_, _, l := col.Hsl()
-	return l > 0.5
 }
 
 // EnvColorProfile returns the color profile based on environment variables.
