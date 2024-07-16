@@ -149,6 +149,8 @@ func (w *Writer) Write(p []byte) (int, error) {
 										continue
 									}
 								}
+								pen.Params = append(pen.Params, ansiColorToParams(c, sel)...)
+								continue
 							}
 						}
 						pen.Params = append(pen.Params, param)
