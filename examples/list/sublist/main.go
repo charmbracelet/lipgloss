@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
-	"github.com/charmbracelet/lipgloss/tree"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
@@ -119,16 +118,16 @@ func main() {
 								Item("Lip Gloss").
 								Item("Lip Gloss").
 								Item(
-									tree.New().
+									list.New().
 										EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(colors[4][0])).MarginRight(1)).
-										Child("\nStyle Definitions for Nice Terminal Layouts\n─────").
-										Child("From Charm").
-										Child("https://github.com/charmbracelet/lipgloss").
-										Child(
-											tree.New().
+										Item("\nStyle Definitions for Nice Terminal Layouts\n─────").
+										Item("From Charm").
+										Item("https://github.com/charmbracelet/lipgloss").
+										Item(
+											list.New().
 												EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(colors[3][0])).MarginRight(1)).
-												Child("Emperors: Julio-Claudian dynasty").
-												Child(
+												Item("Emperors: Julio-Claudian dynasty").
+												Item(
 													lipgloss.NewStyle().Padding(1).Render(
 														list.New(
 															"Augustus",
@@ -139,7 +138,7 @@ func main() {
 														).Enumerator(list.Roman).String(),
 													),
 												).
-												Child(
+												Item(
 													lipgloss.NewStyle().
 														Bold(true).
 														Foreground(lipgloss.Color("#FAFAFA")).
@@ -151,7 +150,7 @@ func main() {
 														Width(40).
 														Render(history),
 												).
-												Child(
+												Item(
 													table.New().
 														Width(30).
 														BorderStyle(purple.MarginRight(0)).
@@ -174,8 +173,8 @@ func main() {
 														Row("Orange", "2").
 														Row("Strawberry", "12"),
 												).
-												Child("Documents").
-												Child(
+												Item("Documents").
+												Item(
 													list.New().
 														Enumerator(func(_ list.Items, i int) string {
 															if i == 1 {
@@ -200,9 +199,9 @@ func main() {
 														Item("Baz Document\n" + faint.Render("10 minutes ago")).
 														Item("Qux Document\n" + faint.Render("1 month ago")),
 												).
-												Child("EOF"),
+												Item("EOF"),
 										).
-										Child("go get github.com/charmbracelet/lipgloss/list\n"),
+										Item("go get github.com/charmbracelet/lipgloss/list\n"),
 								).
 								Item("See ya later"),
 						),
