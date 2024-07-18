@@ -30,7 +30,7 @@ import (
 // List represents a list of items that can be displayed. Lists can contain
 // lists as items, they will be rendered as nested (sub)lists.
 //
-// In fact, lists can contain anything as items, like lipgloss.Table or lipgloss.Tree.
+// In fact, lists can contain anything as items, like lipgloss.Table.
 type List struct{ tree *tree.Tree }
 
 // New returns a new list with the given items.
@@ -79,6 +79,12 @@ type Items tree.Children
 //			}
 //	})
 type StyleFunc func(items Items, index int) lipgloss.Style
+
+// Title sets the title of the list.
+func (l *List) Title(title string) *List {
+	l.tree.Root(title)
+	return l
+}
 
 // Hidden returns whether this list is hidden.
 func (l *List) Hidden() bool {
