@@ -3,6 +3,8 @@ package list
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss/internal/tree"
 )
 
 // Enumerator enumerates a list. Given a list of items and the index of the
@@ -128,10 +130,17 @@ func Dash(Items, int) string {
 // ├── Baz
 // └── Qux.
 func Tree(items Items, index int) string {
-	if items.Length()-1 == index {
-		return "└──"
-	}
-	return "├──"
+	return tree.DefaultEnumerator(items, index)
+}
+
+// TreeRounded enumerates a tree with rounded corners.
+//
+// Foo
+// ├── Bar
+// ├── Baz
+// ╰── Qux
+func TreeRounded(items Items, index int) string {
+	return tree.RoundedEnumerator(items, index)
 }
 
 // DefaultIndenter indents a tree for nested trees and multiline content.
@@ -145,8 +154,5 @@ func Tree(items Items, index int) string {
 // │   └── Quuux
 // └── Baz.
 func TreeIndenter(items Items, index int) string {
-	if items.Length()-1 == index {
-		return "   "
-	}
-	return "│  "
+	return tree.DefaultIndenter(items, index)
 }
