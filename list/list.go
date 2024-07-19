@@ -80,8 +80,9 @@ type Items tree.Children
 //	})
 type StyleFunc func(items Items, index int) lipgloss.Style
 
-// Title sets the title of the list.
-func (l *List) Title(title string) *List {
+// Root sets the title of the list. For the best results, use this for the
+// outermost list.
+func (l *List) Root(title string) *List {
 	l.tree.Root(title)
 	return l
 }
