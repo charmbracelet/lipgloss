@@ -23,7 +23,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 		if shortAmount > 0 {
 			switch pos { //nolint:exhaustive
 			case Right:
-				s := strings.Repeat(" ", shortAmount-1)
+				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
 					s = style.Styled(s)
 				}
