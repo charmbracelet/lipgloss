@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/adaptive"
 	"github.com/lucasb-eyer/go-colorful"
 	"golang.org/x/term"
 )
@@ -27,9 +28,9 @@ var (
 
 	// General.
 
-	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
-	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
-	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	subtle    = adaptive.AdaptiveColor("#D9DCCF", "#383838")
+	highlight = adaptive.AdaptiveColor("#874BFD", "#7D56F4")
+	special   = adaptive.AdaptiveColor("#43BF6D", "#73F59F")
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -141,7 +142,7 @@ var (
 	listDone = func(s string) string {
 		return checkMark + lipgloss.NewStyle().
 			Strikethrough(true).
-			Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
+			Foreground(adaptive.AdaptiveColor("#969B86", "#696969")).
 			Render(s)
 	}
 
@@ -163,8 +164,8 @@ var (
 			Padding(0, 1)
 
 	statusBarStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
-			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"})
+			Foreground(adaptive.AdaptiveColor("#343433", "#C1C6B2")).
+			Background(adaptive.AdaptiveColor("#D9DCCF", "#353533"))
 
 	statusStyle = lipgloss.NewStyle().
 			Inherit(statusBarStyle).
@@ -243,7 +244,7 @@ func main() {
 			lipgloss.Center, lipgloss.Center,
 			dialogBoxStyle.Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
-			lipgloss.WithWhitespaceForeground(subtle),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(subtle)),
 		)
 
 		doc.WriteString(dialog + "\n\n")
@@ -334,7 +335,7 @@ func main() {
 	}
 
 	// Okay, let's print it
-	fmt.Println(docStyle.Render(doc.String()))
+	lipgloss.Println(docStyle.Render(doc.String()))
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {
