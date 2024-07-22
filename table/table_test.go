@@ -694,13 +694,13 @@ func TestTableWidthShrink(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┌─────────┬─────────┬────────┐
-│ LANGUAG │ FORMAL  │ INFORM │
+│ LANGUA… │ FORMAL  │ INFOR… │
 ├─────────┼─────────┼────────┤
 │ Chinese │ Nǐn hǎo │ Nǐ hǎo │
 │ French  │ Bonjour │ Salut  │
-│ Japanes │ こんに  │ やあ   │
-│ Russian │ Zdravst │ Privet │
-│ Spanish │ Hola    │ ¿Qué   │
+│ Japane… │ こんに… │ やあ   │
+│ Russian │ Zdravs… │ Privet │
+│ Spanish │ Hola    │ ¿Qué … │
 └─────────┴─────────┴────────┘
 `)
 
@@ -725,7 +725,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┌──────┬─────┬──────────┐
-│ Name │ Age │ Location │
+│ Name │ Ag… │ Location │
 ├──────┼─────┼──────────┤
 │ Kini │ 40  │ New York │
 │ Eli  │ 30  │ London   │
@@ -757,15 +757,16 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┏━━━━┳━━━━━┳━━━━━┓
-┃ LA ┃ FOR ┃ INF ┃
+┃ L… ┃ FO… ┃ IN… ┃
 ┣━━━━╋━━━━━╋━━━━━┫
-┃ Ch ┃ 您  ┃ 你  ┃
-┃ Ja ┃ こ  ┃ や  ┃
-┃ Ar ┃ أهل ┃ أهل ┃
-┃ Ru ┃ Здр ┃ При ┃
-┃ Sp ┃ Hol ┃ ¿Qu ┃
-┃ En ┃ You ┃ How ┃
+┃ C… ┃ 您… ┃ 你… ┃
+┃ J… ┃ こ… ┃ や… ┃
+┃ A… ┃ أه… ┃ أه… ┃
+┃ R… ┃ Зд… ┃ Пр… ┃
+┃ S… ┃ Ho… ┃ ¿Q… ┃
+┃ E… ┃ Yo… ┃ Ho… ┃
 ┗━━━━┻━━━━━┻━━━━━┛
+
 `)
 
 	if table.String() != expected {
@@ -831,8 +832,8 @@ func TestTableWidths(t *testing.T) {
 ──────────────────────────────
  Chinese   Nǐn hǎo  Nǐ hǎo    
  French    Bonjour  Salut     
- Japanese  こんに   やあ      
- Russian   Zdravst  Privet    
+ Japanese  こんに…  やあ      
+ Russian   Zdravs…  Privet    
  Spanish   Hola     ¿Qué tal? 
 ──────────────────────────────
 `)
@@ -867,8 +868,8 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 ──────────────────────────────
  Chinese   Nǐn hǎo  Nǐ hǎo    
  French    Bonjour  Salut     
- Japanese  こんに   やあ      
- Russian   Zdravst  Privet    
+ Japanese  こんに…  やあ      
+ Russian   Zdravs…  Privet    
  Spanish   Hola     ¿Qué tal? 
 ──────────────────────────────
 `)
