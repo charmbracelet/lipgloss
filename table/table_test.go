@@ -1011,16 +1011,16 @@ func TestTableGlow(t *testing.T) {
 		Row("006", "0x05", "0o005", "ENQ", "enquiry")
 
 	expected := strings.TrimSpace(`
-┌───┬────┬─────┬────┬─────────────────┐
-│Dec│ Hex│  Oct│Char│   Description   │
-├───┼────┼─────┼────┼─────────────────┤
-│001│0x00│0o000│NUL │      null       │
-│002│0x01│0o001│SOH │ startofheading  │
-│003│0x02│0o002│STX │   startoftext   │
-│004│0x03│0o003│ETX │    endoftext    │
-│005│0x04│0o004│EOT │endoftransmission│
-│006│0x05│0o005│ENQ │     enquiry     │
-└───┴────┴─────┴────┴─────────────────┘
+┌───────────┬────────────┬─────────────┬────────────┬──────────────────────────┐
+│       Dec │        Hex │         Oct │ Char       │        Description       │
+├───────────┼────────────┼─────────────┼────────────┼──────────────────────────┤
+│       001 │       0x00 │       0o000 │ NUL        │            null          │
+│       002 │       0x01 │       0o001 │ SOH        │       startofheading     │
+│       003 │       0x02 │       0o002 │ STX        │        startoftext       │
+│       004 │       0x03 │       0o003 │ ETX        │         endoftext        │
+│       005 │       0x04 │       0o004 │ EOT        │     endoftransmission    │
+│       006 │       0x05 │       0o005 │ ENQ        │          enquiry         │
+└───────────┴────────────┴─────────────┴────────────┴──────────────────────────┘
 `)
 
 	if table.String() != expected {
