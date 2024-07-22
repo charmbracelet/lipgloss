@@ -34,4 +34,18 @@ func main() {
 	).Root("~").Enumerator(list.Tree).Indenter(list.TreeIndenter)
 
 	fmt.Println("A fancy, nested tree:\n" + ti.String() + "\n")
+
+	documents := list.New(
+		"Important Documents",
+		"Junk Drawer",
+		"Books",
+	).Root("Documents").Enumerator(list.Tree)
+
+	treeAsRoot := list.New(
+		"More Documents",
+		"Unfinished Projects",
+		list.New("Bubble Tea in Rust", "Zig Projects"),
+	).Root(documents).Enumerator(list.Tree).Indenter(list.TreeIndenter)
+
+	fmt.Println("A chaotic tree:\n" + treeAsRoot.String() + "\n")
 }

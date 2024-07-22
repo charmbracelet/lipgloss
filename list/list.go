@@ -82,8 +82,13 @@ type StyleFunc func(items Items, index int) lipgloss.Style
 
 // Root sets the title of the list. For the best results, use this for the
 // outermost list.
-func (l *List) Root(title string) *List {
-	l.tree.Root(title)
+func (l *List) Root(root any) *List {
+	switch item := root.(type) {
+	case *List:
+		l.tree.Root(item.tree)
+	default:
+		l.tree.Root(item)
+	}
 	return l
 }
 

@@ -302,13 +302,25 @@ func (t *Tree) Children() Children {
 // It is a shorthand for:
 //
 //	tree.New().Root(root)
-func Root(root string) *Tree {
-	return New().Root(root)
+func Root(root any) *Tree {
+	t := New()
+	return t.Root(root)
 }
 
 // Root sets the root value of this tree.
-func (t *Tree) Root(root string) *Tree {
-	t.value = root
+func (t *Tree) Root(root any) *Tree {
+	// root is a tree or string
+	switch item := root.(type) {
+	case *Tree:
+		t.value = item.value
+		t = t.Child(item.children)
+	case Node, fmt.Stringer:
+		t.value = item.(fmt.Stringer).String()
+	case string, nil:
+		t.value = item.(string)
+	default:
+		t.value = fmt.Sprintf("%v", item)
+	}
 	return t
 }
 
