@@ -7,6 +7,11 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+const (
+	padding = 2
+	tail    = "…"
+)
+
 // StyleFunc is the style function that determines the style of a Cell.
 //
 // It takes the row and column of the cell as an input and determines the
@@ -437,7 +442,7 @@ func (t *Table) constructHeaders() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(ansi.Truncate(header, t.widths[i]-2, "…")))
+			Render(ansi.Truncate(header, t.widths[i]-padding, tail)))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
@@ -488,7 +493,7 @@ func (t *Table) constructRow(index int) string {
 			MaxHeight(height).
 			Width(t.widths[c]).
 			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(cell, (t.widths[c]*height)-2, "…")))
+			Render(ansi.Truncate(cell, (t.widths[c]*height)-padding, tail)))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
