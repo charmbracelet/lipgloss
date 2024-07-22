@@ -976,6 +976,58 @@ func TestTableANSI(t *testing.T) {
 	}
 }
 
+func TestTableGlow(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderTop(true).
+		BorderRight(true).
+		BorderBottom(true).
+		BorderLeft(true).
+		Width(80).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			st := lipgloss.NewStyle()
+			st = st.Margin(0, 1)
+			if row == 0 {
+				st = st.Bold(true)
+			}
+
+			switch col {
+			case 0, 1, 2:
+				st = st.Align(lipgloss.Right).MarginLeft(0)
+			case 3:
+				st = st.Align(lipgloss.Left).MarginRight(0)
+			default:
+				st = st.Align(lipgloss.Center)
+			}
+
+			return st
+		}).
+		Headers("Dec", "Hex", "Oct", "Char", "Description").
+		Row("001", "0x00", "0o000", "NUL", "null").
+		Row("002", "0x01", "0o001", "SOH", "startofheading").
+		Row("003", "0x02", "0o002", "STX", "startoftext").
+		Row("004", "0x03", "0o003", "ETX", "endoftext").
+		Row("005", "0x04", "0o004", "EOT", "endoftransmission").
+		Row("006", "0x05", "0o005", "ENQ", "enquiry")
+
+	expected := strings.TrimSpace(`
+┌───┬────┬─────┬────┬─────────────────┐
+│Dec│ Hex│  Oct│Char│   Description   │
+├───┼────┼─────┼────┼─────────────────┤
+│001│0x00│0o000│NUL │      null       │
+│002│0x01│0o001│SOH │ startofheading  │
+│003│0x02│0o002│STX │   startoftext   │
+│004│0x03│0o003│ETX │    endoftext    │
+│005│0x04│0o004│EOT │endoftransmission│
+│006│0x05│0o005│ENQ │     enquiry     │
+└───┴────┴─────┴────┴─────────────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
 }
