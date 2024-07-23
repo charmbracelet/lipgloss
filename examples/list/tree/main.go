@@ -7,45 +7,59 @@ import (
 )
 
 func main() {
-	t := list.New(
-		"Documents",
-		"Downloads",
-		"Unfinished Projects",
-	).Root("~").Enumerator(list.Tree)
+	t := list.New().
+		Root("~").
+		Items(
+			"Documents",
+			"Downloads",
+			"Unfinished Projects").
+		Enumerator(list.Tree)
 
 	fmt.Println("A classic tree:\n" + t.String() + "\n")
 
-	tr := list.New(
-		"Documents",
-		"Downloads",
-		"Unfinished Projects",
-	).Root("~").Enumerator(list.TreeRounded)
+	tr := list.New().
+		Root("~").
+		Items(
+			"Documents",
+			"Downloads",
+			"Unfinished Projects").
+		Enumerator(list.TreeRounded)
 
 	fmt.Println("A cool, rounded tree:\n" + tr.String() + "\n")
 
-	ti := list.New(
-		list.New(
-			"Important Documents",
-			"Junk Drawer",
-			"Books",
-		).Root("Documents").Enumerator(list.Tree),
-		"Downloads",
-		"Unfinished Projects",
-	).Root("~").Enumerator(list.Tree).Indenter(list.TreeIndenter)
+	ti := list.New().
+		Root("~").
+		Items(
+			list.New().
+				Root("Documents").
+				Items(
+					"Important Documents",
+					"Junk Drawer",
+					"Books",
+				).Enumerator(list.Tree),
+			"Downloads",
+			"Unfinished Projects").
+		Enumerator(list.Tree).
+		Indenter(list.TreeIndenter)
 
 	fmt.Println("A fancy, nested tree:\n" + ti.String() + "\n")
 
-	documents := list.New(
-		"Important Documents",
-		"Junk Drawer",
-		"Books",
-	).Root("Documents").Enumerator(list.Tree)
+	documents := list.New().
+		Root("Documents").
+		Items(
+			"Important Documents",
+			"Junk Drawer",
+			"Books").
+		Enumerator(list.Tree)
 
-	treeAsRoot := list.New(
-		"More Documents",
-		"Unfinished Projects",
-		list.New("Bubble Tea in Rust", "Zig Projects"),
-	).Root(documents).Enumerator(list.Tree).Indenter(list.TreeIndenter)
+	treeAsRoot := list.New().
+		Root(documents).
+		Items(
+			"More Documents",
+			"Unfinished Projects",
+			list.New("Bubble Tea in Rust", "Zig Projects").Enumerator(list.Tree)).
+		Enumerator(list.Tree).
+		Indenter(list.TreeIndenter)
 
 	fmt.Println("A chaotic tree:\n" + treeAsRoot.String() + "\n")
 }
