@@ -243,7 +243,7 @@ func main() {
 			lipgloss.Center, lipgloss.Center,
 			dialogBoxStyle.Render(ui),
 			lipgloss.WithWhitespaceChars("猫咪"),
-			lipgloss.WithWhitespaceForeground(subtle),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(subtle)),
 		)
 
 		doc.WriteString(dialog + "\n\n")
