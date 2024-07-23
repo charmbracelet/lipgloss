@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/muesli/termenv"
 	"github.com/rivo/uniseg"
 )
 
@@ -407,13 +406,13 @@ func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
 		return border
 	}
 
-	style := termenv.Style{}
-
-	if fg != noColor {
-		style = style.Foreground(fg.color(s.r))
+	var style ansi.Style
+	isColorable := s.profile < Ascii
+	if fg != noColor && isColorable {
+		style = style.ForegroundColor(fg.color(s.profile, s.hasLightBackground))
 	}
-	if bg != noColor {
-		style = style.Background(bg.color(s.r))
+	if bg != noColor && isColorable {
+		style = style.BackgroundColor(bg.color(s.profile, s.hasLightBackground))
 	}
 
 	return style.Styled(border)

@@ -685,10 +685,15 @@ func (s Style) Transform(fn func(string) string) Style {
 	return s
 }
 
-// Renderer sets the renderer for the style. This is useful for changing the
-// renderer for a style that is being used in a different context.
-func (s Style) Renderer(r *Renderer) Style {
-	s.r = r
+// ColorProfile sets the color profile for the style.
+func (s Style) ColorProfile(p Profile) Style {
+	s.profile = p
+	return s
+}
+
+// HasLightBackground sets whether the background is light or dark.
+func (s Style) HasLightBackground(b bool) Style {
+	s.hasLightBackground = b
 	return s
 }
 
