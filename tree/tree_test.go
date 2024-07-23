@@ -7,9 +7,9 @@ import (
 
 	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/tree"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func TestTree(t *testing.T) {
@@ -607,7 +607,7 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 ├── Foo
 ├── Bar
 ├── Baz
-│      Foo Document 
+│      Foo Document
 │      The Foo Files
 │
 │   │  Bar Document

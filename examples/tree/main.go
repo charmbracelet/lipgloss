@@ -4,62 +4,55 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 func main() {
-	t := list.New().
+	t := tree.New().
 		Root("~").
-		Items(
+		Child(
 			"Documents",
 			"Downloads",
-			"Unfinished Projects").
-		Enumerator(list.Tree)
+			"Unfinished Projects")
 
 	fmt.Println("A classic tree:\n" + t.String() + "\n")
 
-	tr := list.New().
+	tr := tree.New().
 		Root("~").
-		Items(
+		Enumerator(tree.RoundedEnumerator).
+		Child(
 			"Documents",
 			"Downloads",
-			"Unfinished Projects").
-		Enumerator(list.TreeRounded)
+			"Unfinished Projects")
 
 	fmt.Println("A cool, rounded tree:\n" + tr.String() + "\n")
 
-	ti := list.New().
+	ti := tree.New().
 		Root("~").
-		Items(
+		Child(
 			list.New().
 				Root("Documents").
 				Items(
 					"Important Documents",
 					"Junk Drawer",
 					"Books",
-				).Enumerator(list.Tree),
+				),
 			"Downloads",
-			"Unfinished Projects").
-		Enumerator(list.Tree).
-		Indenter(list.TreeIndenter)
+			"Unfinished Projects")
 
 	fmt.Println("A fancy, nested tree:\n" + ti.String() + "\n")
 
-	documents := list.New().
+	documents := tree.New().
 		Root("Documents").
-		Items(
+		Child(
 			"Important Documents",
 			"Junk Drawer",
-			"Books").
-		Enumerator(list.Tree)
+			"Books")
 
-	treeAsRoot := list.New().
+	treeAsRoot := tree.New().
 		Root(documents).
-		Items(
+		Child(
 			"More Documents",
-			"Unfinished Projects",
-			list.New("Bubble Tea in Rust", "Zig Projects").Enumerator(list.Tree)).
-		Enumerator(list.Tree).
-		Indenter(list.TreeIndenter)
-
+			tree.New().Root("Unfinished Projects").Child("Bubble Tea in Rust", "Zig Projects"))
 	fmt.Println("A chaotic tree:\n" + treeAsRoot.String() + "\n")
 }
