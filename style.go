@@ -307,9 +307,7 @@ func (s Style) Render(strs ...string) string {
 		te = te.Underline()
 	}
 	if reverse {
-		if reverse {
-			teWhitespace = teWhitespace.Reverse()
-		}
+		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
 	}
 	if blink {
