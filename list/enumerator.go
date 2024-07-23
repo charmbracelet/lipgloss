@@ -143,7 +143,7 @@ func TreeRounded(items Items, index int) string {
 	return tree.RoundedEnumerator(items, index)
 }
 
-// DefaultIndenter indents a tree for nested trees and multiline content.
+// TreeIndenter indents a tree for nested trees and multiline content.
 //
 // ├── Foo
 // ├── Bar
