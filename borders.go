@@ -365,8 +365,24 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
-		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
+		bottom := ""
+		info := s.GetBorderInfoTitle()
+		
+		// Render border info if user set
+		if len(strings.TrimSpace(info)) > 0 {
+			infoStyle := s.GetBorderInfoStyle().Copy().MaxWidth(width)
+			if infoStyle.GetHorizontalPadding() == 0 {
+				infoStyle = infoStyle.Padding(0, 1)
+			}
+
+			beforeInfo, afterInfo := renderBorderContent(info, infoStyle, border, width)
+			bottom = s.styleBorder(beforeInfo, bottomFG, bottomBG) +
+					 infoStyle.Render(info) +
+					 s.styleBorder(afterInfo, bottomFG, bottomBG)
+		} else {
+			bottom = renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+			bottom = s.styleBorder(bottom, bottomFG, bottomBG)
+		}
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
@@ -399,6 +415,29 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 	out.WriteString(right)
 
 	return out.String()
+}
+
+// Render border info or border ttitle.
+func renderBorderContent(content string, contentStyle Style, border Border, width int) (beforeContent, afterContent string) {
+	const sideCount = 2
+
+	contentLen := contentStyle.GetHorizontalFrameSize() + ansi.StringWidth(content)
+	beforeContent = border.BottomLeft
+	afterContent = border.BottomRight
+
+	switch contentStyle.GetAlignHorizontal() {
+	case Right:
+		beforeContent = border.BottomLeft + strings.Repeat(border.Top, max(0, width-1-contentLen))
+	case Center:
+		noContentLen := width - 1 - contentLen
+		noContentLen2 := noContentLen / sideCount
+		beforeContent = border.BottomLeft + strings.Repeat(border.Top, max(0, noContentLen2))
+		afterContent = strings.Repeat(border.Top, max(0, noContentLen-noContentLen2)) + border.BottomRight
+	case Left:
+		afterContent = strings.Repeat(border.Top, max(0, width-1-contentLen)) + border.BottomRight
+	}
+
+	return beforeContent, afterContent
 }
 
 // Apply foreground and background styling to a border.
