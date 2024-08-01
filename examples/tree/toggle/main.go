@@ -70,13 +70,21 @@ func main() {
 		Root(dir{"~", true, s}).
 		Child(
 			dir{"ayman", false, s},
-			dir{"bash", false, s},
-			dir{"carlos", true, s},
-			tree.New().
-				Root(dir{"emotes", true, s}).
+			tree.Root(dir{"bash", false, s}).
 				Child(
-					file{"chefkiss.png", s},
-					file{"kekw.png", s},
+					tree.Root(dir{"tools", true, s}).
+						Child(
+							file{"zsh", s},
+							file{"doom-emacs", s},
+						),
+				),
+			tree.Root(dir{"carlos", true, s}).
+				Child(
+					tree.Root(dir{"emotes", true, s}).
+						Child(
+							file{"chefkiss.png", s},
+							file{"kekw.png", s},
+						),
 				),
 			dir{"maas", false, s},
 		)
