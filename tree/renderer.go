@@ -82,14 +82,14 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		// the current node's prefix have the same height.
 		for lipgloss.Height(item) > lipgloss.Height(nodePrefix) {
 			nodePrefix = lipgloss.JoinVertical(
-				lipgloss.Top,
+				lipgloss.Left,
 				nodePrefix,
 				enumStyle.Render(indent),
 			)
 		}
 		for lipgloss.Height(nodePrefix) > lipgloss.Height(multineLinePrefix) {
 			multineLinePrefix = lipgloss.JoinVertical(
-				lipgloss.Top,
+				lipgloss.Left,
 				multineLinePrefix,
 				prefix,
 			)
@@ -98,7 +98,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		strs = append(
 			strs,
 			lipgloss.JoinHorizontal(
-				lipgloss.Left,
+				lipgloss.Top,
 				multineLinePrefix,
 				nodePrefix,
 				item,
@@ -126,7 +126,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			}
 		}
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, strs...)
+	return strings.Join(strs, "\n")
 }
 
 func max(a, b int) int {
