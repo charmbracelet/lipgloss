@@ -255,12 +255,12 @@ func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
-// Enumerator sets the enumerator implementation. This can be used to change the way the branches indicators look.
-// Lipgloss includes predefined enumerators including bullets, roman numerals, and more. For
-// example, you can have a numbered list:
+// Enumerator sets the enumerator implementation. This can be used to change the
+// way the branches indicators look.  Lipgloss includes predefined enumerators
+// for a classic or rounded tree. For example, you can have a rounded tree:
 //
 //	tree.New().
-//		Enumerator(Arabic)
+//		Enumerator(RoundedEnumerator)
 func (t *Tree) Enumerator(enum Enumerator) *Tree {
 	t.ensureRenderer().enumerator = enum
 	return t
