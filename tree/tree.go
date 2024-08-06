@@ -223,6 +223,12 @@ func (t *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
+// RootStyle sets a style for the root element.
+func (t *Tree) RootStyle(style lipgloss.Style) *Tree {
+	t.ensureRenderer().style.root = style
+	return t
+}
+
 // ItemStyle sets a static style for all items.
 //
 // Use ItemStyleFunc to conditionally set styles based on the tree node.
