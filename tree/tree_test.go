@@ -10,6 +10,8 @@ import (
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/x/exp/golden"
+	"github.com/muesli/termenv"
 )
 
 func TestTree(t *testing.T) {
@@ -408,6 +410,20 @@ Root
 - Baz
 	`
 	assertEqual(t, want, tree.String())
+}
+
+func TestRootStyle(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
+	tree := tree.New().
+		Root("Root").
+		Child(
+			"Foo",
+			"Baz",
+		).
+		RootStyle(lipgloss.NewStyle().Background(lipgloss.Color("#5A56E0"))).
+		ItemStyle(lipgloss.NewStyle().Background(lipgloss.Color("#04B575")))
+
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestAt(t *testing.T) {
