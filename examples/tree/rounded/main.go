@@ -11,26 +11,22 @@ func main() {
 	itemStyle := lipgloss.NewStyle().MarginRight(1)
 	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8")).MarginRight(1)
 
-	t := tree.New().
-		Root("Groceries").
+	t := tree.Root("Groceries").
 		Child(
-			tree.New().
-				Root("Fruits").
+			tree.Root("Fruits").
 				Child(
 					"Blood Orange",
 					"Papaya",
 					"Dragonfruit",
 					"Yuzu",
 				),
-			tree.New().
-				Root("Items").
+			tree.Root("Items").
 				Child(
 					"Cat Food",
 					"Nutella",
 					"Powdered Sugar",
 				),
-			tree.New().
-				Root("Veggies").
+			tree.Root("Veggies").
 				Child(
 					"Leek",
 					"Artichoke",

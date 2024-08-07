@@ -15,8 +15,7 @@ func main() {
 		Child(
 			"Glossier",
 			"Claire’s Boutique",
-			tree.New().
-				Root("Nyx").
+			tree.Root("Nyx").
 				Child("Lip Gloss", "Foundation").
 				EnumeratorStyle(pink),
 			"Mac",

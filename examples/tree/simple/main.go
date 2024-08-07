@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	t := tree.New().
-		Root(".").
+	t := tree.Root(".").
 		Child("Item 1").
 		Child(
 			tree.New().

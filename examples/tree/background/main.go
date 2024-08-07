@@ -20,19 +20,17 @@ func main() {
 
 	itemStyle := headerItemStyle.Background(lipgloss.Color("0"))
 
-	t := tree.New().
+	t := tree.Root("# Table of Contents").
+		RootStyle(itemStyle).
 		ItemStyle(itemStyle).
 		EnumeratorStyle(enumeratorStyle).
-		Root("# Table of Contents").
 		Child(
-			tree.New().
-				Root("## Chapter 1").
+			tree.Root("## Chapter 1").
 				Child("Chapter 1.1").
 				Child("Chapter 1.2"),
 		).
 		Child(
-			tree.New().
-				Root("## Chapter 2").
+			tree.Root("## Chapter 2").
 				Child("Chapter 2.1").
 				Child("Chapter 2.2"),
 		)

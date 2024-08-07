@@ -64,10 +64,9 @@ func (s file) String() string {
 func main() {
 	s := defaultStyles()
 
-	t := tree.New().
+	t := tree.Root(dir{"~", true, s}).
 		Enumerator(tree.RoundedEnumerator).
 		EnumeratorStyle(s.enumerator).
-		Root(dir{"~", true, s}).
 		Child(
 			dir{"ayman", false, s},
 			tree.Root(dir{"bash", false, s}).

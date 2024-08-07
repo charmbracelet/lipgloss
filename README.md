@@ -573,8 +573,7 @@ import "github.com/charmbracelet/lipgloss/tree"
 Define a new tree.
 
 ```go
-t := tree.New().
-	Root(".").
+t := tree.Root(".").
 	Child("A", "B", "C")
 ```
 
@@ -592,19 +591,16 @@ fmt.Println(t)
 Trees have the ability to nest.
 
 ```go
-t := tree.New().
-	Root(".").
+t := tree.Root(".").
 	Child("Item 1").
 	Child(
-		tree.New().
-			Root("Item 2").
+		tree.Root("Item 2").
 			Child("Item 2.1").
 			Child("Item 2.2").
 			Child("Item 2.3"),
 	).
 	Child(
-		tree.New().
-			Root("Item 3").
+		tree.Root("Item 3").
 			Child("Item 3.1").
 			Child("Item 3.2"),
 	)
