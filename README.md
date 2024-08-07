@@ -77,11 +77,11 @@ appropriate color will be chosen at runtime.
 
 ### Complete Colors
 
-CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+CompleteColor specifies exact values for True Color, ANSI256, and ANSI color
 profiles.
 
 ```go
-lipgloss.CompleteColor{True: "#0000FF", ANSI256: "86", ANSI: "5"}
+lipgloss.CompleteColor{TrueColor: "#0000FF", ANSI256: "86", ANSI: "5"}
 ```
 
 Automatic color degradation will not be performed in this case and it will be
@@ -89,7 +89,7 @@ based on the color specified.
 
 ### Complete Adaptive Colors
 
-You can use CompleteColor with AdaptiveColor to specify the exact values for
+You can use `CompleteColor` with `AdaptiveColor` to specify the exact values for
 light and dark backgrounds without automatic color degradation.
 
 ```go
