@@ -562,6 +562,100 @@ for i := 0; i < repeat; i++ {
 }
 ```
 
+## Rendering Trees
+
+Lip Gloss ships with a tree rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/tree"
+```
+
+Define a new tree.
+
+```go
+t := tree.Root(".").
+	Child("A", "B", "C")
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+
+// .
+// ├── A
+// ├── B
+// └── C
+```
+
+Trees have the ability to nest.
+
+```go
+t := tree.Root(".").
+	Child("Item 1").
+	Child(
+		tree.Root("Item 2").
+			Child("Item 2.1").
+			Child("Item 2.2").
+			Child("Item 2.3"),
+	).
+	Child(
+		tree.Root("Item 3").
+			Child("Item 3.1").
+			Child("Item 3.2"),
+	)
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+```
+
+<p align="center">
+<img width="400" alt="Tree Example (simple)" src="https://stuff.charm.sh/lipgloss/tree-simple.png">
+</p>
+
+Trees can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+
+t := tree.
+	Root("Makeup").
+	Child(
+		"Glossier",
+		"Claire’s Boutique",
+		"Nyx",
+		"Mac",
+		"Milk",
+	).
+	Enumerator(tree.RoundedEnumerator).
+	EnumeratorStyle(enumeratorStyle).
+	ItemStyle(itemStyle)
+
+```
+
+Print the tree.
+
+<p align="center">
+<img width="600" alt="Tree Example (makeup)" src="https://stuff.charm.sh/lipgloss/tree/tree-makeup.png">
+</p>
+
+The predefined enumerators for trees are `DefaultEnumerator` and `RoundedEnumerator`.
+
+If you need, you can also build trees incrementally:
+
+```go
+t := tree.New()
+
+for i := 0; i < repeat; i++ {
+    t.Child("Lip Gloss")
+}
+```
+
 ---
 
 ## FAQ
