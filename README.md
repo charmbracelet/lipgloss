@@ -81,7 +81,6 @@ CompleteColor specifies exact values for True Color, ANSI256, and ANSI color
 profiles.
 
 ```go
-
 lipgloss.CompleteColor{TrueColor: "#0000FF", ANSI256: "86", ANSI: "5"}
 ```
 
