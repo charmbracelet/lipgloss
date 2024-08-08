@@ -1,11 +1,11 @@
 package tree
 
-// Children is the interface that wraps the basic methods of a list model.
+// Children is the interface that wraps the basic methods of a tree model.
 type Children interface {
 	// At returns the content item of the given index.
 	At(index int) Node
 
-	// Length returns the number of items in the list.
+	// Length returns the number of children in the tree.
 	Length() int
 }
 
@@ -86,7 +86,7 @@ func (m *Filter) Filter(f func(index int) bool) *Filter {
 	return m
 }
 
-// Length returns the number of items in the list.
+// Length returns the number of children in the tree.
 func (m *Filter) Length() int {
 	j := 0
 	for i := 0; i < m.data.Length(); i++ {

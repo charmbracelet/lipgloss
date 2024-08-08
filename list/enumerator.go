@@ -120,33 +120,3 @@ func Asterisk(Items, int) string {
 func Dash(Items, int) string {
 	return "-"
 }
-
-// Tree enumerates a tree.
-//
-// ├── Foo
-// ├── Bar
-// ├── Baz
-// └── Qux.
-func Tree(items Items, index int) string {
-	if items.Length()-1 == index {
-		return "└──"
-	}
-	return "├──"
-}
-
-// DefaultIndenter indents a tree for nested trees and multiline content.
-//
-// ├── Foo
-// ├── Bar
-// │   ├── Qux
-// │   ├── Quux
-// │   │   ├── Foo
-// │   │   └── Bar
-// │   └── Quuux
-// └── Baz.
-func TreeIndenter(items Items, index int) string {
-	if items.Length()-1 == index {
-		return "   "
-	}
-	return "│  "
-}
