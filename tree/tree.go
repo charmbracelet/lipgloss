@@ -208,8 +208,7 @@ func (t *Tree) EnumeratorStyle(style lipgloss.Style) *Tree {
 // EnumeratorStyleFunc sets the enumeration style function. Use this function
 // for conditional styling.
 //
-//	t := tree.New().
-//		EnumeratorStyleFunc(func(_ tree.Children, i int) lipgloss.Style {
+//	t := tree.New().EnumeratorStyleFunc(func(_ tree.Children, i int) lipgloss.Style {
 //		    if selected == i {
 //		        return lipgloss.NewStyle().Foreground(hightlightColor)
 //		    }
@@ -240,8 +239,7 @@ func (t *Tree) ItemStyle(style lipgloss.Style) *Tree {
 // ItemStyleFunc sets the item style function. Use this for conditional styling.
 // For example:
 //
-//	t := tree.New().
-//		ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
+//	t := tree.New().ItemStyleFunc(func(_ tree.Data, i int) lipgloss.Style {
 //			if selected == i {
 //				return lipgloss.NewStyle().Foreground(hightlightColor)
 //			}
@@ -259,8 +257,7 @@ func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 // way the branches indicators look.  Lipgloss includes predefined enumerators
 // for a classic or rounded tree. For example, you can have a rounded tree:
 //
-//	tree.New().
-//		Enumerator(RoundedEnumerator)
+//	tree.New().Enumerator(RoundedEnumerator)
 func (t *Tree) Enumerator(enum Enumerator) *Tree {
 	t.ensureRenderer().enumerator = enum
 	return t

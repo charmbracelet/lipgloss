@@ -40,7 +40,8 @@ func (n NodeChildren) At(i int) Node {
 	return nil
 }
 
-// NewStringData returns a Data of strings.
+// NewStringData returns the given strings as Children (not attached to a tree).
+// This can used for filtering with NewFilter.
 func NewStringData(data ...string) Children {
 	result := make([]Node, 0, len(data))
 	for _, d := range data {
@@ -81,6 +82,13 @@ func (m *Filter) At(index int) Node {
 }
 
 // Filter uses a filter function to set a condition that all the data must satisfy to be in the Tree.
+//
+// Example:
+//
+//	data := tree.NewFilter(tree.NewStringData("Foo","Bar","Baz")).
+//		Filter(func(index int) bool {
+//			return index != 1
+//		})
 func (m *Filter) Filter(f func(index int) bool) *Filter {
 	m.filter = f
 	return m
