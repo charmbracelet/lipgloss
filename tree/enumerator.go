@@ -3,23 +3,22 @@ package tree
 // Enumerator enumerates a tree. Typically, this is used to draw the branches
 // for the tree nodes and is different for the last child.
 //
-// For example, the default enumerator would be:
+// Example:
 //
-//	func TreeEnumerator(children Children, index int) string {
+//	func DefaultEnumerator(children Children, index int) string {
 //		if children.Length()-1 == index {
 //			return "└──"
 //		}
-//
 //		return "├──"
 //	}
 type Enumerator func(children Children, index int) string
 
 // DefaultEnumerator enumerates a tree.
 //
-// ├── Foo
-// ├── Bar
-// ├── Baz
-// └── Qux.
+//	├── Foo
+//	├── Bar
+//	├── Baz
+//	└── Qux.
 func DefaultEnumerator(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "└──"
@@ -29,10 +28,10 @@ func DefaultEnumerator(children Children, index int) string {
 
 // RoundedEnumerator enumerates a tree with rounded edges.
 //
-// ├── Foo
-// ├── Bar
-// ├── Baz
-// ╰── Qux.
+//	├── Foo
+//	├── Bar
+//	├── Baz
+//	╰── Qux.
 func RoundedEnumerator(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "╰──"
@@ -45,27 +44,26 @@ func RoundedEnumerator(children Children, index int) string {
 // Indenters allow for displaying nested tree items with connecting borders
 // to sibling nodes.
 //
-// For example, the default indenter would be:
+// Example:
 //
-//	func TreeIndenter(children Children, index int) string {
+//	func DefaultIndenter(children Children, index int) string {
 //		if children.Length()-1 == index {
 //			return "│  "
 //		}
-//
 //		return "   "
 //	}
 type Indenter func(children Children, index int) string
 
 // DefaultIndenter indents a tree for nested trees and multiline content.
 //
-// ├── Foo
-// ├── Bar
-// │   ├── Qux
-// │   ├── Quux
-// │   │   ├── Foo
-// │   │   └── Bar
-// │   └── Quuux
-// └── Baz.
+//	├── Foo
+//	├── Bar
+//	│   ├── Qux
+//	│   ├── Quux
+//	│   │   ├── Foo
+//	│   │   └── Bar
+//	│   └── Quuux
+//	└── Baz.
 func DefaultIndenter(children Children, index int) string {
 	if children.Length()-1 == index {
 		return "   "
