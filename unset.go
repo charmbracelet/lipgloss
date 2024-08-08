@@ -172,78 +172,78 @@ func (s Style) UnsetMarginBackground() Style {
 
 // UnsetBorderStyle removes the border style rule, if set.
 func (s Style) UnsetBorderStyle() Style {
-	s.unset(borderStyleKey)
+	s.getBorderer().UnsetStyle()
 	return s
 }
 
 // UnsetBorderTop removes the border top style rule, if set.
 func (s Style) UnsetBorderTop() Style {
-	s.unset(borderTopKey)
+	s.getBorderer().UnsetTop()
 	return s
 }
 
 // UnsetBorderRight removes the border right style rule, if set.
 func (s Style) UnsetBorderRight() Style {
-	s.unset(borderRightKey)
+	s.getBorderer().UnsetRight()
 	return s
 }
 
 // UnsetBorderBottom removes the border bottom style rule, if set.
 func (s Style) UnsetBorderBottom() Style {
-	s.unset(borderBottomKey)
+	s.getBorderer().UnsetBottom()
 	return s
 }
 
 // UnsetBorderLeft removes the border left style rule, if set.
 func (s Style) UnsetBorderLeft() Style {
-	s.unset(borderLeftKey)
+	s.getBorderer().UnsetLeft()
 	return s
 }
 
 // UnsetBorderForeground removes all border foreground color styles, if set.
 func (s Style) UnsetBorderForeground() Style {
-	s.unset(borderTopForegroundKey)
-	s.unset(borderRightForegroundKey)
-	s.unset(borderBottomForegroundKey)
-	s.unset(borderLeftForegroundKey)
+	s.getBorderer().UnsetTop()
+	s.getBorderer().UnsetRight()
+	s.getBorderer().UnsetBottom()
+	s.getBorderer().UnsetLeft()
 	return s
 }
 
 // UnsetBorderTopForeground removes the top border foreground color rule,
 // if set.
 func (s Style) UnsetBorderTopForeground() Style {
-	s.unset(borderTopForegroundKey)
+	s.getBorderer().UnsetTopForeground()
 	return s
 }
 
 // UnsetBorderRightForeground removes the right border foreground color rule,
 // if set.
 func (s Style) UnsetBorderRightForeground() Style {
-	s.unset(borderRightForegroundKey)
+	s.getBorderer().UnsetRightForeground()
 	return s
 }
 
 // UnsetBorderBottomForeground removes the bottom border foreground color
 // rule, if set.
 func (s Style) UnsetBorderBottomForeground() Style {
-	s.unset(borderBottomForegroundKey)
+	s.getBorderer().UnsetBottomForeground()
 	return s
 }
 
 // UnsetBorderLeftForeground removes the left border foreground color rule,
 // if set.
 func (s Style) UnsetBorderLeftForeground() Style {
-	s.unset(borderLeftForegroundKey)
+	s.getBorderer().UnsetLeftForeground()
 	return s
 }
 
 // UnsetBorderBackground removes all border background color styles, if
 // set.
 func (s Style) UnsetBorderBackground() Style {
-	s.unset(borderTopBackgroundKey)
-	s.unset(borderRightBackgroundKey)
-	s.unset(borderBottomBackgroundKey)
-	s.unset(borderLeftBackgroundKey)
+	s.getBorderer().UnsetTopBackground()
+	s.getBorderer().UnsetRightBackground()
+	s.getBorderer().UnsetBottomBackground()
+	s.getBorderer().UnsetLeftBackground()
 	return s
 }
 
@@ -258,27 +258,27 @@ func (s Style) UnsetBorderTopBackgroundColor() Style {
 // UnsetBorderTopBackground removes the top border background color rule,
 // if set.
 func (s Style) UnsetBorderTopBackground() Style {
-	s.unset(borderTopBackgroundKey)
+	s.getBorderer().UnsetTopBackground()
 	return s
 }
 
 // UnsetBorderRightBackground removes the right border background color
 // rule, if set.
 func (s Style) UnsetBorderRightBackground() Style {
-	s.unset(borderRightBackgroundKey)
+	s.getBorderer().UnsetRightBackground()
 	return s
 }
 
 // UnsetBorderBottomBackground removes the bottom border background color
 // rule, if set.
 func (s Style) UnsetBorderBottomBackground() Style {
-	s.unset(borderBottomBackgroundKey)
+	s.getBorderer().UnsetBottomBackground()
 	return s
 }
 
 // UnsetBorderLeftBackground removes the left border color rule, if set.
 func (s Style) UnsetBorderLeftBackground() Style {
-	s.unset(borderLeftBackgroundKey)
+	s.getBorderer().UnsetLeftBackground()
 	return s
 }
 
