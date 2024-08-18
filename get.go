@@ -423,7 +423,7 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	if !s.isSet(k) {
 		return defaultVal
 	}
-	return s.attrs&int(k) != 0
+	return s.attrs&int64(k) != 0
 }
 
 func (s Style) getAsColor(k propKey) TerminalColor {
