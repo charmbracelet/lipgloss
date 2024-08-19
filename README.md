@@ -613,7 +613,7 @@ fmt.Println(t)
 ```
 
 <p align="center">
-<img width="400" alt="Tree Example (simple)" src="https://stuff.charm.sh/lipgloss/tree-simple.png">
+<img width="400" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/17d1c307-266c-4d25-b116-436037af2dca">
 </p>
 
 Trees can be customized via their enumeration function as well as using
