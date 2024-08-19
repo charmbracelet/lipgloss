@@ -223,6 +223,12 @@ func (t *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
+// RootStyle sets a style for the root element.
+func (t *Tree) RootStyle(style lipgloss.Style) *Tree {
+	t.ensureRenderer().style.root = style
+	return t
+}
+
 // ItemStyle sets a static style for all items.
 //
 // Use ItemStyleFunc to conditionally set styles based on the tree node.
@@ -249,12 +255,12 @@ func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
-// Enumerator sets the enumerator implementation. This can be used to change the way the branches indicators look.
-// Lipgloss includes predefined enumerators including bullets, roman numerals, and more. For
-// example, you can have a numbered list:
+// Enumerator sets the enumerator implementation. This can be used to change the
+// way the branches indicators look.  Lipgloss includes predefined enumerators
+// for a classic or rounded tree. For example, you can have a rounded tree:
 //
 //	tree.New().
-//		Enumerator(Arabic)
+//		Enumerator(RoundedEnumerator)
 func (t *Tree) Enumerator(enum Enumerator) *Tree {
 	t.ensureRenderer().enumerator = enum
 	return t
@@ -302,13 +308,25 @@ func (t *Tree) Children() Children {
 // It is a shorthand for:
 //
 //	tree.New().Root(root)
-func Root(root string) *Tree {
-	return New().Root(root)
+func Root(root any) *Tree {
+	t := New()
+	return t.Root(root)
 }
 
 // Root sets the root value of this tree.
-func (t *Tree) Root(root string) *Tree {
-	t.value = root
+func (t *Tree) Root(root any) *Tree {
+	// root is a tree or string
+	switch item := root.(type) {
+	case *Tree:
+		t.value = item.value
+		t = t.Child(item.children)
+	case Node, fmt.Stringer:
+		t.value = item.(fmt.Stringer).String()
+	case string, nil:
+		t.value = item.(string)
+	default:
+		t.value = fmt.Sprintf("%v", item)
+	}
 	return t
 }
 

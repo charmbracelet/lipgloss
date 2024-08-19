@@ -6,13 +6,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// StyleFunc allows the list to be styled per item.
+// StyleFunc allows the tree to be styled per item.
 type StyleFunc func(children Children, i int) lipgloss.Style
 
-// Style is the styling applied to the list.
+// Style is the styling applied to the tree.
 type Style struct {
 	enumeratorFunc StyleFunc
 	itemFunc       StyleFunc
+	root           lipgloss.Style
 }
 
 // newRenderer returns the renderer used to render a tree.
@@ -50,7 +51,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {
-		strs = append(strs, r.style.itemFunc(children, -1).Render(name))
+		strs = append(strs, r.style.root.Render(name))
 	}
 
 	for i := 0; i < children.Length(); i++ {
@@ -82,14 +83,14 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		// the current node's prefix have the same height.
 		for lipgloss.Height(item) > lipgloss.Height(nodePrefix) {
 			nodePrefix = lipgloss.JoinVertical(
-				lipgloss.Top,
+				lipgloss.Left,
 				nodePrefix,
 				enumStyle.Render(indent),
 			)
 		}
 		for lipgloss.Height(nodePrefix) > lipgloss.Height(multineLinePrefix) {
 			multineLinePrefix = lipgloss.JoinVertical(
-				lipgloss.Top,
+				lipgloss.Left,
 				multineLinePrefix,
 				prefix,
 			)
@@ -98,7 +99,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		strs = append(
 			strs,
 			lipgloss.JoinHorizontal(
-				lipgloss.Left,
+				lipgloss.Top,
 				multineLinePrefix,
 				nodePrefix,
 				item,
@@ -126,7 +127,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			}
 		}
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, strs...)
+	return strings.Join(strs, "\n")
 }
 
 func max(a, b int) int {

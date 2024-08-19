@@ -7,8 +7,8 @@ import (
 
 	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/internal/tree"
 	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/tree"
 )
 
 // XXX: can't write multi-line examples if the underlying string uses
