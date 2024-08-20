@@ -634,8 +634,8 @@ t := tree.
 	).
 	Enumerator(tree.RoundedEnumerator).
 	EnumeratorStyle(enumeratorStyle).
-	ItemStyle(itemStyle)
-
+	ItemStyle(itemStyle).
+	RootStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")))
 ```
 
 Print the tree.
