@@ -613,7 +613,7 @@ fmt.Println(t)
 ```
 
 <p align="center">
-<img width="400" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/17d1c307-266c-4d25-b116-436037af2dca">
+<img width="400" alt="Tree Example (simple)" src="https://stuff.charm.sh/lipgloss/tree/simple.png">
 </p>
 
 Trees can be customized via their enumeration function as well as using
@@ -641,7 +641,7 @@ t := tree.
 Print the tree.
 
 <p align="center">
-<img width="600" alt="Tree Example (makeup)" src="https://stuff.charm.sh/lipgloss/tree/tree-makeup.png">
+<img width="600" alt="Tree Example (makeup)" src="https://stuff.charm.sh/lipgloss/tree/makeup.png">
 </p>
 
 The predefined enumerators for trees are `DefaultEnumerator` and `RoundedEnumerator`.
