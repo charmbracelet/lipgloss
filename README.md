@@ -574,7 +574,7 @@ Define a new tree.
 
 ```go
 t := tree.Root(".").
-	Child("A", "B", "C")
+  Child("A", "B", "C")
 ```
 
 Print the tree.
@@ -592,18 +592,18 @@ Trees have the ability to nest.
 
 ```go
 t := tree.Root(".").
-	Child("Item 1").
-	Child(
-		tree.Root("Item 2").
-			Child("Item 2.1").
-			Child("Item 2.2").
-			Child("Item 2.3"),
-	).
-	Child(
-		tree.Root("Item 3").
-			Child("Item 3.1").
-			Child("Item 3.2"),
-	)
+  Child("Item 1").
+  Child(
+    tree.Root("Item 2").
+      Child("Item 2.1").
+      Child("Item 2.2").
+      Child("Item 2.3"),
+  ).
+  Child(
+    tree.Root("Item 3").
+      Child("Item 3.1").
+      Child("Item 3.2"),
+  )
 ```
 
 Print the tree.
@@ -623,19 +623,18 @@ Trees can be customized via their enumeration function as well as using
 enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
 itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
 
-t := tree.
-	Root("Makeup").
-	Child(
-		"Glossier",
-		"Claire’s Boutique",
-		"Nyx",
-		"Mac",
-		"Milk",
-	).
-	Enumerator(tree.RoundedEnumerator).
-	EnumeratorStyle(enumeratorStyle).
-	ItemStyle(itemStyle).
-	RootStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")))
+t := tree.Root("Makeup").
+  Child(
+    "Glossier",
+    "Claire’s Boutique",
+    "Nyx",
+    "Mac",
+    "Milk",
+  ).
+  Enumerator(tree.RoundedEnumerator).
+  EnumeratorStyle(enumeratorStyle).
+  ItemStyle(itemStyle).
+  RootStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")))
 ```
 
 Print the tree.
