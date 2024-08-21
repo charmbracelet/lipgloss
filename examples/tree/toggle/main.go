@@ -69,7 +69,7 @@ func main() {
 		EnumeratorStyle(s.enumerator).
 		Child(
 			dir{"ayman", false, s},
-			tree.Root(dir{"bash", false, s}).
+			tree.Root(dir{"bash", true, s}).
 				Child(
 					tree.Root(dir{"tools", true, s}).
 						Child(
