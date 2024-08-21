@@ -592,18 +592,20 @@ Trees have the ability to nest.
 
 ```go
 t := tree.Root(".").
-  Child("Item 1").
-  Child(
-    tree.Root("Item 2").
-      Child("Item 2.1").
-      Child("Item 2.2").
-      Child("Item 2.3"),
-  ).
-  Child(
-    tree.Root("Item 3").
-      Child("Item 3.1").
-      Child("Item 3.2"),
-  )
+    Child("macOS").
+    Child(
+        tree.New().
+            Root("Linux").
+            Child("NixOS").
+            Child("Arch Linux (btw)").
+            Child("Void Linux"),
+        ).
+    Child(
+        tree.New().
+            Root("BSD").
+            Child("FreeBSD").
+            Child("OpenBSD"),
+    )
 ```
 
 Print the tree.
@@ -613,34 +615,40 @@ fmt.Println(t)
 ```
 
 <p align="center">
-<img width="400" alt="Tree Example (simple)" src="https://stuff.charm.sh/lipgloss/tree/simple.png">
+<img width="445" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/dc97a490-9550-4deb-a075-6987007b3307">
 </p>
 
 Trees can be customized via their enumeration function as well as using
 `lipgloss.Style`s.
 
 ```go
-enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
-itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
+rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
 
-t := tree.Root("Makeup").
-  Child(
-    "Glossier",
-    "Claire’s Boutique",
-    "Nyx",
-    "Mac",
-    "Milk",
-  ).
-  Enumerator(tree.RoundedEnumerator).
-  EnumeratorStyle(enumeratorStyle).
-  ItemStyle(itemStyle).
-  RootStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")))
+t := tree.
+    Root("⁜ Makeup").
+    Child(
+        "Glossier",
+        "Fenty Beauty",
+        tree.New().Child(
+            "Gloss Bomb Universal Lip Luminizer",
+            "Hot Cheeks Velour Blushlighter",
+        ),
+        "Nyx",
+        "Mac",
+        "Milk",
+    ).
+    Enumerator(tree.RoundedEnumerator).
+    EnumeratorStyle(enumeratorStyle).
+    RootStyle(rootStyle).
+    ItemStyle(itemStyle)
 ```
 
 Print the tree.
 
 <p align="center">
-<img width="600" alt="Tree Example (makeup)" src="https://stuff.charm.sh/lipgloss/tree/makeup.png">
+<img width="502" alt="Tree Example (makeup)" src="https://github.com/user-attachments/assets/68681258-d771-408f-8101-b50e97329130">
 </p>
 
 The predefined enumerators for trees are `DefaultEnumerator` and `RoundedEnumerator`.
