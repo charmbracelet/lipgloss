@@ -64,7 +64,7 @@ func (s file) String() string {
 func main() {
 	s := defaultStyles()
 
-	t := tree.Root(dir{"~", true, s}).
+	t := tree.Root(dir{"~/charm", true, s}).
 		Enumerator(tree.RoundedEnumerator).
 		EnumeratorStyle(s.enumerator).
 		Child(
