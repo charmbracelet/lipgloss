@@ -483,15 +483,15 @@ Lists have the ability to nest.
 
 ```go
 l := list.New(
-  "A", list.New("Artichoke"),
-  "B", list.New("Baking Flour", "Bananas", "Barley", "Bean Sprouts"),
-  "C", list.New("Cashew Apple", "Cashews", "Coconut Milk", "Curry Paste", "Currywurst"),
-  "D", list.New("Dill", "Dragonfruit", "Dried Shrimp"),
-  "E", list.New("Eggs"),
-  "F", list.New("Fish Cake", "Furikake"),
-  "J", list.New("Jicama"),
-  "K", list.New("Kohlrabi"),
-  "L", list.New("Leeks", "Lentils", "Licorice Root"),
+    "A", list.New("Artichoke"),
+    "B", list.New("Baking Flour", "Bananas", "Barley", "Bean Sprouts"),
+    "C", list.New("Cashew Apple", "Cashews", "Coconut Milk", "Curry Paste", "Currywurst"),
+    "D", list.New("Dill", "Dragonfruit", "Dried Shrimp"),
+    "E", list.New("Eggs"),
+    "F", list.New("Fish Cake", "Furikake"),
+    "J", list.New("Jicama"),
+    "K", list.New("Kohlrabi"),
+    "L", list.New("Leeks", "Lentils", "Licorice Root"),
 )
 ```
 
@@ -513,15 +513,15 @@ enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRi
 itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
 
 l := list.New(
-  "Glossier",
-  "Claire’s Boutique",
-  "Nyx",
-  "Mac",
-  "Milk",
-).
-  Enumerator(list.Roman).
-  EnumeratorStyle(enumeratorStyle).
-  ItemStyle(itemStyle)
+    "Glossier",
+    "Claire’s Boutique",
+    "Nyx",
+    "Mac",
+    "Milk",
+    ).
+    Enumerator(list.Roman).
+    EnumeratorStyle(enumeratorStyle).
+    ItemStyle(itemStyle)
 ```
 
 Print the list.
@@ -574,7 +574,7 @@ Define a new tree.
 
 ```go
 t := tree.Root(".").
-  Child("A", "B", "C")
+    Child("A", "B", "C")
 ```
 
 Print the tree.
