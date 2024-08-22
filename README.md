@@ -615,7 +615,7 @@ fmt.Println(t)
 ```
 
 <p align="center">
-<img width="445" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/dc97a490-9550-4deb-a075-6987007b3307">
+<img width="663" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/5ef14eb8-a5d4-4f94-8834-e15d1e714f89">
 </p>
 
 Trees can be customized via their enumeration function as well as using
@@ -648,7 +648,7 @@ t := tree.
 Print the tree.
 
 <p align="center">
-<img width="502" alt="Tree Example (makeup)" src="https://github.com/user-attachments/assets/68681258-d771-408f-8101-b50e97329130">
+<img width="663" alt="Tree Example (makeup)" src="https://github.com/user-attachments/assets/06d12d87-744a-4c89-bd98-45de9094a97e">
 </p>
 
 The predefined enumerators for trees are `DefaultEnumerator` and `RoundedEnumerator`.
