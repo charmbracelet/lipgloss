@@ -1,16 +1,12 @@
 package lipgloss
 
 import (
-	"os"
 	"reflect"
 	"strings"
 	"testing"
 )
 
 func TestUnderline(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -18,19 +14,19 @@ func TestUnderline(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Underline(true),
+			NewStyle().Underline(true),
 			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
 		},
 		{
-			r.NewStyle().Underline(true).UnderlineSpaces(true),
+			NewStyle().Underline(true).UnderlineSpaces(true),
 			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
 		},
 		{
-			r.NewStyle().Underline(true).UnderlineSpaces(false),
+			NewStyle().Underline(true).UnderlineSpaces(false),
 			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
 		},
 		{
-			r.NewStyle().UnderlineSpaces(true),
+			NewStyle().UnderlineSpaces(true),
 			"ab\x1b[4m \x1b[0mc",
 		},
 	}
@@ -47,9 +43,6 @@ func TestUnderline(t *testing.T) {
 }
 
 func TestStrikethrough(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -57,19 +50,19 @@ func TestStrikethrough(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Strikethrough(true),
+			NewStyle().Strikethrough(true),
 			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
 		},
 		{
-			r.NewStyle().Strikethrough(true).StrikethroughSpaces(true),
+			NewStyle().Strikethrough(true).StrikethroughSpaces(true),
 			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
 		},
 		{
-			r.NewStyle().Strikethrough(true).StrikethroughSpaces(false),
+			NewStyle().Strikethrough(true).StrikethroughSpaces(false),
 			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
 		},
 		{
-			r.NewStyle().StrikethroughSpaces(true),
+			NewStyle().StrikethroughSpaces(true),
 			"ab\x1b[9m \x1b[0mc",
 		},
 	}
@@ -86,8 +79,6 @@ func TestStrikethrough(t *testing.T) {
 }
 
 func TestStyleRender(t *testing.T) {
-	r := NewRenderer(TrueColor, true)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -95,31 +86,31 @@ func TestStyleRender(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Foreground(Color("#5A56E0")),
+			NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
+			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
 			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Bold(true),
+			NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Italic(true),
+			NewStyle().Italic(true),
 			"\x1b[3mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Underline(true),
+			NewStyle().Underline(true),
 			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
 		},
 		{
-			r.NewStyle().Blink(true),
+			NewStyle().Blink(true),
 			"\x1b[5mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Faint(true),
+			NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[m",
 		},
 	}
@@ -136,41 +127,40 @@ func TestStyleRender(t *testing.T) {
 }
 
 func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(TrueColor, false)
 	tt := []struct {
 		style    Style
 		expected string
 	}{
 		{
-			r.NewStyle().Foreground(Color("#5A56E0")),
+			NewStyle().Foreground(Color("#5A56E0")),
 			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
+			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
 			"\x1b[38;2;255;254;18mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Bold(true),
+			NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Italic(true),
+			NewStyle().Italic(true),
 			"\x1b[3mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Underline(true),
+			NewStyle().Underline(true),
 			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
 		},
 		{
-			r.NewStyle().Blink(true),
+			NewStyle().Blink(true),
 			"\x1b[5mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Faint(true),
+			NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[m",
 		},
 		{
-			NewStyle().Faint(true).Renderer(r),
+			NewStyle().Faint(true),
 			"\x1b[2mhello\x1b[m",
 		},
 	}
@@ -183,15 +173,6 @@ func TestStyleCustomRender(t *testing.T) {
 				i, tc.expected, formatEscapes(tc.expected),
 				res, formatEscapes(res))
 		}
-	}
-}
-
-func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(DetectColorProfile(os.Stdout, nil), true)
-	s1 := NewStyle().Bold(true)
-	s2 := s1.Renderer(r)
-	if s1.r == s2.r {
-		t.Fatalf("expected different renderers")
 	}
 }
 

@@ -5,52 +5,6 @@ import (
 	"testing"
 )
 
-func TestSetColorProfile(t *testing.T) {
-	r := DefaultRenderer()
-	input := "hello"
-
-	tt := []struct {
-		name     string
-		profile  Profile
-		expected string
-	}{
-		{
-			"ascii",
-			Ascii,
-			"hello",
-		},
-		{
-			"ansi",
-			ANSI,
-			"\x1b[94mhello\x1b[m",
-		},
-		{
-			"ansi256",
-			ANSI256,
-			"\x1b[38;5;62mhello\x1b[m",
-		},
-		{
-			"truecolor",
-			TrueColor,
-			"\x1b[38;2;89;86;224mhello\x1b[m",
-		},
-	}
-
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			r.SetColorProfile(tc.profile)
-			style := NewStyle().Foreground(Color("#5A56E0"))
-			res := style.Render(input)
-
-			if res != tc.expected {
-				t.Errorf("Expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-					tc.expected, formatEscapes(tc.expected),
-					res, formatEscapes(res))
-			}
-		})
-	}
-}
-
 func TestHexToColor(t *testing.T) {
 	t.Parallel()
 
