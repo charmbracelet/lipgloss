@@ -13,7 +13,7 @@ func btoi(b bool) int {
 }
 
 // max returns the greater of two integers.
-func max(a, b int) int {
+func max(a, b int) int { //nolint:predeclared
 	if a > b {
 		return a
 	}
@@ -21,7 +21,7 @@ func max(a, b int) int {
 }
 
 // min returns the greater of two integers.
-func min(a, b int) int {
+func min(a, b int) int { //nolint:predeclared
 	if a < b {
 		return a
 	}

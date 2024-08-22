@@ -210,7 +210,7 @@ func (t *Table) Offset(o int) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
-	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasHeaders := len(t.headers) > 0
 	hasRows := t.data != nil && t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
@@ -376,7 +376,7 @@ func (t *Table) computeWidth() int {
 
 // computeHeight computes the height of the table in it's current configuration.
 func (t *Table) computeHeight() int {
-	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasHeaders := len(t.headers) > 0
 	return sum(t.heights) - 1 + btoi(hasHeaders) +
 		btoi(t.borderTop) + btoi(t.borderBottom) +
 		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
