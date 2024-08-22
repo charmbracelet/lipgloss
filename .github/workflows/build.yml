@@ -9,3 +9,5 @@ on:
 jobs:
   build:
     uses: charmbracelet/meta/.github/workflows/build.yml@main
+    secrets:
+      gh_pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
