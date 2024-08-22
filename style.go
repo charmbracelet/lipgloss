@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"image/color"
 	"strings"
 	"unicode"
 
@@ -110,8 +111,8 @@ type Style struct {
 	attrs int
 
 	// props that have values
-	fgColor TerminalColor
-	bgColor TerminalColor
+	fgColor color.Color
+	bgColor color.Color
 
 	width  int
 	height int
@@ -128,17 +129,17 @@ type Style struct {
 	marginRight   int
 	marginBottom  int
 	marginLeft    int
-	marginBgColor TerminalColor
+	marginBgColor color.Color
 
 	borderStyle         Border
-	borderTopFgColor    TerminalColor
-	borderRightFgColor  TerminalColor
-	borderBottomFgColor TerminalColor
-	borderLeftFgColor   TerminalColor
-	borderTopBgColor    TerminalColor
-	borderRightBgColor  TerminalColor
-	borderBottomBgColor TerminalColor
-	borderLeftBgColor   TerminalColor
+	borderTopFgColor    color.Color
+	borderRightFgColor  color.Color
+	borderBottomFgColor color.Color
+	borderLeftFgColor   color.Color
+	borderTopBgColor    color.Color
+	borderRightBgColor  color.Color
+	borderBottomBgColor color.Color
+	borderLeftBgColor   color.Color
 
 	maxWidth  int
 	maxHeight int

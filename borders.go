@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"image/color"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -401,7 +402,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 }
 
 // Apply foreground and background styling to a border.
-func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
+func (s Style) styleBorder(border string, fg, bg color.Color) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}

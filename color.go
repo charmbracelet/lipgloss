@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"image/color"
 	"strconv"
 
 	"github.com/charmbracelet/x/ansi"
@@ -28,11 +29,6 @@ const (
 	BrightWhite
 )
 
-// TerminalColor is a color intended to be rendered in the terminal.
-type TerminalColor interface {
-	ansi.Color
-}
-
 var noColor = NoColor{}
 
 // NoColor is used to specify the absence of color styling. When this is active
@@ -58,8 +54,8 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	ansiColor := lipgloss.Color(21)
 //	hexColor := lipgloss.Color("#0000ff")
 //	uint32Color := lipgloss.Color(0xff0000)
-func Color[T string | int](c T) TerminalColor {
-	var col TerminalColor = noColor
+func Color[T string | int](c T) color.Color {
+	var col color.Color = noColor
 	switch c := any(c).(type) {
 	case string:
 		if len(c) == 0 {
@@ -121,7 +117,7 @@ type ANSIColor = ansi.ExtendedColor
 //	} else {
 //		fmt.Println("It's light!")
 //	}
-func IsDarkColor(c TerminalColor) bool {
+func IsDarkColor(c color.Color) bool {
 	col, ok := colorful.MakeColor(c)
 	if !ok {
 		return true

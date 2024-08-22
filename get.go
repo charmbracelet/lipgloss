@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"image/color"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -49,13 +50,13 @@ func (s Style) GetFaint() bool {
 
 // GetForeground returns the style's foreground color. If no value is set
 // NoColor{} is returned.
-func (s Style) GetForeground() TerminalColor {
+func (s Style) GetForeground() color.Color {
 	return s.getAsColor(foregroundKey)
 }
 
 // GetBackground returns the style's background color. If no value is set
 // NoColor{} is returned.
-func (s Style) GetBackground() TerminalColor {
+func (s Style) GetBackground() color.Color {
 	return s.getAsColor(backgroundKey)
 }
 
@@ -241,49 +242,49 @@ func (s Style) GetBorderLeft() bool {
 
 // GetBorderTopForeground returns the style's border top foreground color. If
 // no value is set NoColor{} is returned.
-func (s Style) GetBorderTopForeground() TerminalColor {
+func (s Style) GetBorderTopForeground() color.Color {
 	return s.getAsColor(borderTopForegroundKey)
 }
 
 // GetBorderRightForeground returns the style's border right foreground color.
 // If no value is set NoColor{} is returned.
-func (s Style) GetBorderRightForeground() TerminalColor {
+func (s Style) GetBorderRightForeground() color.Color {
 	return s.getAsColor(borderRightForegroundKey)
 }
 
 // GetBorderBottomForeground returns the style's border bottom foreground
 // color.  If no value is set NoColor{} is returned.
-func (s Style) GetBorderBottomForeground() TerminalColor {
+func (s Style) GetBorderBottomForeground() color.Color {
 	return s.getAsColor(borderBottomForegroundKey)
 }
 
 // GetBorderLeftForeground returns the style's border left foreground
 // color.  If no value is set NoColor{} is returned.
-func (s Style) GetBorderLeftForeground() TerminalColor {
+func (s Style) GetBorderLeftForeground() color.Color {
 	return s.getAsColor(borderLeftForegroundKey)
 }
 
 // GetBorderTopBackground returns the style's border top background color. If
 // no value is set NoColor{} is returned.
-func (s Style) GetBorderTopBackground() TerminalColor {
+func (s Style) GetBorderTopBackground() color.Color {
 	return s.getAsColor(borderTopBackgroundKey)
 }
 
 // GetBorderRightBackground returns the style's border right background color.
 // If no value is set NoColor{} is returned.
-func (s Style) GetBorderRightBackground() TerminalColor {
+func (s Style) GetBorderRightBackground() color.Color {
 	return s.getAsColor(borderRightBackgroundKey)
 }
 
 // GetBorderBottomBackground returns the style's border bottom background
 // color.  If no value is set NoColor{} is returned.
-func (s Style) GetBorderBottomBackground() TerminalColor {
+func (s Style) GetBorderBottomBackground() color.Color {
 	return s.getAsColor(borderBottomBackgroundKey)
 }
 
 // GetBorderLeftBackground returns the style's border left background
 // color.  If no value is set NoColor{} is returned.
-func (s Style) GetBorderLeftBackground() TerminalColor {
+func (s Style) GetBorderLeftBackground() color.Color {
 	return s.getAsColor(borderLeftBackgroundKey)
 }
 
@@ -426,12 +427,12 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	return s.attrs&int(k) != 0
 }
 
-func (s Style) getAsColor(k propKey) TerminalColor {
+func (s Style) getAsColor(k propKey) color.Color {
 	if !s.isSet(k) {
 		return noColor
 	}
 
-	var c TerminalColor
+	var c color.Color
 	switch k { //nolint:exhaustive
 	case foregroundKey:
 		c = s.fgColor
