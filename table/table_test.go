@@ -1,12 +1,15 @@
 package table
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/exp/golden"
+	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -991,4 +994,21 @@ func stripString(str string) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func TestTableHeight(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
+
+	table := New().
+		Headers("ID", "title", "description").
+		Row("1", "Lost in Time", "A thrilling adventure through the ages.").
+		Row("2", "Whispering Shadows", "Secrets unravel in a haunted town.").
+		Row("3", "Stolen Identity", "An innocent man's life turned upside down.").
+		Row("4", "Into the Abyss", "Exposing deep-rooted conspiracies.").
+		Border(lipgloss.NormalBorder()).
+		Width(20).
+		Height(6)
+
+	fmt.Println(table)
+	golden.RequireEqual(t, []byte(table.String()))
 }
