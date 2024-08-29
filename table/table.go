@@ -362,7 +362,8 @@ func (t *Table) String() string {
 	rowsToRender := min(availableHeight, t.data.Rows())
 
 	for r := t.offset; r < rowsToRender; r++ {
-		sb.WriteString(t.constructRow(r))
+		isOverflow := r == rowsToRender-1 && rowsToRender < t.data.Rows()
+		sb.WriteString(t.constructRow(r, isOverflow))
 	}
 
 	sb.WriteString(bottom)
@@ -475,8 +476,9 @@ func (t *Table) constructHeaders() string {
 }
 
 // constructRow constructs the row for the table given an index and row data
-// based on the current configuration.
-func (t *Table) constructRow(index int) string {
+// based on the current configuration. If isOverflow is true, the row is
+// rendered as an overflow row (using ellipsis).
+func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
 
 	hasHeaders := t.headers != nil && len(t.headers) > 0
@@ -489,14 +491,22 @@ func (t *Table) constructRow(index int) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cell := t.data.At(index, c)
+		cellWidth := t.widths[c]
+
+		cell := "..."
+		switch {
+		case !isOverflow:
+			cell = t.data.At(index, c)
+		case cellWidth < 3:
+			cell = "…"
+		}
 
 		cells = append(cells, t.style(index+1, c).
 			Height(height).
 			MaxHeight(height).
 			Width(t.widths[c]).
 			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(cell, t.widths[c]*height, "…")))
+			Render(ansi.Truncate(cell, cellWidth*height, "…")))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
