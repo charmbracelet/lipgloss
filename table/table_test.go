@@ -22,6 +22,7 @@ var TableStyle = func(row, col int) lipgloss.Style {
 
 func TestTable(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -61,6 +62,7 @@ func TestTableExample(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
 		StyleFunc(func(row, col int) lipgloss.Style {
@@ -98,6 +100,7 @@ func TestTableExample(t *testing.T) {
 
 func TestTableEmpty(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL")
@@ -116,6 +119,7 @@ func TestTableEmpty(t *testing.T) {
 
 func TestTableOffset(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -152,6 +156,7 @@ func TestTableBorder(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.DoubleBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -183,6 +188,7 @@ func TestTableSetRows(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -214,6 +220,7 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
@@ -246,6 +253,7 @@ func TestMoreCellsThanHeadersExtra(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL").
@@ -270,6 +278,7 @@ func TestMoreCellsThanHeadersExtra(t *testing.T) {
 
 func TestTableNoHeaders(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
@@ -295,6 +304,7 @@ func TestTableNoHeaders(t *testing.T) {
 
 func TestTableNoColumnSeparators(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
@@ -321,6 +331,7 @@ func TestTableNoColumnSeparators(t *testing.T) {
 
 func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
@@ -358,6 +369,7 @@ func TestBorderColumnsWithExtraRows(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		BorderColumn(false).
 		StyleFunc(TableStyle).
@@ -399,6 +411,7 @@ func TestTableUnsetBorders(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -432,6 +445,7 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -465,6 +479,7 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -497,6 +512,7 @@ func TestTableRowSeparators(t *testing.T) {
 	}
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		BorderRow(true).
@@ -542,6 +558,7 @@ func TestTableHeights(t *testing.T) {
 	}
 
 	table := New().
+		Height(100).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(styleFunc).
 		Headers("EXPRESSION", "MEANING").
@@ -594,6 +611,7 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 	}
 
 	table := New().
+		Height(100).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(styleFunc).
 		Headers("EXPRESSION", "MEANING").
@@ -650,6 +668,7 @@ func TestTableWidthExpand(t *testing.T) {
 
 	table := New().
 		Width(80).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -687,6 +706,7 @@ func TestTableWidthShrink(t *testing.T) {
 
 	table := New().
 		Width(30).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -718,6 +738,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 
 	table := New().
 		Width(25).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("Name", "Age of Person", "Location").
@@ -750,6 +771,7 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 
 	table := New().
 		Width(18).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.ThickBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -784,6 +806,7 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 
 	table := New().
 		Width(1).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -817,6 +840,7 @@ func TestTableWidths(t *testing.T) {
 
 	table := New().
 		Width(30).
+		Height(10).
 		StyleFunc(TableStyle).
 		BorderLeft(false).
 		BorderRight(false).
@@ -853,6 +877,7 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 
 	table := New().
 		Width(30).
+		Height(10).
 		StyleFunc(TableStyle).
 		BorderLeft(false).
 		BorderRight(false).
@@ -891,6 +916,7 @@ func TestFilter(t *testing.T) {
 	})
 
 	table := New().
+		Height(10).
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
@@ -955,6 +981,7 @@ func TestTableANSI(t *testing.T) {
 
 	table := New().
 		Width(29).
+		Height(10).
 		StyleFunc(TableStyle).
 		Border(lipgloss.NormalBorder()).
 		Headers("Fruit", "Color", code).
