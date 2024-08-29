@@ -359,20 +359,20 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		topHeight := lipgloss.Height(sb.String()) - 1 // Subtract 1 for the newline.
+		// The height of the top border. Subtract 1 for the newline.
+		topHeight := lipgloss.Height(sb.String()) - 1
+
 		availableHeight := t.height - (topHeight + lipgloss.Height(bottom))
 		rowsToRender := min(availableHeight, t.data.Rows())
 
-		// The following replicates a do-while loop. When there is data we always render at least one row.
-		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
-		rowIdx := t.offset
-		for ok := true; ok; ok = rowIdx < rowsToRender {
-			isOverflow := rowsToRender == 0 ||
-				(rowIdx == rowsToRender-1 && rowsToRender < t.data.Rows())
+		// When there is data we always render at least one row.
+		rowsToRender = max(rowsToRender, 1)
+
+		for rowIdx := t.offset; rowIdx < rowsToRender; rowIdx++ {
+			// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
+			isOverflow := rowsToRender < t.data.Rows()-1 && rowIdx == rowsToRender-1
 
 			sb.WriteString(t.constructRow(rowIdx, isOverflow))
-
-			rowIdx++
 		}
 	}
 
