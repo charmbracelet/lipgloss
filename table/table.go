@@ -217,8 +217,6 @@ func (t *Table) String() string {
 		return ""
 	}
 
-	var s strings.Builder
-
 	// Add empty cells to the headers, until it's the same length as the longest
 	// row (only if there are at headers in the first place).
 	if hasHeaders {
@@ -342,27 +340,37 @@ func (t *Table) String() string {
 		}
 	}
 
+	var sb strings.Builder
+
 	if t.borderTop {
-		s.WriteString(t.constructTopBorder())
-		s.WriteString("\n")
+		sb.WriteString(t.constructTopBorder())
+		sb.WriteString("\n")
 	}
 
 	if hasHeaders {
-		s.WriteString(t.constructHeaders())
-		s.WriteString("\n")
+		sb.WriteString(t.constructHeaders())
+		sb.WriteString("\n")
 	}
 
-	for r := t.offset; r < t.data.Rows(); r++ {
-		s.WriteString(t.constructRow(r))
-	}
-
+	var bottom string
 	if t.borderBottom {
-		s.WriteString(t.constructBottomBorder())
+		bottom = t.constructBottomBorder()
 	}
+
+	topHeight := lipgloss.Height(sb.String()) - 1 // Subtract 1 for the newline.
+	availableHeight := t.height - (topHeight + lipgloss.Height(bottom))
+	rowsToRender := min(availableHeight, t.data.Rows())
+
+	for r := t.offset; r < rowsToRender; r++ {
+		sb.WriteString(t.constructRow(r))
+	}
+
+	sb.WriteString(bottom)
 
 	return lipgloss.NewStyle().
 		MaxHeight(t.computeHeight()).
-		MaxWidth(t.width).Render(s.String())
+		MaxWidth(t.width).
+		Render(sb.String())
 }
 
 // computeWidth computes the width of the table in it's current configuration.
