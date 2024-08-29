@@ -361,19 +361,9 @@ func (t *Table) String() string {
 	if t.data.Rows() > 0 {
 		// The height of the top border. Subtract 1 for the newline.
 		topHeight := lipgloss.Height(sb.String()) - 1
+		availableLines := t.height - (topHeight + lipgloss.Height(bottom))
 
-		availableHeight := t.height - (topHeight + lipgloss.Height(bottom))
-		rowsToRender := min(availableHeight, t.data.Rows())
-
-		// When there is data we always render at least one row.
-		rowsToRender = max(rowsToRender, 1)
-
-		for rowIdx := t.offset; rowIdx < rowsToRender; rowIdx++ {
-			// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
-			isOverflow := rowsToRender < t.data.Rows()-1 && rowIdx == rowsToRender-1
-
-			sb.WriteString(t.constructRow(rowIdx, isOverflow))
-		}
+		sb.WriteString(t.constructRows(availableLines))
 	}
 
 	sb.WriteString(bottom)
@@ -485,6 +475,32 @@ func (t *Table) constructHeaders() string {
 	return s.String()
 }
 
+func (t *Table) constructRows(availableLines int) string {
+	var sb strings.Builder
+
+	// The number of rows to render after removing the offset.
+	offsetRowCount := t.data.Rows() - t.offset
+
+	// The number of rows to render. We always render at least one row.
+	rowsToRender := min(availableLines, offsetRowCount)
+	rowsToRender = max(rowsToRender, 1)
+
+	// Check if we need to render an overflow row.
+	needsOverflow := rowsToRender < offsetRowCount
+
+	rowIdx := t.offset
+	for rowsToRender > 0 && rowIdx < t.data.Rows() {
+		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
+		isOverflow := needsOverflow && rowsToRender == 1
+
+		sb.WriteString(t.constructRow(rowIdx, isOverflow))
+
+		rowIdx++
+		rowsToRender--
+	}
+	return sb.String()
+}
+
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration. If isOverflow is true, the row is
 // rendered as an overflow row (using ellipsis).
@@ -506,6 +522,8 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	for c := 0; c < t.data.Columns(); c++ {
 		cellWidth := t.widths[c]
 
+		// TODO(fix): small cells should be using '…' instead of '...'. This is rendered wrong when
+		// 	then cellWidth is greater than 3 but the visible cell (ie. after styling) is smaller than 3.
 		cell := "..."
 		switch {
 		case !isOverflow:
