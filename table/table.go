@@ -357,13 +357,23 @@ func (t *Table) String() string {
 		bottom = t.constructBottomBorder()
 	}
 
-	topHeight := lipgloss.Height(sb.String()) - 1 // Subtract 1 for the newline.
-	availableHeight := t.height - (topHeight + lipgloss.Height(bottom))
-	rowsToRender := min(availableHeight, t.data.Rows())
+	// If there are no data rows render nothing.
+	if t.data.Rows() > 0 {
+		topHeight := lipgloss.Height(sb.String()) - 1 // Subtract 1 for the newline.
+		availableHeight := t.height - (topHeight + lipgloss.Height(bottom))
+		rowsToRender := min(availableHeight, t.data.Rows())
 
-	for r := t.offset; r < rowsToRender; r++ {
-		isOverflow := r == rowsToRender-1 && rowsToRender < t.data.Rows()
-		sb.WriteString(t.constructRow(r, isOverflow))
+		// The following replicates a do-while loop. When there is data we always render at least one row.
+		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
+		rowIdx := t.offset
+		for ok := true; ok; ok = rowIdx < rowsToRender {
+			isOverflow := rowsToRender == 0 ||
+				(rowIdx == rowsToRender-1 && rowsToRender < t.data.Rows())
+
+			sb.WriteString(t.constructRow(rowIdx, isOverflow))
+
+			rowIdx++
+		}
 	}
 
 	sb.WriteString(bottom)
@@ -483,6 +493,9 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 	hasHeaders := t.headers != nil && len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
+	if isOverflow {
+		height = 1
+	}
 
 	var cells []string
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
