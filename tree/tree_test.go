@@ -491,7 +491,6 @@ func TestTreeTable(t *testing.T) {
 					"Baz",
 					table.New().
 						Width(20).
-						Height(10).
 						StyleFunc(func(row, col int) lipgloss.Style {
 							return lipgloss.NewStyle().Padding(0, 1)
 						}).
