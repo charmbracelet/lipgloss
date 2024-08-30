@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"fmt"
 	"image/color"
 	"strconv"
 
@@ -54,12 +55,13 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	ansiColor := lipgloss.Color(21)
 //	hexColor := lipgloss.Color("#0000ff")
 //	uint32Color := lipgloss.Color(0xff0000)
-func Color[T string | int](c T) color.Color {
-	var col color.Color = noColor
-	switch c := any(c).(type) {
+func Color(c any) color.Color {
+	switch c := c.(type) {
+	case nil:
+		return noColor
 	case string:
 		if len(c) == 0 {
-			return col
+			return noColor
 		}
 		if h, err := colorful.Hex(c); err == nil {
 			return h
@@ -71,6 +73,7 @@ func Color[T string | int](c T) color.Color {
 			}
 			return ansi.TrueColor(i)
 		}
+		return noColor
 	case int:
 		if c < 16 {
 			return ansi.BasicColor(c)
@@ -78,8 +81,10 @@ func Color[T string | int](c T) color.Color {
 			return ansi.ExtendedColor(c)
 		}
 		return ansi.TrueColor(c)
+	case color.Color:
+		return c
 	}
-	return col
+	return Color(fmt.Sprint(c))
 }
 
 // RGBColor is a color specified by red, green, and blue values.
@@ -106,6 +111,27 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 //	colorA := lipgloss.ANSIColor(8)
 //	colorB := lipgloss.ANSIColor(134)
 type ANSIColor = ansi.ExtendedColor
+
+// LightDark is a helper type that can be used to specify colors that should be
+// used based on the terminal's background color.
+//
+// Example usage:
+//
+//	useDark := lipgloss.LightDark(true)
+//	light := "#0000ff"
+//	dark := "#ff0000"
+//	colorToUse := useDark.Color(light, dark)
+//	fmt.Println(colorToUse)
+type LightDark bool
+
+// Color returns the color that should be used based on the terminal's
+// background color.
+func (a LightDark) Color(light, dark any) color.Color {
+	if bool(a) {
+		return Color(dark)
+	}
+	return Color(light)
+}
 
 // IsDarkColor returns whether the given color is dark.
 //
