@@ -53,9 +53,10 @@ type Table struct {
 	headers     []string
 	data        Data
 
-	width  int
-	height int
-	offset int
+	width           int
+	height          int
+	useManualHeight bool
+	offset          int
 
 	// widths tracks the width of each column.
 	widths []int
@@ -199,6 +200,7 @@ func (t *Table) Width(w int) *Table {
 // Height sets the table height.
 func (t *Table) Height(h int) *Table {
 	t.height = h
+	t.useManualHeight = true
 	return t
 }
 
@@ -359,11 +361,19 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		// The height of the top border. Subtract 1 for the newline.
-		topHeight := lipgloss.Height(sb.String()) - 1
-		availableLines := t.height - (topHeight + lipgloss.Height(bottom))
+		switch {
+		case t.useManualHeight:
+			// The height of the top border. Subtract 1 for the newline.
+			topHeight := lipgloss.Height(sb.String()) - 1
+			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
 
-		sb.WriteString(t.constructRows(availableLines))
+			sb.WriteString(t.constructRows(availableLines))
+
+		default:
+			for r := t.offset; r < t.data.Rows(); r++ {
+				sb.WriteString(t.constructRow(r, false))
+			}
+		}
 	}
 
 	sb.WriteString(bottom)
