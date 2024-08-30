@@ -1115,6 +1115,27 @@ func TestTableHeightMinimum(t *testing.T) {
 	}
 }
 
+func TestTableHeightMinimumShowData(t *testing.T) {
+	table := New().
+		Height(0).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
+
+	expected := strings.TrimSpace(`
+┌──────────┬─────────┬──────────┐
+│ LANGUAGE │ FORMAL  │ INFORMAL │
+├──────────┼─────────┼──────────┤
+│ Chinese  │ Nǐn hǎo │ Nǐ hǎo   │
+└──────────┴─────────┴──────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func TestTableHeightWithOffset(t *testing.T) {
 	//This test exists to check for a bug / edge case when the table has an offset and the height is exact.
 
