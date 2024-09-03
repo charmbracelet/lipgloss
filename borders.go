@@ -233,7 +233,20 @@ func (s Style) applyBorder(str string) string {
 		bottomSet = s.isSet(borderBottomKey)
 		leftSet   = s.isSet(borderLeftKey)
 
-		border    = s.getBorderStyle()
+		border = s.getBorderStyle()
+
+		// Determine if a border was set. Borders also contain a middle section
+		// for tables, but those don't apply here, so we explicitly check for
+		// the relevant parts of borders only.
+		hasBorder = border.Top != "" ||
+			border.Bottom != "" ||
+			border.Left != "" ||
+			border.Right != "" ||
+			border.TopLeft != "" ||
+			border.TopRight != "" ||
+			border.BottomLeft != "" ||
+			border.BottomRight != ""
+
 		hasTop    = s.getAsBool(borderTopKey, false)
 		hasRight  = s.getAsBool(borderRightKey, false)
 		hasBottom = s.getAsBool(borderBottomKey, false)
@@ -252,7 +265,7 @@ func (s Style) applyBorder(str string) string {
 
 	// If a border is set and no sides have been specifically turned on or off
 	// render borders on all sides.
-	if border != noBorder && !topSet && !rightSet && !bottomSet && !leftSet {
+	if hasBorder && !topSet && !rightSet && !bottomSet && !leftSet {
 		hasTop = true
 		hasRight = true
 		hasBottom = true
@@ -260,7 +273,7 @@ func (s Style) applyBorder(str string) string {
 	}
 
 	// If no border is set or all borders are been disabled, abort.
-	if border == noBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
+	if !hasBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
 		return str
 	}
 
