@@ -252,7 +252,7 @@ func (s Style) applyBorder(str string) string {
 
 	// If a border is set and no sides have been specifically turned on or off
 	// render borders on all sides.
-	if border != noBorder && !(topSet || rightSet || bottomSet || leftSet) {
+	if border != noBorder && !topSet && !rightSet && !bottomSet && !leftSet {
 		hasTop = true
 		hasRight = true
 		hasBottom = true
