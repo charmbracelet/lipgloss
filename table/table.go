@@ -206,6 +206,11 @@ func (t *Table) Height(h int) *Table {
 
 // Offset sets the table rendering offset.
 func (t *Table) Offset(o int) *Table {
+	// make sure the value is less than row number.
+	if o >= t.data.Rows()-1 {
+		t.offset = t.data.Rows()
+		return t
+	}
 	t.offset = o
 	return t
 }
