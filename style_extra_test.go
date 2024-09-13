@@ -66,7 +66,7 @@ func Example_border() {
 	for _, b := range []bool{false, true} {
 		fmt.Println("border-enabed:", b)
 		s := lipgloss.NewStyle().Border(
-			lipgloss.Border{"x", "xx", "xxx", "xxxx", "a", "a", "a", "a"},
+			lipgloss.Border{"x", "xx", "xxx", "xxxx", "xxxxx", "xxxxxx", "a", "a", "a", "a", "a", "a", "a"},
 			b,
 		)
 
@@ -148,13 +148,13 @@ func TestStyleMethod(t *testing.T) {
 		{func(s S) S { return s.BorderRightBackground(g) }, `border-right-background: #0f0;`},
 		{func(s S) S { return s.BorderRightForeground(g) }, `border-right-foreground: #0f0;`},
 		{func(s S) S {
-			return s.BorderStyle(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h"})
+			return s.BorderStyle(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m"})
 		}, `border-style: border("a","b","c","d","e","f","g","h");`},
 		{func(s S) S { return s.BorderTop(true) }, `border-top: true;`},
 		{func(s S) S { return s.BorderTopBackground(g) }, `border-top-background: #0f0;`},
 		{func(s S) S { return s.BorderTopForeground(g) }, `border-top-foreground: #0f0;`},
 		{func(s S) S {
-			return s.Border(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h"}, true)
+			return s.Border(lipgloss.Border{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m"}, true)
 		}, `border-bottom: true; border-left: true; border-right: true; ` +
 			`border-style: border("a","b","c","d","e","f","g","h"); ` +
 			`border-top: true;`},

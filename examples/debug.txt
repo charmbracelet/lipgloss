@@ -1,0 +1,4 @@
+2024/05/09 16:27:51 Init Color profile: TrueColor
+2024/05/09 16:27:51 NoColor env: true
+2024/05/09 16:27:51 Color profile: Ascii
+2024/05/09 16:27:51 Has light background: false

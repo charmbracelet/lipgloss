@@ -1,12 +1,26 @@
 module github.com/charmbracelet/lipgloss
 
-go 1.15
+retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
+
+retract v0.11.1 // v0.11.1 uses a broken version of x/ansi StringWidth that causes some lines to wrap incorrectly.
+
+go 1.18
 
 require (
+	github.com/aymanbagabas/go-udiff v0.2.0
+	github.com/charmbracelet/x/ansi v0.2.3
+	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
 	github.com/cockroachdb/datadriven v1.0.2
 	github.com/knz/lipgloss-convert v0.2.0
-	github.com/mattn/go-runewidth v0.0.14
-	github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68
-	github.com/muesli/termenv v0.11.1-0.20220204035834-5ac8409525e0
-	github.com/stretchr/testify v1.8.1
+	github.com/muesli/termenv v0.15.2
+	github.com/rivo/uniseg v0.4.7
+)
+
+require (
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 )
