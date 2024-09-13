@@ -31,14 +31,14 @@ set
 clear; width: 20;
 underline: true; underline-spaces: false
 ----
-[4;4mhello    world![0m     🛇
+[4;4mh[0m[4;4me[0m[4;4ml[0m[4;4ml[0m[4;4mo[0m    [4;4mw[0m[4;4mo[0m[4;4mr[0m[4;4ml[0m[4;4md[0m[4;4m![0m     🛇
 
 # If underline is not set, underline-spaces does nothing.
 set
 clear; width: 20;
 underline-spaces: true
 ----
-hello    world!     🛇
+hello[4m [0m[4m [0m[4m [0m[4m [0mworld!     🛇
 
 set
 clear; width: 20;
@@ -74,14 +74,14 @@ set
 clear; width: 20;
 strikethrough: true; strikethrough-spaces: false
 ----
-[9mhello    world![0m     🛇
+[9mh[0m[9me[0m[9ml[0m[9ml[0m[9mo[0m    [9mw[0m[9mo[0m[9mr[0m[9ml[0m[9md[0m[9m![0m     🛇
 
 # If strikethrough is not set, strikethrough-spaces does nothing.
 set
 clear; width: 20;
 strikethrough-spaces: true
 ----
-hello    world!     🛇
+hello[9m [0m[9m [0m[9m [0m[9m [0mworld!     🛇
 
 set
 clear; width: 20;
@@ -126,14 +126,14 @@ set
 clear; reverse: true; width: 20;
 underline: true; underline-spaces: false
 ----
-[4;7;4mhello    world![0m[7m     [0m🛇
+[4;7;4mh[0m[4;7;4me[0m[4;7;4ml[0m[4;7;4ml[0m[4;7;4mo[0m    [4;7;4mw[0m[4;7;4mo[0m[4;7;4mr[0m[4;7;4ml[0m[4;7;4md[0m[4;7;4m![0m[7m     [0m🛇
 
 # If underline is not set, underline-spaces does nothing.
 set
 clear; reverse: true; width: 20;
 underline-spaces: true
 ----
-[7mhello    world![0m[7m     [0m🛇
+[7mh[0m[7me[0m[7ml[0m[7ml[0m[7mo[0m[4m [0m[4m [0m[4m [0m[4m [0m[7mw[0m[7mo[0m[7mr[0m[7ml[0m[7md[0m[7m![0m[7m     [0m🛇
 
 set
 clear; reverse: true; width: 20;
@@ -169,14 +169,14 @@ set
 clear; reverse: true; width: 20;
 strikethrough: true; strikethrough-spaces: false
 ----
-[7;9mhello    world![0m[7m     [0m🛇
+[7;9mh[0m[7;9me[0m[7;9ml[0m[7;9ml[0m[7;9mo[0m    [7;9mw[0m[7;9mo[0m[7;9mr[0m[7;9ml[0m[7;9md[0m[7;9m![0m[7m     [0m🛇
 
 # If strikethrough is not set, strikethrough-spaces does nothing.
 set
 clear; reverse: true; width: 20;
 strikethrough-spaces: true
 ----
-[7mhello    world![0m[7m     [0m🛇
+[7mh[0m[7me[0m[7ml[0m[7ml[0m[7mo[0m[9m [0m[9m [0m[9m [0m[9m [0m[7mw[0m[7mo[0m[7mr[0m[7ml[0m[7md[0m[7m![0m[7m     [0m🛇
 
 set
 clear; reverse: true; width: 20;
