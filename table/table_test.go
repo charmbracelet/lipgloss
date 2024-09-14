@@ -1053,7 +1053,7 @@ func TestTableHeightShrink(t *testing.T) {
 │ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
 │ French   │ Bonjour      │ Salut     │
 │ Japanese │ こんにちは   │ やあ      │
-│ ...      │ ...          │ ...       │
+│ …        │ …            │ …         │
 └──────────┴──────────────┴───────────┘
 `)
 
@@ -1074,12 +1074,11 @@ func TestTableHeightMinimum(t *testing.T) {
 		Row("4", "Russian", "Zdravstvuyte", "Privet").
 		Row("5", "Spanish", "Hola", "¿Qué tal?")
 
-	// TODO: the ID column should be using '…' instead of '...'. How to check cell width while accounting for padding?
 	expected := strings.TrimSpace(`
 ┌────┬──────────┬──────────────┬───────────┐
 │ ID │ LANGUAGE │    FORMAL    │ INFORMAL  │
 ├────┼──────────┼──────────────┼───────────┤
-│ .. │ ...      │ ...          │ ...       │
+│ …  │ …        │ …            │ …         │
 └────┴──────────┴──────────────┴───────────┘
 `)
 
@@ -1110,7 +1109,8 @@ func TestTableHeightMinimumShowData(t *testing.T) {
 }
 
 func TestTableHeightWithOffset(t *testing.T) {
-	//This test exists to check for a bug / edge case when the table has an offset and the height is exact.
+	// This test exists to check for a bug/edge case when the table has an
+	// offset and the height is set.
 
 	table := New().
 		Height(8).

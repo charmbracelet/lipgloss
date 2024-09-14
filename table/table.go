@@ -532,14 +532,9 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	for c := 0; c < t.data.Columns(); c++ {
 		cellWidth := t.widths[c]
 
-		// TODO(fix): small cells should be using '…' instead of '...'. This is rendered wrong when
-		// 	then cellWidth is greater than 3 but the visible cell (ie. after styling) is smaller than 3.
-		cell := "..."
-		switch {
-		case !isOverflow:
+		cell := "…"
+		if !isOverflow {
 			cell = t.data.At(index, c)
-		case cellWidth < 3:
-			cell = "…"
 		}
 
 		cells = append(cells, t.style(index+1, c).
