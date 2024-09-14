@@ -976,6 +976,170 @@ func TestTableANSI(t *testing.T) {
 	}
 }
 
+func TestTableHeightExact(t *testing.T) {
+	table := New().
+		Height(9).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableHeightExtra(t *testing.T) {
+	table := New().
+		Height(100).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableHeightShrink(t *testing.T) {
+	table := New().
+		Height(8).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ …        │ …            │ …         │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableHeightMinimum(t *testing.T) {
+	table := New().
+		Height(0).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("ID", "LANGUAGE", "FORMAL", "INFORMAL").
+		Row("1", "Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("2", "French", "Bonjour", "Salut").
+		Row("3", "Japanese", "こんにちは", "やあ").
+		Row("4", "Russian", "Zdravstvuyte", "Privet").
+		Row("5", "Spanish", "Hola", "¿Qué tal?")
+
+	expected := strings.TrimSpace(`
+┌────┬──────────┬──────────────┬───────────┐
+│ ID │ LANGUAGE │    FORMAL    │ INFORMAL  │
+├────┼──────────┼──────────────┼───────────┤
+│ …  │ …        │ …            │ …         │
+└────┴──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableHeightMinimumShowData(t *testing.T) {
+	table := New().
+		Height(0).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
+
+	expected := strings.TrimSpace(`
+┌──────────┬─────────┬──────────┐
+│ LANGUAGE │ FORMAL  │ INFORMAL │
+├──────────┼─────────┼──────────┤
+│ Chinese  │ Nǐn hǎo │ Nǐ hǎo   │
+└──────────┴─────────┴──────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestTableHeightWithOffset(t *testing.T) {
+	// This test exists to check for a bug/edge case when the table has an
+	// offset and the height is set.
+
+	table := New().
+		Height(8).
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?").
+		Offset(1)
+
+	expected := strings.TrimSpace(`
+┌──────────┬──────────────┬───────────┐
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
+├──────────┼──────────────┼───────────┤
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ Russian  │ Zdravstvuyte │ Privet    │
+│ Spanish  │ Hola         │ ¿Qué tal? │
+└──────────┴──────────────┴───────────┘
+`)
+
+	if table.String() != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
 }
