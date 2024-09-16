@@ -185,6 +185,11 @@ func (s Style) GetMarginLeft() int {
 	return s.getAsInt(marginLeftKey)
 }
 
+// GetMarginBackground returns the style's margin background color.
+func (s Style) GetMarginBackground() TerminalColor {
+	return s.getAsColor(marginBackgroundKey)
+}
+
 // GetHorizontalMargins returns the style's left and right margins. Unset
 // values are measured as 0.
 func (s Style) GetHorizontalMargins() int {
@@ -287,10 +292,6 @@ func (s Style) GetBorderLeftBackground() TerminalColor {
 	return s.getAsColor(borderLeftBackgroundKey)
 }
 
-// GetBorderTopWidth returns the width of the top border. If borders contain
-// runes of varying widths, the widest rune is returned. If no border exists on
-// the top edge, 0 is returned.
-//
 // Deprecated: This function simply calls Style.GetBorderTopSize.
 func (s Style) GetBorderTopWidth() int {
 	return s.GetBorderTopSize()

@@ -54,14 +54,16 @@ func TestSetColorProfile(t *testing.T) {
 }
 
 func TestHexToColor(t *testing.T) {
-	t.Parallel()
-
 	tt := []struct {
 		input    string
 		expected uint
 	}{
 		{
 			"#FF0000",
+			0xFF0000,
+		},
+		{
+			"#ff0000",
 			0xFF0000,
 		},
 		{
@@ -74,6 +76,10 @@ func TestHexToColor(t *testing.T) {
 		},
 		{
 			"invalid color",
+			0x0,
+		},
+		{
+			"",
 			0x0,
 		},
 	}
