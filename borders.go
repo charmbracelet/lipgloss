@@ -11,14 +11,17 @@ import (
 // Border contains a series of values which comprise the various parts of a
 // border.
 type Border struct {
-	Top          string
-	Bottom       string
-	Left         string
-	Right        string
-	TopLeft      string
-	TopRight     string
-	BottomLeft   string
-	BottomRight  string
+	// Values for all borders.
+	Top         string
+	Bottom      string
+	Left        string
+	Right       string
+	TopLeft     string
+	TopRight    string
+	BottomLeft  string
+	BottomRight string
+
+	// Values for table borders.
 	MiddleLeft   string
 	MiddleRight  string
 	Middle       string
@@ -233,7 +236,29 @@ func (s Style) applyBorder(str string) string {
 		bottomSet = s.isSet(borderBottomKey)
 		leftSet   = s.isSet(borderLeftKey)
 
-		border    = s.getBorderStyle()
+		border = s.getBorderStyle()
+
+		hasBorderTopLeft     = border.TopLeft != ""
+		hasBorderTop         = border.Top != ""
+		hasBorderTopRight    = border.TopRight != ""
+		hasBorderRight       = border.Right != ""
+		hasBorderBottomRight = border.BottomRight != ""
+		hasBorderBottom      = border.Bottom != ""
+		hasBorderBottomLeft  = border.BottomLeft != ""
+		hasBorderLeft        = border.Left != ""
+
+		// Determine if a border was set. Borders also contain a middle section
+		// for tables, but those don't apply here, so we explicitly check for
+		// the relevant parts of borders only.
+		hasBorder = hasBorderTop ||
+			hasBorderBottom ||
+			hasBorderLeft ||
+			hasBorderRight ||
+			hasBorderTopLeft ||
+			hasBorderTopRight ||
+			hasBorderBottomLeft ||
+			hasBorderBottomRight
+
 		hasTop    = s.getAsBool(borderTopKey, false)
 		hasRight  = s.getAsBool(borderRightKey, false)
 		hasBottom = s.getAsBool(borderBottomKey, false)
@@ -252,7 +277,7 @@ func (s Style) applyBorder(str string) string {
 
 	// If a border is set and no sides have been specifically turned on or off
 	// render borders on all sides.
-	if border != noBorder && !(topSet || rightSet || bottomSet || leftSet) {
+	if hasBorder && !topSet && !rightSet && !bottomSet && !leftSet {
 		hasTop = true
 		hasRight = true
 		hasBottom = true
@@ -260,8 +285,41 @@ func (s Style) applyBorder(str string) string {
 	}
 
 	// If no border is set or all borders are been disabled, abort.
-	if border == noBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
+	if !hasBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
 		return str
+	}
+
+	// But should we really render the top border?
+	if !topSet && !hasBorderTop && !hasBorderTopLeft && !hasBorderTopRight {
+		hasTop = false
+	}
+
+	// And should we render the bottom border?
+	if !bottomSet && !hasBorderBottom && !hasBorderBottomLeft && !hasBorderBottomRight {
+		hasBottom = false
+	}
+
+	// Don't render horizontal borders if the top and bottom won't be rendered
+	// and the border edge isn't set.
+	//
+	// For example, we wouldn't render a left border in the following case
+	// because setting the right border only nullifies other borders:
+	//
+	//  Style().
+	//      BorderStyle(NormalBorder()).
+	//      BorderRight(true)
+	//
+	// We also wouldn't render the left border in the following case, where the
+	// top and bottom borders are missing and the left border doesn't have
+	// a value set:
+	//
+	//  Style().
+	//      BorderStyle(Border{Right: "│"})
+	if !hasBorderLeft && !hasTop && !hasBottom {
+		hasLeft = false
+	}
+	if !hasBorderRight && !hasTop && !hasBottom {
+		hasRight = false
 	}
 
 	lines, width := getLines(str)
@@ -277,8 +335,8 @@ func (s Style) applyBorder(str string) string {
 		border.Right = " "
 	}
 
-	// If corners should be rendered but are set with the empty string, fill them
-	// with a single space.
+	// If corners should be rendered but are set with the empty string, fill
+	// them with a single space.
 	if hasTop && hasLeft && border.TopLeft == "" {
 		border.TopLeft = " "
 	}
@@ -325,7 +383,7 @@ func (s Style) applyBorder(str string) string {
 
 	var out strings.Builder
 
-	// Render top
+	// Render top. This includes the top left and right corners.
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
 		top = s.styleBorder(top, topFG, topBG)
@@ -339,7 +397,7 @@ func (s Style) applyBorder(str string) string {
 	rightRunes := []rune(border.Right)
 	rightIndex := 0
 
-	// Render sides
+	// Render sides. This never includes any corners.
 	for i, l := range lines {
 		if hasLeft {
 			r := string(leftRunes[leftIndex])
@@ -363,7 +421,7 @@ func (s Style) applyBorder(str string) string {
 		}
 	}
 
-	// Render bottom
+	// Render bottom. This includes the bottom left and right corners.
 	if hasBottom {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
 		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
