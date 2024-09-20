@@ -55,6 +55,7 @@ type Table struct {
 
 	width           int
 	height          int
+	availableLines  int
 	useManualHeight bool
 	offset          int
 
@@ -370,9 +371,9 @@ func (t *Table) String() string {
 		case t.useManualHeight:
 			// The height of the top border. Subtract 1 for the newline.
 			topHeight := lipgloss.Height(sb.String()) - 1
-			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
+			t.availableLines = t.height - (topHeight + lipgloss.Height(bottom))
 
-			sb.WriteString(t.constructRows(availableLines))
+			sb.WriteString(t.constructRows(t.availableLines))
 
 		default:
 			for r := t.offset; r < t.data.Rows(); r++ {
@@ -387,6 +388,12 @@ func (t *Table) String() string {
 		MaxHeight(t.computeHeight()).
 		MaxWidth(t.width).
 		Render(sb.String())
+}
+
+// AvailableLines returns the number of rows that can be rendered given the
+// current configuration.
+func (t *Table) AvailableLines() int {
+	return t.availableLines
 }
 
 // computeWidth computes the width of the table in it's current configuration.
