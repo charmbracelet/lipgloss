@@ -110,6 +110,11 @@ func (t *Table) Data(data Data) *Table {
 	return t
 }
 
+// GetData returns a table's data
+func (t Table) GetData() Data {
+	return t.data
+}
+
 // Rows appends rows to the table data.
 func (t *Table) Rows(rows ...[]string) *Table {
 	for _, row := range rows {
