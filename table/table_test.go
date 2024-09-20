@@ -1140,6 +1140,24 @@ func TestTableHeightWithOffset(t *testing.T) {
 	}
 }
 
+func TestClearRows(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("had to recover: %v", r)
+		}
+	}()
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
+	table.ClearRows()
+	table.Row("French", "Bonjour", "Salut")
+
+	// String() will try to get the rows from table.data
+	table.String()
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
 }
