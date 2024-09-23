@@ -402,7 +402,7 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 
 You can also style the whitespace. For details, see [the docs][docs].
 
-### Rendering Tables
+## Rendering Tables
 
 Lip Gloss ships with a table rendering sub-package.
 

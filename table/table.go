@@ -378,6 +378,11 @@ func (t *Table) String() string {
 			topHeight := lipgloss.Height(sb.String()) - 1
 			t.availableLines = t.height - (topHeight + lipgloss.Height(bottom))
 
+			// if the height is larger than the number of rows, use the number
+			// of rows.
+			if t.availableLines > t.data.Rows() {
+				t.availableLines = t.data.Rows()
+			}
 			sb.WriteString(t.constructRows(t.availableLines))
 
 		default:
@@ -509,13 +514,19 @@ func (t *Table) constructRows(availableLines int) string {
 	offsetRowCount := t.data.Rows() - t.offset
 
 	// The number of rows to render. We always render at least one row.
-	rowsToRender := min(availableLines, offsetRowCount)
+	rowsToRender := availableLines
 	rowsToRender = max(rowsToRender, 1)
 
 	// Check if we need to render an overflow row.
 	needsOverflow := rowsToRender < offsetRowCount
 
+	// only use the offset as the starting value if there is overflow.
 	rowIdx := t.offset
+	if !needsOverflow {
+		// if there is no overflow, just render to the height of the table
+		// check there's enough content to fill the table
+		rowIdx = t.data.Rows() - rowsToRender
+	}
 	for rowsToRender > 0 && rowIdx < t.data.Rows() {
 		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
 		isOverflow := needsOverflow && rowsToRender == 1
