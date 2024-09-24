@@ -7,6 +7,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+const HeaderRow int = -1
+
 // StyleFunc is the style function that determines the style of a Cell.
 //
 // It takes the row and column of the cell as an input and determines the
@@ -235,15 +237,15 @@ func (t *Table) String() string {
 	// the StyleFunc after the headers and rows. Update the widths for a final
 	// time.
 	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(0, i).Render(cell)))
-		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(0, i).Render(cell)))
+		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
 	}
 
 	for r := 0; r < t.data.Rows(); r++ {
 		for i := 0; i < t.data.Columns(); i++ {
 			cell := t.data.At(r, i)
 
-			rendered := t.style(r+1, i).Render(cell)
+			rendered := t.style(r, i).Render(cell)
 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
@@ -452,7 +454,7 @@ func (t *Table) constructHeaders() string {
 		s.WriteString(t.borderStyle.Render(t.border.Left))
 	}
 	for i, header := range t.headers {
-		s.WriteString(t.style(0, i).
+		s.WriteString(t.style(HeaderRow, i).
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
@@ -537,7 +539,7 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 			cell = t.data.At(index, c)
 		}
 
-		cells = append(cells, t.style(index+1, c).
+		cells = append(cells, t.style(index, c).
 			Height(height).
 			MaxHeight(height).
 			Width(t.widths[c]).
