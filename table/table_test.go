@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/exp/golden"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1252,6 +1253,33 @@ func TestTableShrinkWithOffset(t *testing.T) {
 	if got != table.height {
 		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
 	}
+}
+
+func TestStyleFunc(t *testing.T) {
+	TestStyle := func(row, col int) lipgloss.Style {
+		switch {
+		// this is the header
+		case row == HeaderRow:
+			return lipgloss.NewStyle().Align(lipgloss.Center)
+		// this is the first row of data
+		case row == 0:
+			return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Right)
+		default:
+			return lipgloss.NewStyle().Padding(0, 1)
+		}
+	}
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TestStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func debug(s string) string {
