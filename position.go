@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Position represents a position along a horizontal or vertical axis. It's in

@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // StyleFunc is the style function that determines the style of a Cell.
@@ -53,9 +53,10 @@ type Table struct {
 	headers     []string
 	data        Data
 
-	width  int
-	height int
-	offset int
+	width           int
+	height          int
+	useManualHeight bool
+	offset          int
 
 	// widths tracks the width of each column.
 	widths []int
@@ -199,6 +200,7 @@ func (t *Table) Width(w int) *Table {
 // Height sets the table height.
 func (t *Table) Height(h int) *Table {
 	t.height = h
+	t.useManualHeight = true
 	return t
 }
 
@@ -210,14 +212,12 @@ func (t *Table) Offset(o int) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
-	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasHeaders := len(t.headers) > 0
 	hasRows := t.data != nil && t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
 	}
-
-	var s strings.Builder
 
 	// Add empty cells to the headers, until it's the same length as the longest
 	// row (only if there are at headers in the first place).
@@ -342,27 +342,46 @@ func (t *Table) String() string {
 		}
 	}
 
+	var sb strings.Builder
+
 	if t.borderTop {
-		s.WriteString(t.constructTopBorder())
-		s.WriteString("\n")
+		sb.WriteString(t.constructTopBorder())
+		sb.WriteString("\n")
 	}
 
 	if hasHeaders {
-		s.WriteString(t.constructHeaders())
-		s.WriteString("\n")
+		sb.WriteString(t.constructHeaders())
+		sb.WriteString("\n")
 	}
 
-	for r := t.offset; r < t.data.Rows(); r++ {
-		s.WriteString(t.constructRow(r))
-	}
-
+	var bottom string
 	if t.borderBottom {
-		s.WriteString(t.constructBottomBorder())
+		bottom = t.constructBottomBorder()
 	}
+
+	// If there are no data rows render nothing.
+	if t.data.Rows() > 0 {
+		switch {
+		case t.useManualHeight:
+			// The height of the top border. Subtract 1 for the newline.
+			topHeight := lipgloss.Height(sb.String()) - 1
+			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
+
+			sb.WriteString(t.constructRows(availableLines))
+
+		default:
+			for r := t.offset; r < t.data.Rows(); r++ {
+				sb.WriteString(t.constructRow(r, false))
+			}
+		}
+	}
+
+	sb.WriteString(bottom)
 
 	return lipgloss.NewStyle().
 		MaxHeight(t.computeHeight()).
-		MaxWidth(t.width).Render(s.String())
+		MaxWidth(t.width).
+		Render(sb.String())
 }
 
 // computeWidth computes the width of the table in it's current configuration.
@@ -376,7 +395,7 @@ func (t *Table) computeWidth() int {
 
 // computeHeight computes the height of the table in it's current configuration.
 func (t *Table) computeHeight() int {
-	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasHeaders := len(t.headers) > 0
 	return sum(t.heights) - 1 + btoi(hasHeaders) +
 		btoi(t.borderTop) + btoi(t.borderBottom) +
 		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
@@ -466,13 +485,43 @@ func (t *Table) constructHeaders() string {
 	return s.String()
 }
 
+func (t *Table) constructRows(availableLines int) string {
+	var sb strings.Builder
+
+	// The number of rows to render after removing the offset.
+	offsetRowCount := t.data.Rows() - t.offset
+
+	// The number of rows to render. We always render at least one row.
+	rowsToRender := min(availableLines, offsetRowCount)
+	rowsToRender = max(rowsToRender, 1)
+
+	// Check if we need to render an overflow row.
+	needsOverflow := rowsToRender < offsetRowCount
+
+	rowIdx := t.offset
+	for rowsToRender > 0 && rowIdx < t.data.Rows() {
+		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
+		isOverflow := needsOverflow && rowsToRender == 1
+
+		sb.WriteString(t.constructRow(rowIdx, isOverflow))
+
+		rowIdx++
+		rowsToRender--
+	}
+	return sb.String()
+}
+
 // constructRow constructs the row for the table given an index and row data
-// based on the current configuration.
-func (t *Table) constructRow(index int) string {
+// based on the current configuration. If isOverflow is true, the row is
+// rendered as an overflow row (using ellipsis).
+func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
 
 	hasHeaders := t.headers != nil && len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
+	if isOverflow {
+		height = 1
+	}
 
 	var cells []string
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
@@ -481,14 +530,19 @@ func (t *Table) constructRow(index int) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cell := t.data.At(index, c)
+		cellWidth := t.widths[c]
+
+		cell := "…"
+		if !isOverflow {
+			cell = t.data.At(index, c)
+		}
 
 		cells = append(cells, t.style(index+1, c).
 			Height(height).
 			MaxHeight(height).
 			Width(t.widths[c]).
 			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(cell, t.widths[c]*height, "…")))
+			Render(ansi.Truncate(cell, cellWidth*height, "…")))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)

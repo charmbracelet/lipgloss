@@ -19,6 +19,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - run: |
+          git config --global url."https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/charmbracelet".insteadOf "https://github.com/charmbracelet"
+          git config --global url."https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/charmcli".insteadOf "https://github.com/charmcli"
+
       - name: Coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

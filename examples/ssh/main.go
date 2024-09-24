@@ -16,10 +16,10 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	lm "github.com/charmbracelet/wish/logging"
-	"github.com/gliderlabs/ssh"
-	"github.com/kr/pty"
+	"github.com/creack/pty"
 	"github.com/muesli/termenv"
 )
 

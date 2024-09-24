@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/charmbracelet/x/exp/term/ansi"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
 )
 
@@ -189,7 +189,8 @@ func (s Style) String() string {
 
 // Copy returns a copy of this style, including any underlying string values.
 //
-// Deprecated: to copy just use assignment (i.e. a := b). All methods also return a new style.
+// Deprecated: to copy just use assignment (i.e. a := b). All methods also
+// return a new style.
 func (s Style) Copy() Style {
 	return s
 }
@@ -271,15 +272,15 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = underline && s.getAsBool(underlineSpacesKey, true)
-		strikethroughSpaces = strikethrough && s.getAsBool(strikethroughSpacesKey, true)
+		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
-		useSpaceStyler = underlineSpaces || strikethroughSpaces
+		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
 	)
@@ -306,9 +307,7 @@ func (s Style) Render(strs ...string) string {
 		te = te.Underline()
 	}
 	if reverse {
-		if reverse {
-			teWhitespace = teWhitespace.Reverse()
-		}
+		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
 	}
 	if blink {
@@ -563,14 +562,14 @@ func pad(str string, n int, style *termenv.Style) string {
 	return b.String()
 }
 
-func max(a, b int) int { //nolint:unparam
+func max(a, b int) int { //nolint:unparam,predeclared
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func min(a, b int) int {
+func min(a, b int) int { //nolint:predeclared
 	if a < b {
 		return a
 	}

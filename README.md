@@ -77,11 +77,11 @@ appropriate color will be chosen at runtime.
 
 ### Complete Colors
 
-CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
+CompleteColor specifies exact values for True Color, ANSI256, and ANSI color
 profiles.
 
 ```go
-lipgloss.CompleteColor{True: "#0000FF", ANSI256: "86", ANSI: "5"}
+lipgloss.CompleteColor{TrueColor: "#0000FF", ANSI256: "86", ANSI: "5"}
 ```
 
 Automatic color degradation will not be performed in this case and it will be
@@ -89,7 +89,7 @@ based on the color specified.
 
 ### Complete Adaptive Colors
 
-You can use CompleteColor with AdaptiveColor to specify the exact values for
+You can use `CompleteColor` with `AdaptiveColor` to specify the exact values for
 light and dark backgrounds without automatic color degradation.
 
 ```go
@@ -402,7 +402,7 @@ block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledPara
 
 You can also style the whitespace. For details, see [the docs][docs].
 
-### Rendering Tables
+## Rendering Tables
 
 Lip Gloss ships with a table rendering sub-package.
 
@@ -454,6 +454,214 @@ fmt.Println(t)
 ![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
 
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
+
+## Rendering Lists
+
+Lip Gloss ships with a list rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/list"
+```
+
+Define a new list.
+
+```go
+l := list.New("A", "B", "C")
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+
+// • A
+// • B
+// • C
+```
+
+Lists have the ability to nest.
+
+```go
+l := list.New(
+    "A", list.New("Artichoke"),
+    "B", list.New("Baking Flour", "Bananas", "Barley", "Bean Sprouts"),
+    "C", list.New("Cashew Apple", "Cashews", "Coconut Milk", "Curry Paste", "Currywurst"),
+    "D", list.New("Dill", "Dragonfruit", "Dried Shrimp"),
+    "E", list.New("Eggs"),
+    "F", list.New("Fish Cake", "Furikake"),
+    "J", list.New("Jicama"),
+    "K", list.New("Kohlrabi"),
+    "L", list.New("Leeks", "Lentils", "Licorice Root"),
+)
+```
+
+Print the list.
+
+```go
+fmt.Println(l)
+```
+
+<p align="center">
+<img width="600" alt="image" src="https://github.com/charmbracelet/lipgloss/assets/42545625/0dc9f440-0748-4151-a3b0-7dcf29dfcdb0">
+</p>
+
+Lists can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("99")).MarginRight(1)
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1)
+
+l := list.New(
+    "Glossier",
+    "Claire’s Boutique",
+    "Nyx",
+    "Mac",
+    "Milk",
+    ).
+    Enumerator(list.Roman).
+    EnumeratorStyle(enumeratorStyle).
+    ItemStyle(itemStyle)
+```
+
+Print the list.
+
+<p align="center">
+<img width="600" alt="List example" src="https://github.com/charmbracelet/lipgloss/assets/42545625/360494f1-57fb-4e13-bc19-0006efe01561">
+</p>
+
+In addition to the predefined enumerators (`Arabic`, `Alphabet`, `Roman`, `Bullet`, `Tree`),
+you may also define your own custom enumerator:
+
+```go
+l := list.New("Duck", "Duck", "Duck", "Duck", "Goose", "Duck", "Duck")
+
+func DuckDuckGooseEnumerator(l list.Items, i int) string {
+    if l.At(i).Value() == "Goose" {
+        return "Honk →"
+    }
+    return ""
+}
+
+l = l.Enumerator(DuckDuckGooseEnumerator)
+```
+
+Print the list:
+
+<p align="center">
+<img width="600" alt="image" src="https://github.com/charmbracelet/lipgloss/assets/42545625/157aaf30-140d-4948-9bb4-dfba46e5b87e">
+</p>
+
+If you need, you can also build lists incrementally:
+
+```go
+l := list.New()
+
+for i := 0; i < repeat; i++ {
+    l.Item("Lip Gloss")
+}
+```
+
+## Rendering Trees
+
+Lip Gloss ships with a tree rendering sub-package.
+
+```go
+import "github.com/charmbracelet/lipgloss/tree"
+```
+
+Define a new tree.
+
+```go
+t := tree.Root(".").
+    Child("A", "B", "C")
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+
+// .
+// ├── A
+// ├── B
+// └── C
+```
+
+Trees have the ability to nest.
+
+```go
+t := tree.Root(".").
+    Child("macOS").
+    Child(
+        tree.New().
+            Root("Linux").
+            Child("NixOS").
+            Child("Arch Linux (btw)").
+            Child("Void Linux"),
+        ).
+    Child(
+        tree.New().
+            Root("BSD").
+            Child("FreeBSD").
+            Child("OpenBSD"),
+    )
+```
+
+Print the tree.
+
+```go
+fmt.Println(t)
+```
+
+<p align="center">
+<img width="663" alt="Tree Example (simple)" src="https://github.com/user-attachments/assets/5ef14eb8-a5d4-4f94-8834-e15d1e714f89">
+</p>
+
+Trees can be customized via their enumeration function as well as using
+`lipgloss.Style`s.
+
+```go
+enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
+rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
+itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
+
+t := tree.
+    Root("⁜ Makeup").
+    Child(
+        "Glossier",
+        "Fenty Beauty",
+        tree.New().Child(
+            "Gloss Bomb Universal Lip Luminizer",
+            "Hot Cheeks Velour Blushlighter",
+        ),
+        "Nyx",
+        "Mac",
+        "Milk",
+    ).
+    Enumerator(tree.RoundedEnumerator).
+    EnumeratorStyle(enumeratorStyle).
+    RootStyle(rootStyle).
+    ItemStyle(itemStyle)
+```
+
+Print the tree.
+
+<p align="center">
+<img width="663" alt="Tree Example (makeup)" src="https://github.com/user-attachments/assets/06d12d87-744a-4c89-bd98-45de9094a97e">
+</p>
+
+The predefined enumerators for trees are `DefaultEnumerator` and `RoundedEnumerator`.
+
+If you need, you can also build trees incrementally:
+
+```go
+t := tree.New()
+
+for i := 0; i < repeat; i++ {
+    t.Child("Lip Gloss")
+}
+```
 
 ---
 
