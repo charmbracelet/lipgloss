@@ -576,3 +576,13 @@ func requireNotEqual(tb testing.TB, a, b interface{}) {
 		tb.FailNow()
 	}
 }
+
+func TestIsSet(t *testing.T) {
+	leftOnly := NewStyle().
+		BorderStyle(Border{Left: "   new             "}).
+		BorderForeground(Color("#FFA500"))
+	got := leftOnly.isSet(borderLeftKey)
+	if got != true {
+		t.Fatalf("expected the left border to be set, got: %#v, but the left border is: %#v", got, leftOnly.borderStyle.Left)
+	}
+}
