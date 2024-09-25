@@ -445,6 +445,20 @@ func (s Style) Border(b Border, sides ...bool) Style {
 //	lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
 func (s Style) BorderStyle(b Border) Style {
 	s.set(borderStyleKey, b)
+
+	if isTopSet := b.Top; isTopSet != "" {
+		s.set(borderTopKey, true)
+	}
+	if isBottomSet := b.Bottom; isBottomSet != "" {
+		s.set(borderBottomKey, true)
+	}
+	if isLeftSet := b.Left; isLeftSet != "" {
+		s.set(borderLeftKey, true)
+	}
+	if isRightSet := b.Right; isRightSet != "" {
+		s.set(borderRightKey, true)
+	}
+
 	return s
 }
 
