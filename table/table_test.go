@@ -1282,6 +1282,41 @@ func TestStyleFunc(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestRightAlignTable(t *testing.T) {
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+
+	table := New().
+		Headers("Name", "Country of Origin", "Dunk-able").
+		Rows(rows...).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			if row == 0 {
+				return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
+			}
+			if col == 1 {
+				return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Right)
+			}
+			return lipgloss.NewStyle().Padding(0, 1)
+		})
+
+	expected := strings.TrimSpace(`
+╭──────────────────────┬───────────────────┬───────────╮
+│         Name         │ Country of Origin │ Dunk-able │
+├──────────────────────┼───────────────────┼───────────┤
+│ Chocolate Digestives │                UK │ Yes       │
+│ Tim Tams             │         Australia │ No        │
+│ Hobnobs              │                UK │ Yes       │
+╰──────────────────────┴───────────────────┴───────────╯
+`)
+
+	if table.String() != expected {
+		t.Fatalf("\ngot:\n%s\nexpected:\n%s", table.String(), expected)
+	}
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
 }
