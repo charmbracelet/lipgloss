@@ -1293,7 +1293,7 @@ func TestRightAlignTable(t *testing.T) {
 		Headers("Name", "Country of Origin", "Dunk-able").
 		Rows(rows...).
 		StyleFunc(func(row, col int) lipgloss.Style {
-			if row == 0 {
+			if row == HeaderRow {
 				return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
 			}
 			if col == 1 {
