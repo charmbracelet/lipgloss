@@ -7,6 +7,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+// HeaderRow denotes the header's row index used when rendering headers. Use
+// this value when looking to customize header styles in StyleFunc.
 const HeaderRow int = -1
 
 // StyleFunc is the style function that determines the style of a Cell.

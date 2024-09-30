@@ -12,7 +12,7 @@ import (
 
 var TableStyle = func(row, col int) lipgloss.Style {
 	switch {
-	case row == 0:
+	case row == HeaderRow:
 		return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
 	case row%2 == 0:
 		return lipgloss.NewStyle().Padding(0, 1)
@@ -66,7 +66,7 @@ func TestTableExample(t *testing.T) {
 		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			switch {
-			case row == 0:
+			case row == HeaderRow:
 				return HeaderStyle
 			case row%2 == 0:
 				return EvenRowStyle
@@ -92,8 +92,8 @@ func TestTableExample(t *testing.T) {
 └──────────┴───────────────────────────────┴─────────────────┘
 `)
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	if got := ansi.Strip(table.String()); got != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, got)
 	}
 }
 
@@ -527,7 +527,7 @@ func TestTableRowSeparators(t *testing.T) {
 
 func TestTableHeights(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
-		if row == 0 {
+		if row == HeaderRow {
 			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
@@ -585,7 +585,7 @@ func TestTableHeights(t *testing.T) {
 
 func TestTableMultiLineRowSeparator(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
-		if row == 0 {
+		if row == HeaderRow {
 			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
