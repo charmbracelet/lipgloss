@@ -380,15 +380,12 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 		middle = " "
 	}
 
-	leftWidth := ansi.StringWidth(left)
-	rightWidth := ansi.StringWidth(right)
-
 	runes := []rune(middle)
 	j := 0
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i < width+rightWidth; {
+	for i := 0; i < width-1; {
 		out.WriteRune(runes[j])
 		j++
 		if j >= len(runes) {
