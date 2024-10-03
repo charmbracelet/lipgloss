@@ -69,6 +69,9 @@ const (
 	borderBottomBackgroundKey
 	borderLeftBackgroundKey
 
+	borderTopFuncKey
+	borderBottomFuncKey
+
 	inlineKey
 	maxWidthKey
 	maxHeightKey
@@ -151,6 +154,8 @@ type Style struct {
 	borderRightBgColor  TerminalColor
 	borderBottomBgColor TerminalColor
 	borderLeftBgColor   TerminalColor
+	borderTopFunc       []BorderFunc
+	borderBottomFunc    []BorderFunc
 
 	maxWidth  int
 	maxHeight int

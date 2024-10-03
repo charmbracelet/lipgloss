@@ -55,6 +55,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.borderBottomBgColor = colorOrNil(value)
 	case borderLeftBackgroundKey:
 		s.borderLeftBgColor = colorOrNil(value)
+	case borderTopFuncKey:
+		s.borderTopFunc = mergeBorderFunc(s.borderTopFunc, value.([]BorderFunc))
+	case borderBottomFuncKey:
+		s.borderBottomFunc = mergeBorderFunc(s.borderBottomFunc, value.([]BorderFunc))
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -137,6 +141,12 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
 	case borderLeftBackgroundKey:
 		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
+	case borderTopFuncKey:
+		s.borderTopFunc = make([]BorderFunc, 3)
+		copy(s.borderTopFunc, i.borderTopFunc)
+	case borderBottomFuncKey:
+		s.borderBottomFunc = make([]BorderFunc, 3)
+		copy(s.borderBottomFunc, i.borderBottomFunc)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -156,6 +166,21 @@ func colorOrNil(c interface{}) TerminalColor {
 		return c
 	}
 	return nil
+}
+
+func mergeBorderFunc(a, b []BorderFunc) []BorderFunc {
+	if len(a) < 3 {
+		aa := make([]BorderFunc, 3)
+		copy(aa, a)
+		a = aa
+	}
+	for i := range b {
+		if b[i] != nil {
+			a[i] = b[i]
+			break
+		}
+	}
+	return a
 }
 
 // Bold sets a bold formatting rule.
@@ -588,6 +613,32 @@ func (s Style) BorderBottomBackground(c TerminalColor) Style {
 // border.
 func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	s.set(borderLeftBackgroundKey, c)
+	return s
+}
+
+func posIndex(p Position) int {
+	switch p {
+	case Center:
+		return 1
+	case Right:
+		return 2
+	}
+	return 0
+}
+
+// BorderTopFunc set the top func
+func (s Style) BorderTopFunc(p Position, bf BorderFunc) Style {
+	fns := make([]BorderFunc, 3)
+	fns[posIndex(p)] = bf
+	s.set(borderTopFuncKey, fns)
+	return s
+}
+
+// BorderBottomFunc set the bottom func
+func (s Style) BorderBottomFunc(p Position, bf BorderFunc) Style {
+	fns := make([]BorderFunc, 3)
+	fns[posIndex(p)] = bf
+	s.set(borderBottomFuncKey, fns)
 	return s
 }
 

@@ -26,6 +26,8 @@ type Border struct {
 	MiddleBottom string
 }
 
+type BorderFunc func(width int, middle string) string
+
 // GetTopSize returns the width of the top border. If borders contain runes of
 // varying widths, the widest rune is returned. If no border exists on the top
 // edge, 0 is returned.
@@ -248,6 +250,9 @@ func (s Style) applyBorder(str string) string {
 		rightBG  = s.getAsColor(borderRightBackgroundKey)
 		bottomBG = s.getAsColor(borderBottomBackgroundKey)
 		leftBG   = s.getAsColor(borderLeftBackgroundKey)
+
+		topFuncs    = s.borderTopFunc
+		bottomFuncs = s.borderBottomFunc
 	)
 
 	// If a border is set and no sides have been specifically turned on or off
@@ -327,7 +332,12 @@ func (s Style) applyBorder(str string) string {
 
 	// Render top
 	if hasTop {
-		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+		var top string
+		if len(topFuncs) > 0 {
+			top = renderAnnotatedHorizontalEdge(border.TopLeft, border.Top, border.TopRight, topFuncs, width)
+		} else {
+			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+		}
 		top = s.styleBorder(top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
@@ -365,11 +375,61 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+		var bottom string
+		if len(bottomFuncs) > 0 {
+			bottom = renderAnnotatedHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, bottomFuncs, width)
+		} else {
+			bottom = renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+		}
 		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
+
+	return out.String()
+}
+
+// Render the horizontal (top or bottom) portion of a border.
+func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []BorderFunc, width int) string {
+	if middle == "" {
+		middle = " "
+	}
+
+	ts := make([]string, 3)
+	ws := make([]int, 3)
+	for i, f := range bFuncs {
+		if f == nil {
+			continue
+		}
+		ts[i] = f(width, middle)
+		ws[i] = ansi.StringWidth(ts[i])
+	}
+
+	if width <= ws[0]+ws[1]+ws[2]+2 {
+		// TODO fix length if the strings are too long
+	}
+
+	runes := []rune(middle)
+	j := 0
+
+	out := strings.Builder{}
+	out.WriteString(left)
+	out.WriteString(ts[0])
+
+	for i := ws[0]; i < width-ws[2]-1; {
+		if ws[1] > 0 && i == (width-1-ws[1])/2 {
+			out.WriteString(ts[1])
+			i += ws[1]
+		}
+		out.WriteRune(runes[j])
+		j++
+		if j >= len(runes) {
+			j = 0
+		}
+		i += ansi.StringWidth(string(runes[j]))
+	}
+	out.WriteString(ts[2])
+	out.WriteString(right)
 
 	return out.String()
 }
