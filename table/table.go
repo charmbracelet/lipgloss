@@ -89,7 +89,7 @@ func New() *Table {
 
 // ClearRows clears the table rows.
 func (t *Table) ClearRows() *Table {
-	t.data = nil
+	t.data = NewStringData()
 	return t
 }
 
