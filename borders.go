@@ -275,7 +275,6 @@ func (s Style) applyBorder(str string) string {
 		if border.Left == "" {
 			border.Left = " "
 		}
-		width += maxRuneWidth(border.Left)
 	}
 
 	if hasRight && border.Right == "" {
@@ -416,8 +415,8 @@ func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []BorderFu
 	out.WriteString(left)
 	out.WriteString(ts[0])
 
-	for i := ws[0]; i < width-ws[2]-1; {
-		if ws[1] > 0 && i == (width-1-ws[1])/2 {
+	for i := ws[0]; i < width-ws[2]; {
+		if ws[1] > 0 && i == (width-ws[1])/2 {
 			out.WriteString(ts[1])
 			i += ws[1]
 		}
@@ -445,7 +444,7 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := 0; i < width-1; {
+	for i := 0; i < width; {
 		out.WriteRune(runes[j])
 		j++
 		if j >= len(runes) {
