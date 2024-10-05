@@ -1,7 +1,6 @@
 package lipgloss
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -27,27 +26,84 @@ type Border struct {
 	MiddleBottom string
 }
 
-// BorderFunc is border function that sets horizontal border text
-// at the given position.
+// BorderHorizontalFunc is border function that sets horizontal border text
+// at the configured position.
 //
 // It takes the width of the border and the Top/Bottom border string
 // and determines the string for that position.
 //
 // Example:
 //
-//	bStyle := lipgloss.NewStyle().Reverse(true)
+//	reverseStyle := lipgloss.NewStyle().Reverse(true)
 //	t := lipgloss.NewStyle().
 //	    Border(lipgloss.NormalBorder()).
 //	    BorderTopFunc(lipgloss.Center, func(w int, m string) string {
-//	        return bStyle.Render(" BIG TITLE ")
+//	        return reverseStyle.Render(" BIG TITLE ")
 //	    }).
 //	    BorderBottomFunc(lipgloss.Right, func(width int, middle string) string {
-//	        return bStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	        return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
 //	    }).
 //	    BorderBottomFunc(lipgloss.Left, func(width int, middle string) string {
-//	        return middle + bStyle.Render(fmt.Sprintf("Status: %s", m.status))
+//	        return middle + reverseStyle.Render(fmt.Sprintf("Status: %s", m.status))
 //	    })
-type BorderFunc func(width int, middle string) string
+type BorderHorizontalFunc interface {
+	func(width int, middle string) string
+}
+
+// BorderDecoration is type used by Border to set text or decorate the border.
+type BorderDecoration struct {
+	side  Position
+	align Position
+	st    interface{}
+}
+
+// BorderDecorator is constraint type for a string or function that is used
+// to decorate a border.
+type BorderDecorator interface {
+	string | func() string | BorderHorizontalFunc
+}
+
+// NewBorderDecoration is function that sets creates a decoration for the border.
+//
+// It takes the side of the border (Top|Bottom), the alignment (Left|Center|Right) of the
+// decoration, and the decoration.
+//
+// the decoration can be any of
+//   - string
+//   - func() string
+//   - func(width int, middle string) string  where width is the size of the border and middle
+//     is the border string
+//
+// Example:
+//
+//	reverseStyle := lipgloss.NewStyle().Reverse(true)
+//
+//	t := lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Top,
+//	        lipgloss.Center,
+//	        reverseStyle.Padding(0, 1).Render("BIG TITLE"),
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Bottom,
+//	        lipgloss.Right,
+//	        func(width int, middle string) string {
+//	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Bottom,
+//	        lipgloss.Left,
+//	        reverseStyle.SetString(fmt.Sprintf("Status: %s", m.status)).String,
+//	    ))
+func NewBorderDecoration[S BorderDecorator](side, align Position, st S) BorderDecoration {
+	return BorderDecoration{
+		align: align,
+		side:  side,
+		st:    st,
+	}
+}
 
 // GetTopSize returns the width of the top border. If borders contain runes of
 // varying widths, the widest rune is returned. If no border exists on the top
@@ -435,13 +491,8 @@ func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []interfac
 			ts[i] = ansi.Truncate(ts[i], remainingWidth, "")
 			ws[i] = ansi.StringWidth(ts[i])
 			remainingWidth -= ws[i]
-		case BorderFunc:
-			ts[i] = f(remainingWidth, middle)
-			ts[i] = ansi.Truncate(ts[i], remainingWidth, "")
-			ws[i] = ansi.StringWidth(ts[i])
-			remainingWidth -= ws[i]
-		case fmt.Stringer:
-			ts[i] = ansi.Truncate(f.String(), remainingWidth, "")
+		case func() string:
+			ts[i] = ansi.Truncate(f(), remainingWidth, "")
 			ws[i] = ansi.StringWidth(ts[i])
 			remainingWidth -= ws[i]
 		}

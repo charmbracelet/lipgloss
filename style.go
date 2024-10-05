@@ -69,8 +69,8 @@ const (
 	borderBottomBackgroundKey
 	borderLeftBackgroundKey
 
-	borderTopFuncKey
-	borderBottomFuncKey
+	borderTopDecorationKey
+	borderBottomDecorationKey
 
 	inlineKey
 	maxWidthKey

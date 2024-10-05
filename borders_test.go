@@ -11,11 +11,51 @@ func TestBorderFunc(t *testing.T) {
 		expected string
 	}{
 		{
+			name: "top left title string",
+			text: "",
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(Top, Left, "TITLE")),
+			expected: `┌TITLE─────┐
+│          │
+└──────────┘`,
+		},
+		{
+			name: "top left title stringer",
+			text: "",
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(Top, Left, NewStyle().SetString("TITLE").String)),
+			expected: `┌TITLE─────┐
+│          │
+└──────────┘`,
+		},
+		{
+			name: "top left very long title stringer",
+			text: "",
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(Top, Left, NewStyle().SetString("TitleTitleTitle").String)),
+			expected: `┌TitleTitle┐
+│          │
+└──────────┘`,
+		},
+		{
 			name: "top left title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderTopFunc(Left, func(width int, middle string) string {
-				return "TITLE"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Top,
+					Left,
+					func(width int, middle string) string {
+						return "TITLE"
+					},
+				)),
 			expected: `┌TITLE─────┐
 │          │
 └──────────┘`,
@@ -23,9 +63,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "top center title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderTopFunc(Center, func(width int, middle string) string {
-				return "TITLE"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Top,
+					Center,
+					func(width int, middle string) string {
+						return "TITLE"
+					},
+				)),
 			expected: `┌──TITLE───┐
 │          │
 └──────────┘`,
@@ -33,9 +80,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "top center title even",
 			text: "",
-			style: NewStyle().Width(11).Border(NormalBorder()).BorderTopFunc(Center, func(width int, middle string) string {
-				return "TITLE"
-			}),
+			style: NewStyle().
+				Width(11).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Top,
+					Center,
+					func(width int, middle string) string {
+						return "TITLE"
+					},
+				)),
 			expected: `┌───TITLE───┐
 │           │
 └───────────┘`,
@@ -43,9 +97,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "top right title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderTopFunc(Right, func(width int, middle string) string {
-				return "TITLE"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Top,
+					Right,
+					func(width int, middle string) string {
+						return "TITLE"
+					},
+				)),
 			expected: `┌─────TITLE┐
 │          │
 └──────────┘`,
@@ -53,9 +114,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "bottom left title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderBottomFunc(Left, func(width int, middle string) string {
-				return "STATUS"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Bottom,
+					Left,
+					func(width int, middle string) string {
+						return "STATUS"
+					},
+				)),
 			expected: `┌──────────┐
 │          │
 └STATUS────┘`,
@@ -63,9 +131,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "bottom center title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderBottomFunc(Center, func(width int, middle string) string {
-				return "STATUS"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Bottom,
+					Center,
+					func(width int, middle string) string {
+						return "STATUS"
+					},
+				)),
 			expected: `┌──────────┐
 │          │
 └──STATUS──┘`,
@@ -73,9 +148,16 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "bottom center title odd",
 			text: "",
-			style: NewStyle().Width(11).Border(NormalBorder()).BorderBottomFunc(Center, func(width int, middle string) string {
-				return "STATUS"
-			}),
+			style: NewStyle().
+				Width(11).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Bottom,
+					Center,
+					func(width int, middle string) string {
+						return "STATUS"
+					},
+				)),
 			expected: `┌───────────┐
 │           │
 └──STATUS───┘`,
@@ -83,12 +165,36 @@ func TestBorderFunc(t *testing.T) {
 		{
 			name: "bottom right title",
 			text: "",
-			style: NewStyle().Width(10).Border(NormalBorder()).BorderBottomFunc(Right, func(width int, middle string) string {
-				return "STATUS"
-			}),
+			style: NewStyle().
+				Width(10).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Bottom,
+					Right,
+					func(width int, middle string) string {
+						return "STATUS"
+					},
+				)),
 			expected: `┌──────────┐
 │          │
 └────STATUS┘`,
+		},
+		{
+			name: "bottom right padded title",
+			text: "",
+			style: NewStyle().
+				Width(12).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(
+					Bottom,
+					Right,
+					func(width int, middle string) string {
+						return "│STATUS│" + middle
+					},
+				)),
+			expected: `┌────────────┐
+│            │
+└───│STATUS│─┘`,
 		},
 	}
 

@@ -282,13 +282,22 @@ func (s Style) UnsetBorderLeftBackground() Style {
 	return s
 }
 
-func (s Style) UnsetBorderBottomFunc() Style {
-	s.unset(borderBottomFuncKey)
+// UnsetBorderDecorationTop removes all the border decorations.
+func (s Style) UnsetBorderDecoration() Style {
+	s.unset(borderTopDecorationKey)
+	s.unset(borderBottomDecorationKey)
 	return s
 }
 
-func (s Style) UnsetBorderTopFunc() Style {
-	s.unset(borderBottomFuncKey)
+// UnsetBorderDecorationTop removes the border bottom decoration.
+func (s Style) UnsetBorderBottomDecoration() Style {
+	s.unset(borderBottomDecorationKey)
+	return s
+}
+
+// UnsetBorderTopDecoration removes the border top decoration.
+func (s Style) UnsetBorderTopDecoration() Style {
+	s.unset(borderBottomDecorationKey)
 	return s
 }
 
