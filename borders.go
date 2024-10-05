@@ -26,6 +26,26 @@ type Border struct {
 	MiddleBottom string
 }
 
+// BorderFunc is border function that sets horizontal border text
+// at the given position.
+//
+// It takes the width of the border and the Top/Bottom border string
+// and determines the string for that position.
+//
+// Example:
+//
+//	bStyle := lipgloss.NewStyle().Reverse(true)
+//	t := lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderTopFunc(lipgloss.Center, func(w int, m string) string {
+//	        return bStyle.Render(" BIG TITLE ")
+//	    }).
+//	    BorderBottomFunc(lipgloss.Right, func(width int, middle string) string {
+//	        return bStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	    }).
+//	    BorderBottomFunc(lipgloss.Left, func(width int, middle string) string {
+//	        return middle + bStyle.Render(fmt.Sprintf("Status: %s", m.status))
+//	    })
 type BorderFunc func(width int, middle string) string
 
 // GetTopSize returns the width of the top border. If borders contain runes of

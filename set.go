@@ -626,7 +626,22 @@ func posIndex(p Position) int {
 	return 0
 }
 
-// BorderTopFunc set the top func
+// BorderTopFunc set the top border decoration such as a title.
+// The first argument is the position, it accepts Left, Right, and Center.
+//
+// the second argument is
+//   func(width int, middle string) string
+//
+// examples:
+//
+//  // Set a title with dynamic text from a function
+//  lipgloss.NewStyle().
+//      Border(lipgloss.NormalBorder()).
+//      BorderTopFunc(lipgloss.Center,
+//          func(width int, middle string) string {
+//              return fmt.Sprintf(" %d/%d ", index + 1, count)
+//          })
+//
 func (s Style) BorderTopFunc(p Position, bf BorderFunc) Style {
 	fns := make([]BorderFunc, 3)
 	fns[posIndex(p)] = bf
@@ -634,7 +649,22 @@ func (s Style) BorderTopFunc(p Position, bf BorderFunc) Style {
 	return s
 }
 
-// BorderBottomFunc set the bottom func
+// BorderBottomFunc set the bottom border decoration such as a status.
+// The first argument is the position, it accepts Left, Right, and Center.
+//
+// the second argument is
+//   func(width int, middle string) string
+//
+// examples:
+//
+//  // Set a title with dynamic text from a function
+//  lipgloss.NewStyle().
+//      Border(lipgloss.NormalBorder()).
+//      BorderBottomFunc(lipgloss.Right,
+//          func(width int, middle string) string {
+//              return fmt.Sprintf(" %d/%d ", index + 1, count)
+//          })
+//
 func (s Style) BorderBottomFunc(p Position, bf BorderFunc) Style {
 	fns := make([]BorderFunc, 3)
 	fns[posIndex(p)] = bf
