@@ -56,9 +56,15 @@ func (s *Style) set(key propKey, value interface{}) {
 	case borderLeftBackgroundKey:
 		s.borderLeftBgColor = colorOrNil(value)
 	case borderTopFuncKey:
-		s.borderTopFunc = mergeBorderFunc(s.borderTopFunc, value.([]BorderFunc))
+		s.borderTopFunc = mergeBorderFunc(
+			s.borderTopFunc,
+			value.([]interface{}),
+		)
 	case borderBottomFuncKey:
-		s.borderBottomFunc = mergeBorderFunc(s.borderBottomFunc, value.([]BorderFunc))
+		s.borderBottomFunc = mergeBorderFunc(
+			s.borderBottomFunc,
+			value.([]interface{}),
+		)
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -142,11 +148,9 @@ func (s *Style) setFrom(key propKey, i Style) {
 	case borderLeftBackgroundKey:
 		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
 	case borderTopFuncKey:
-		s.borderTopFunc = make([]BorderFunc, 3)
-		copy(s.borderTopFunc, i.borderTopFunc)
+		s.borderTopFunc = mergeBorderFunc(s.borderTopFunc, i.borderTopFunc)
 	case borderBottomFuncKey:
-		s.borderBottomFunc = make([]BorderFunc, 3)
-		copy(s.borderBottomFunc, i.borderBottomFunc)
+		s.borderBottomFunc = mergeBorderFunc(s.borderBottomFunc, i.borderBottomFunc)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -168,9 +172,9 @@ func colorOrNil(c interface{}) TerminalColor {
 	return nil
 }
 
-func mergeBorderFunc(a, b []BorderFunc) []BorderFunc {
+func mergeBorderFunc(a, b []interface{}) []interface{} {
 	if len(a) < 3 {
-		aa := make([]BorderFunc, 3)
+		aa := make([]interface{}, 3)
 		copy(aa, a)
 		a = aa
 	}
@@ -643,7 +647,7 @@ func posIndex(p Position) int {
 //          })
 //
 func (s Style) BorderTopFunc(p Position, bf BorderFunc) Style {
-	fns := make([]BorderFunc, 3)
+	fns := make([]interface{}, 3)
 	fns[posIndex(p)] = bf
 	s.set(borderTopFuncKey, fns)
 	return s
@@ -666,7 +670,7 @@ func (s Style) BorderTopFunc(p Position, bf BorderFunc) Style {
 //          })
 //
 func (s Style) BorderBottomFunc(p Position, bf BorderFunc) Style {
-	fns := make([]BorderFunc, 3)
+	fns := make([]interface{}, 3)
 	fns[posIndex(p)] = bf
 	s.set(borderBottomFuncKey, fns)
 	return s

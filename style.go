@@ -154,8 +154,8 @@ type Style struct {
 	borderRightBgColor  TerminalColor
 	borderBottomBgColor TerminalColor
 	borderLeftBgColor   TerminalColor
-	borderTopFunc       []BorderFunc
-	borderBottomFunc    []BorderFunc
+	borderTopFunc       []interface{}
+	borderBottomFunc    []interface{}
 
 	maxWidth  int
 	maxHeight int

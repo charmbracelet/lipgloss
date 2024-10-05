@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -409,7 +410,7 @@ func (s Style) applyBorder(str string) string {
 }
 
 // Render the horizontal (top or bottom) portion of a border.
-func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []BorderFunc, width int) string {
+func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []interface{}, width int) string {
 	if middle == "" {
 		middle = " "
 	}
@@ -420,12 +421,30 @@ func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []BorderFu
 		if f == nil {
 			continue
 		}
-		ts[i] = f(width, middle)
-		ws[i] = ansi.StringWidth(ts[i])
-	}
-
-	if width <= ws[0]+ws[1]+ws[2]+2 {
-		// TODO fix length if the strings are too long
+		remainingWidth := width
+		if remainingWidth < 1 {
+			break
+		}
+		switch f := f.(type) {
+		case string:
+			ts[i] = ansi.Truncate(f, remainingWidth, "")
+			ws[i] = ansi.StringWidth(ts[i])
+			remainingWidth -= ws[i]
+		case func(int, string) string:
+			ts[i] = f(remainingWidth, middle)
+			ts[i] = ansi.Truncate(ts[i], remainingWidth, "")
+			ws[i] = ansi.StringWidth(ts[i])
+			remainingWidth -= ws[i]
+		case BorderFunc:
+			ts[i] = f(remainingWidth, middle)
+			ts[i] = ansi.Truncate(ts[i], remainingWidth, "")
+			ws[i] = ansi.StringWidth(ts[i])
+			remainingWidth -= ws[i]
+		case fmt.Stringer:
+			ts[i] = ansi.Truncate(f.String(), remainingWidth, "")
+			ws[i] = ansi.StringWidth(ts[i])
+			remainingWidth -= ws[i]
+		}
 	}
 
 	runes := []rune(middle)
