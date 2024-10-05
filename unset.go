@@ -282,6 +282,16 @@ func (s Style) UnsetBorderLeftBackground() Style {
 	return s
 }
 
+func (s Style) UnsetBorderBottomFunc() Style {
+	s.unset(borderBottomFuncKey)
+	return s
+}
+
+func (s Style) UnsetBorderTopFunc() Style {
+	s.unset(borderBottomFuncKey)
+	return s
+}
+
 // UnsetInline removes the inline style rule, if set.
 func (s Style) UnsetInline() Style {
 	s.unset(inlineKey)
