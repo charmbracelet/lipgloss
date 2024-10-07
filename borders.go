@@ -410,7 +410,13 @@ func (s Style) applyBorder(str string) string {
 	if hasTop {
 		var top string
 		if len(topFuncs) > 0 {
-			top = renderAnnotatedHorizontalEdge(border.TopLeft, border.Top, border.TopRight, topFuncs, width)
+			top = renderAnnotatedHorizontalEdge(
+				border.TopLeft,
+				border.Top,
+				border.TopRight,
+				topFuncs,
+				width,
+			)
 		} else {
 			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
 		}
@@ -453,7 +459,13 @@ func (s Style) applyBorder(str string) string {
 	if hasBottom {
 		var bottom string
 		if len(bottomFuncs) > 0 {
-			bottom = renderAnnotatedHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, bottomFuncs, width)
+			bottom = renderAnnotatedHorizontalEdge(
+				border.BottomLeft,
+				border.Bottom,
+				border.BottomRight,
+				bottomFuncs,
+				width,
+			)
 		} else {
 			bottom = renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
 		}
@@ -465,6 +477,51 @@ func (s Style) applyBorder(str string) string {
 	return out.String()
 }
 
+// truncateWidths return the widths truncated to fit in the given
+// length.
+func truncateWidths(leftWidth, centerWidth, rightWidth, length int) (int, int, int) {
+
+	leftWidth = min(leftWidth, length)
+	centerWidth = min(centerWidth, length)
+	rightWidth = min(rightWidth, length)
+
+	if leftWidth == 0 && rightWidth == 0 {
+		return leftWidth, centerWidth, rightWidth
+	}
+
+	if centerWidth == 0 {
+		if leftWidth == 0 || rightWidth == 0 || leftWidth+rightWidth < length {
+			return leftWidth, centerWidth, rightWidth
+		}
+		for leftWidth+rightWidth >= length {
+			if leftWidth > rightWidth {
+				leftWidth--
+			} else {
+				rightWidth--
+			}
+		}
+		return leftWidth, centerWidth, rightWidth
+	}
+
+	for leftWidth >= length/2-(centerWidth+1)/2 {
+		if leftWidth > centerWidth {
+			leftWidth--
+		} else {
+			centerWidth--
+		}
+	}
+
+	for rightWidth >= (length+1)/2-centerWidth/2 {
+		if rightWidth > centerWidth {
+			rightWidth--
+		} else {
+			centerWidth--
+		}
+	}
+
+	return leftWidth, centerWidth, rightWidth
+}
+
 // Render the horizontal (top or bottom) portion of a border.
 func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []interface{}, width int) string {
 	if middle == "" {
@@ -473,28 +530,27 @@ func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []interfac
 
 	ts := make([]string, 3)
 	ws := make([]int, 3)
-	for i, f := range bFuncs {
-		if f == nil {
-			continue
+
+	// get the decoration strings and truncate to fit within
+	// the width.
+	{
+		for i, f := range bFuncs {
+			if f == nil {
+				continue
+			}
+			switch f := f.(type) {
+			case string:
+				ts[i] = f
+			case func() string:
+				ts[i] = f()
+			case func(int, string) string:
+				ts[i] = f(width, middle)
+			}
+			ws[i] = ansi.StringWidth(ts[i])
 		}
-		remainingWidth := width
-		if remainingWidth < 1 {
-			break
-		}
-		switch f := f.(type) {
-		case string:
-			ts[i] = ansi.Truncate(f, remainingWidth, "")
-			ws[i] = ansi.StringWidth(ts[i])
-			remainingWidth -= ws[i]
-		case func(int, string) string:
-			ts[i] = f(remainingWidth, middle)
-			ts[i] = ansi.Truncate(ts[i], remainingWidth, "")
-			ws[i] = ansi.StringWidth(ts[i])
-			remainingWidth -= ws[i]
-		case func() string:
-			ts[i] = ansi.Truncate(f(), remainingWidth, "")
-			ws[i] = ansi.StringWidth(ts[i])
-			remainingWidth -= ws[i]
+		ws[0], ws[1], ws[2] = truncateWidths(ws[0], ws[1], ws[2], width)
+		for i := range ts {
+			ts[i] = ansi.Truncate(ts[i], ws[i], "")
 		}
 	}
 

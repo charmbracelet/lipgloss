@@ -11,6 +11,19 @@ func TestBorderFunc(t *testing.T) {
 		expected string
 	}{
 		{
+			name: "trunc all string",
+			text: "",
+			style: NewStyle().
+				Width(16).
+				Border(NormalBorder()).
+				BorderDecoration(NewBorderDecoration(Top, Left, "LeftLeftLeftLeft")).
+				BorderDecoration(NewBorderDecoration(Top, Center, "CenterCenterCenter")).
+				BorderDecoration(NewBorderDecoration(Top, Right, "RightRightRightRight")),
+			expected: `┌LeftL─Cent─Right┐
+│                │
+└────────────────┘`,
+		},
+		{
 			name: "top left title string",
 			text: "",
 			style: NewStyle().
@@ -240,6 +253,69 @@ func TestBorders(t *testing.T) {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
 				i, tc.expected, formatEscapes(tc.expected),
 				res, formatEscapes(res))
+		}
+	}
+
+}
+
+func TestTruncateWidths(t *testing.T) {
+
+	tt := []struct {
+		name     string
+		widths   [3]int
+		width    int
+		expected [3]int
+	}{
+		{
+			name:     "lll-cc-rrr",
+			widths:   [3]int{10, 10, 10},
+			width:    10,
+			expected: [3]int{3, 2, 3},
+		},
+		{
+			name:     "lll-ccc-rrr",
+			widths:   [3]int{10, 10, 10},
+			width:    12,
+			expected: [3]int{3, 3, 4},
+		},
+		{
+			name:     "lllll-rrrr",
+			widths:   [3]int{10, 0, 10},
+			width:    10,
+			expected: [3]int{5, 0, 4},
+		},
+		{
+			name:     "lllllll-rr",
+			widths:   [3]int{10, 0, 2},
+			width:    10,
+			expected: [3]int{7, 0, 2},
+		},
+		{
+			name:     "ll-rrrrrrr",
+			widths:   [3]int{2, 0, 20},
+			width:    10,
+			expected: [3]int{2, 0, 7},
+		},
+		{
+			name:     "lll-cc----",
+			widths:   [3]int{10, 10, 0},
+			width:    10,
+			expected: [3]int{3, 2, 0},
+		},
+		{
+			name:     "----cc-rrr",
+			widths:   [3]int{0, 10, 10},
+			width:    10,
+			expected: [3]int{0, 3, 3},
+		},
+	}
+
+	for i, tc := range tt {
+		var result [3]int
+
+		result[0], result[1], result[2] = truncateWidths(tc.widths[0], tc.widths[1], tc.widths[2], tc.width)
+		if result != tc.expected {
+			t.Errorf("Test %d, expected:`%v`Actual output:`%v`", i, tc.expected, result)
 		}
 	}
 
