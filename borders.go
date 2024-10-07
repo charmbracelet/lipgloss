@@ -480,7 +480,6 @@ func (s Style) applyBorder(str string) string {
 // truncateWidths return the widths truncated to fit in the given
 // length.
 func truncateWidths(leftWidth, centerWidth, rightWidth, length int) (int, int, int) {
-
 	leftWidth = min(leftWidth, length)
 	centerWidth = min(centerWidth, length)
 	rightWidth = min(rightWidth, length)
