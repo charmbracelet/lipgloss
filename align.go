@@ -1,6 +1,8 @@
 package lipgloss
 
 import (
+	"log"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -11,6 +13,18 @@ import (
 // the same width by padding them with spaces. If a termenv style is passed,
 // use that to style the spaces added.
 func alignTextHorizontal(str string, pos Position, width int, style *termenv.Style) string {
+	// log to custom file
+	LOG_FILE := "/tmp/freeze_alignHorizontal_log"
+	// open log file
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0o644)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer logFile.Close()
+
+	// Set log out put and enjoy :)
+	log.SetOutput(logFile)
+
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
@@ -42,20 +56,25 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 				}
 				l = leftSpaces + l + rightSpaces
 			default: // Left
-				s := strings.Repeat(" ", shortAmount)
-				if style != nil {
-					s = style.Styled(s)
-				}
+				s := strings.Repeat("-", shortAmount)
+				//				s := strings.Repeat(" ", shortAmount)
+				// style the whitespace
+				//				if style != nil {
+				//					s = style.Styled(s)
+				//				}
+				log.Print("before\n", l)
 				l += s
+				log.Print("after\n", l)
 			}
 		}
 
 		b.WriteString(l)
 		if i < len(lines)-1 {
-			b.WriteRune('\n')
+			b.WriteString("\n")
 		}
 	}
 
+	log.Print("end of horizontal align\n" + b.String())
 	return b.String()
 }
 

@@ -1,6 +1,9 @@
 package lipgloss
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"strings"
 	"unicode"
 
@@ -231,6 +234,18 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
+	// log to custom file
+	LOG_FILE := "/tmp/freeze_log"
+	// open log file
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0o644)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer logFile.Close()
+
+	// Set log out put and enjoy :)
+	log.SetOutput(logFile)
+
 	if s.r == nil {
 		s.r = renderer
 	}
@@ -390,6 +405,7 @@ func (s Style) Render(strs ...string) string {
 
 		str = b.String()
 	}
+	log.Print("after core text render:\n" + str)
 
 	// Padding
 	if !inline { //nolint:nestif
@@ -423,10 +439,14 @@ func (s Style) Render(strs ...string) string {
 		str = alignTextVertical(str, verticalAlign, height, nil)
 	}
 
+	log.Print("after height\n" + str)
+
 	// Set alignment. This will also pad short lines with spaces so that all
 	// lines are the same length, so we run it under a few different conditions
 	// beyond alignment.
 	{
+
+		log.Print("before numLines\n" + str)
 		numLines := strings.Count(str, "\n")
 
 		if !(numLines == 0 && width == 0) {
@@ -435,13 +455,21 @@ func (s Style) Render(strs ...string) string {
 				st = &teWhitespace
 			}
 			str = alignTextHorizontal(str, horizontalAlign, width, st)
+
+			log.Print("after alignTextHorizontal\n" + str)
 		}
+
+		log.Print("didn't align text\n" + str)
 	}
+
+	log.Print("after numLines\n" + str)
 
 	if !inline {
 		str = s.applyBorder(str)
 		str = s.applyMargins(str, inline)
 	}
+
+	log.Print("after alignment\n" + str)
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {
@@ -463,6 +491,8 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
+	log.Println("after truncate\n" + str + "\nend str")
+	fmt.Println(str)
 	return str
 }
 
