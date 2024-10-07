@@ -353,6 +353,8 @@ func (s Style) Render(strs ...string) string {
 
 	// Potentially convert tabs to spaces
 	str = s.maybeConvertTabs(str)
+	// carriage returns can cause strange behaviour when rendering.
+	str = strings.ReplaceAll(str, "\r", "")
 
 	// Strip newlines in single line mode
 	if inline {
