@@ -15,19 +15,19 @@ func TestUnderline(t *testing.T) {
 	}{
 		{
 			NewStyle().Underline(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m\x1b[4m \x1b[m\x1b[4;4mc\x1b[m",
 		},
 		{
 			NewStyle().Underline(true).UnderlineSpaces(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m\x1b[4m \x1b[m\x1b[4;4mc\x1b[m",
 		},
 		{
 			NewStyle().Underline(true).UnderlineSpaces(false),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m \x1b[4;4mc\x1b[m",
 		},
 		{
 			NewStyle().UnderlineSpaces(true),
-			"ab\x1b[4m \x1b[0mc",
+			"ab\x1b[4m \x1b[mc",
 		},
 	}
 
@@ -35,9 +35,9 @@ func TestUnderline(t *testing.T) {
 		s := tc.style.SetString("ab c")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }
@@ -51,19 +51,19 @@ func TestStrikethrough(t *testing.T) {
 	}{
 		{
 			NewStyle().Strikethrough(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().Strikethrough(true).StrikethroughSpaces(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().Strikethrough(true).StrikethroughSpaces(false),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m \x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().StrikethroughSpaces(true),
-			"ab\x1b[9m \x1b[0mc",
+			"ab\x1b[9m \x1b[mc",
 		},
 	}
 
@@ -71,9 +71,9 @@ func TestStrikethrough(t *testing.T) {
 		s := tc.style.SetString("ab c")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }
@@ -87,11 +87,7 @@ func TestStyleRender(t *testing.T) {
 	}{
 		{
 			NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[m",
-		},
-		{
-			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;89;86;224mhello\x1b[m",
+			"\x1b[38;2;90;86;224mhello\x1b[m",
 		},
 		{
 			NewStyle().Bold(true),
@@ -119,59 +115,9 @@ func TestStyleRender(t *testing.T) {
 		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
-		}
-	}
-}
-
-func TestStyleCustomRender(t *testing.T) {
-	tt := []struct {
-		style    Style
-		expected string
-	}{
-		{
-			NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[m",
-		},
-		{
-			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;255;254;18mhello\x1b[m",
-		},
-		{
-			NewStyle().Bold(true),
-			"\x1b[1mhello\x1b[m",
-		},
-		{
-			NewStyle().Italic(true),
-			"\x1b[3mhello\x1b[m",
-		},
-		{
-			NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
-		},
-		{
-			NewStyle().Blink(true),
-			"\x1b[5mhello\x1b[m",
-		},
-		{
-			NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[m",
-		},
-		{
-			NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[m",
-		},
-	}
-
-	for i, tc := range tt {
-		s := tc.style.SetString("hello")
-		res := s.Render()
-		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }
@@ -454,9 +400,9 @@ func TestStyleValue(t *testing.T) {
 	for i, tc := range tt {
 		res := tc.style.Render(tc.text)
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }

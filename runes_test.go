@@ -1,7 +1,6 @@
 package lipgloss
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -55,14 +54,10 @@ func TestStyleRunes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			res := fn(tc.input, tc.indices)
 			if res != tc.expected {
-				t.Errorf("Expected:\n\n`%s`\n`%s`\n\nActual Output:\n\n`%s`\n`%s`\n\n",
-					tc.expected, formatEscapes(tc.expected),
-					res, formatEscapes(res))
+				t.Errorf("Expected:\n\n`%q`\n`%q`\n\nActual Output:\n\n`%q`\n`%q`\n\n",
+					tc.expected, tc.expected,
+					res, res)
 			}
 		})
 	}
-}
-
-func formatEscapes(str string) string {
-	return strings.ReplaceAll(str, "\x1b", "\\x1b")
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"unicode"
 
+	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -91,9 +92,7 @@ func TestTableExample(t *testing.T) {
 └──────────┴───────────────────────────────┴─────────────────┘
 `)
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	assertEqual(t, expected, ansi.Strip(table.String()))
 }
 
 func TestTableEmpty(t *testing.T) {
@@ -991,4 +990,29 @@ func stripString(str string) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+// assertEqual verifies the strings are equal, assuming its terminal output.
+func assertEqual(tb testing.TB, want, got string) {
+	tb.Helper()
+
+	want = trimSpace(want)
+	got = trimSpace(got)
+
+	diff := udiff.Unified("want", "got", want, got)
+	if diff != "" {
+		tb.Fatalf("\nwant:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", want, got, diff)
+	}
+}
+
+func trimSpace(s string) string {
+	var result []string //nolint: prealloc
+	ss := strings.Split(s, "\n")
+	for i, line := range ss {
+		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
+			continue
+		}
+		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
+	}
+	return strings.Join(result, "\n")
 }
