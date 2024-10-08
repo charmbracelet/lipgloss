@@ -37,15 +37,27 @@ type Border struct {
 //	reverseStyle := lipgloss.NewStyle().Reverse(true)
 //	t := lipgloss.NewStyle().
 //	    Border(lipgloss.NormalBorder()).
-//	    BorderTopFunc(lipgloss.Center, func(w int, m string) string {
-//	        return reverseStyle.Render(" BIG TITLE ")
-//	    }).
-//	    BorderBottomFunc(lipgloss.Right, func(width int, middle string) string {
-//	        return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
-//	    }).
-//	    BorderBottomFunc(lipgloss.Left, func(width int, middle string) string {
-//	        return middle + reverseStyle.Render(fmt.Sprintf("Status: %s", m.status))
-//	    })
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Top,
+//	        lipgloss.Center,
+//	        func(w int, m string) string {
+//	            return reverseStyle.Render(" BIG TITLE ")
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Bottom,
+//	        lipgloss.Right,
+//	        func(width int, middle string) string {
+//	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.Bottom,
+//	        lipgloss.Left,
+//	        func(width int, middle string) string {
+//	            return middle + reverseStyle.Render(fmt.Sprintf("Status: %s", m.status))
+//	        },
+//	    ))
 type BorderHorizontalFunc interface {
 	func(width int, middle string) string
 }
