@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 	"strings"
@@ -574,5 +575,18 @@ func requireNotEqual(tb testing.TB, a, b interface{}) {
 	if reflect.DeepEqual(a, b) {
 		tb.Errorf("%v == %v", a, b)
 		tb.FailNow()
+	}
+}
+
+func TestCarriageReturnInRender(t *testing.T) {
+	out := fmt.Sprintf("%s\r\n%s\r\n", "Super duper california oranges", "Hello world")
+	testStyle := NewStyle().
+		MarginLeft(1)
+	got := testStyle.Render(string(out))
+	want := testStyle.Render(fmt.Sprintf("%s\n%s\n", "Super duper california oranges", "Hello world"))
+
+	if got != want {
+		t.Logf("got(detailed):\n%q\nwant(detailed):\n%q", got, want)
+		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
 	}
 }
