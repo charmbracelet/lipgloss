@@ -25,19 +25,19 @@ func main() {
 		Height(10).
 		Border(lipgloss.NormalBorder()).
 		BorderDecoration(lipgloss.NewBorderDecoration(
-			lipgloss.Top,
+			lipgloss.BorderTop,
 			lipgloss.Center,
 			reverseStyle.Padding(0, 1).Render("BIG TITLE"),
 		)).
 		BorderDecoration(lipgloss.NewBorderDecoration(
-			lipgloss.Bottom,
+			lipgloss.BorderBottom,
 			lipgloss.Right,
 			func(width int, middle string) string {
 				return reverseStyle.Render(fmt.Sprintf("[%d/%d]", m.index+1, m.count)) + middle
 			},
 		)).
 		BorderDecoration(lipgloss.NewBorderDecoration(
-			lipgloss.Bottom,
+			lipgloss.BorderBottom,
 			lipgloss.Left,
 			reverseStyle.Padding(0, 1).SetString(fmt.Sprintf("Status: %s", m.status)).String,
 		))
@@ -45,5 +45,4 @@ func main() {
 	fmt.Println()
 	fmt.Println(t)
 	fmt.Println()
-
 }
