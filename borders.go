@@ -26,6 +26,18 @@ type Border struct {
 	MiddleBottom string
 }
 
+// BorderSide represents a side of the block. It's used in selection, alignment,
+// joining, placement and so on.
+type BorderSide int
+
+// BorderSide instances.
+const (
+	BorderTop BorderSide = iota
+	BorderRight
+	BorderBottom
+	BorderLeft
+)
+
 // BorderHorizontalFunc is border function that sets horizontal border text
 // at the configured position.
 //
@@ -38,21 +50,21 @@ type Border struct {
 //	t := lipgloss.NewStyle().
 //	    Border(lipgloss.NormalBorder()).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Top,
+//	        lipgloss.BorderTop,
 //	        lipgloss.Center,
 //	        func(w int, m string) string {
 //	            return reverseStyle.Render(" BIG TITLE ")
 //	        },
 //	    )).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Bottom,
+//	        lipgloss.BorderBottom,
 //	        lipgloss.Right,
 //	        func(width int, middle string) string {
 //	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
 //	        },
 //	    )).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Bottom,
+//	        lipgloss.BorderBottom,
 //	        lipgloss.Left,
 //	        func(width int, middle string) string {
 //	            return middle + reverseStyle.Render(fmt.Sprintf("Status: %s", m.status))
@@ -64,7 +76,7 @@ type BorderHorizontalFunc interface {
 
 // BorderDecoration is type used by Border to set text or decorate the border.
 type BorderDecoration struct {
-	side  Position
+	side  BorderSide
 	align Position
 	st    interface{}
 }
@@ -93,23 +105,23 @@ type BorderDecorator interface {
 //	t := lipgloss.NewStyle().
 //	    Border(lipgloss.NormalBorder()).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Top,
+//	        lipgloss.BorderTop,
 //	        lipgloss.Center,
 //	        reverseStyle.Padding(0, 1).Render("BIG TITLE"),
 //	    )).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Bottom,
+//	        lipgloss.BorderBottom,
 //	        lipgloss.Right,
 //	        func(width int, middle string) string {
 //	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
 //	        },
 //	    )).
 //	    BorderDecoration(lipgloss.NewBorderDecoration(
-//	        lipgloss.Bottom,
+//	        lipgloss.BorderBottom,
 //	        lipgloss.Left,
 //	        reverseStyle.SetString(fmt.Sprintf("Status: %s", m.status)).String,
 //	    ))
-func NewBorderDecoration[S BorderDecorator](side, align Position, st S) BorderDecoration {
+func NewBorderDecoration[S BorderDecorator](side BorderSide, align Position, st S) BorderDecoration {
 	return BorderDecoration{
 		align: align,
 		side:  side,

@@ -16,9 +16,9 @@ func TestBorderFunc(t *testing.T) {
 			style: NewStyle().
 				Width(16).
 				Border(NormalBorder()).
-				BorderDecoration(NewBorderDecoration(Top, Left, "LeftLeftLeftLeft")).
-				BorderDecoration(NewBorderDecoration(Top, Center, "CenterCenterCenter")).
-				BorderDecoration(NewBorderDecoration(Top, Right, "RightRightRightRight")),
+				BorderDecoration(NewBorderDecoration(BorderTop, Left, "LeftLeftLeftLeft")).
+				BorderDecoration(NewBorderDecoration(BorderTop, Center, "CenterCenterCenter")).
+				BorderDecoration(NewBorderDecoration(BorderTop, Right, "RightRightRightRight")),
 			expected: `┌LeftL─Cent─Right┐
 │                │
 └────────────────┘`,
@@ -29,7 +29,7 @@ func TestBorderFunc(t *testing.T) {
 			style: NewStyle().
 				Width(10).
 				Border(NormalBorder()).
-				BorderDecoration(NewBorderDecoration(Top, Left, "TITLE")),
+				BorderDecoration(NewBorderDecoration(BorderTop, Left, "TITLE")),
 			expected: `┌TITLE─────┐
 │          │
 └──────────┘`,
@@ -40,7 +40,7 @@ func TestBorderFunc(t *testing.T) {
 			style: NewStyle().
 				Width(10).
 				Border(NormalBorder()).
-				BorderDecoration(NewBorderDecoration(Top, Left, NewStyle().SetString("TITLE").String)),
+				BorderDecoration(NewBorderDecoration(BorderTop, Left, NewStyle().SetString("TITLE").String)),
 			expected: `┌TITLE─────┐
 │          │
 └──────────┘`,
@@ -51,7 +51,7 @@ func TestBorderFunc(t *testing.T) {
 			style: NewStyle().
 				Width(10).
 				Border(NormalBorder()).
-				BorderDecoration(NewBorderDecoration(Top, Left, NewStyle().SetString("TitleTitleTitle").String)),
+				BorderDecoration(NewBorderDecoration(BorderTop, Left, NewStyle().SetString("TitleTitleTitle").String)),
 			expected: `┌TitleTitle┐
 │          │
 └──────────┘`,
@@ -63,7 +63,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Top,
+					BorderTop,
 					Left,
 					func(width int, middle string) string {
 						return "TITLE"
@@ -80,7 +80,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Top,
+					BorderTop,
 					Center,
 					func(width int, middle string) string {
 						return "TITLE"
@@ -97,7 +97,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(11).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Top,
+					BorderTop,
 					Center,
 					func(width int, middle string) string {
 						return "TITLE"
@@ -114,7 +114,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Top,
+					BorderTop,
 					Right,
 					func(width int, middle string) string {
 						return "TITLE"
@@ -131,7 +131,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Bottom,
+					BorderBottom,
 					Left,
 					func(width int, middle string) string {
 						return "STATUS"
@@ -148,7 +148,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Bottom,
+					BorderBottom,
 					Center,
 					func(width int, middle string) string {
 						return "STATUS"
@@ -165,7 +165,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(11).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Bottom,
+					BorderBottom,
 					Center,
 					func(width int, middle string) string {
 						return "STATUS"
@@ -182,7 +182,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(10).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Bottom,
+					BorderBottom,
 					Right,
 					func(width int, middle string) string {
 						return "STATUS"
@@ -199,7 +199,7 @@ func TestBorderFunc(t *testing.T) {
 				Width(12).
 				Border(NormalBorder()).
 				BorderDecoration(NewBorderDecoration(
-					Bottom,
+					BorderBottom,
 					Right,
 					func(width int, middle string) string {
 						return "│STATUS│" + middle

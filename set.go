@@ -670,9 +670,9 @@ func posIndex(p Position) int {
 //		))
 func (s Style) BorderDecoration(bd BorderDecoration) Style {
 	switch bd.side {
-	case Top:
+	case BorderTop:
 		s.set(borderTopDecorationKey, bd)
-	case Bottom:
+	case BorderBottom:
 		s.set(borderBottomDecorationKey, bd)
 	}
 	return s
