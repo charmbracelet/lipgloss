@@ -26,6 +26,109 @@ type Border struct {
 	MiddleBottom string
 }
 
+// BorderSide represents a side of the block. It's used in selection, alignment,
+// joining, placement and so on.
+type BorderSide int
+
+// BorderSide instances.
+const (
+	BorderTop BorderSide = iota
+	BorderRight
+	BorderBottom
+	BorderLeft
+)
+
+// BorderHorizontalFunc is border function that sets horizontal border text
+// at the configured position.
+//
+// It takes the width of the border and the Top/Bottom border string
+// and determines the string for that position.
+//
+// Example:
+//
+//	reverseStyle := lipgloss.NewStyle().Reverse(true)
+//	t := lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderTop,
+//	        lipgloss.Center,
+//	        func(w int, m string) string {
+//	            return reverseStyle.Render(" BIG TITLE ")
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderBottom,
+//	        lipgloss.Right,
+//	        func(width int, middle string) string {
+//	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderBottom,
+//	        lipgloss.Left,
+//	        func(width int, middle string) string {
+//	            return middle + reverseStyle.Render(fmt.Sprintf("Status: %s", m.status))
+//	        },
+//	    ))
+type BorderHorizontalFunc interface {
+	func(width int, middle string) string
+}
+
+// BorderDecoration is type used by Border to set text or decorate the border.
+type BorderDecoration struct {
+	side  BorderSide
+	align Position
+	st    interface{}
+}
+
+// BorderDecorator is constraint type for a string or function that is used
+// to decorate a border.
+type BorderDecorator interface {
+	string | func() string | BorderHorizontalFunc
+}
+
+// NewBorderDecoration is function that sets creates a decoration for the border.
+//
+// It takes the side of the border (Top|Bottom), the alignment (Left|Center|Right) of the
+// decoration, and the decoration.
+//
+// the decoration can be any of
+//   - string
+//   - func() string
+//   - func(width int, middle string) string  where width is the size of the border and middle
+//     is the border string
+//
+// Example:
+//
+//	reverseStyle := lipgloss.NewStyle().Reverse(true)
+//
+//	t := lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderTop,
+//	        lipgloss.Center,
+//	        reverseStyle.Padding(0, 1).Render("BIG TITLE"),
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderBottom,
+//	        lipgloss.Right,
+//	        func(width int, middle string) string {
+//	            return reverseStyle.Render(fmt.Sprintf(" %d/%d ", m.index + 1, m.count)) + middle
+//	        },
+//	    )).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//	        lipgloss.BorderBottom,
+//	        lipgloss.Left,
+//	        reverseStyle.SetString(fmt.Sprintf("Status: %s", m.status)).String,
+//	    ))
+func NewBorderDecoration[S BorderDecorator](side BorderSide, align Position, st S) BorderDecoration {
+	return BorderDecoration{
+		align: align,
+		side:  side,
+		st:    st,
+	}
+}
+
 // GetTopSize returns the width of the top border. If borders contain runes of
 // varying widths, the widest rune is returned. If no border exists on the top
 // edge, 0 is returned.
@@ -248,6 +351,9 @@ func (s Style) applyBorder(str string) string {
 		rightBG  = s.getAsColor(borderRightBackgroundKey)
 		bottomBG = s.getAsColor(borderBottomBackgroundKey)
 		leftBG   = s.getAsColor(borderLeftBackgroundKey)
+
+		topFuncs    = s.borderTopFunc
+		bottomFuncs = s.borderBottomFunc
 	)
 
 	// If a border is set and no sides have been specifically turned on or off
@@ -270,7 +376,6 @@ func (s Style) applyBorder(str string) string {
 		if border.Left == "" {
 			border.Left = " "
 		}
-		width += maxRuneWidth(border.Left)
 	}
 
 	if hasRight && border.Right == "" {
@@ -327,7 +432,18 @@ func (s Style) applyBorder(str string) string {
 
 	// Render top
 	if hasTop {
-		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+		var top string
+		if len(topFuncs) > 0 {
+			top = renderAnnotatedHorizontalEdge(
+				border.TopLeft,
+				border.Top,
+				border.TopRight,
+				topFuncs,
+				width,
+			)
+		} else {
+			top = renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+		}
 		top = s.styleBorder(top, topFG, topBG)
 		out.WriteString(top)
 		out.WriteRune('\n')
@@ -365,11 +481,123 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+		var bottom string
+		if len(bottomFuncs) > 0 {
+			bottom = renderAnnotatedHorizontalEdge(
+				border.BottomLeft,
+				border.Bottom,
+				border.BottomRight,
+				bottomFuncs,
+				width,
+			)
+		} else {
+			bottom = renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+		}
 		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
 		out.WriteString(bottom)
 	}
+
+	return out.String()
+}
+
+// truncateWidths return the widths truncated to fit in the given
+// length.
+func truncateWidths(leftWidth, centerWidth, rightWidth, length int) (int, int, int) {
+	leftWidth = min(leftWidth, length)
+	centerWidth = min(centerWidth, length)
+	rightWidth = min(rightWidth, length)
+
+	if leftWidth == 0 && rightWidth == 0 {
+		return leftWidth, centerWidth, rightWidth
+	}
+
+	if centerWidth == 0 {
+		if leftWidth == 0 || rightWidth == 0 || leftWidth+rightWidth < length {
+			return leftWidth, centerWidth, rightWidth
+		}
+		for leftWidth+rightWidth >= length {
+			if leftWidth > rightWidth {
+				leftWidth--
+			} else {
+				rightWidth--
+			}
+		}
+		return leftWidth, centerWidth, rightWidth
+	}
+
+	for leftWidth >= length/2-(centerWidth+1)/2 {
+		if leftWidth > centerWidth {
+			leftWidth--
+		} else {
+			centerWidth--
+		}
+	}
+
+	for rightWidth >= (length+1)/2-centerWidth/2 {
+		if rightWidth > centerWidth {
+			rightWidth--
+		} else {
+			centerWidth--
+		}
+	}
+
+	return leftWidth, centerWidth, rightWidth
+}
+
+// Render the horizontal (top or bottom) portion of a border.
+func renderAnnotatedHorizontalEdge(left, middle, right string, bFuncs []interface{}, width int) string {
+	if middle == "" {
+		middle = " "
+	}
+
+	ts := make([]string, 3)
+	ws := make([]int, 3)
+
+	// get the decoration strings and truncate to fit within
+	// the width.
+	{
+		for i, f := range bFuncs {
+			if f == nil {
+				continue
+			}
+			switch f := f.(type) {
+			case string:
+				ts[i] = f
+			case func() string:
+				ts[i] = f()
+			case func(int, string) string:
+				ts[i] = f(width, middle)
+			}
+			ws[i] = ansi.StringWidth(ts[i])
+		}
+		ws[0], ws[1], ws[2] = truncateWidths(ws[0], ws[1], ws[2], width)
+		for i := range ts {
+			ts[i] = ansi.Truncate(ts[i], ws[i], "")
+		}
+	}
+
+	runes := []rune(middle)
+	j := 0
+
+	out := strings.Builder{}
+	out.WriteString(left)
+	out.WriteString(ts[0])
+
+	for i := ws[0]; i < width-ws[2]; {
+		if ws[1] > 0 && i == (width-ws[1])/2 {
+			out.WriteString(ts[1])
+			i += ws[1]
+		}
+		out.WriteRune(runes[j])
+		j++
+		if j >= len(runes) {
+			j = 0
+		}
+		i += ansi.StringWidth(string(runes[j]))
+	}
+	out.WriteString(ts[2])
+	out.WriteString(right)
 
 	return out.String()
 }
@@ -380,15 +608,12 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 		middle = " "
 	}
 
-	leftWidth := ansi.StringWidth(left)
-	rightWidth := ansi.StringWidth(right)
-
 	runes := []rune(middle)
 	j := 0
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i < width+rightWidth; {
+	for i := 0; i < width; {
 		out.WriteRune(runes[j])
 		j++
 		if j >= len(runes) {

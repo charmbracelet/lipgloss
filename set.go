@@ -55,6 +55,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.borderBottomBgColor = colorOrNil(value)
 	case borderLeftBackgroundKey:
 		s.borderLeftBgColor = colorOrNil(value)
+	case borderTopDecorationKey:
+		s.borderTopFunc = addBorderFunc(s.borderTopFunc, value.(BorderDecoration))
+	case borderBottomDecorationKey:
+		s.borderBottomFunc = addBorderFunc(s.borderBottomFunc, value.(BorderDecoration))
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -137,6 +141,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
 	case borderLeftBackgroundKey:
 		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
+	case borderTopDecorationKey:
+		s.borderTopFunc = mergeBorderFunc(s.borderTopFunc, i.borderTopFunc)
+	case borderBottomDecorationKey:
+		s.borderBottomFunc = mergeBorderFunc(s.borderBottomFunc, i.borderBottomFunc)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -156,6 +164,32 @@ func colorOrNil(c interface{}) TerminalColor {
 		return c
 	}
 	return nil
+}
+
+func addBorderFunc(a []interface{}, b BorderDecoration) []interface{} {
+	if len(a) < 3 {
+		aa := make([]interface{}, 3)
+		copy(aa, a)
+		a = aa
+	}
+	i := posIndex(b.align)
+	a[i] = b.st
+	return a
+}
+
+func mergeBorderFunc(a, b []interface{}) []interface{} {
+	if len(a) < 3 {
+		aa := make([]interface{}, 3)
+		copy(aa, a)
+		a = aa
+	}
+	for i := range b {
+		if b[i] != nil {
+			a[i] = b[i]
+			break
+		}
+	}
+	return a
 }
 
 // Bold sets a bold formatting rule.
@@ -588,6 +622,59 @@ func (s Style) BorderBottomBackground(c TerminalColor) Style {
 // border.
 func (s Style) BorderLeftBackground(c TerminalColor) Style {
 	s.set(borderLeftBackgroundKey, c)
+	return s
+}
+
+func posIndex(p Position) int {
+	switch p {
+	case Center:
+		return 1
+	case Right:
+		return 2
+	}
+	return 0
+}
+
+// BorderDecoration set the border decoration such as a title or status.
+// The argument is a BorderDecoration.
+//
+// examples:
+//
+//	// Set a title with plain text
+//	lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//			lipgloss.Top,
+//			lipgloss.Center,
+//			"Title",
+//		))
+//
+//	// Set a title with reverse styled text
+//	lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//			lipgloss.Top,
+//			lipgloss.Center,
+//	        lipgloss.NewStyle().Reverse(true).SetString("Title").String,
+//		))
+//
+//	// Set a title with dynamic text from a function
+//	lipgloss.NewStyle().
+//	    Border(lipgloss.NormalBorder()).
+//	    BorderDecoration(lipgloss.NewBorderDecoration(
+//			lipgloss.Bottom,
+//			lipgloss.Center,
+//	        func(width int, middle string) string {
+//	            return fmt.Sprintf(" %d/%d ", index + 1, count)
+//	        },
+//		))
+func (s Style) BorderDecoration(bd BorderDecoration) Style {
+	switch bd.side {
+	case BorderTop:
+		s.set(borderTopDecorationKey, bd)
+	case BorderBottom:
+		s.set(borderBottomDecorationKey, bd)
+	}
 	return s
 }
 

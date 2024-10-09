@@ -282,6 +282,25 @@ func (s Style) UnsetBorderLeftBackground() Style {
 	return s
 }
 
+// UnsetBorderDecorationTop removes all the border decorations.
+func (s Style) UnsetBorderDecoration() Style {
+	s.unset(borderTopDecorationKey)
+	s.unset(borderBottomDecorationKey)
+	return s
+}
+
+// UnsetBorderDecorationTop removes the border bottom decoration.
+func (s Style) UnsetBorderBottomDecoration() Style {
+	s.unset(borderBottomDecorationKey)
+	return s
+}
+
+// UnsetBorderTopDecoration removes the border top decoration.
+func (s Style) UnsetBorderTopDecoration() Style {
+	s.unset(borderBottomDecorationKey)
+	return s
+}
+
 // UnsetInline removes the inline style rule, if set.
 func (s Style) UnsetInline() Style {
 	s.unset(inlineKey)
