@@ -1158,6 +1158,34 @@ func TestClearRows(t *testing.T) {
 	table.String()
 }
 
+func TestCarriageReturn(t *testing.T) {
+	data := [][]string{
+		{"a0", "b0", "c0", "d0"},
+		{"a1", "b1.0\r\nb1.1\r\nb1.2\r\nb1.3\r\nb1.4\r\nb1.5\r\nb1.6", "c1", "d1"},
+		{"a2", "b2", "c2", "d2"},
+		{"a3", "b3", "c3", "d3"},
+	}
+	table := New().Rows(data...).Border(lipgloss.NormalBorder())
+	got := table.String()
+	want := `┌──┬────┬──┬──┐
+│a0│b0  │c0│d0│
+│a1│b1.0│c1│d1│
+│  │b1.1│  │  │
+│  │b1.2│  │  │
+│  │b1.3│  │  │
+│  │b1.4│  │  │
+│  │b1.5│  │  │
+│  │b1.6│  │  │
+│a2│b2  │c2│d2│
+│a3│b3  │c3│d3│
+└──┴────┴──┴──┘`
+
+	if got != want {
+		t.Logf("detailed view...\ngot:\n%q\nwant:\n%q", got, want)
+		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
 func debug(s string) string {
 	return strings.ReplaceAll(s, " ", ".")
 }
