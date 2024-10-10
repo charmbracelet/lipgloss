@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -10,8 +9,7 @@ import (
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-	labelStyle := re.NewStyle().Foreground(lipgloss.Color("241"))
+	labelStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
 	board := [][]string{
 		{"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"},

@@ -11,8 +11,8 @@ github.com/charmbracelet/colorprofile v0.1.2 h1:nuB1bd/yAExT4fkcZvpqtQ2N5/8cJHSR
 github.com/charmbracelet/colorprofile v0.1.2/go.mod h1:1htIKZYeI4TQs+OykPvpuBTUbUJxBYeSYBDIZuejMj0=
 github.com/charmbracelet/keygen v0.5.0 h1:XY0fsoYiCSM9axkrU+2ziE6u6YjJulo/b9Dghnw6MZc=
 github.com/charmbracelet/keygen v0.5.0/go.mod h1:DfvCgLHxZ9rJxdK0DGw3C/LkV4SgdGbnliHcObV3L+8=
-github.com/charmbracelet/log v0.4.0 h1:G9bQAcx8rWA2T3pWvx7YtPTPwgqpk7D68BX21IRW8ZM=
-github.com/charmbracelet/log v0.4.0/go.mod h1:63bXt/djrizTec0l11H20t8FDSvA4CRZJ1KH22MdptM=
+github.com/charmbracelet/log v0.4.1-0.20241010222913-47ce960d4847 h1:3uto8OPDaseTS92giSw/8GfVQ+TCjcVE+QOaf8lT0Zc=
+github.com/charmbracelet/log v0.4.1-0.20241010222913-47ce960d4847/go.mod h1:3UCs04fasl8pA1HoNNJ8HCYCaKoeMBZrNXo9iy5F0vY=
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917 h1:NZKjJ7d/pzk/AfcJYEzmF8M48JlIrrY00RR5JdDc3io=
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917/go.mod h1:8/Ve8iGRRIGFM1kepYfRF2pEOF5Y3TEZYoJaA54228U=
 github.com/charmbracelet/wish v1.4.0 h1:pL1uVP/YuYgJheHEj98teZ/n6pMYnmlZq/fcHvomrfc=

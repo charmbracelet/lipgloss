@@ -27,7 +27,7 @@ func main() {
 	dim := lipgloss.Color("250")
 	highlight := lipgloss.Color("#EE6FF8")
 
-	special := lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	special := lipgloss.Color("#73F59F")
 
 	checklistEnumStyle := func(items list.Items, index int) lipgloss.Style {
 		switch index {
@@ -54,7 +54,7 @@ func main() {
 		case 1, 2, 4:
 			return lipgloss.NewStyle().
 				Strikethrough(true).
-				Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"})
+				Foreground(lipgloss.Color("#696969"))
 		default:
 			return lipgloss.NewStyle()
 		}

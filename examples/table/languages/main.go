@@ -2,32 +2,29 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 )
 
 const (
-	purple    = lipgloss.Color("99")
-	gray      = lipgloss.Color("245")
-	lightGray = lipgloss.Color("241")
+	purple    = "99"
+	gray      = "245"
+	lightGray = "241"
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-
 	var (
 		// HeaderStyle is the lipgloss style used for the table headers.
-		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+		HeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(purple)).Bold(true).Align(lipgloss.Center)
 		// CellStyle is the base lipgloss style used for the table rows.
-		CellStyle = re.NewStyle().Padding(0, 1).Width(14)
+		CellStyle = lipgloss.NewStyle().Padding(0, 1).Width(14)
 		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
-		OddRowStyle = CellStyle.Foreground(gray)
+		OddRowStyle = CellStyle.Foreground(lipgloss.Color(gray))
 		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
-		EvenRowStyle = CellStyle.Foreground(lightGray)
+		EvenRowStyle = CellStyle.Foreground(lipgloss.Color(lightGray))
 		// BorderStyle is the lipgloss style used for the table border.
-		BorderStyle = lipgloss.NewStyle().Foreground(purple)
+		BorderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(purple))
 	)
 
 	rows := [][]string{

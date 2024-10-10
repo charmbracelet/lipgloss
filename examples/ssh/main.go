@@ -103,19 +103,20 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.cyan,
 			styles.gray,
 		)
-		// check if the client has a dark bg?
-		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
-			output.HasDarkBackground(),
-			col.Hex())
+		// TODO recheck if the client has a dark bg?
+		// see https://github.com/charmbracelet/lipgloss/pull/359
+		//		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
+		//			output.HasDarkBackground(),
+		//			col.Hex())
 
 		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
 			lipgloss.WithWhitespaceChars("/"),
-			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(output.AdaptiveColor(lipgloss.Color(250), lipgloss.Color(236)))),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(236))),
 		)
 
 		// Render to client.
-		output.Println(block)
+		output.WriteString(block)
 
 		next(sess)
 	}
