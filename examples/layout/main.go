@@ -8,9 +8,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/adaptive"
+	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
-	"golang.org/x/term"
 )
 
 const (
@@ -28,9 +27,9 @@ var (
 
 	// General.
 
-	subtle    = adaptive.AdaptiveColor("#D9DCCF", "#383838")
-	highlight = adaptive.AdaptiveColor("#874BFD", "#7D56F4")
-	special   = adaptive.AdaptiveColor("#43BF6D", "#73F59F")
+	subtle    = lipgloss.Color("#383838")
+	highlight = lipgloss.Color("#7D56F4")
+	special   = lipgloss.Color("#73F59F")
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -142,7 +141,7 @@ var (
 	listDone = func(s string) string {
 		return checkMark + lipgloss.NewStyle().
 			Strikethrough(true).
-			Foreground(adaptive.AdaptiveColor("#969B86", "#696969")).
+			Foreground(lipgloss.Color("#696969")).
 			Render(s)
 	}
 
@@ -164,8 +163,8 @@ var (
 			Padding(0, 1)
 
 	statusBarStyle = lipgloss.NewStyle().
-			Foreground(adaptive.AdaptiveColor("#343433", "#C1C6B2")).
-			Background(adaptive.AdaptiveColor("#D9DCCF", "#353533"))
+			Foreground(lipgloss.Color("#C1C6B2")).
+			Background(lipgloss.Color("#353533"))
 
 	statusStyle = lipgloss.NewStyle().
 			Inherit(statusBarStyle).
@@ -188,7 +187,7 @@ var (
 )
 
 func main() {
-	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
+	physicalWidth, _, _ := term.GetSize(os.Stdout.Fd())
 	doc := strings.Builder{}
 
 	// Tabs
@@ -335,7 +334,8 @@ func main() {
 	}
 
 	// Okay, let's print it
-	lipgloss.Println(docStyle.Render(doc.String()))
+	fmt.Println(docStyle.Render(doc.String()))
+
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {

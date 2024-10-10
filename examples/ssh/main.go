@@ -12,13 +12,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
+	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/adaptive"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 // Available styles.
@@ -66,7 +66,8 @@ func handler(next ssh.Handler) ssh.Handler {
 
 		environ := sess.Environ()
 		environ = append(environ, fmt.Sprintf("TERM=%s", pty.Term))
-		output := adaptive.NewOutput(pty.Slave, pty.Slave, environ)
+		//		output := colorprofile.NewOutput(pty.Slave, pty.Slave, environ)
+		output := colorprofile.NewWriter(pty.Slave, environ)
 		width := pty.Window.Width
 
 		// Initialize new styles against the renderer.
@@ -75,7 +76,7 @@ func handler(next ssh.Handler) ssh.Handler {
 		str := strings.Builder{}
 
 		fmt.Fprintf(&str, "\n\nProfile: %s\n%s %s %s %s %s",
-			output.ColorProfile().String(),
+			colorprofile.Detect(os.Stdout, environ),
 			styles.bold,
 			styles.faint,
 			styles.italic,
@@ -102,8 +103,7 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.cyan,
 			styles.gray,
 		)
-
-		col, _ := colorful.MakeColor(output.BackgroundColor)
+		// check if the client has a dark bg?
 		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
 			output.HasDarkBackground(),
 			col.Hex())
