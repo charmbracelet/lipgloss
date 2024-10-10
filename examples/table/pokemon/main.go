@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"image/color"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -10,11 +10,10 @@ import (
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-	baseStyle := re.NewStyle().Padding(0, 1)
+	baseStyle := lipgloss.NewStyle().Padding(0, 1)
 	headerStyle := baseStyle.Foreground(lipgloss.Color("252")).Bold(true)
 	selectedStyle := baseStyle.Foreground(lipgloss.Color("#01BE85")).Background(lipgloss.Color("#00432F"))
-	typeColors := map[string]lipgloss.Color{
+	typeColors := map[string]color.Color{
 		"Bug":      lipgloss.Color("#D7FF87"),
 		"Electric": lipgloss.Color("#FDFF90"),
 		"Fire":     lipgloss.Color("#FF7698"),
@@ -25,7 +24,7 @@ func main() {
 		"Poison":   lipgloss.Color("#7D5AFC"),
 		"Water":    lipgloss.Color("#00E2C7"),
 	}
-	dimTypeColors := map[string]lipgloss.Color{
+	dimTypeColors := map[string]color.Color{
 		"Bug":      lipgloss.Color("#97AD64"),
 		"Electric": lipgloss.Color("#FCFF5F"),
 		"Fire":     lipgloss.Color("#BA5F75"),
@@ -78,7 +77,7 @@ func main() {
 
 	t := table.New().
 		Border(lipgloss.NormalBorder()).
-		BorderStyle(re.NewStyle().Foreground(lipgloss.Color("238"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("238"))).
 		Headers(CapitalizeHeaders(headers)...).
 		Width(80).
 		Rows(data...).

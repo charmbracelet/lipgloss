@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
-	"golang.org/x/term"
 )
 
 const (
@@ -209,7 +209,7 @@ var (
 )
 
 func main() {
-	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
+	physicalWidth, _, _ := term.GetSize(os.Stdout.Fd())
 	doc := strings.Builder{}
 
 	// Tabs
@@ -356,7 +356,8 @@ func main() {
 	}
 
 	// Okay, let's print it
-	lipgloss.Println(docStyle.Render(doc.String()))
+	fmt.Println(docStyle.Render(doc.String()))
+
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {
