@@ -20,7 +20,7 @@ var (
 // appropriate color based on the terminal's background color.
 // When a program imports this package, it will query the terminal's background
 // color and use it to determine whether to use the light or dark color.
-var colorFn lipgloss.LightDark
+var colorFn lipgloss.Adapt
 
 func init() {
 	Query()
@@ -29,7 +29,7 @@ func init() {
 // Query queries the terminal's background color and updates the color function
 // accordingly.
 func Query() {
-	colorFn = lipgloss.LightDark(func() bool {
+	colorFn = lipgloss.Adapt(func() bool {
 		state, err := term.MakeRaw(Stdin.Fd())
 		if err != nil {
 			return HasDarkBackground
