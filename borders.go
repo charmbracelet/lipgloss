@@ -609,7 +609,6 @@ func truncateWidths(leftWidth, centerWidth, rightWidth, length int) (int, int, i
 }
 
 func renderVerticalEdge(edge []string, middle string, bFuncs []interface{}) []string {
-
 	height := len(edge)
 
 	var transformer func(int, int, string) string
@@ -791,7 +790,6 @@ func getFirstRuneAsString(str string) string {
 // Style support is very simple and assumes a single style is applied
 // to the entire string. Internal styles are stripped.
 func splitStyledString(s string) []string {
-
 	x := ansi.Strip(s)
 	if x == s {
 		// string has no styles so can just split it.
