@@ -1,6 +1,7 @@
 package adaptive
 
 import (
+	"fmt"
 	"image/color"
 	"io"
 	"time"
@@ -61,10 +62,10 @@ func queryTerminal(
 ) error {
 	rd, err := input.NewDriver(in, "", 0)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not create driver: %w", err)
 	}
 
-	defer rd.Close() // nolint: errcheck
+	defer rd.Close() //nolint: errcheck
 
 	done := make(chan struct{}, 1)
 	defer close(done)
@@ -77,7 +78,7 @@ func queryTerminal(
 	}()
 
 	if _, err := io.WriteString(out, query); err != nil {
-		return err
+		return fmt.Errorf("could not write query: %w", err)
 	}
 
 	for {

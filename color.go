@@ -66,9 +66,9 @@ func Color(c any) color.Color {
 		if h, err := colorful.Hex(c); err == nil {
 			return h
 		} else if i, err := strconv.Atoi(c); err == nil {
-			if i < 16 {
+			if i < 16 { //nolint:gomnd
 				return ansi.BasicColor(i)
-			} else if i < 256 {
+			} else if i < 256 { //nolint:gomnd
 				return ansi.ExtendedColor(i)
 			}
 			return ansi.TrueColor(i)
@@ -97,9 +97,10 @@ type RGBColor struct {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface.
 func (c RGBColor) RGBA() (r, g, b, a uint32) {
-	r |= uint32(c.R) << 8
-	g |= uint32(c.G) << 8
-	b |= uint32(c.B) << 8
+	const shift = 8
+	r |= uint32(c.R) << shift
+	g |= uint32(c.G) << shift
+	b |= uint32(c.B) << shift
 	a = 0xFFFF //nolint:gomnd
 	return
 }
