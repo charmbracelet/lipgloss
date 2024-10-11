@@ -135,7 +135,9 @@ type ANSIColor = ansi.ExtendedColor
 //
 // In standalone Lip Gloss, the workflow is simpler:
 //
-//	...
+//	hasDarkBG, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+//	adaptive := lipgloss.Adapt(hasDarkBG)
+//	myHotColor := adaptive.Color("#ff0000", "#0000ff")
 type Adapt bool
 
 // Color returns the color that should be used based on the terminal's

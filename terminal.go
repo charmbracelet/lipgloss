@@ -1,4 +1,4 @@
-package adaptive
+package lipgloss
 
 import (
 	"fmt"
