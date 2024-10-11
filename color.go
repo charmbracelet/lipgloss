@@ -113,36 +113,50 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 //	colorB := lipgloss.ANSIColor(134)
 type ANSIColor = ansi.ExtendedColor
 
-// LightDark is a helper type that can be used to specify colors that should be
-// used based on the terminal's background color.
+// Adapt is a simple helper type that can be used to choose the appropriate
+// color based on whether the terminal has a light or dark background.
 //
-// Example usage:
+//	adaptive := lipgloss.Adapt(hasDarkBackground)
+//	theRightColor := adaptive.Color("#0000ff", "#ff0000")
 //
-//	useDark := lipgloss.LightDark(true)
-//	light := "#0000ff"
-//	dark := "#ff0000"
-//	colorToUse := useDark.Color(light, dark)
-//	fmt.Println(colorToUse)
-type LightDark bool
+// In practice, there are slightly different workflows between Bubble Tea and
+// Lip Gloss standalone.
+//
+// In Bubble Tea listen for tea.BackgroundColorMessage, which automatically
+// flows through Update on start, and whenever the background color changes:
+//
+//	case tea.BackgroundColorMessage:
+//	    m.hasDarkBackground = msg.IsDark()
+//
+// Later, when you're rendering:
+//
+//	adaptive := lipgloss.Adapt(m.hasDarkBackground)
+//	myHotColor := adaptive.Color("#ff0000", "#0000ff")
+//
+// In standalone Lip Gloss, the workflow is simpler:
+//
+//	...
+type Adapt bool
 
 // Color returns the color that should be used based on the terminal's
 // background color.
-func (a LightDark) Color(light, dark any) color.Color {
+func (a Adapt) Color(light, dark any) color.Color {
 	if bool(a) {
 		return Color(dark)
 	}
 	return Color(light)
 }
 
-// IsDarkColor returns whether the given color is dark.
+// IsDarkColor returns whether the given color is dark (based on the luminance
+// portion of the color as interpreted as HSL).
 //
 // Example usage:
 //
 //	color := lipgloss.Color("#0000ff")
 //	if lipgloss.IsDarkColor(color) {
-//		fmt.Println("It's dark!")
+//		fmt.Println("It's dark! I love darkness!")
 //	} else {
-//		fmt.Println("It's light!")
+//		fmt.Println("It's light! Cover your eyes!")
 //	}
 func IsDarkColor(c color.Color) bool {
 	col, ok := colorful.MakeColor(c)
