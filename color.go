@@ -67,20 +67,20 @@ func Color(c any) color.Color {
 			return h
 		} else if i, err := strconv.Atoi(c); err == nil {
 			if i < 16 { //nolint:gomnd
-				return ansi.BasicColor(i)
+				return ansi.BasicColor(i) //nolint:gosec
 			} else if i < 256 { //nolint:gomnd
-				return ansi.ExtendedColor(i)
+				return ansi.ExtendedColor(i) //nolint:gosec
 			}
-			return ansi.TrueColor(i)
+			return ansi.TrueColor(i) //nolint:gosec
 		}
 		return noColor
 	case int:
 		if c < 16 {
-			return ansi.BasicColor(c)
+			return ansi.BasicColor(c) //nolint:gosec
 		} else if c < 256 {
-			return ansi.ExtendedColor(c)
+			return ansi.ExtendedColor(c) //nolint:gosec
 		}
-		return ansi.TrueColor(c)
+		return ansi.TrueColor(c) //nolint:gosec
 	case color.Color:
 		return c
 	}
