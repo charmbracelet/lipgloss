@@ -271,7 +271,6 @@ func JoinBorderHorizontal(borderStyle Style, pos Position, strs ...string) strin
 // getBorderStyles gets the styles for each side of the border
 // returns Top, Right, Bottom, and Left Styles
 func getBorderStyles(borderStyle Style) (Style, Style, Style, Style) {
-
 	var (
 		styleT = NewStyle().
 			Foreground(borderStyle.GetBorderTopForeground()).
