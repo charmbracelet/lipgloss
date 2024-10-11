@@ -1,47 +1,38 @@
 package adaptive
 
 import (
+	"image/color"
 	"os"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
 )
 
-// Stdin, Stdout, and HasDarkBackground are the standard input, output, and
-// default background color value to use. They can be overridden by the
-// importing program.
-var (
-	Stdin             = os.Stdin
-	Stdout            = os.Stdout
-	HasDarkBackground = true
-)
+// HasDarkBackground is true if the terminal has a dark background. It defaults
+// to true if the background color cannot be determined.
+var HasDarkBackground = func() bool {
+	bg, err := QueryBackgroundColor(os.Stdin, os.Stdout)
+	if err != nil {
+		return true
+	}
 
-// colorFn is the light-dark Lip Gloss color function to use to determine the
-// appropriate color based on the terminal's background color.
-// When a program imports this package, it will query the terminal's background
-// color and use it to determine whether to use the light or dark color.
-var colorFn lipgloss.Adapt
+	return lipgloss.IsDarkColor(bg)
+}()
 
-func init() {
-	Query()
-}
+// QueryBackgroundColor queries the terminal for the background color. If the
+// terminal does not support querying the background color, nil is returned.
+//
+// Example usage:
+//
+//	bg, _ := adaptive.QueryBackgroundColor(os.Stdin, os.Stdout)
+//	fmt.Printf("Background color: %v, isDark: %v\n", bg, lipgloss.IsDarkColor(bg))
+func QueryBackgroundColor(stdin term.File, stdout term.File) (color.Color, error) {
+	state, err := term.MakeRaw(stdin.Fd())
+	if err != nil {
+		return nil, err
+	}
 
-// Query queries the terminal's background color and updates the color function
-// accordingly.
-func Query() {
-	colorFn = lipgloss.Adapt(func() bool {
-		state, err := term.MakeRaw(Stdin.Fd())
-		if err != nil {
-			return HasDarkBackground
-		}
+	defer term.Restore(stdin.Fd(), state) //nolint:errcheck
 
-		defer term.Restore(Stdin.Fd(), state) //nolint:errcheck
-
-		bg, err := queryBackgroundColor(Stdin, Stdout)
-		if err == nil {
-			return lipgloss.IsDarkColor(bg)
-		}
-
-		return HasDarkBackground
-	}())
+	return queryBackgroundColor(stdin, stdout)
 }
