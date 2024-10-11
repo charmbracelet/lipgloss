@@ -473,6 +473,18 @@ func TestStyleValue(t *testing.T) {
 			style:    NewStyle().MarginLeft(1),
 			expected: " ",
 		},
+		{
+			name:     "width with carriage return",
+			text:     "foo\r\nbar",
+			style:    NewStyle().Width(10),
+			expected: "foo       \nbar       ",
+		},
+		{
+			name:     "center align with carriage return",
+			text:     "foo\r\nbar",
+			style:    NewStyle().Width(10).Align(Center),
+			expected: "   foo    \n   bar    ",
+		},
 	}
 
 	for i, tc := range tt {
