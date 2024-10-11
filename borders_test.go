@@ -320,3 +320,36 @@ func TestTruncateWidths(t *testing.T) {
 	}
 
 }
+
+func TestSplitStyledString(t *testing.T) {
+
+	tt := []struct {
+		input    string
+		expected []string
+	}{
+		{
+			input:    "abc",
+			expected: []string{"a", "b", "c"},
+		},
+		{
+			input:    "\x1b[41mabc\x1b[0m",
+			expected: []string{"\x1b[41ma\x1b[0m", "\x1b[41mb\x1b[0m", "\x1b[41mc\x1b[0m"},
+		},
+		{
+			input:    "VERTICAL",
+			expected: []string{"V", "E", "R", "T", "I", "C", "A", "L"},
+		},
+	}
+
+	for i, tc := range tt {
+		got := splitStyledString(tc.input)
+		if len(got) != len(tc.expected) {
+			t.Errorf("Test %d expected:`%v`Actual output:`%v`", i, tc.expected, got)
+		}
+		for i := range got {
+			if got[i] != tc.expected[i] {
+				t.Errorf("Item %d, expected:`%q`Actual output:`%q`", i, tc.expected[i], got[i])
+			}
+		}
+	}
+}

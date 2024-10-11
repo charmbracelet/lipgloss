@@ -40,6 +40,21 @@ func main() {
 			lipgloss.BorderBottom,
 			lipgloss.Left,
 			reverseStyle.Padding(0, 1).SetString(fmt.Sprintf("Status: %s", m.status)).String,
+		)).
+		BorderDecoration(lipgloss.NewBorderDecoration(
+			lipgloss.BorderLeft,
+			lipgloss.Center,
+			reverseStyle.SetString("VERTICAL").String,
+		)).
+		BorderDecoration(lipgloss.NewBorderDecoration(
+			lipgloss.BorderRight,
+			lipgloss.Top,
+			func(row int, width int, middle string) string {
+				if row == 6 {
+					return "▶"
+				}
+				return middle
+			},
 		))
 
 	fmt.Println()

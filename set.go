@@ -59,6 +59,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.borderTopFunc = addBorderFunc(s.borderTopFunc, value.(BorderDecoration))
 	case borderBottomDecorationKey:
 		s.borderBottomFunc = addBorderFunc(s.borderBottomFunc, value.(BorderDecoration))
+	case borderLeftDecorationKey:
+		s.borderLeftFunc = addBorderFunc(s.borderLeftFunc, value.(BorderDecoration))
+	case borderRightDecorationKey:
+		s.borderRightFunc = addBorderFunc(s.borderRightFunc, value.(BorderDecoration))
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -145,6 +149,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.borderTopFunc = mergeBorderFunc(s.borderTopFunc, i.borderTopFunc)
 	case borderBottomDecorationKey:
 		s.borderBottomFunc = mergeBorderFunc(s.borderBottomFunc, i.borderBottomFunc)
+	case borderLeftDecorationKey:
+		s.borderLeftFunc = mergeBorderFunc(s.borderLeftFunc, i.borderLeftFunc)
+	case borderRightDecorationKey:
+		s.borderRightFunc = mergeBorderFunc(s.borderRightFunc, i.borderRightFunc)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -674,6 +682,10 @@ func (s Style) BorderDecoration(bd BorderDecoration) Style {
 		s.set(borderTopDecorationKey, bd)
 	case BorderBottom:
 		s.set(borderBottomDecorationKey, bd)
+	case BorderLeft:
+		s.set(borderLeftDecorationKey, bd)
+	case BorderRight:
+		s.set(borderRightDecorationKey, bd)
 	}
 	return s
 }
