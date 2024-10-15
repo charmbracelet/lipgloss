@@ -83,11 +83,11 @@ func main() {
 		Width(80).
 		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
-			if row == 0 {
+			if row == table.HeaderRow {
 				return headerStyle
 			}
 
-			if data[row-1][1] == "Pikachu" {
+			if data[row][1] == "Pikachu" {
 				return selectedStyle
 			}
 
@@ -100,7 +100,7 @@ func main() {
 					c = dimTypeColors
 				}
 
-				color := c[fmt.Sprint(data[row-1][col])]
+				color := c[fmt.Sprint(data[row][col])]
 				return baseStyle.Foreground(color)
 			}
 
