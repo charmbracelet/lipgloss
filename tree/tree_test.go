@@ -422,7 +422,7 @@ func TestRootStyle(t *testing.T) {
 		RootStyle(lipgloss.NewStyle().Background(lipgloss.Color("#5A56E0"))).
 		ItemStyle(lipgloss.NewStyle().Background(lipgloss.Color("#04B575")))
 
-	golden.RequireEqual(t, []byte(ansi.Strip(tree.String())))
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestAt(t *testing.T) {
