@@ -45,7 +45,7 @@ func main() {
 			var style lipgloss.Style
 
 			switch {
-			case row == 0:
+			case row == table.HeaderRow:
 				return HeaderStyle
 			case row%2 == 0:
 				style = EvenRowStyle
@@ -59,7 +59,7 @@ func main() {
 			}
 
 			// Arabic is a right-to-left language, so right align the text.
-			if row < len(rows) && rows[row-1][0] == "Arabic" && col != 0 {
+			if row < len(rows) && rows[row][0] == "Arabic" && col != 0 {
 				style = style.Align(lipgloss.Right)
 			}
 
