@@ -531,7 +531,11 @@ func (s Style) getAsTransform(propKey) func(string) string {
 func getLines(s string) (lines []string, widest int) {
 	lines = strings.Split(s, "\n")
 
-	for _, l := range lines {
+	for i, l := range lines {
+		// drop carriage return.
+		if len(l) > 0 && l[len(l)-1] == '\r' {
+			lines[i] = l[:len(l)-1]
+		}
 		w := ansi.StringWidth(l)
 		if widest < w {
 			widest = w
