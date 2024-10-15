@@ -7,11 +7,12 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/exp/golden"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
 	switch {
-	case row == 0:
+	case row == HeaderRow:
 		return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
 	case row%2 == 0:
 		return lipgloss.NewStyle().Padding(0, 1)
@@ -65,7 +66,7 @@ func TestTableExample(t *testing.T) {
 		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			switch {
-			case row == 0:
+			case row == HeaderRow:
 				return HeaderStyle
 			case row%2 == 0:
 				return EvenRowStyle
@@ -91,8 +92,8 @@ func TestTableExample(t *testing.T) {
 └──────────┴───────────────────────────────┴─────────────────┘
 `)
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	if got := ansi.Strip(table.String()); got != expected {
+		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, got)
 	}
 }
 
@@ -526,7 +527,7 @@ func TestTableRowSeparators(t *testing.T) {
 
 func TestTableHeights(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
-		if row == 0 {
+		if row == HeaderRow {
 			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
@@ -584,7 +585,7 @@ func TestTableHeights(t *testing.T) {
 
 func TestTableMultiLineRowSeparator(t *testing.T) {
 	styleFunc := func(row, col int) lipgloss.Style {
-		if row == 0 {
+		if row == HeaderRow {
 			return lipgloss.NewStyle().Padding(0, 1)
 		}
 		if col == 0 {
@@ -1137,6 +1138,79 @@ func TestTableHeightWithOffset(t *testing.T) {
 
 	if table.String() != expected {
 		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	}
+}
+
+func TestStyleFunc(t *testing.T) {
+	TestStyle := func(row, col int) lipgloss.Style {
+		switch {
+		// this is the header
+		case row == HeaderRow:
+			return lipgloss.NewStyle().Align(lipgloss.Center)
+		// this is the first row of data
+		case row == 0:
+			return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Right)
+		default:
+			return lipgloss.NewStyle().Padding(0, 1)
+		}
+	}
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TestStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestClearRows(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("had to recover: %v", r)
+		}
+	}()
+
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
+	table.ClearRows()
+	table.Row("French", "Bonjour", "Salut")
+
+	// String() will try to get the rows from table.data
+	table.String()
+}
+
+func TestCarriageReturn(t *testing.T) {
+	data := [][]string{
+		{"a0", "b0", "c0", "d0"},
+		{"a1", "b1.0\r\nb1.1\r\nb1.2\r\nb1.3\r\nb1.4\r\nb1.5\r\nb1.6", "c1", "d1"},
+		{"a2", "b2", "c2", "d2"},
+		{"a3", "b3", "c3", "d3"},
+	}
+	table := New().Rows(data...).Border(lipgloss.NormalBorder())
+	got := table.String()
+	want := `┌──┬────┬──┬──┐
+│a0│b0  │c0│d0│
+│a1│b1.0│c1│d1│
+│  │b1.1│  │  │
+│  │b1.2│  │  │
+│  │b1.3│  │  │
+│  │b1.4│  │  │
+│  │b1.5│  │  │
+│  │b1.6│  │  │
+│a2│b2  │c2│d2│
+│a3│b3  │c3│d3│
+└──┴────┴──┴──┘`
+
+	if got != want {
+		t.Logf("detailed view...\ngot:\n%q\nwant:\n%q", got, want)
+		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
 	}
 }
 
