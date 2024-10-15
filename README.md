@@ -734,6 +734,12 @@ the stylesheet-based Markdown renderer.
 
 [glamour]: https://github.com/charmbracelet/glamour
 
+## Contributing
+
+See [contributing][contribute].
+
+[contribute]: https://github.com/charmbracelet/lipgloss/contribute
+
 ## Feedback
 
 We’d love to hear your thoughts on this project. Feel free to drop us a note!
