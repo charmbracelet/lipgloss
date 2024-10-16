@@ -12,7 +12,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/charmbracelet/colorprofile"
@@ -66,7 +65,6 @@ func handler(next ssh.Handler) ssh.Handler {
 
 		environ := sess.Environ()
 		environ = append(environ, fmt.Sprintf("TERM=%s", pty.Term))
-		//		output := colorprofile.NewOutput(pty.Slave, pty.Slave, environ)
 		output := colorprofile.NewWriter(pty.Slave, environ)
 		width := pty.Window.Width
 
@@ -76,7 +74,7 @@ func handler(next ssh.Handler) ssh.Handler {
 		str := strings.Builder{}
 
 		fmt.Fprintf(&str, "\n\nProfile: %s\n%s %s %s %s %s",
-			colorprofile.Detect(os.Stdout, environ),
+			colorprofile.Detect(pty.Slave, environ),
 			styles.bold,
 			styles.faint,
 			styles.italic,
@@ -103,11 +101,22 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.cyan,
 			styles.gray,
 		)
-		// TODO recheck if the client has a dark bg?
-		// see https://github.com/charmbracelet/lipgloss/pull/359
-		//		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
-		//			output.HasDarkBackground(),
-		//			col.Hex())
+
+		hasDarkBG, err := lipgloss.HasDarkBackground(pty.Slave, pty.Slave)
+		if err != nil {
+			log.Print("Could not detect background color: %w", err)
+			return
+		}
+
+		fmt.Fprintf(&str, "%s %s\n\n",
+			styles.bold.UnsetString().Render("Has dark background?"),
+			func() string {
+				if hasDarkBG {
+					return "Yep."
+				}
+				return "Nope!"
+			}(),
+		)
 
 		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
