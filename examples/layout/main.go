@@ -335,12 +335,19 @@ func main() {
 	{
 		w := lipgloss.Width
 
+		lightDarkState := func(v bool) string {
+			if v {
+				return "Dark"
+			}
+			return "Light"
+		}(hasDarkBG)
+
 		statusKey := statusStyle.Render("STATUS")
 		encoding := encodingStyle.Render("UTF-8")
 		fishCake := fishCakeStyle.Render("🍥 Fish Cake")
 		statusVal := statusText.
 			Width(width - w(statusKey) - w(encoding) - w(fishCake)).
-			Render("Ravishing")
+			Render("Ravishingly " + lightDarkState + "!")
 
 		bar := lipgloss.JoinHorizontal(lipgloss.Top,
 			statusKey,
