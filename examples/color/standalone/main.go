@@ -1,5 +1,9 @@
-// This is an example showing how to work with colors when using Lip Gloss
-// as a standalone package, i.e. outside of Bubble Tea.
+// This example illustrates how to detect the terminal's background color and
+// choose either light or dark colors accordingly when using Lip Gloss in a.
+// standalone fashion, i.e. independent of Bubble Tea.
+//
+// For an example of how to do this in a Bubble Tea program, see the
+// 'bubbletea' example.
 package main
 
 import (
