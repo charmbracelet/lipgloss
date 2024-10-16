@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/standalone"
 	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -355,9 +356,10 @@ func main() {
 		docStyle = docStyle.MaxWidth(physicalWidth)
 	}
 
-	// Okay, let's print it
-	fmt.Println(docStyle.Render(doc.String()))
-
+	// Okay, let's print it. We use a special Lipgloss writer to downsample
+	// colors to the terminal's color palette. And, if output's not a TTY, we
+	// will remove color entirely.
+	standalone.Println(docStyle.Render(doc.String()))
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {
