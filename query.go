@@ -23,7 +23,7 @@ func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 	defer term.Restore(in.Fd(), state) //nolint:errcheck
 
 	bg, err := queryBackgroundColor(in, out)
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 
