@@ -9,9 +9,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
-)
+// Writer is the default writer that prints to stdout, automatically
+// downsampling colors when necessary.
+var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
 
 // Println to stdout, automatically downsampling colors when necessary, ending
 // with a trailing newline.
@@ -65,8 +65,7 @@ func Print(v ...interface{}) (n int, err error) {
 //
 //	Fprint(os.Stderr, "I %s horchata pretty much all the time.\n", str)
 func Fprint(w io.Writer, v ...interface{}) (n int, err error) {
-	w = colorprofile.NewWriter(w, os.Environ())
-	return fmt.Fprint(w, v...)
+	return fmt.Fprint(colorprofile.NewWriter(w, os.Environ()), v...)
 }
 
 // Fprint pritnts to the given writer, automatically downsampling colors when
@@ -80,8 +79,7 @@ func Fprint(w io.Writer, v ...interface{}) (n int, err error) {
 //
 //	Fprintln(os.Stderr, str)
 func Fprintln(w io.Writer, v ...interface{}) (n int, err error) {
-	w = colorprofile.NewWriter(w, os.Environ())
-	return fmt.Fprintln(w, v...)
+	return fmt.Fprintln(colorprofile.NewWriter(w, os.Environ()), v...)
 }
 
 // Fprintf prints text to a writer, against the given format, automatically
