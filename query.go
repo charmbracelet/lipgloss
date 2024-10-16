@@ -1,10 +1,11 @@
 package lipgloss
 
 import (
+	"errors"
+	"fmt"
 	"image/color"
 	"os"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
 )
 
@@ -49,8 +50,11 @@ func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 func HasDarkBackground(in *os.File, out *os.File) (bool, error) {
 	bg, err := BackgroundColor(in, out)
 	if err != nil {
-		return true, err
+		return true, fmt.Errorf("could not detect background color: %w", err)
+	}
+	if bg == nil {
+		return true, errors.New("detected background color is nil")
 	}
 
-	return lipgloss.IsDarkColor(bg), nil
+	return IsDarkColor(bg), nil
 }
