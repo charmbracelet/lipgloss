@@ -49,7 +49,7 @@ func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 func HasDarkBackground(in *os.File, out *os.File) (bool, error) {
 	bg, err := BackgroundColor(in, out)
 	if err != nil {
-		return false, err
+		return true, err
 	}
 
 	return lipgloss.IsDarkColor(bg), nil
