@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/adaptive"
 	"github.com/lucasb-eyer/go-colorful"
 	"golang.org/x/term"
 )
@@ -20,17 +19,39 @@ const (
 	// wrapping.
 	width = 96
 
+	// How wide to render various columns in the layout.
 	columnWidth = 30
 )
+
+var hasDarkBG bool
+
+func init() {
+	var err error
+
+	// Detect the background color.
+	hasDarkBG, err = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not detect background color: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+// Create a new helper function for choosing either a light or dark color based
+// on the detected background color.
+//
+// lipgloss.Adapt returns a function whose signature looks like this:
+//
+//	func (lightColor, darkColor string) chosenColor string
+var adaptive = lipgloss.Adapt(hasDarkBG)
 
 // Style definitions.
 var (
 
 	// General.
 
-	subtle    = adaptive.AdaptiveColor("#D9DCCF", "#383838")
-	highlight = adaptive.AdaptiveColor("#874BFD", "#7D56F4")
-	special   = adaptive.AdaptiveColor("#43BF6D", "#73F59F")
+	subtle    = adaptive.Color("#D9DCCF", "#383838")
+	highlight = adaptive.Color("#874BFD", "#7D56F4")
+	special   = adaptive.Color("#43BF6D", "#73F59F")
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -142,7 +163,7 @@ var (
 	listDone = func(s string) string {
 		return checkMark + lipgloss.NewStyle().
 			Strikethrough(true).
-			Foreground(adaptive.AdaptiveColor("#969B86", "#696969")).
+			Foreground(adaptive.Color("#969B86", "#696969")).
 			Render(s)
 	}
 
@@ -164,8 +185,8 @@ var (
 			Padding(0, 1)
 
 	statusBarStyle = lipgloss.NewStyle().
-			Foreground(adaptive.AdaptiveColor("#343433", "#C1C6B2")).
-			Background(adaptive.AdaptiveColor("#D9DCCF", "#353533"))
+			Foreground(adaptive.Color("#343433", "#C1C6B2")).
+			Background(adaptive.Color("#D9DCCF", "#353533"))
 
 	statusStyle = lipgloss.NewStyle().
 			Inherit(statusBarStyle).

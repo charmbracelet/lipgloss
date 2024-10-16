@@ -6,7 +6,7 @@ replace github.com/charmbracelet/lipgloss => ../
 
 replace github.com/charmbracelet/lipgloss/list => ../list
 
-replace github.com/charmbracelet/lipgloss/adaptive => ../adaptive
+replace github.com/charmbracelet/lipgloss/table => ../table
 
 require (
 	github.com/charmbracelet/lipgloss v0.11.0
