@@ -122,10 +122,10 @@ type ANSIColor = ansi.ExtendedColor
 // In practice, there are slightly different workflows between Bubble Tea and
 // Lip Gloss standalone.
 //
-// In Bubble Tea listen for tea.BackgroundColorMessage, which automatically
+// In Bubble Tea listen for tea.BackgroundColorMsg, which automatically
 // flows through Update on start, and whenever the background color changes:
 //
-//	case tea.BackgroundColorMessage:
+//	case tea.BackgroundColorMsg:
 //	    m.hasDarkBackground = msg.IsDark()
 //
 // Later, when you're rendering:
