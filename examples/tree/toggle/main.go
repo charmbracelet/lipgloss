@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
 )
@@ -88,5 +86,5 @@ func main() {
 			dir{"maas", false, s},
 		)
 
-	fmt.Println(s.block.Render(t.String()))
+	lipgloss.Println(s.block.Render(t.String()))
 }

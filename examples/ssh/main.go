@@ -14,11 +14,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/adaptive"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 // Available styles.
@@ -66,7 +65,7 @@ func handler(next ssh.Handler) ssh.Handler {
 
 		environ := sess.Environ()
 		environ = append(environ, fmt.Sprintf("TERM=%s", pty.Term))
-		output := adaptive.NewOutput(pty.Slave, pty.Slave, environ)
+		output := colorprofile.NewWriter(pty.Slave, environ)
 		width := pty.Window.Width
 
 		// Initialize new styles against the renderer.
@@ -75,7 +74,7 @@ func handler(next ssh.Handler) ssh.Handler {
 		str := strings.Builder{}
 
 		fmt.Fprintf(&str, "\n\nProfile: %s\n%s %s %s %s %s",
-			output.ColorProfile().String(),
+			colorprofile.Detect(pty.Slave, environ),
 			styles.bold,
 			styles.faint,
 			styles.italic,
@@ -103,19 +102,30 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.gray,
 		)
 
-		col, _ := colorful.MakeColor(output.BackgroundColor)
-		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
-			output.HasDarkBackground(),
-			col.Hex())
+		hasDarkBG, err := lipgloss.HasDarkBackground(pty.Slave, pty.Slave)
+		if err != nil {
+			log.Print("Could not detect background color: %w", err)
+			return
+		}
+
+		fmt.Fprintf(&str, "%s %s\n\n",
+			styles.bold.UnsetString().Render("Has dark background?"),
+			func() string {
+				if hasDarkBG {
+					return "Yep."
+				}
+				return "Nope!"
+			}(),
+		)
 
 		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
 			lipgloss.WithWhitespaceChars("/"),
-			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(output.AdaptiveColor(lipgloss.Color(250), lipgloss.Color(236)))),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(236))),
 		)
 
 		// Render to client.
-		output.Println(block)
+		output.WriteString(block)
 
 		next(sess)
 	}
