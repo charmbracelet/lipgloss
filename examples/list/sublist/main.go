@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/table"
@@ -8,6 +11,14 @@ import (
 )
 
 func main() {
+	hasDarkBG, err := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not detect background color: %v\n", err)
+		os.Exit(1)
+	}
+
+	lightDark := lipgloss.LightDark(hasDarkBG)
+
 	purple := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
 		MarginRight(1)
@@ -25,7 +36,7 @@ func main() {
 	dim := lipgloss.Color("250")
 	highlight := lipgloss.Color("#EE6FF8")
 
-	special := lipgloss.Color("#73F59F")
+	special := lightDark("#43BF6D", "#73F59F")
 
 	checklistEnumStyle := func(items list.Items, index int) lipgloss.Style {
 		switch index {
@@ -52,7 +63,7 @@ func main() {
 		case 1, 2, 4:
 			return lipgloss.NewStyle().
 				Strikethrough(true).
-				Foreground(lipgloss.Color("#696969"))
+				Foreground(lightDark("#969B86", "#696969"))
 		default:
 			return lipgloss.NewStyle()
 		}

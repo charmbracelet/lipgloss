@@ -108,6 +108,8 @@ func handler(next ssh.Handler) ssh.Handler {
 			return
 		}
 
+		lightDark := lipgloss.LightDark(hasDarkBG)
+
 		fmt.Fprintf(&str, "%s %s\n\n",
 			styles.bold.UnsetString().Render("Has dark background?"),
 			func() string {
@@ -121,7 +123,7 @@ func handler(next ssh.Handler) ssh.Handler {
 		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
 			lipgloss.WithWhitespaceChars("/"),
-			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(236))),
+			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(lightDark(250, 236))),
 		)
 
 		// Render to client.
