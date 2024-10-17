@@ -26,13 +26,13 @@ func main() {
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
-	adaptive := lipgloss.LightDark(hasDarkBG)
+	lightDark := lipgloss.LightDark(hasDarkBG)
 
 	// Define some styles. adaptive.Color() can be used to choose the
 	// appropriate light or dark color based on the detected background color.
 	frameStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(adaptive.Color("#0000ff", "#6200ff")).
+		BorderForeground(lightDark.Color("#C5ADF9", "#864EFF")).
 		Padding(1, 3).
 		Margin(1, 3)
 	paragraphStyle := lipgloss.NewStyle().
@@ -40,17 +40,18 @@ func main() {
 		MarginBottom(1).
 		Align(lipgloss.Center)
 	textStyle := lipgloss.NewStyle().
-		Foreground(adaptive.Color("#0000ff", "#bdbdbd"))
+		Foreground(lightDark.Color("#696969", "#bdbdbd"))
 	keywordStyle := lipgloss.NewStyle().
-		Foreground(adaptive.Color("#0000ff", "#04b87c")).
+		Foreground(lightDark.Color("#37CD96", "#22C78A")).
 		Bold(true)
 
 	activeButton := lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color(0xf347ff)). // you can also use octal format for colors, i.e 0x#ff38ec.
-		Foreground(lipgloss.Color(0xfaffcc))
+		Background(lipgloss.Color(0xFF6AD2)). // you can also use octal format for colors, i.e 0xff38ec.
+		Foreground(lipgloss.Color(0xFFFCC2))
 	inactiveButton := activeButton.
-		Background(lipgloss.Color(0x545454))
+		Background(lightDark.Color(0x988F95, 0x978692)).
+		Foreground(lightDark.Color(0xFDFCE3, 0xFBFAE7))
 
 	// Build layout.
 	text := paragraphStyle.Render(

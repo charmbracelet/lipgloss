@@ -30,7 +30,7 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 	// appropriate light or dark color based on the detected background color.
 	s.frame = lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lightDark.Color("#0000ff", "#6200ff")).
+		BorderForeground(lightDark.Color("#C5ADF9", "#864EFF")).
 		Padding(1, 3).
 		Margin(1, 3)
 	s.paragraph = lipgloss.NewStyle().
@@ -38,29 +38,31 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 		MarginBottom(1).
 		Align(lipgloss.Center)
 	s.text = lipgloss.NewStyle().
-		Foreground(lightDark.Color("#0000ff", "#bdbdbd"))
+		Foreground(lightDark.Color("#696969", "#bdbdbd"))
 	s.keyword = lipgloss.NewStyle().
-		Foreground(lightDark.Color("#0000ff", "#04b87c")).
+		Foreground(lightDark.Color("#37CD96", "#22C78A")).
 		Bold(true)
 
-		// You can also use octal format for colors, i.e 0x#ff38ec.
 	s.activeButton = lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color(0xf347ff)).
-		Foreground(lipgloss.Color(0xfaffcc))
+		Background(lipgloss.Color(0xFF6AD2)). // you can also use octal format for colors, i.e 0xff38ec.
+		Foreground(lipgloss.Color(0xFFFCC2))
 	s.inactiveButton = s.activeButton.
-		Background(lipgloss.Color(0x545454))
+		Background(lightDark.Color(0x988F95, 0x978692)).
+		Foreground(lightDark.Color(0xFDFCE3, 0xFBFAE7))
 	return s
 }
 
 type model struct {
-	styles *styles
-	yes    bool
-	chosen bool
+	styles  *styles
+	yes     bool
+	chosen  bool
+	aborted bool
 }
 
 func (m model) Init() (tea.Model, tea.Cmd) {
 	// Query for the background color on start.
+	m.yes = true
 	return m, tea.BackgroundColor
 }
 
@@ -76,6 +78,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
+			m.aborted = true
 			return m, tea.Quit
 		case "enter":
 			m.chosen = true
@@ -102,7 +105,7 @@ func (m model) View() string {
 		// be here in a flash.
 		return ""
 	}
-	if m.chosen {
+	if m.chosen || m.aborted {
 		// We're about to exit, so wipe the UI.
 		return ""
 	}
