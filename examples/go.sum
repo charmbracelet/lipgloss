@@ -5,8 +5,8 @@ github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ
 github.com/aymanbagabas/go-udiff v0.2.0 h1:TK0fH4MteXUDspT88n8CKzvK0X9O2xu9yQjWpi6yML8=
 github.com/charmbracelet/bubbletea v0.25.0 h1:bAfwk7jRz7FKFl9RzlIULPkStffg5k6pNt5dywy4TcM=
 github.com/charmbracelet/bubbletea v0.25.0/go.mod h1:EN3QDR1T5ZdWmdfDzYcqOCAps45+QIJbLOBxmVNWNNg=
-github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1 h1:OZtpLCsuuPplC+1oyUo+/eAN7e9MC2UyZWKlKrVlUnw=
-github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1/go.mod h1:j0gn4ft5CE7NDYNZjAA3hBM8t2OPjI8urxuAD0oR4w8=
+github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241016204941-d95e2750ec12 h1:w1Dt/pl0gXE6PO2U+EUMoeMiSHe07/RR1Slcy9cH6kQ=
+github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241016204941-d95e2750ec12/go.mod h1:8vhUTCIihfP3GfyyfznbOU7XyFe/ID1n7pdh/uT5Rug=
 github.com/charmbracelet/colorprofile v0.1.2 h1:nuB1bd/yAExT4fkcZvpqtQ2N5/8cJHSRIKb6CzT7lAM=
 github.com/charmbracelet/colorprofile v0.1.2/go.mod h1:1htIKZYeI4TQs+OykPvpuBTUbUJxBYeSYBDIZuejMj0=
 github.com/charmbracelet/keygen v0.5.0 h1:XY0fsoYiCSM9axkrU+2ziE6u6YjJulo/b9Dghnw6MZc=

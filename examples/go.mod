@@ -9,7 +9,7 @@ replace github.com/charmbracelet/lipgloss/list => ../list
 replace github.com/charmbracelet/lipgloss/table => ../table
 
 require (
-	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1
+	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241016204941-d95e2750ec12
 	github.com/charmbracelet/colorprofile v0.1.2
 	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4
 	github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917
