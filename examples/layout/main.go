@@ -4,12 +4,14 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/adaptive"
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/muesli/gamut"
 	"golang.org/x/term"
 )
 
@@ -28,9 +30,10 @@ var (
 
 	// General.
 
-	subtle    = adaptive.AdaptiveColor("#D9DCCF", "#383838")
-	highlight = adaptive.AdaptiveColor("#874BFD", "#7D56F4")
-	special   = adaptive.AdaptiveColor("#43BF6D", "#73F59F")
+	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
+	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	blends    = gamut.Blends(lipgloss.Color("#F25D94"), lipgloss.Color("#EDFF82"), 50)
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -236,7 +239,7 @@ func main() {
 		okButton := activeButtonStyle.Render("Yes")
 		cancelButton := buttonStyle.Render("Maybe")
 
-		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render("Are you sure you want to eat marmalade?")
+		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render(rainbow(lipgloss.NewStyle(), "Are you sure you want to eat marmalade?", blends))
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
@@ -371,4 +374,13 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func rainbow(base lipgloss.Style, s string, colors []color.Color) string {
+	var str string
+	for i, ss := range s {
+		color, _ := colorful.MakeColor(colors[i%len(colors)])
+		str = str + base.Foreground(lipgloss.Color(color.Hex())).Render(string(ss))
+	}
+	return str
 }
