@@ -24,13 +24,13 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
-	adaptive := lipgloss.Adapt(backgroundIsDark)
+	lightDark := lipgloss.LightDark(backgroundIsDark)
 
 	// Define some styles. adaptive.Color() can be used to choose the
 	// appropriate light or dark color based on the detected background color.
 	s.frame = lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(adaptive.Color("#0000ff", "#6200ff")).
+		BorderForeground(lightDark.Color("#0000ff", "#6200ff")).
 		Padding(1, 3).
 		Margin(1, 3)
 	s.paragraph = lipgloss.NewStyle().
@@ -38,9 +38,9 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 		MarginBottom(1).
 		Align(lipgloss.Center)
 	s.text = lipgloss.NewStyle().
-		Foreground(adaptive.Color("#0000ff", "#bdbdbd"))
+		Foreground(lightDark.Color("#0000ff", "#bdbdbd"))
 	s.keyword = lipgloss.NewStyle().
-		Foreground(adaptive.Color("#0000ff", "#04b87c")).
+		Foreground(lightDark.Color("#0000ff", "#04b87c")).
 		Bold(true)
 
 		// You can also use octal format for colors, i.e 0x#ff38ec.

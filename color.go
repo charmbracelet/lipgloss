@@ -113,11 +113,11 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 //	colorB := lipgloss.ANSIColor(134)
 type ANSIColor = ansi.ExtendedColor
 
-// Adapt is a simple helper type that can be used to choose the appropriate
+// LightDark is a simple helper type that can be used to choose the appropriate
 // color based on whether the terminal has a light or dark background.
 //
-//	adaptive := lipgloss.Adapt(hasDarkBackground)
-//	theRightColor := adaptive.Color("#0000ff", "#ff0000")
+//	lightDark := lipgloss.LightDark(hasDarkBackground)
+//	theRightColor := lightDark.Color("#0000ff", "#ff0000")
 //
 // In practice, there are slightly different workflows between Bubble Tea and
 // Lip Gloss standalone.
@@ -130,19 +130,19 @@ type ANSIColor = ansi.ExtendedColor
 //
 // Later, when you're rendering:
 //
-//	adaptive := lipgloss.Adapt(m.hasDarkBackground)
-//	myHotColor := adaptive.Color("#ff0000", "#0000ff")
+//	lightDark := lipgloss.LightDark(m.hasDarkBackground)
+//	myHotColor := lightDark.Color("#ff0000", "#0000ff")
 //
 // In standalone Lip Gloss, the workflow is simpler:
 //
 //	hasDarkBG, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-//	adaptive := lipgloss.Adapt(hasDarkBG)
-//	myHotColor := adaptive.Color("#ff0000", "#0000ff")
-type Adapt bool
+//	lightDark := lipgloss.LightDark(hasDarkBG)
+//	myHotColor := lightDark.Color("#ff0000", "#0000ff")
+type LightDark bool
 
 // Color returns the color that should be used based on the terminal's
 // background color.
-func (a Adapt) Color(light, dark any) color.Color {
+func (a LightDark) Color(light, dark any) color.Color {
 	if bool(a) {
 		return Color(dark)
 	}

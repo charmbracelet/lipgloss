@@ -26,7 +26,7 @@ func main() {
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
-	adaptive := lipgloss.Adapt(hasDarkBG)
+	adaptive := lipgloss.LightDark(hasDarkBG)
 
 	// Define some styles. adaptive.Color() can be used to choose the
 	// appropriate light or dark color based on the detected background color.

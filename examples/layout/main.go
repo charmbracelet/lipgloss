@@ -29,7 +29,7 @@ var (
 
 	// A helper function for choosing either a light or dark color based on the
 	// detected background color. We create this in init().
-	adaptive lipgloss.Adapt
+	lightDark lipgloss.LightDark
 )
 
 func init() {
@@ -44,7 +44,7 @@ func init() {
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
-	adaptive = lipgloss.Adapt(hasDarkBG)
+	lightDark = lipgloss.LightDark(hasDarkBG)
 }
 
 func main() {
@@ -54,9 +54,9 @@ func main() {
 
 		// General.
 
-		subtle    = adaptive.Color("#D9DCCF", "#383838")
-		highlight = adaptive.Color("#874BFD", "#7D56F4")
-		special   = adaptive.Color("#43BF6D", "#73F59F")
+		subtle    = lightDark.Color("#D9DCCF", "#383838")
+		highlight = lightDark.Color("#874BFD", "#7D56F4")
+		special   = lightDark.Color("#43BF6D", "#73F59F")
 
 		divider = lipgloss.NewStyle().
 			SetString("•").
@@ -168,7 +168,7 @@ func main() {
 		listDone = func(s string) string {
 			return checkMark + lipgloss.NewStyle().
 				Strikethrough(true).
-				Foreground(adaptive.Color("#969B86", "#696969")).
+				Foreground(lightDark.Color("#969B86", "#696969")).
 				Render(s)
 		}
 
@@ -190,8 +190,8 @@ func main() {
 				Padding(0, 1)
 
 		statusBarStyle = lipgloss.NewStyle().
-				Foreground(adaptive.Color("#343433", "#C1C6B2")).
-				Background(adaptive.Color("#D9DCCF", "#353533"))
+				Foreground(lightDark.Color("#343433", "#C1C6B2")).
+				Background(lightDark.Color("#D9DCCF", "#353533"))
 
 		statusStyle = lipgloss.NewStyle().
 				Inherit(statusBarStyle).
