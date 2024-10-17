@@ -41,7 +41,7 @@ func main() {
 			}
 		})
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }
 
 const rowLength = 12

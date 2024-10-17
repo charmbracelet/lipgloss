@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -24,5 +23,5 @@ func main() {
 		return nil
 	})
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }

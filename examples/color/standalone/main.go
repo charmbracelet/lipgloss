@@ -11,7 +11,6 @@ import (
 	"os"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/standalone"
 )
 
 func main() {
@@ -46,10 +45,9 @@ func main() {
 		Foreground(adaptive.Color("#0000ff", "#04b87c")).
 		Bold(true)
 
-		// You can also use octal format for colors, i.e 0x#ff38ec.
 	activeButton := lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color(0xf347ff)).
+		Background(lipgloss.Color(0xf347ff)). // you can also use octal format for colors, i.e 0x#ff38ec.
 		Foreground(lipgloss.Color(0xfaffcc))
 	inactiveButton := activeButton.
 		Background(lipgloss.Color(0x545454))
@@ -65,8 +63,11 @@ func main() {
 		lipgloss.JoinVertical(lipgloss.Center, text, buttons),
 	)
 
-	// Print the block to stdout. It's important to use the standalone package
-	// to ensure that colors are downsampled correctly. If output isn't a
-	// TTY (i.e. we're logging to a file) colors will be stripped entirely.
-	standalone.Println(block)
+	// Print the block to stdout. It's important to use Lip Gloss's print
+	// functions to ensure that colors are downsampled correctly. If output
+	// isn't a TTY (i.e. we're logging to a file) colors will be stripped
+	// entirely.
+	//
+	// Note that in Bubble Tea downsampling happens automatically.
+	lipgloss.Println(block)
 }

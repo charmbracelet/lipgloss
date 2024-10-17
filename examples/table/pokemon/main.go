@@ -108,5 +108,6 @@ func main() {
 			}
 			return baseStyle.Foreground(lipgloss.Color("252"))
 		})
-	fmt.Println(t)
+
+	lipgloss.Println(t)
 }

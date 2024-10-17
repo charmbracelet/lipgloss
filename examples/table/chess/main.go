@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -34,5 +33,11 @@ func main() {
 	ranks := labelStyle.Render(strings.Join([]string{" A", "B", "C", "D", "E", "F", "G", "H  "}, "   "))
 	files := labelStyle.Render(strings.Join([]string{" 1", "2", "3", "4", "5", "6", "7", "8 "}, "\n\n "))
 
-	fmt.Println(lipgloss.JoinVertical(lipgloss.Right, lipgloss.JoinHorizontal(lipgloss.Center, files, t.Render()), ranks) + "\n")
+	lipgloss.Println(
+		lipgloss.JoinVertical(
+			lipgloss.Right,
+			lipgloss.JoinHorizontal(lipgloss.Center, files, t.Render()),
+			ranks,
+		) + "\n",
+	)
 }

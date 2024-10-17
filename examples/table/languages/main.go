@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 )
@@ -67,5 +65,5 @@ func main() {
 
 	t.Row("English", "You look absolutely fabulous.", "How's it going?")
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }
