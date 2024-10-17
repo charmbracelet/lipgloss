@@ -1149,9 +1149,9 @@ func TestStyleFunc(t *testing.T) {
 			return lipgloss.NewStyle().Align(lipgloss.Center)
 		// this is the first row of data
 		case row == 0:
-			return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Right)
+			return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
 		default:
-			return lipgloss.NewStyle().Padding(0, 1)
+			return lipgloss.NewStyle().Margin(0, 1)
 		}
 	}
 
