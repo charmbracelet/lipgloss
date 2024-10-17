@@ -1,4 +1,4 @@
-package standalone
+package lipgloss
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/charmbracelet/colorprofile"
-	"github.com/charmbracelet/lipgloss"
 )
 
 // Writer is the default writer that prints to stdout, automatically
@@ -18,7 +17,7 @@ var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	    Foreground(lipgloss.Color("#6a00ff")).
 //	    Render("breakfast")
 //
@@ -32,7 +31,7 @@ func Println(v ...interface{}) (n int, err error) {
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	  Foreground(lipgloss.Color("#6a00ff")).
 //	  Render("knuckle")
 //
@@ -45,7 +44,7 @@ func Printf(format string, v ...interface{}) (n int, err error) {
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	    Foreground(lipgloss.Color("#6a00ff")).
 //	    Render("Who wants marmalade?\n")
 //
@@ -59,7 +58,7 @@ func Print(v ...interface{}) (n int, err error) {
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	    Foreground(lipgloss.Color("#6a00ff")).
 //	    Render("guzzle")
 //
@@ -73,7 +72,7 @@ func Fprint(w io.Writer, v ...interface{}) (n int, err error) {
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	    Foreground(lipgloss.Color("#6a00ff")).
 //	    Render("Sandwich time!")
 //
@@ -87,16 +86,11 @@ func Fprintln(w io.Writer, v ...interface{}) (n int, err error) {
 //
 // Example:
 //
-//	str := lipgloss.NewStyle().
+//	str := NewStyle().
 //	    Foreground(lipgloss.Color("#6a00ff")).
 //	    Render("artichokes")
 //
 //	Fprintf(os.Stderr, "I really love %s!\n", food)
 func Fprintf(w io.Writer, format string, v ...interface{}) (n int, err error) {
 	return fmt.Fprintf(colorprofile.NewWriter(w, os.Environ()), format, v...)
-}
-
-// HasDarkBackground returns whether or not the terminal has a dark background.
-func HasDarkBackground() (bool, error) {
-	return lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
 }
