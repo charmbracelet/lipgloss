@@ -552,10 +552,12 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 			cell = t.data.At(index, c)
 		}
 
-		cells = append(cells, t.style(index, c).
-			Height(height).
+		cellStyle := t.style(index, c)
+		cells = append(cells, cellStyle.
+			// Account for the margins in the cell sizing.
+			Height(height-cellStyle.GetVerticalMargins()).
 			MaxHeight(height).
-			Width(t.widths[c]).
+			Width(t.widths[c]-cellStyle.GetHorizontalMargins()).
 			MaxWidth(t.widths[c]).
 			Render(ansi.Truncate(cell, cellWidth*height, "…")))
 
