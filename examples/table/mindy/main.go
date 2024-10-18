@@ -32,7 +32,7 @@ func main() {
 		Border(lipgloss.HiddenBorder()).
 		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
-			color := lipgloss.Color(fmt.Sprint(data[row-1][col-col%2]))
+			color := lipgloss.Color(fmt.Sprint(data[row][col-col%2]))
 			switch {
 			case col%2 == 0:
 				return labelStyle.Foreground(color)

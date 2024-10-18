@@ -4,12 +4,14 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/muesli/gamut"
 )
 
 const (
@@ -57,6 +59,7 @@ func main() {
 		subtle    = lightDark("#D9DCCF", "#383838")
 		highlight = lightDark("#874BFD", "#7D56F4")
 		special   = lightDark("#43BF6D", "#73F59F")
+		blends    = gamut.Blends(lipgloss.Color("#F25D94"), lipgloss.Color("#EDFF82"), 50)
 
 		divider = lipgloss.NewStyle().
 			SetString("•").
@@ -261,7 +264,7 @@ func main() {
 		okButton := activeButtonStyle.Render("Yes")
 		cancelButton := buttonStyle.Render("Maybe")
 
-		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render("Are you sure you want to eat marmalade?")
+		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render(rainbow(lipgloss.NewStyle(), "Are you sure you want to eat marmalade?", blends))
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
@@ -403,4 +406,13 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func rainbow(base lipgloss.Style, s string, colors []color.Color) string {
+	var str string
+	for i, ss := range s {
+		color, _ := colorful.MakeColor(colors[i%len(colors)])
+		str = str + base.Foreground(lipgloss.Color(color.Hex())).Render(string(ss))
+	}
+	return str
 }
