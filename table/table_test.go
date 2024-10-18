@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
+	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1142,6 +1143,7 @@ func TestTableHeightWithOffset(t *testing.T) {
 }
 
 func TestStyleFunc(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
 	tests := []struct {
 		name  string
 		style StyleFunc
@@ -1152,15 +1154,15 @@ func TestStyleFunc(t *testing.T) {
 				switch {
 				case row == HeaderRow:
 					return lipgloss.NewStyle().Align(lipgloss.Center)
-				case row == 0:
-					return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
 				default:
-					return lipgloss.NewStyle().Margin(0, 1)
+					return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
 				}
 			},
 		},
 		{
 			"margin and padding set",
+			// this test case uses background colors to differentiate margins
+			// and padding.
 			func(row, col int) lipgloss.Style {
 				switch {
 				case row == HeaderRow:
@@ -1169,8 +1171,8 @@ func TestStyleFunc(t *testing.T) {
 					return lipgloss.NewStyle().
 						Padding(1).
 						Margin(1).
-						// kept this example right-aligned as that seems to be
-						// the most vulnerable to accidental truncation.
+						// keeping right-aligned text as it's the most likely to
+						// be broken when truncated.
 						Align(lipgloss.Right).
 						Background(lipgloss.Color("#874bfc"))
 				}
