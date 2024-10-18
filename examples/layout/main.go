@@ -338,12 +338,10 @@ func main() {
 	{
 		w := lipgloss.Width
 
-		lightDarkState := func() string {
-			if hasDarkBG {
-				return "Dark"
-			}
-			return "Light"
-		}()
+		lightDarkState := "Light"
+		if hasDarkBG {
+			lightDarkState = "Dark"
+		}
 
 		statusKey := statusStyle.Render("STATUS")
 		encoding := encodingStyle.Render("UTF-8")
