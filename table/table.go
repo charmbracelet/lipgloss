@@ -532,7 +532,7 @@ func (t *Table) constructRows(availableLines int) string {
 func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
 
-	hasHeaders := t.headers != nil && len(t.headers) > 0
+	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
 	if isOverflow {
 		height = 1
