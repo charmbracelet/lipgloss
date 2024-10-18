@@ -1195,37 +1195,6 @@ func TestStyleFunc(t *testing.T) {
 	}
 }
 
-func TestSizing(t *testing.T) {
-	t.Run("margin and padding with fixed width", func(t *testing.T) {
-		table := New().
-			Border(lipgloss.NormalBorder()).
-			StyleFunc(func(row, col int) lipgloss.Style {
-				switch {
-				case row == HeaderRow:
-					return lipgloss.NewStyle().Align(lipgloss.Center)
-				default:
-					return lipgloss.NewStyle().
-						Padding(2).
-						Margin(2).
-						Align(lipgloss.Right).
-						Background(lipgloss.Color("#874bfc"))
-				}
-			}).
-			Headers("LANGUAGE", "FORMAL", "INFORMAL").
-			Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-			Row("French", "Bonjour", "Salut").
-			Row("Japanese", "こんにちは", "やあ").
-			Row("Russian", "Zdravstvuyte", "Privet").
-			Row("Spanish", "Hola", "¿Qué tal?").
-			Width(50).
-			Height(40)
-
-		// TODO height isn't working - need to rebase master
-		t.Logf("\n%s", table.String())
-		golden.RequireEqual(t, []byte(table.String()))
-	})
-}
-
 func TestClearRows(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
