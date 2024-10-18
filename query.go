@@ -18,7 +18,7 @@ import (
 func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 	state, err := term.MakeRaw(in.Fd())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error setting raw state to detect background color: %w", err)
 	}
 
 	defer term.Restore(in.Fd(), state) //nolint:errcheck
