@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
-	"github.com/muesli/gamut"
+	"github.com/rivo/uniseg"
 )
 
 const (
@@ -59,7 +59,6 @@ func main() {
 		subtle    = lightDark("#D9DCCF", "#383838")
 		highlight = lightDark("#874BFD", "#7D56F4")
 		special   = lightDark("#43BF6D", "#73F59F")
-		blends    = gamut.Blends(lipgloss.Color("#F25D94"), lipgloss.Color("#EDFF82"), 50)
 
 		divider = lipgloss.NewStyle().
 			SetString("•").
@@ -264,7 +263,18 @@ func main() {
 		okButton := activeButtonStyle.Render("Yes")
 		cancelButton := buttonStyle.Render("Maybe")
 
-		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render(rainbow(lipgloss.NewStyle(), "Are you sure you want to eat marmalade?", blends))
+		grad := applyGradient(
+			lipgloss.NewStyle(),
+			"Are you sure you want to eat marmalade?",
+			lipgloss.Color("#EDFF82"),
+			lipgloss.Color("#F25D94"),
+		)
+
+		question := lipgloss.NewStyle().
+			Width(50).
+			Align(lipgloss.Center).
+			Render(grad)
+
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
@@ -408,11 +418,30 @@ func max(a, b int) int {
 	return b
 }
 
-func rainbow(base lipgloss.Style, s string, colors []color.Color) string {
-	var str string
-	for i, ss := range s {
-		color, _ := colorful.MakeColor(colors[i%len(colors)])
-		str = str + base.Foreground(lipgloss.Color(color.Hex())).Render(string(ss))
+// applyGradient applies a gradient to the given string string.
+func applyGradient(base lipgloss.Style, input string, from, to color.Color) string {
+	// We want to get the graphemes of the input string, which is the number of
+	// characters as a human would see them.
+	//
+	// We definitely don't want to use len(), because that returns the
+	// bytes. The rune count would get us closer but there are times, like with
+	// emojis, where the rune count is greater than the number of actual
+	// characters.
+	var g = uniseg.NewGraphemes(input)
+	var chars []string
+	for g.Next() {
+		chars = append(chars, g.Str())
 	}
-	return str
+
+	// Genrate the blend.
+	a, _ := colorful.MakeColor(to)
+	b, _ := colorful.MakeColor(from)
+	var output strings.Builder
+	var hex string
+	for i := 0; i < len(chars); i++ {
+		hex = a.BlendLuv(b, float64(i)/float64(len(chars)-1)).Hex()
+		output.WriteString(base.Foreground(lipgloss.Color(hex)).Render(chars[i]))
+	}
+
+	return output.String()
 }
