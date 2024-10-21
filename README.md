@@ -453,6 +453,9 @@ fmt.Println(t)
 
 ![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
 
+> [!WARNING]
+> Table `Rows` need to be declared before `Offset` otherwise it does nothing.
+
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
 ## Rendering Lists
