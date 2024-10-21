@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
+	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1143,30 +1144,58 @@ func TestTableHeightWithOffset(t *testing.T) {
 }
 
 func TestStyleFunc(t *testing.T) {
-	TestStyle := func(row, col int) lipgloss.Style {
-		switch {
-		// this is the header
-		case row == HeaderRow:
-			return lipgloss.NewStyle().Align(lipgloss.Center)
-		// this is the first row of data
-		case row == 0:
-			return lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Right)
-		default:
-			return lipgloss.NewStyle().Padding(0, 1)
-		}
+	lipgloss.SetColorProfile(termenv.TrueColor)
+	tests := []struct {
+		name  string
+		style StyleFunc
+	}{
+		{
+			"right-aligned text with margins",
+			func(row, col int) lipgloss.Style {
+				switch {
+				case row == HeaderRow:
+					return lipgloss.NewStyle().Align(lipgloss.Center)
+				default:
+					return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
+				}
+			},
+		},
+		{
+			"margin and padding set",
+			// this test case uses background colors to differentiate margins
+			// and padding.
+			func(row, col int) lipgloss.Style {
+				switch {
+				case row == HeaderRow:
+					return lipgloss.NewStyle().Align(lipgloss.Center)
+				default:
+					return lipgloss.NewStyle().
+						Padding(1).
+						Margin(1).
+						// keeping right-aligned text as it's the most likely to
+						// be broken when truncated.
+						Align(lipgloss.Right).
+						Background(lipgloss.Color("#874bfc"))
+				}
+			},
+		},
 	}
 
-	table := New().
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TestStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Border(lipgloss.NormalBorder()).
+				StyleFunc(tc.style).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+				Row("French", "Bonjour", "Salut").
+				Row("Japanese", "こんにちは", "やあ").
+				Row("Russian", "Zdravstvuyte", "Privet").
+				Row("Spanish", "Hola", "¿Qué tal?")
 
-	golden.RequireEqual(t, []byte(table.String()))
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
 }
 
 func TestClearRows(t *testing.T) {
