@@ -119,7 +119,7 @@ type Style struct {
 	value string
 
 	// we store bool props values here
-	attrs int
+	attrs int64
 
 	// props that have values
 	fgColor TerminalColor
