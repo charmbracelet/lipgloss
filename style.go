@@ -440,10 +440,24 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
+	// Don't apply margins in inline mode.
 	if !inline {
-		str = s.applyBorder(str)
 		str = s.applyMargins(str, inline)
 	}
+
+	if inline {
+		// Obliterate top, bottom, and corder borders in inline mode, but leave
+		// the left and right as-is.
+		s.borderStyle.Top = ""
+		s.borderStyle.Bottom = ""
+		s.borderStyle.TopLeft = ""
+		s.borderStyle.TopRight = ""
+		s.borderStyle.BottomLeft = ""
+		s.borderStyle.BottomRight = ""
+	}
+
+	// Apply borders.
+	str = s.applyBorder(str)
 
 	// Truncate according to MaxWidth
 	if maxWidth > 0 {
