@@ -75,6 +75,9 @@ const (
 	tabWidthKey
 
 	transformKey
+
+	hyperlinkURLKey
+	hyperlinkParamsKey
 )
 
 // props is a set of properties.
@@ -157,6 +160,9 @@ type Style struct {
 	tabWidth  int
 
 	transform func(string) string
+
+	hyperlinkURL    string
+	hyperlinkParams string
 }
 
 // joinString joins a list of strings into a single string separated with a
@@ -283,10 +289,21 @@ func (s Style) Render(strs ...string) string {
 		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
+
+		hyperlinkURL    = s.getAsHyperlinkURL(hyperlinkURLKey)
+		hyperlinkParams = s.getAsHyperlinkParams(hyperlinkParamsKey)
 	)
 
 	if transform != nil {
 		str = transform(str)
+	}
+
+	if hyperlinkURL != "" {
+		var params []string
+		for k, v := range hyperlinkParams {
+			params = append(params, k, v)
+		}
+		str = ansi.SetHyperlink(hyperlinkURL, params...) + str
 	}
 
 	if s.props == 0 {
@@ -463,6 +480,10 @@ func (s Style) Render(strs ...string) string {
 		if len(lines) > 0 {
 			str = strings.Join(lines[:height], "\n")
 		}
+	}
+
+	if hyperlinkURL != "" {
+		str += ansi.ResetHyperlink()
 	}
 
 	return str

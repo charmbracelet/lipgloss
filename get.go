@@ -414,6 +414,18 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
+// GetHyperlink returns the hyperlink URL set on the style. If no hyperlink is
+// set the empty string and nil is returned.
+func (s Style) GetHyperlink() string {
+	return s.getAsHyperlinkURL(hyperlinkURLKey)
+}
+
+// GetHyperlink returns the hyperlink URL set on the style. If no hyperlink is
+// set the empty string and nil is returned.
+func (s Style) GetHyperlinkParams() map[string]string {
+	return s.getAsHyperlinkParams(hyperlinkParamsKey)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)
@@ -519,11 +531,27 @@ func (s Style) getBorderStyle() Border {
 	return s.borderStyle
 }
 
-func (s Style) getAsTransform(propKey) func(string) string {
-	if !s.isSet(transformKey) {
+func (s Style) getAsTransform(k propKey) func(string) string {
+	if !s.isSet(k) {
 		return nil
 	}
 	return s.transform
+}
+
+func (s Style) getAsHyperlinkURL(k propKey) string {
+	if !s.isSet(k) {
+		return ""
+	}
+
+	return s.hyperlinkURL
+}
+
+func (s Style) getAsHyperlinkParams(k propKey) map[string]string {
+	if !s.isSet(k) {
+		return nil
+	}
+
+	return decodeHyperlinkParams(s.hyperlinkParams)
 }
 
 // Split a string into lines, additionally returning the size of the widest
@@ -539,4 +567,39 @@ func getLines(s string) (lines []string, widest int) {
 	}
 
 	return lines, widest
+}
+
+func encodeHyperlinkParams(m map[string]string) string {
+	if len(m) == 0 {
+		return ""
+	}
+
+	var parts []string
+	for k, v := range m {
+		parts = append(parts, k+"="+v)
+	}
+
+	return strings.Join(parts, ";")
+}
+
+func decodeHyperlinkParams(s string) map[string]string {
+	if len(s) == 0 {
+		return nil
+	}
+
+	parts := strings.Split(s, ";")
+	if len(parts) == 0 {
+		return nil
+	}
+
+	m := make(map[string]string)
+	for _, p := range parts {
+		kv := strings.Split(p, "=")
+		if len(kv) != 2 {
+			continue
+		}
+		m[kv[0]] = kv[1]
+	}
+
+	return m
 }
