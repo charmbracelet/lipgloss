@@ -202,89 +202,89 @@ func (s Style) GetVerticalMargins() int {
 // border style, Border{} is returned. For all other unset values false is
 // returned.
 func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
-	return s.getBorderStyle(),
-		s.getAsBool(borderTopKey, false),
-		s.getAsBool(borderRightKey, false),
-		s.getAsBool(borderBottomKey, false),
-		s.getAsBool(borderLeftKey, false)
+	return s.getBorderer().GetStyle(),
+		s.getBorderer().GetTop(),
+		s.getBorderer().GetRight(),
+		s.getBorderer().GetBottom(),
+		s.getBorderer().GetLeft()
 }
 
 // GetBorderStyle returns the style's border style (type Border). If no value
 // is set Border{} is returned.
 func (s Style) GetBorderStyle() Border {
-	return s.getBorderStyle()
+	return s.getBorderer().GetStyle()
 }
 
 // GetBorderTop returns the style's top border setting. If no value is set
 // false is returned.
 func (s Style) GetBorderTop() bool {
-	return s.getAsBool(borderTopKey, false)
+	return s.getBorderer().GetTop()
 }
 
 // GetBorderRight returns the style's right border setting. If no value is set
 // false is returned.
 func (s Style) GetBorderRight() bool {
-	return s.getAsBool(borderRightKey, false)
+	return s.getBorderer().GetRight()
 }
 
 // GetBorderBottom returns the style's bottom border setting. If no value is
 // set false is returned.
 func (s Style) GetBorderBottom() bool {
-	return s.getAsBool(borderBottomKey, false)
+	return s.getBorderer().GetBottom()
 }
 
 // GetBorderLeft returns the style's left border setting. If no value is
 // set false is returned.
 func (s Style) GetBorderLeft() bool {
-	return s.getAsBool(borderLeftKey, false)
+	return s.getBorderer().GetLeft()
 }
 
 // GetBorderTopForeground returns the style's border top foreground color. If
 // no value is set NoColor{} is returned.
 func (s Style) GetBorderTopForeground() TerminalColor {
-	return s.getAsColor(borderTopForegroundKey)
+	return s.getBorderer().GetTopForeground()
 }
 
 // GetBorderRightForeground returns the style's border right foreground color.
 // If no value is set NoColor{} is returned.
 func (s Style) GetBorderRightForeground() TerminalColor {
-	return s.getAsColor(borderRightForegroundKey)
+	return s.getBorderer().GetRightForeground()
 }
 
 // GetBorderBottomForeground returns the style's border bottom foreground
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderBottomForeground() TerminalColor {
-	return s.getAsColor(borderBottomForegroundKey)
+	return s.getBorderer().GetBottomForeground()
 }
 
 // GetBorderLeftForeground returns the style's border left foreground
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderLeftForeground() TerminalColor {
-	return s.getAsColor(borderLeftForegroundKey)
+	return s.getBorderer().GetLeftForeground()
 }
 
 // GetBorderTopBackground returns the style's border top background color. If
 // no value is set NoColor{} is returned.
 func (s Style) GetBorderTopBackground() TerminalColor {
-	return s.getAsColor(borderTopBackgroundKey)
+	return s.getBorderer().GetTopBackground()
 }
 
 // GetBorderRightBackground returns the style's border right background color.
 // If no value is set NoColor{} is returned.
 func (s Style) GetBorderRightBackground() TerminalColor {
-	return s.getAsColor(borderRightBackgroundKey)
+	return s.getBorderer().GetRightBackground()
 }
 
 // GetBorderBottomBackground returns the style's border bottom background
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderBottomBackground() TerminalColor {
-	return s.getAsColor(borderBottomBackgroundKey)
+	return s.getBorderer().GetBottomBackground()
 }
 
 // GetBorderLeftBackground returns the style's border left background
 // color.  If no value is set NoColor{} is returned.
 func (s Style) GetBorderLeftBackground() TerminalColor {
-	return s.getAsColor(borderLeftBackgroundKey)
+	return s.getBorderer().GetLeftBackground()
 }
 
 // GetBorderTopWidth returns the width of the top border. If borders contain
@@ -300,40 +300,28 @@ func (s Style) GetBorderTopWidth() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopSize() int {
-	if !s.getAsBool(borderTopKey, false) {
-		return 0
-	}
-	return s.getBorderStyle().GetTopSize()
+	return s.getBorderer().GetTopSize()
 }
 
 // GetBorderLeftSize returns the width of the left border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftSize() int {
-	if !s.getAsBool(borderLeftKey, false) {
-		return 0
-	}
-	return s.getBorderStyle().GetLeftSize()
+	return s.getBorderer().GetLeftSize()
 }
 
 // GetBorderBottomSize returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomSize() int {
-	if !s.getAsBool(borderBottomKey, false) {
-		return 0
-	}
-	return s.getBorderStyle().GetBottomSize()
+	return s.getBorderer().GetBottomSize()
 }
 
 // GetBorderRightSize returns the width of the right border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightSize() int {
-	if !s.getAsBool(borderRightKey, false) {
-		return 0
-	}
-	return s.getBorderStyle().GetRightSize()
+	return s.getBorderer().GetRightSize()
 }
 
 // GetHorizontalBorderSize returns the width of the horizontal borders. If
@@ -439,22 +427,6 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 		c = s.bgColor
 	case marginBackgroundKey:
 		c = s.marginBgColor
-	case borderTopForegroundKey:
-		c = s.borderTopFgColor
-	case borderRightForegroundKey:
-		c = s.borderRightFgColor
-	case borderBottomForegroundKey:
-		c = s.borderBottomFgColor
-	case borderLeftForegroundKey:
-		c = s.borderLeftFgColor
-	case borderTopBackgroundKey:
-		c = s.borderTopBgColor
-	case borderRightBackgroundKey:
-		c = s.borderRightBgColor
-	case borderBottomBackgroundKey:
-		c = s.borderBottomBgColor
-	case borderLeftBackgroundKey:
-		c = s.borderLeftBgColor
 	}
 
 	if c != nil {
@@ -510,13 +482,6 @@ func (s Style) getAsPosition(k propKey) Position {
 		return s.alignVertical
 	}
 	return Position(0)
-}
-
-func (s Style) getBorderStyle() Border {
-	if !s.isSet(borderStyleKey) {
-		return noBorder
-	}
-	return s.borderStyle
 }
 
 func (s Style) getAsTransform(propKey) func(string) string {

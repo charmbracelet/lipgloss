@@ -37,24 +37,6 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.marginLeft = max(0, value.(int))
 	case marginBackgroundKey:
 		s.marginBgColor = colorOrNil(value)
-	case borderStyleKey:
-		s.borderStyle = value.(Border)
-	case borderTopForegroundKey:
-		s.borderTopFgColor = colorOrNil(value)
-	case borderRightForegroundKey:
-		s.borderRightFgColor = colorOrNil(value)
-	case borderBottomForegroundKey:
-		s.borderBottomFgColor = colorOrNil(value)
-	case borderLeftForegroundKey:
-		s.borderLeftFgColor = colorOrNil(value)
-	case borderTopBackgroundKey:
-		s.borderTopBgColor = colorOrNil(value)
-	case borderRightBackgroundKey:
-		s.borderRightBgColor = colorOrNil(value)
-	case borderBottomBackgroundKey:
-		s.borderBottomBgColor = colorOrNil(value)
-	case borderLeftBackgroundKey:
-		s.borderLeftBgColor = colorOrNil(value)
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -119,24 +101,6 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(marginLeftKey, i.marginLeft)
 	case marginBackgroundKey:
 		s.set(marginBackgroundKey, i.marginBgColor)
-	case borderStyleKey:
-		s.set(borderStyleKey, i.borderStyle)
-	case borderTopForegroundKey:
-		s.set(borderTopForegroundKey, i.borderTopFgColor)
-	case borderRightForegroundKey:
-		s.set(borderRightForegroundKey, i.borderRightFgColor)
-	case borderBottomForegroundKey:
-		s.set(borderBottomForegroundKey, i.borderBottomFgColor)
-	case borderLeftForegroundKey:
-		s.set(borderLeftForegroundKey, i.borderLeftFgColor)
-	case borderTopBackgroundKey:
-		s.set(borderTopBackgroundKey, i.borderTopBgColor)
-	case borderRightBackgroundKey:
-		s.set(borderRightBackgroundKey, i.borderRightBgColor)
-	case borderBottomBackgroundKey:
-		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
-	case borderLeftBackgroundKey:
-		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -411,7 +375,7 @@ func (s Style) MarginBackground(c TerminalColor) Style {
 //	// Applies rounded borders to the right and bottom only
 //	lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), false, true, true, false)
 func (s Style) Border(b Border, sides ...bool) Style {
-	s.set(borderStyleKey, b)
+	s.getBorderer().Style(b)
 
 	top, right, bottom, left, ok := whichSidesBool(sides...)
 	if !ok {
@@ -421,10 +385,10 @@ func (s Style) Border(b Border, sides ...bool) Style {
 		left = true
 	}
 
-	s.set(borderTopKey, top)
-	s.set(borderRightKey, right)
-	s.set(borderBottomKey, bottom)
-	s.set(borderLeftKey, left)
+	s.getBorderer().Top(top)
+	s.getBorderer().Right(right)
+	s.getBorderer().Bottom(bottom)
+	s.getBorderer().Left(left)
 
 	return s
 }
@@ -444,31 +408,31 @@ func (s Style) Border(b Border, sides ...bool) Style {
 //
 //	lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
 func (s Style) BorderStyle(b Border) Style {
-	s.set(borderStyleKey, b)
+	s.getBorderer().Style(b)
 	return s
 }
 
 // BorderTop determines whether or not to draw a top border.
 func (s Style) BorderTop(v bool) Style {
-	s.set(borderTopKey, v)
+	s.getBorderer().Top(v)
 	return s
 }
 
 // BorderRight determines whether or not to draw a right border.
 func (s Style) BorderRight(v bool) Style {
-	s.set(borderRightKey, v)
+	s.getBorderer().Right(v)
 	return s
 }
 
 // BorderBottom determines whether or not to draw a bottom border.
 func (s Style) BorderBottom(v bool) Style {
-	s.set(borderBottomKey, v)
+	s.getBorderer().Bottom(v)
 	return s
 }
 
 // BorderLeft determines whether or not to draw a left border.
 func (s Style) BorderLeft(v bool) Style {
-	s.set(borderLeftKey, v)
+	s.getBorderer().Left(v)
 	return s
 }
 
@@ -497,38 +461,38 @@ func (s Style) BorderForeground(c ...TerminalColor) Style {
 		return s
 	}
 
-	s.set(borderTopForegroundKey, top)
-	s.set(borderRightForegroundKey, right)
-	s.set(borderBottomForegroundKey, bottom)
-	s.set(borderLeftForegroundKey, left)
+	s.getBorderer().TopForeground(top)
+	s.getBorderer().RightForeground(right)
+	s.getBorderer().BottomForeground(bottom)
+	s.getBorderer().LeftForeground(left)
 
 	return s
 }
 
 // BorderTopForeground set the foreground color for the top of the border.
 func (s Style) BorderTopForeground(c TerminalColor) Style {
-	s.set(borderTopForegroundKey, c)
+	s.getBorderer().TopForeground(c)
 	return s
 }
 
 // BorderRightForeground sets the foreground color for the right side of the
 // border.
 func (s Style) BorderRightForeground(c TerminalColor) Style {
-	s.set(borderRightForegroundKey, c)
+	s.getBorderer().RightForeground(c)
 	return s
 }
 
 // BorderBottomForeground sets the foreground color for the bottom of the
 // border.
 func (s Style) BorderBottomForeground(c TerminalColor) Style {
-	s.set(borderBottomForegroundKey, c)
+	s.getBorderer().BottomForeground(c)
 	return s
 }
 
 // BorderLeftForeground sets the foreground color for the left side of the
 // border.
 func (s Style) BorderLeftForeground(c TerminalColor) Style {
-	s.set(borderLeftForegroundKey, c)
+	s.getBorderer().LeftForeground(c)
 	return s
 }
 
@@ -557,37 +521,37 @@ func (s Style) BorderBackground(c ...TerminalColor) Style {
 		return s
 	}
 
-	s.set(borderTopBackgroundKey, top)
-	s.set(borderRightBackgroundKey, right)
-	s.set(borderBottomBackgroundKey, bottom)
-	s.set(borderLeftBackgroundKey, left)
+	s.getBorderer().TopBackground(top)
+	s.getBorderer().RightBackground(right)
+	s.getBorderer().BottomBackground(bottom)
+	s.getBorderer().LeftBackground(left)
 
 	return s
 }
 
 // BorderTopBackground sets the background color of the top of the border.
 func (s Style) BorderTopBackground(c TerminalColor) Style {
-	s.set(borderTopBackgroundKey, c)
+	s.getBorderer().TopBackground(c)
 	return s
 }
 
 // BorderRightBackground sets the background color of right side the border.
 func (s Style) BorderRightBackground(c TerminalColor) Style {
-	s.set(borderRightBackgroundKey, c)
+	s.getBorderer().RightBackground(c)
 	return s
 }
 
 // BorderBottomBackground sets the background color of the bottom of the
 // border.
 func (s Style) BorderBottomBackground(c TerminalColor) Style {
-	s.set(borderBottomBackgroundKey, c)
+	s.getBorderer().BottomBackground(c)
 	return s
 }
 
 // BorderLeftBackground set the background color of the left side of the
 // border.
 func (s Style) BorderLeftBackground(c TerminalColor) Style {
-	s.set(borderLeftBackgroundKey, c)
+	s.getBorderer().LeftBackground(c)
 	return s
 }
 

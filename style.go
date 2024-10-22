@@ -48,27 +48,6 @@ const (
 	marginLeftKey
 	marginBackgroundKey
 
-	// Border runes.
-	borderStyleKey
-
-	// Border edges.
-	borderTopKey
-	borderRightKey
-	borderBottomKey
-	borderLeftKey
-
-	// Border foreground colors.
-	borderTopForegroundKey
-	borderRightForegroundKey
-	borderBottomForegroundKey
-	borderLeftForegroundKey
-
-	// Border background colors.
-	borderTopBackgroundKey
-	borderRightBackgroundKey
-	borderBottomBackgroundKey
-	borderLeftBackgroundKey
-
 	inlineKey
 	maxWidthKey
 	maxHeightKey
@@ -142,15 +121,7 @@ type Style struct {
 	marginLeft    int
 	marginBgColor TerminalColor
 
-	borderStyle         Border
-	borderTopFgColor    TerminalColor
-	borderRightFgColor  TerminalColor
-	borderBottomFgColor TerminalColor
-	borderLeftFgColor   TerminalColor
-	borderTopBgColor    TerminalColor
-	borderRightBgColor  TerminalColor
-	borderBottomBgColor TerminalColor
-	borderLeftBgColor   TerminalColor
+	borderer Borderer
 
 	maxWidth  int
 	maxHeight int
@@ -441,7 +412,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if !inline {
-		str = s.applyBorder(str)
+		str = s.getBorderer().Apply(str)
 		str = s.applyMargins(str, inline)
 	}
 
@@ -466,6 +437,14 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	return str
+}
+
+func (s *Style) getBorderer() Borderer {
+	if s.borderer == nil {
+		s.borderer = &NormalBorderer{r: s.r}
+	}
+
+	return s.borderer
 }
 
 func (s Style) maybeConvertTabs(str string) string {
