@@ -38,12 +38,12 @@ func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 // Typically, you'll want to query against stdin and either stdout or stderr
 // depending on what you're writing to.
 //
-//	hasDarkBG, _ := HasDarkBackground(os.Stdin, os.Stdout)
-//	adaptive := Adapt(hasDarkBG)
-//	myHotColor := Color("#ff0000", "#0000ff")
+//	hasDarkBG, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+//	lightDark := lipgloss.LightDark(hasDarkBG)
+//	myHotColor := lightDark("#ff0000", "#0000ff")
 //
-// This is intedded for use in standalone Lip Gloss only. In Bubble Tea, listen
-// for tea.BackgroundColorMsg in your update function.
+// This is intended for use in standalone Lip Gloss only. In Bubble Tea, listen
+// for tea.BackgroundColorMsg in your Update function.
 //
 //	case tea.BackgroundColorMsg:
 //	    hasDarkBackground = msg.IsDark()
