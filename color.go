@@ -159,18 +159,18 @@ func LightDark(isDark bool) LightDarkFunc {
 	}
 }
 
-// IsDarkColor returns whether the given color is dark (based on the luminance
+// isDarkColor returns whether the given color is dark (based on the luminance
 // portion of the color as interpreted as HSL).
 //
 // Example usage:
 //
 //	color := lipgloss.Color("#0000ff")
-//	if lipgloss.IsDarkColor(color) {
+//	if lipgloss.isDarkColor(color) {
 //		fmt.Println("It's dark! I love darkness!")
 //	} else {
 //		fmt.Println("It's light! Cover your eyes!")
 //	}
-func IsDarkColor(c color.Color) bool {
+func isDarkColor(c color.Color) bool {
 	col, ok := colorful.MakeColor(c)
 	if !ok {
 		return true
