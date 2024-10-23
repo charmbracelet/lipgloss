@@ -175,7 +175,7 @@ func (s Style) Italic(v bool) Style {
 
 // Underline sets an underline rule. By default, underlines will not be drawn on
 // whitespace like margins and padding. To change this behavior set
-// UnderlineSpaces.
+// [Style.UnderlineSpaces].
 func (s Style) Underline(v bool) Style {
 	s.set(underlineKey, v)
 	return s
