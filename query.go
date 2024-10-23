@@ -32,8 +32,7 @@ func BackgroundColor(in *os.File, out *os.File) (color.Color, error) {
 }
 
 // HasDarkBackground detects whether the terminal has a light or dark
-// background. It's a convenience function that wraps [BackgroundColor] and
-// [lipgloss.IsDarkColor].
+// background.
 //
 // Typically, you'll want to query against stdin and either stdout or stderr
 // depending on what you're writing to.
@@ -56,5 +55,5 @@ func HasDarkBackground(in *os.File, out *os.File) (bool, error) {
 		return true, errors.New("detected background color is nil")
 	}
 
-	return IsDarkColor(bg), nil
+	return isDarkColor(bg), nil
 }
