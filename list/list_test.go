@@ -306,7 +306,7 @@ func TestEnumeratorsTransform(t *testing.T) {
 	}{
 		"alphabet lower": {
 			enumeration: list.Alphabet,
-			style:       lipgloss.NewStyle().PaddingRight(1).Transform(strings.ToLower),
+			style:       lipgloss.NewStyle().PaddingRight(1).Transform(lipgloss.TransformFunc(strings.ToLower)),
 			expected: `
 a. Foo
 b. Bar
@@ -315,9 +315,9 @@ c. Baz
 		},
 		"arabic)": {
 			enumeration: list.Arabic,
-			style: lipgloss.NewStyle().PaddingRight(1).Transform(func(s string) string {
+			style: lipgloss.NewStyle().PaddingRight(1).Transform(lipgloss.TransformFunc(func(s string) string {
 				return strings.Replace(s, ".", ")", 1)
-			}),
+			})),
 			expected: `
 1) Foo
 2) Bar
@@ -326,9 +326,9 @@ c. Baz
 		},
 		"roman within ()": {
 			enumeration: list.Roman,
-			style: lipgloss.NewStyle().Transform(func(s string) string {
+			style: lipgloss.NewStyle().Transform(lipgloss.TransformFunc(func(s string) string {
 				return "(" + strings.Replace(strings.ToLower(s), ".", "", 1) + ") "
-			}),
+			})),
 			expected: `
   (i) Foo
  (ii) Bar
@@ -337,9 +337,9 @@ c. Baz
 		},
 		"bullet is dash": {
 			enumeration: list.Bullet,
-			style: lipgloss.NewStyle().Transform(func(s string) string {
+			style: lipgloss.NewStyle().Transform(lipgloss.TransformFunc(func(s string) string {
 				return "- " // this is better done by replacing the enumerator.
-			}),
+			})),
 			expected: `
 - Foo
 - Bar

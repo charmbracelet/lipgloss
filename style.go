@@ -145,7 +145,7 @@ type Style struct {
 	maxHeight int
 	tabWidth  int
 
-	transform func(string) string
+	transform Transform
 }
 
 // joinString joins a list of strings into a single string separated with a
@@ -271,7 +271,7 @@ func (s Style) Render(strs ...string) string {
 	)
 
 	if transform != nil {
-		str = transform(str)
+		str = transform.Transform(str)
 	}
 
 	if s.props == 0 {

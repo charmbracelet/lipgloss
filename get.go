@@ -411,7 +411,7 @@ func (s Style) GetFrameSize() (x, y int) {
 
 // GetTransform returns the transform set on the style. If no transform is set
 // nil is returned.
-func (s Style) GetTransform() func(string) string {
+func (s Style) GetTransform() Transform {
 	return s.getAsTransform(transformKey)
 }
 
@@ -520,7 +520,7 @@ func (s Style) getBorderStyle() Border {
 	return s.borderStyle
 }
 
-func (s Style) getAsTransform(propKey) func(string) string {
+func (s Style) getAsTransform(propKey) Transform {
 	if !s.isSet(transformKey) {
 		return nil
 	}

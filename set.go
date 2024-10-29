@@ -1,6 +1,8 @@
 package lipgloss
 
-import "image/color"
+import (
+	"image/color"
+)
 
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
@@ -66,7 +68,7 @@ func (s *Style) set(key propKey, value interface{}) {
 		// that negative value can be no less than -1).
 		s.tabWidth = value.(int)
 	case transformKey:
-		s.transform = value.(func(string) string)
+		s.transform = value.(Transform)
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
@@ -675,15 +677,31 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 	return s
 }
 
+// Transform is a method for setting a function that will be applied to the
+// string at render time.
+type Transform interface {
+	Transform(string) string
+}
+
+// TransformFunc is a function that can be used to transform a string at render
+// time.
+type TransformFunc func(string) string
+
+// Transform applies a given function to a string at render time, allowing for
+// the string being rendered to be manipuated.
+func (t TransformFunc) Transform(s string) string {
+	return t(s)
+}
+
 // Transform applies a given function to a string at render time, allowing for
 // the string being rendered to be manipuated.
 //
 // Example:
 //
-//	s := NewStyle().Transform(strings.ToUpper)
+//	s := NewStyle().Transform(lipgloss.TransformFunc(strings.ToUpper))
 //	fmt.Println(s.Render("raow!") // "RAOW!"
-func (s Style) Transform(fn func(string) string) Style {
-	s.set(transformKey, fn)
+func (s Style) Transform(t Transform) Style {
+	s.set(transformKey, t)
 	return s
 }
 

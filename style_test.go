@@ -456,7 +456,7 @@ func TestStringTransform(t *testing.T) {
 			"犬 yzal eht revo depmuj 狐 nworb kciuq ehT",
 		},
 	} {
-		res := NewStyle().Bold(true).Transform(tc.fn).Render(tc.input)
+		res := NewStyle().Bold(true).Transform(TransformFunc(tc.fn)).Render(tc.input)
 		expected := "\x1b[1m" + tc.expected + "\x1b[m"
 		if res != expected {
 			t.Errorf("Test #%d:\nExpected: %q\nGot:      %q", i+1, expected, res)
