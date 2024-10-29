@@ -1,8 +1,4 @@
-module github.com/charmbracelet/lipgloss
-
-retract v0.7.0 // v0.7.0 introduces a bug that causes some apps to freeze.
-
-retract v0.11.1 // v0.11.1 uses a broken version of x/ansi StringWidth that causes some lines to wrap incorrectly.
+module github.com/charmbracelet/lipgloss/v2
 
 go 1.18
 
