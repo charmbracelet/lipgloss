@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
-	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1144,7 +1143,6 @@ func TestTableHeightWithOffset(t *testing.T) {
 }
 
 func TestStyleFunc(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	tests := []struct {
 		name  string
 		style StyleFunc
