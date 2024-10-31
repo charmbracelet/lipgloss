@@ -35,14 +35,15 @@ func backgroundColor(in *os.File, out *os.File) (color.Color, error) {
 func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 	if runtime.GOOS == "windows" {
 		return backgroundColor(in, out)
-	} else {
-		// NOTE: On Unix, one of the given files must be a tty.
-		for _, f := range []*os.File{in, out} {
-			if bg, err = backgroundColor(f, f); err == nil {
-				return bg, nil
-			}
+	}
+
+	// NOTE: On Unix, one of the given files must be a tty.
+	for _, f := range []*os.File{in, out} {
+		if bg, err = backgroundColor(f, f); err == nil {
+			return bg, nil
 		}
 	}
+
 	return
 }
 
