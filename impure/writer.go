@@ -1,4 +1,4 @@
-package lipgloss
+package impure
 
 import (
 	"fmt"
@@ -7,10 +7,6 @@ import (
 
 	"github.com/charmbracelet/colorprofile"
 )
-
-// Writer is the default writer that prints to stdout, automatically
-// downsampling colors when necessary.
-var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
 
 // Println to stdout, automatically downsampling colors when necessary, ending
 // with a trailing newline.
