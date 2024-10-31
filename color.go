@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"strconv"
 
+	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -178,4 +179,48 @@ func isDarkColor(c color.Color) bool {
 
 	_, _, l := col.Hsl()
 	return l < 0.5 //nolint:mnd
+}
+
+// CompleteFunc is a function that returns the appropriate color based on the
+// given color profile.
+//
+// Example usage:
+//
+//	p := colorprofile.Detect(os.Stderr, os.Environ())
+//	complete := lipgloss.Complete(p)
+//	color := complete(
+//		lipgloss.Color(1), // ANSI
+//		lipgloss.Color(124), // ANSI256
+//		lipgloss.Color("#ff34ac"), // TrueColor
+//	)
+//	fmt.Println("Ooh, pretty color: ", color)
+//
+// For more info see [Complete].
+type CompleteFunc func(ansi, ansi256, truecolor color.Color) color.Color
+
+// Complete returns a function that will return the appropriate color based on
+// the given color profile.
+//
+// Example usage:
+//
+//	p := colorprofile.Detect(os.Stderr, os.Environ())
+//	complete := lipgloss.Complete(p)
+//	color := complete(
+//	    lipgloss.Color(1), // ANSI
+//	    lipgloss.Color(124), // ANSI256
+//	    lipgloss.Color("#ff34ac"), // TrueColor
+//	)
+//	fmt.Println("Ooh, pretty color: ", color)
+func Complete(p colorprofile.Profile) CompleteFunc {
+	return func(ansi, ansi256, truecolor color.Color) color.Color {
+		switch p {
+		case colorprofile.ANSI:
+			return ansi
+		case colorprofile.ANSI256:
+			return ansi256
+		case colorprofile.TrueColor:
+			return truecolor
+		}
+		return noColor
+	}
 }
