@@ -22,7 +22,7 @@ import (
 //
 // copied from x/term@v0.1.3.
 func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error) {
-	// nolint: errcheck
+	//nolint: errcheck
 	err = queryTerminal(in, out, defaultQueryTimeout,
 		func(events []input.Event) bool {
 			for _, e := range events {
@@ -84,7 +84,7 @@ func queryTerminal(
 	for {
 		events, err := rd.ReadEvents()
 		if err != nil {
-			return err
+			return fmt.Errorf("could not read events: %s", err)
 		}
 
 		if !filter(events) {

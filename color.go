@@ -47,7 +47,7 @@ type NoColor struct{}
 //
 // Red: 0x0, Green: 0x0, Blue: 0x0, Alpha: 0xFFFF.
 func (n NoColor) RGBA() (r, g, b, a uint32) {
-	return 0x0, 0x0, 0x0, 0xFFFF //nolint:gomnd
+	return 0x0, 0x0, 0x0, 0xFFFF //nolint:mnd
 }
 
 // Color specifies a color by hex or ANSI256 value. For example:
@@ -66,18 +66,18 @@ func Color(c any) color.Color {
 		if h, err := colorful.Hex(c); err == nil {
 			return h
 		} else if i, err := strconv.Atoi(c); err == nil {
-			if i < 16 { //nolint:gomnd
+			if i < 16 { //nolint:mnd
 				return ansi.BasicColor(i) //nolint:gosec
-			} else if i < 256 { //nolint:gomnd
+			} else if i < 256 { //nolint:mnd
 				return ansi.ExtendedColor(i) //nolint:gosec
 			}
 			return ansi.TrueColor(i) //nolint:gosec
 		}
 		return noColor
 	case int:
-		if c < 16 {
+		if c < 16 { //nolint:mnd
 			return ansi.BasicColor(c) //nolint:gosec
-		} else if c < 256 {
+		} else if c < 256 { //nolint:mnd
 			return ansi.ExtendedColor(c) //nolint:gosec
 		}
 		return ansi.TrueColor(c) //nolint:gosec
@@ -101,7 +101,7 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 	r |= uint32(c.R) << shift
 	g |= uint32(c.G) << shift
 	b |= uint32(c.B) << shift
-	a = 0xFFFF //nolint:gomnd
+	a = 0xFFFF
 	return
 }
 
@@ -177,5 +177,5 @@ func isDarkColor(c color.Color) bool {
 	}
 
 	_, _, l := col.Hsl()
-	return l < 0.5
+	return l < 0.5 //nolint:mnd
 }
