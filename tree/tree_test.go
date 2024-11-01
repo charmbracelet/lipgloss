@@ -6,10 +6,10 @@ import (
 	"unicode"
 
 	"github.com/aymanbagabas/go-udiff"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/table"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
+	"github.com/charmbracelet/lipgloss/v2/table"
+	"github.com/charmbracelet/lipgloss/v2/tree"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
 )
