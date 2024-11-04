@@ -63,7 +63,7 @@ type model struct {
 func (m model) Init() (tea.Model, tea.Cmd) {
 	// Query for the background color on start.
 	m.yes = true
-	return m, tea.BackgroundColor
+	return m, tea.RequestBackgroundColor
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
