@@ -8,10 +8,11 @@ replace github.com/charmbracelet/lipgloss/v2/list => ../list
 
 replace github.com/charmbracelet/lipgloss/v2/table => ../table
 
+replace github.com/charmbracelet/lipgloss/v2/compat => ../compat
+
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241031200731-4f70d4c680b8
 	github.com/charmbracelet/colorprofile v0.1.6
-	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-20241101153040-904e60506df7
 	github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917
 	github.com/charmbracelet/wish v1.4.0
@@ -25,6 +26,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/bubbletea v0.25.0 // indirect
 	github.com/charmbracelet/keygen v0.5.0 // indirect
+	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
 	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect

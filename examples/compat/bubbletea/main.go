@@ -6,15 +6,15 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/impure"
+	"github.com/charmbracelet/lipgloss/v2/compat"
 )
 
 var (
-	frameColor      = impure.AdaptiveColor{Light: lipgloss.Color("#C5ADF9"), Dark: lipgloss.Color("#864EFF")}
-	textColor       = impure.AdaptiveColor{Light: lipgloss.Color("#696969"), Dark: lipgloss.Color("#bdbdbd")}
-	keywordColor    = impure.AdaptiveColor{Light: lipgloss.Color("#37CD96"), Dark: lipgloss.Color("#22C78A")}
-	inactiveBgColor = impure.AdaptiveColor{Light: lipgloss.Color(0x988F95), Dark: lipgloss.Color(0x978692)}
-	inactiveFgColor = impure.AdaptiveColor{Light: lipgloss.Color(0xFDFCE3), Dark: lipgloss.Color(0xFBFAE7)}
+	frameColor      = compat.AdaptiveColor{Light: lipgloss.Color("#C5ADF9"), Dark: lipgloss.Color("#864EFF")}
+	textColor       = compat.AdaptiveColor{Light: lipgloss.Color("#696969"), Dark: lipgloss.Color("#bdbdbd")}
+	keywordColor    = compat.AdaptiveColor{Light: lipgloss.Color("#37CD96"), Dark: lipgloss.Color("#22C78A")}
+	inactiveBgColor = compat.AdaptiveColor{Light: lipgloss.Color(0x988F95), Dark: lipgloss.Color(0x978692)}
+	inactiveFgColor = compat.AdaptiveColor{Light: lipgloss.Color(0xFDFCE3), Dark: lipgloss.Color(0xFBFAE7)}
 )
 
 // Style definitions.
