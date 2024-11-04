@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/term"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/uniseg"
@@ -50,7 +50,6 @@ func init() {
 }
 
 func main() {
-
 	// Style definitions.
 	var (
 
@@ -427,7 +426,7 @@ func applyGradient(base lipgloss.Style, input string, from, to color.Color) stri
 	// bytes. The rune count would get us closer but there are times, like with
 	// emojis, where the rune count is greater than the number of actual
 	// characters.
-	var g = uniseg.NewGraphemes(input)
+	g := uniseg.NewGraphemes(input)
 	var chars []string
 	for g.Next() {
 		chars = append(chars, g.Str())
