@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/v2/table"
 )
 
 func main() {
