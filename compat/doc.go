@@ -18,4 +18,4 @@
 //		impure.Writer = colorprofile.NewWriter(os.Stderr, os.Environ())
 //		impure.HasDarkBackground, _ = lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
 //	}
-package impure
+package compat

@@ -1,4 +1,4 @@
-package impure
+package compat
 
 import (
 	"image/color"
@@ -15,9 +15,8 @@ var (
 		return hdb
 	}()
 
-	// Writer is the default writer that prints to stdout, automatically
-	// downsampling colors when necessary.
-	Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
+	// Profile is the color profile of the terminal.
+	Profile = colorprofile.Detect(os.Stdout, os.Environ())
 )
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
@@ -52,7 +51,7 @@ type CompleteColor struct {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface.
 func (c CompleteColor) RGBA() (uint32, uint32, uint32, uint32) {
-	switch Writer.Profile {
+	switch Profile {
 	case colorprofile.TrueColor:
 		return c.TrueColor.RGBA()
 	case colorprofile.ANSI256:
