@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -93,4 +94,67 @@ func Fprintln(w io.Writer, v ...interface{}) (int, error) {
 //	Fprintf(os.Stderr, "I really love %s!\n", food)
 func Fprintf(w io.Writer, format string, v ...interface{}) (int, error) {
 	return fmt.Fprintf(colorprofile.NewWriter(w, os.Environ()), format, v...) //nolint:wrapcheck
+}
+
+// Sprint returns a string for stdout, automatically downsampling colors when
+// necessary.
+//
+// Example:
+//
+//	str := NewStyle().
+//		Faint(true).
+//	    Foreground(lipgloss.Color("#6a00ff")).
+//	    Render("I love to eat")
+//
+//	str = Sprint(str)
+func Sprint(v ...interface{}) string {
+	var buf bytes.Buffer
+	w := colorprofile.Writer{
+		Forward: &buf,
+		Profile: Writer.Profile,
+	}
+	fmt.Fprint(&w, v...) //nolint:errcheck
+	return buf.String()
+}
+
+// Sprintln returns a string for stdout, automatically downsampling colors when
+// necessary, and ending with a trailing newline.
+//
+// Example:
+//
+//	str := NewStyle().
+//		Bold(true).
+//		Foreground(lipgloss.Color("#6a00ff")).
+//		Render("Yummy!")
+//
+//	str = Sprintln(str)
+func Sprintln(v ...interface{}) string {
+	var buf bytes.Buffer
+	w := colorprofile.Writer{
+		Forward: &buf,
+		Profile: Writer.Profile,
+	}
+	fmt.Fprintln(&w, v...) //nolint:errcheck
+	return buf.String()
+}
+
+// Sprintf returns a formatted string for stdout, automatically downsampling
+// colors when necessary.
+//
+// Example:
+//
+//	str := NewStyle().
+//		Bold(true).
+//		Foreground(lipgloss.Color("#fccaee")).
+//		Render("Cantaloupe")
+//
+//	str = Sprintf("I really love %s!", str)
+func Sprintf(format string, v ...interface{}) string {
+	var buf bytes.Buffer
+	w := colorprofile.Writer{
+		Forward: &buf,
+		Profile: Writer.Profile,
+	}
+	fmt.Fprintf(&w, format, v...) //nolint:errcheck
+	return buf.String()
 }
