@@ -59,6 +59,12 @@ func Color(c any) color.Color {
 	switch c := c.(type) {
 	case nil:
 		return noColor
+	case ansi.BasicColor:
+		return c
+	case ansi.ExtendedColor:
+		return c
+	case ansi.TrueColor:
+		return c
 	case string:
 		if len(c) == 0 {
 			return noColor
