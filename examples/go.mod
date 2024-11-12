@@ -4,12 +4,6 @@ go 1.19
 
 replace github.com/charmbracelet/lipgloss/v2 => ../
 
-replace github.com/charmbracelet/lipgloss/v2/list => ../list
-
-replace github.com/charmbracelet/lipgloss/v2/table => ../table
-
-replace github.com/charmbracelet/lipgloss/v2/compat => ../compat
-
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241031200731-4f70d4c680b8
 	github.com/charmbracelet/colorprofile v0.1.6
