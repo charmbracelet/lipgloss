@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// Sixels are a protocol for writing images to the terminal by writing a large blob of ANSI-escaped data.
+// They function by encoding columns of 6 pixels into a single character (in much the same way base64
+// encodes data 6 bits at a time). Sixel images are paletted, with a palette established at the beginning
+// of the image blob and pixels identifying palette entires by index while writing the pixel data.
+//
+// Sixels are written one 6-pixel-tall band at a time, one color at a time. For each band, a single
+// color's pixels are written, then a carriage return is written to bring the "cursor" back to the
+// beginning of a band where a new color is selected and pixels written. This continues until the entire
+// band has been drawn, at which time a line break is written to begin the next band.
+
 const (
 	sixelLineBreak      = '-'
 	sixelCarriageReturn = '$'
@@ -33,6 +43,29 @@ func (i SixelImage) PixelWidth() int {
 // PixelHeight gets the height of the image in pixels
 func (i SixelImage) PixelHeight() int {
 	return i.pixelHeight
+}
+
+// Sixel accepts a Go image and returns a SixelImage that can be rendered via
+// Style.RenderSixelImage
+func Sixel(image image.Image) SixelImage {
+	imageBounds := image.Bounds()
+	palette := newSixelPalette(image, sixelMaxColors)
+	scratch := newSixelBuilder(imageBounds.Dx(), imageBounds.Dy(), palette)
+
+	for y := 0; y < imageBounds.Dy(); y++ {
+		for x := 0; x < imageBounds.Dx(); x++ {
+			scratch.SetColor(x, y, image.At(x, y))
+		}
+	}
+
+	pixels := scratch.GeneratePixels()
+
+	return SixelImage{
+		pixelWidth:  imageBounds.Dx(),
+		pixelHeight: imageBounds.Dy(),
+		palette:     palette,
+		pixels:      pixels,
+	}
 }
 
 // sixelBuilder is a temporary structure used to create a SixelImage. It handles
@@ -64,52 +97,6 @@ func newSixelBuilder(width, height int, palette sixelPalette) sixelBuilder {
 	}
 
 	return scratch
-}
-
-// flushRepeats is used to actually write the current repeatRune to the imageData when
-// it is about to change. This buffering is used to manage RLE in the sixelBuilder
-func (s *sixelBuilder) flushRepeats() {
-	if s.repeatCount == 0 {
-		return
-	}
-
-	// Only write using the RLE form if it's actually providing space savings
-	if s.repeatCount > 3 {
-		countStr := strconv.Itoa(s.repeatCount)
-		s.imageData.WriteRune(sixelRepeat)
-		s.imageData.WriteString(countStr)
-		s.imageData.WriteRune(s.repeatRune)
-		return
-	}
-
-	for i := 0; i < s.repeatCount; i++ {
-		s.imageData.WriteRune(s.repeatRune)
-	}
-}
-
-// writeImageRune will write a single line of six pixels to pixel data.  The data
-// doesn't get written to the imageData, it gets buffered for the purposes of RLE
-func (s *sixelBuilder) writeImageRune(r rune) {
-	if r == s.repeatRune {
-		s.repeatCount++
-		return
-	}
-
-	s.flushRepeats()
-	s.repeatRune = r
-	s.repeatCount = 1
-}
-
-// writeControlRune will write a special rune such as a new line or carriage return
-// rune. It will call flushRepeats first, if necessary.
-func (s *sixelBuilder) writeControlRune(r rune) {
-	if s.repeatCount > 0 {
-		s.flushRepeats()
-		s.repeatCount = 0
-		s.repeatRune = 0
-	}
-
-	s.imageData.WriteRune(r)
 }
 
 // BandHeight returns the number of six-pixel bands this image consists of
@@ -208,25 +195,48 @@ func (s *sixelBuilder) GeneratePixels() string {
 	return s.imageData.String()
 }
 
-// Sixel accepts a Go image and returns a SixelImage that can be rendered via
-// Style.RenderSixelImage
-func Sixel(image image.Image) SixelImage {
-	imageBounds := image.Bounds()
-	palette := newSixelPalette(image, sixelMaxColors)
-	scratch := newSixelBuilder(imageBounds.Dx(), imageBounds.Dy(), palette)
-
-	for y := 0; y < imageBounds.Dy(); y++ {
-		for x := 0; x < imageBounds.Dx(); x++ {
-			scratch.SetColor(x, y, image.At(x, y))
-		}
+// writeImageRune will write a single line of six pixels to pixel data.  The data
+// doesn't get written to the imageData, it gets buffered for the purposes of RLE
+func (s *sixelBuilder) writeImageRune(r rune) {
+	if r == s.repeatRune {
+		s.repeatCount++
+		return
 	}
 
-	pixels := scratch.GeneratePixels()
+	s.flushRepeats()
+	s.repeatRune = r
+	s.repeatCount = 1
+}
 
-	return SixelImage{
-		pixelWidth:  imageBounds.Dx(),
-		pixelHeight: imageBounds.Dy(),
-		palette:     palette,
-		pixels:      pixels,
+// writeControlRune will write a special rune such as a new line or carriage return
+// rune. It will call flushRepeats first, if necessary.
+func (s *sixelBuilder) writeControlRune(r rune) {
+	if s.repeatCount > 0 {
+		s.flushRepeats()
+		s.repeatCount = 0
+		s.repeatRune = 0
+	}
+
+	s.imageData.WriteRune(r)
+}
+
+// flushRepeats is used to actually write the current repeatRune to the imageData when
+// it is about to change. This buffering is used to manage RLE in the sixelBuilder
+func (s *sixelBuilder) flushRepeats() {
+	if s.repeatCount == 0 {
+		return
+	}
+
+	// Only write using the RLE form if it's actually providing space savings
+	if s.repeatCount > 3 {
+		countStr := strconv.Itoa(s.repeatCount)
+		s.imageData.WriteRune(sixelRepeat)
+		s.imageData.WriteString(countStr)
+		s.imageData.WriteRune(s.repeatRune)
+		return
+	}
+
+	for i := 0; i < s.repeatCount; i++ {
+		s.imageData.WriteRune(s.repeatRune)
 	}
 }
