@@ -25,13 +25,13 @@ type SixelImage struct {
 	pixels      string
 }
 
-// Width gets the width of the image in pixels
-func (i SixelImage) Width() int {
+// PixelWidth gets the width of the image in pixels
+func (i SixelImage) PixelWidth() int {
 	return i.pixelWidth
 }
 
-// Height gets the height of the image in pixels
-func (i SixelImage) Height() int {
+// PixelHeight gets the height of the image in pixels
+func (i SixelImage) PixelHeight() int {
 	return i.pixelHeight
 }
 
@@ -48,7 +48,7 @@ type sixelBuilder struct {
 	imageHeight int
 	imageWidth  int
 
-	pixelBands []bitset.BitSet
+	pixelBands bitset.BitSet
 
 	imageData   strings.Builder
 	repeatRune  rune
@@ -62,9 +62,6 @@ func newSixelBuilder(width, height int, palette sixelPalette) sixelBuilder {
 		imageHeight:  height,
 		SixelPalette: palette,
 	}
-
-	bandHeight := scratch.BandHeight()
-	scratch.pixelBands = make([]bitset.BitSet, bandHeight)
 
 	return scratch
 }
@@ -131,8 +128,8 @@ func (s *sixelBuilder) SetColor(x int, y int, color color.Color) {
 	bandY := y / 6
 	paletteIndex := s.SixelPalette.ColorIndex(sixelConvertColor(color))
 
-	bit := s.imageWidth*6*paletteIndex + (x * 6) + (y % 6)
-	s.pixelBands[bandY].Set(uint(bit))
+	bit := s.BandHeight()*s.imageWidth*6*paletteIndex + bandY*s.imageWidth*6 + (x * 6) + (y % 6)
+	s.pixelBands.Set(uint(bit))
 }
 
 // GeneratePixels is used to write the pixel data to the internal imageData string builder.
@@ -162,10 +159,10 @@ func (s *sixelBuilder) GeneratePixels() string {
 				continue
 			}
 
-			firstColorBit := uint(s.imageWidth * 6 * paletteIndex)
+			firstColorBit := uint(s.BandHeight()*s.imageWidth*6*paletteIndex + bandY*s.imageWidth*6)
 			nextColorBit := firstColorBit + uint(s.imageWidth*6)
 
-			firstSetBitInBand, anySet := s.pixelBands[bandY].NextSet(firstColorBit)
+			firstSetBitInBand, anySet := s.pixelBands.NextSet(firstColorBit)
 			if !anySet || firstSetBitInBand >= nextColorBit {
 				// Color not appearing in this row
 				continue
@@ -180,7 +177,7 @@ func (s *sixelBuilder) GeneratePixels() string {
 			s.imageData.WriteString(strconv.Itoa(paletteIndex))
 			for x := 0; x < s.imageWidth; x += 4 {
 				bit := firstColorBit + uint(x*6)
-				word := s.pixelBands[bandY].Word(bit)
+				word := s.pixelBands.GetWord64AtBit(bit)
 
 				pixel1 := rune((word & 63) + '?')
 				pixel2 := rune(((word >> 6) & 63) + '?')

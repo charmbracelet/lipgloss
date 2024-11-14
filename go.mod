@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/bits-and-blooms/bitset v1.14.3
+	github.com/bits-and-blooms/bitset v1.15.0
 	github.com/charmbracelet/colorprofile v0.1.2
 	github.com/charmbracelet/x/ansi v0.4.5
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a

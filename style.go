@@ -503,7 +503,7 @@ func (s Style) applyMargins(str string, inline bool) string {
 // RenderSixelImage produces an ANSI-escaped string that, when written to a compatible
 // terminal, will display the provided SixelImage.  Incompatible terminals may display nothing,
 // or may print the (very large) ANSI-escaped string as plain text. On most terminals, the size on
-// screen will generally match SixelImage.Width and SixelImage.Height. However, compatible Windows
+// screen will generally match SixelImage.PixelWidth and SixelImage.PixelHeight. However, compatible Windows
 // terminals will always print 10 pixels per character horizontally and 20 pixels per character vertically,
 // which will distort the image based on the current font.
 //
@@ -526,9 +526,9 @@ func (s Style) RenderSixelImage(image SixelImage) string {
 	// c = image width in pixels
 	// d = image height in pixels
 	b.WriteString("\"1;1;")
-	b.WriteString(strconv.Itoa(image.Width()))
+	b.WriteString(strconv.Itoa(image.PixelWidth()))
 	b.WriteString(";")
-	b.WriteString(strconv.Itoa(image.Height()))
+	b.WriteString(strconv.Itoa(image.PixelHeight()))
 
 	bgColor := s.GetBackground()
 	hasBackground := bgColor != noColor

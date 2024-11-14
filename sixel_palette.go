@@ -229,7 +229,7 @@ func (p *sixelPalette) quantize(uniqueColors []sixelColor, pixelCounts map[sixel
 	}
 }
 
-// ColorIndex accepts a palette color and provides the palette index of that color
+// ColorIndex accepts a raw image color (NOT a palette color) and provides the palette index of that color
 func (p *sixelPalette) ColorIndex(c sixelColor) int {
 	return p.paletteIndexes[c]
 }
