@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"image/color"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -497,6 +498,90 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	return str
+}
+
+// RenderSixelImage produces an ANSI-escaped string that, when written to a compatible
+// terminal, will display the provided SixelImage.  Incompatible terminals may display nothing,
+// or may print the (very large) ANSI-escaped string as plain text. On most terminals, the size on
+// screen will generally match SixelImage.Width and SixelImage.Height. However, compatible Windows
+// terminals will always print 10 pixels per character horizontally and 20 pixels per character vertically,
+// which will distort the image based on the current font.
+//
+// Fully-transparent pixels in the image will always display the terminal's background color under
+// the image regardless of compatibility or settings. Semi-transparent pixels will attempt to mix
+// the pixel color with the background color stored in this Style. If this Style has no background color,
+// then the alpha channel for semi-transparent pixels will be ignored and the pixel color will be displayed
+// as-is.
+func (s Style) RenderSixelImage(image SixelImage) string {
+	b := strings.Builder{}
+	b.WriteRune(ansi.ESC)
+	// P<a>;<b>;<c>q
+	// a = pixel aspect ratio (deprecated)
+	// b = how to color unfilled pixels, 1 = transparent
+	// c = horizontal grid size, I think everyone ignores this
+	b.WriteString("P0;1;0q")
+	// "<a>;<b>;<c>;<d>
+	// a = pixel width
+	// b = pixel height
+	// c = image width in pixels
+	// d = image height in pixels
+	b.WriteString("\"1;1;")
+	b.WriteString(strconv.Itoa(image.Width()))
+	b.WriteString(";")
+	b.WriteString(strconv.Itoa(image.Height()))
+
+	bgColor := s.GetBackground()
+	hasBackground := bgColor != noColor
+	var bgRed, bgGreen, bgBlue uint32
+
+	if hasBackground {
+		styleRed, styleGreen, styleBlue, _ := bgColor.RGBA()
+
+		// Sixel palette entries are 0-100 instead of any normal color system
+		bgRed = sixelConvertChannel(styleRed)
+		bgGreen = sixelConvertChannel(styleGreen)
+		bgBlue = sixelConvertChannel(styleBlue)
+	}
+
+	for paletteIndex, c := range image.palette.PaletteColors {
+		// Initializing palette entries
+		// #<a>;<b>;<c>;<d>;<e>
+		// a = palette index
+		// b = color type, 2 is RGB
+		// c = R
+		// d = G
+		// e = B
+		b.WriteRune(sixelUseColor)
+		b.WriteString(strconv.Itoa(paletteIndex))
+		b.WriteString(";2;")
+
+		var paletteRed, paletteGreen, paletteBlue uint32
+		if hasBackground {
+			// Handle semi-transparency by mixing palette colors with the style's background
+			paletteRed = (c.Red*c.Alpha + bgRed*(100-c.Alpha)) / 100
+			paletteGreen = (c.Green*c.Alpha + bgGreen*(100-c.Alpha)) / 100
+			paletteBlue = (c.Blue*c.Alpha + bgBlue*(100-c.Alpha)) / 100
+		} else {
+			paletteRed = c.Red
+			paletteGreen = c.Green
+			paletteBlue = c.Blue
+		}
+
+		b.WriteString(strconv.Itoa(int(paletteRed)))
+		b.WriteRune(';')
+		b.WriteString(strconv.Itoa(int(paletteGreen)))
+		b.WriteRune(';')
+		b.WriteString(strconv.Itoa(int(paletteBlue)))
+	}
+
+	// Encoded pixel data, this is all set up in sixelBuilder.GeneratePixels
+	b.WriteString(image.pixels)
+
+	// ST ends the image
+	b.WriteRune(ansi.ESC)
+	b.WriteRune('\\')
+
+	return b.String()
 }
 
 // Apply left padding.
