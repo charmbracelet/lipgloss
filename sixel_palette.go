@@ -32,7 +32,7 @@ import (
 type sixelPalette struct {
 	// Map used to convert colors from the image to palette colors
 	colorConvert map[sixelColor]sixelColor
-	// Backward lookup to get index from palette color
+	// Lookup to get palette index from image color
 	paletteIndexes map[sixelColor]int
 	PaletteColors  []sixelColor
 }
