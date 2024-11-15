@@ -51,9 +51,9 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 	return 0x0, 0x0, 0x0, 0xFFFF //nolint:mnd
 }
 
-// Color specifies a color by hex or ANSI256 value. For example:
+// Color specifies a color by hex or int value. For example:
 //
-//	ansiColor := lipgloss.Color(21)
+//	intColor := lipgloss.Color(21) // equivalent to lipgloss.Color(0x000015)
 //	hexColor := lipgloss.Color("#0000ff")
 //	uint32Color := lipgloss.Color(0xff0000)
 func Color(c any) color.Color {
@@ -73,20 +73,10 @@ func Color(c any) color.Color {
 		if h, err := colorful.Hex(c); err == nil {
 			return h
 		} else if i, err := strconv.Atoi(c); err == nil {
-			if i < 16 { //nolint:mnd
-				return ansi.BasicColor(i) //nolint:gosec
-			} else if i < 256 { //nolint:mnd
-				return ansi.ExtendedColor(i) //nolint:gosec
-			}
 			return ansi.TrueColor(i) //nolint:gosec
 		}
 		return noColor
 	case int:
-		if c < 16 { //nolint:mnd
-			return ansi.BasicColor(c) //nolint:gosec
-		} else if c < 256 { //nolint:mnd
-			return ansi.ExtendedColor(c) //nolint:gosec
-		}
 		return ansi.TrueColor(c) //nolint:gosec
 	case color.Color:
 		return c

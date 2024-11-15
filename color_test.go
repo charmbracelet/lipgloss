@@ -50,11 +50,11 @@ func TestRGBA(t *testing.T) {
 		},
 		{
 			"9",
-			0xFF0000,
+			9,
 		},
 		{
 			"21",
-			0x0000FF,
+			21,
 		},
 	}
 
