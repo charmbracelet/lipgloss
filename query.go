@@ -1,7 +1,6 @@
 package lipgloss
 
 import (
-	"errors"
 	"fmt"
 	"image/color"
 	"os"
@@ -53,7 +52,7 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 // Typically, you'll want to query against stdin and either stdout or stderr
 // depending on what you're writing to.
 //
-//	hasDarkBG, _ := HasDarkBackground(os.Stdin, os.Stdout)
+//	hasDarkBG := HasDarkBackground(os.Stdin, os.Stdout)
 //	lightDark := LightDark(hasDarkBG)
 //	myHotColor := lightDark("#ff0000", "#0000ff")
 //
@@ -62,14 +61,12 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 //
 //	case tea.BackgroundColorMsg:
 //	    hasDarkBackground = msg.IsDark()
-func HasDarkBackground(in *os.File, out *os.File) (bool, error) {
+//
+// By default, this function will return true if it encounters an error.
+func HasDarkBackground(in *os.File, out *os.File) bool {
 	bg, err := BackgroundColor(in, out)
-	if err != nil {
-		return true, fmt.Errorf("could not detect background color: %w", err)
+	if err != nil || bg == nil {
+		return true
 	}
-	if bg == nil {
-		return true, errors.New("detected background color is nil")
-	}
-
-	return isDarkColor(bg), nil
+	return isDarkColor(bg)
 }
