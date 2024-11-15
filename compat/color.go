@@ -9,10 +9,7 @@ import (
 
 var (
 	// HasDarkBackground is true if the terminal has a dark background.
-	HasDarkBackground = func() bool {
-		hdb, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-		return hdb
-	}()
+	HasDarkBackground = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
 
 	// Profile is the color profile of the terminal.
 	Profile = colorprofile.Detect(os.Stdout, os.Environ())
