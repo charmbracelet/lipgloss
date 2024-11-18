@@ -1,9 +1,9 @@
 package lipgloss
 
 import (
-	"fmt"
 	"image/color"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
@@ -53,45 +53,37 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 
 // Color specifies a color by hex or ANSI256 value. For example:
 //
-//	ansiColor := lipgloss.Color(21)
+//	ansiColor := lipgloss.Color("1") // The same as lipgloss.Red
+//	ansi256Color := lipgloss.Color("21")
 //	hexColor := lipgloss.Color("#0000ff")
-//	uint32Color := lipgloss.Color(0xff0000)
-func Color(c any) color.Color {
-	switch c := c.(type) {
-	case nil:
-		return noColor
-	case ansi.BasicColor:
-		return c
-	case ansi.ExtendedColor:
-		return c
-	case ansi.TrueColor:
-		return c
-	case string:
-		if len(c) == 0 {
-			return noColor
+func Color(s string) color.Color {
+	var c color.Color = noColor
+	if strings.HasPrefix(s, "#") {
+		hex, err := colorful.Hex(s)
+		if err != nil {
+			return c
 		}
-		if h, err := colorful.Hex(c); err == nil {
-			return h
-		} else if i, err := strconv.Atoi(c); err == nil {
-			if i < 16 { //nolint:mnd
-				return ansi.BasicColor(i) //nolint:gosec
-			} else if i < 256 { //nolint:mnd
-				return ansi.ExtendedColor(i) //nolint:gosec
-			}
-			return ansi.TrueColor(i) //nolint:gosec
+		c = hex
+	} else {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			return c
 		}
-		return noColor
-	case int:
-		if c < 16 { //nolint:mnd
-			return ansi.BasicColor(c) //nolint:gosec
-		} else if c < 256 { //nolint:mnd
-			return ansi.ExtendedColor(c) //nolint:gosec
+
+		if i < 0 {
+			// Only positive numbers
+			i = -i
 		}
-		return ansi.TrueColor(c) //nolint:gosec
-	case color.Color:
-		return c
+
+		if i < 16 {
+			c = ansi.BasicColor(i) //nolint:gosec
+		} else if i < 256 {
+			c = ANSIColor(i) //nolint:gosec
+		} else {
+			c = ansi.TrueColor(i) //nolint:gosec
+		}
 	}
-	return Color(fmt.Sprint(c))
+	return c
 }
 
 // RGBColor is a color specified by red, green, and blue values.
@@ -127,16 +119,18 @@ type ANSIColor = ansi.ExtendedColor
 // Example:
 //
 //	lightDark := lipgloss.LightDark(hasDarkBackground)
-//	myHotColor := lightDark("#ff0000", "#0000ff")
+//	red, blue := lipgloss.Color("#ff0000"), lipgloss.Color("#0000ff")
+//	myHotColor := lightDark(red, blue)
 //
 // For more info see [LightDark].
-type LightDarkFunc func(light, dark any) color.Color
+type LightDarkFunc func(light, dark color.Color) color.Color
 
 // LightDark is a simple helper type that can be used to choose the appropriate
 // color based on whether the terminal has a light or dark background.
 //
 //	lightDark := lipgloss.LightDark(hasDarkBackground)
-//	theRightColor := lightDark("#0000ff", "#ff0000")
+//	red, blue := lipgloss.Color("#ff0000"), lipgloss.Color("#0000ff")
+//	myHotColor := lightDark(red, blue)
 //
 // In practice, there are slightly different workflows between Bubble Tea and
 // Lip Gloss standalone.
@@ -150,19 +144,21 @@ type LightDarkFunc func(light, dark any) color.Color
 // Later, when you're rendering:
 //
 //	lightDark := lipgloss.LightDark(m.hasDarkBackground)
-//	myHotColor := lightDark("#ff0000", "#0000ff")
+//	red, blue := lipgloss.Color("#ff0000"), lipgloss.Color("#0000ff")
+//	myHotColor := lightDark(red, blue)
 //
 // In standalone Lip Gloss, the workflow is simpler:
 //
-//	hasDarkBG, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+//	hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
 //	lightDark := lipgloss.LightDark(hasDarkBG)
-//	myHotColor := lightDark("#ff0000", "#0000ff")
+//	red, blue := lipgloss.Color("#ff0000"), lipgloss.Color("#0000ff")
+//	myHotColor := lightDark(red, blue)
 func LightDark(isDark bool) LightDarkFunc {
-	return func(light, dark any) color.Color {
+	return func(light, dark color.Color) color.Color {
 		if isDark {
-			return Color(dark)
+			return dark
 		}
-		return Color(light)
+		return light
 	}
 }
 

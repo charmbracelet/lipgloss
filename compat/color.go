@@ -1,6 +1,7 @@
 package compat
 
 import (
+	"image/color"
 	"os"
 
 	"github.com/charmbracelet/colorprofile"
@@ -23,25 +24,25 @@ var (
 //
 //	color := lipgloss.AdaptiveColor{Light: "#0000ff", Dark: "#000099"}
 type AdaptiveColor struct {
-	Light any
-	Dark  any
+	Light color.Color
+	Dark  color.Color
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface.
 func (c AdaptiveColor) RGBA() (uint32, uint32, uint32, uint32) {
 	if HasDarkBackground {
-		return lipgloss.Color(c.Dark).RGBA()
+		return c.Dark.RGBA()
 	}
-	return lipgloss.Color(c.Light).RGBA()
+	return c.Light.RGBA()
 }
 
 // CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
 // profiles. Automatic color degradation will not be performed.
 type CompleteColor struct {
-	TrueColor any
-	ANSI256   any
-	ANSI      any
+	TrueColor color.Color
+	ANSI256   color.Color
+	ANSI      color.Color
 }
 
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
@@ -49,11 +50,11 @@ type CompleteColor struct {
 func (c CompleteColor) RGBA() (uint32, uint32, uint32, uint32) {
 	switch Profile {
 	case colorprofile.TrueColor:
-		return lipgloss.Color(c.TrueColor).RGBA()
+		return c.TrueColor.RGBA()
 	case colorprofile.ANSI256:
-		return lipgloss.Color(c.ANSI256).RGBA()
+		return c.ANSI256.RGBA()
 	case colorprofile.ANSI:
-		return lipgloss.Color(c.ANSI).RGBA()
+		return c.ANSI.RGBA()
 	}
 	return lipgloss.NoColor{}.RGBA()
 }
