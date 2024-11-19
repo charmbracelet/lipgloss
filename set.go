@@ -65,6 +65,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.tabWidth = value.(int)
 	case transformKey:
 		s.transform = value.(func(string) string)
+	case hyperlinkURLKey:
+		s.hyperlinkURL = value.(string)
+	case hyperlinkParamsKey:
+		s.hyperlinkParams = value.(string)
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
@@ -145,6 +149,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(tabWidthKey, i.tabWidth)
 	case transformKey:
 		s.set(transformKey, i.transform)
+	case hyperlinkURLKey:
+		s.set(hyperlinkURLKey, i.hyperlinkURL)
+	case hyperlinkParamsKey:
+		s.set(hyperlinkParamsKey, i.hyperlinkParams)
 	default:
 		// Set attributes for set bool properties
 		s.set(key, i.attrs)
@@ -682,6 +690,35 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 //	fmt.Println(s.Render("raow!") // "RAOW!"
 func (s Style) Transform(fn func(string) string) Style {
 	s.set(transformKey, fn)
+	return s
+}
+
+// Hyperlink sets a hyperlink on the style. You're responsible for setting
+// a style on the on the text so that it visually identifiable as a hyperlink
+// (or not).
+//
+// Note that hyperlinks are not available in all terminal emulators and there's
+// a no way to detect if hyperlinks are supported. If hyperlinks are not
+// the text will still render as normal.
+//
+// Hyperlinks in terminal emulators can optionally contain parameters. To set
+// those see [Style.hyperlinkParams].
+func (s Style) Hyperlink(url string) Style {
+	if url == "" {
+		return s
+	}
+
+	s.set(hyperlinkURLKey, url)
+	return s
+}
+
+// HyperlinkParams sets parameters for a hyperlink, such as an ID. If no
+// URL is set via [Style.Hyperlink], hyperlink parameters will be ignored.
+func (s Style) HyperlinkParams(p map[string]string) Style {
+	if p == nil {
+		return s
+	}
+	s.set(hyperlinkParamsKey, encodeHyperlinkParams(p))
 	return s
 }
 
