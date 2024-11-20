@@ -39,9 +39,9 @@ func main() {
 
 	headers := []string{"#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."}
 	data := [][]string{
-		{"1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"},
-		{"2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Ivysaur"},
-		{"3", "Venusaur", "Grass", "Poison", "フシギバナ", "Venusaur"},
+		{"1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Fushigidane"},
+		{"2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Fushigisou"},
+		{"3", "Venusaur", "Grass", "Poison", "フシギバナ", "Fushigibana"},
 		{"4", "Charmander", "Fire", "", "ヒトカゲ", "Hitokage"},
 		{"5", "Charmeleon", "Fire", "", "リザード", "Lizardo"},
 		{"6", "Charizard", "Fire", "Flying", "リザードン", "Lizardon"},

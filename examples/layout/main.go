@@ -29,10 +29,13 @@ var (
 
 	// General.
 
+	normal    = lipgloss.Color("#EEEEEE")
 	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
 	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 	blends    = gamut.Blends(lipgloss.Color("#F25D94"), lipgloss.Color("#EDFF82"), 50)
+
+	base = lipgloss.NewStyle().Foreground(normal)
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -88,9 +91,9 @@ var (
 			Foreground(lipgloss.Color("#FFF7DB")).
 			SetString("Lip Gloss")
 
-	descStyle = lipgloss.NewStyle().MarginTop(1)
+	descStyle = base.MarginTop(1)
 
-	infoStyle = lipgloss.NewStyle().
+	infoStyle = base.
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderTop(true).
 			BorderForeground(subtle)
@@ -127,14 +130,14 @@ var (
 		Height(8).
 		Width(columnWidth + 1)
 
-	listHeader = lipgloss.NewStyle().
+	listHeader = base.
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
 			BorderForeground(subtle).
 			MarginRight(2).
 			Render
 
-	listItem = lipgloss.NewStyle().PaddingLeft(2).Render
+	listItem = base.PaddingLeft(2).Render
 
 	checkMark = lipgloss.NewStyle().SetString("✓").
 			Foreground(special).
