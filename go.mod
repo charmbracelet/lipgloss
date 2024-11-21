@@ -4,14 +4,14 @@ go 1.18
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/charmbracelet/colorprofile v0.1.2
-	github.com/charmbracelet/x/ansi v0.4.2
+	github.com/charmbracelet/colorprofile v0.1.8
+	github.com/charmbracelet/x/ansi v0.5.1
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
-	github.com/charmbracelet/x/term v0.2.0
+	github.com/charmbracelet/x/term v0.2.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/muesli/cancelreader v0.2.2
 	github.com/rivo/uniseg v0.4.7
-	golang.org/x/sys v0.24.0
+	golang.org/x/sys v0.27.0
 )
 
 require (

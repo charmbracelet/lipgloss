@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"image/color"
 	"io"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/charmbracelet/x/ansi/parser"
 	"github.com/muesli/cancelreader"
 )
 
@@ -30,17 +28,17 @@ func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error
 		func(seq string, pa *ansi.Parser) bool {
 			switch {
 			case ansi.HasOscPrefix(seq):
-				switch pa.Cmd {
+				switch pa.Cmd() {
 				case 11: // OSC 11
-					parts := strings.Split(string(pa.Data[:pa.DataLen]), ";")
+					parts := strings.Split(string(pa.Data()), ";")
 					if len(parts) != 2 {
 						break // invalid, but we still need to parse the next sequence
 					}
-					c = xParseColor(parts[1])
+					c = ansi.XParseColor(parts[1])
 				}
 			case ansi.HasCsiPrefix(seq):
-				switch pa.Cmd {
-				case 'c' | '?'<<parser.MarkerShift: // DA1
+				switch pa.Cmd() {
+				case ansi.Cmd('?', 0, 'c'): // DA1
 					return false
 				}
 			}
@@ -114,40 +112,4 @@ func queryTerminal(
 			p = p[read:]
 		}
 	}
-}
-
-func shift(x uint64) uint64 {
-	if x > 0xff {
-		x >>= 8
-	}
-	return x
-}
-
-func xParseColor(s string) color.Color {
-	switch {
-	case strings.HasPrefix(s, "rgb:"):
-		parts := strings.Split(s[4:], "/")
-		if len(parts) != 3 {
-			return color.Black
-		}
-
-		r, _ := strconv.ParseUint(parts[0], 16, 32)
-		g, _ := strconv.ParseUint(parts[1], 16, 32)
-		b, _ := strconv.ParseUint(parts[2], 16, 32)
-
-		return color.RGBA{uint8(shift(r)), uint8(shift(g)), uint8(shift(b)), 255} //nolint:gosec
-	case strings.HasPrefix(s, "rgba:"):
-		parts := strings.Split(s[5:], "/")
-		if len(parts) != 4 {
-			return color.Black
-		}
-
-		r, _ := strconv.ParseUint(parts[0], 16, 32)
-		g, _ := strconv.ParseUint(parts[1], 16, 32)
-		b, _ := strconv.ParseUint(parts[2], 16, 32)
-		a, _ := strconv.ParseUint(parts[3], 16, 32)
-
-		return color.RGBA{uint8(shift(r)), uint8(shift(g)), uint8(shift(b)), uint8(shift(a))} //nolint:gosec
-	}
-	return nil
 }
