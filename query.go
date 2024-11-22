@@ -33,6 +33,23 @@ func backgroundColor(in *os.File, out *os.File) (color.Color, error) {
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
 func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 	if runtime.GOOS == "windows" {
+		// On Windows, when the input/output is redirected or piped, we need to
+		// open the console explicitly.
+		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks
+		if !term.IsTerminal(in.Fd()) {
+			f, err := os.OpenFile("CONIN$", os.O_RDWR, 0o644)
+			if err != nil {
+				return nil, fmt.Errorf("error opening CONIN$: %w", err)
+			}
+			in = f
+		}
+		if !term.IsTerminal(out.Fd()) {
+			f, err := os.OpenFile("CONOUT$", os.O_RDWR, 0o644)
+			if err != nil {
+				return nil, fmt.Errorf("error opening CONOUT$: %w", err)
+			}
+			out = f
+		}
 		return backgroundColor(in, out)
 	}
 
