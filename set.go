@@ -223,8 +223,9 @@ func (s Style) Background(c TerminalColor) Style {
 	return s
 }
 
-// Width sets the width of the block before applying margins. The width, if
-// set, also determines where text will wrap.
+// Width sets the width of the block before applying margins. This means your
+// styled content will exactly equal the size set here. Text will wrap based on
+// Padding and Borders set on the style.
 func (s Style) Width(i int) Style {
 	s.set(widthKey, i)
 	return s
