@@ -142,9 +142,9 @@ func main() {
 		list = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder(), false, true, false, false).
 			BorderForeground(subtle).
-			MarginRight(2).
+			MarginRight(1).
 			Height(8).
-			Width(columnWidth + 1)
+			Width(width / 3)
 
 		listHeader = lipgloss.NewStyle().
 				BorderStyle(lipgloss.NormalBorder()).
