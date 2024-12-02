@@ -267,6 +267,9 @@ func (s Style) Render(strs ...string) string {
 		bottomPadding = s.getAsInt(paddingBottomKey)
 		leftPadding   = s.getAsInt(paddingLeftKey)
 
+		horizontalBorderSize = s.GetHorizontalBorderSize()
+		verticalBorderSize   = s.GetVerticalBorderSize()
+
 		colorWhitespace = s.getAsBool(colorWhitespaceKey, true)
 		inline          = s.getAsBool(inlineKey, false)
 		maxWidth        = s.getAsInt(maxWidthKey)
@@ -360,6 +363,10 @@ func (s Style) Render(strs ...string) string {
 	if inline {
 		str = strings.ReplaceAll(str, "\n", "")
 	}
+
+	// Include borders in block size.
+	width -= horizontalBorderSize
+	height -= verticalBorderSize
 
 	// Word wrap
 	if !inline && width > 0 {
