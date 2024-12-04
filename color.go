@@ -135,13 +135,14 @@ type LightDarkFunc func(light, dark color.Color) color.Color
 // In practice, there are slightly different workflows between Bubble Tea and
 // Lip Gloss standalone.
 //
-// In Bubble Tea listen for tea.BackgroundColorMsg, which automatically
-// flows through Update on start, and whenever the background color changes:
+// In Bubble Tea, listen for tea.BackgroundColorMsg, which automatically
+// flows through Update on start. This message will be received whenever the
+// background color changes:
 //
 //	case tea.BackgroundColorMsg:
 //	    m.hasDarkBackground = msg.IsDark()
 //
-// Later, when you're rendering:
+// Later, when you're rendering use:
 //
 //	lightDark := lipgloss.LightDark(m.hasDarkBackground)
 //	red, blue := lipgloss.Color("#ff0000"), lipgloss.Color("#0000ff")

@@ -96,7 +96,7 @@ func (p props) has(k propKey) bool {
 }
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
-// Style{} primitive, it's recommended to use this function for creating styles
+// [Style]{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes.
 func NewStyle() Style {
 	return Style{}
@@ -155,10 +155,10 @@ func joinString(strs ...string) string {
 }
 
 // SetString sets the underlying string value for this style. To render once
-// the underlying string is set, use the Style.String. This method is
+// the underlying string is set, use the [Style.String]. This method is
 // a convenience for cases when having a stringer implementation is handy, such
 // as when using fmt.Sprintf. You can also simply define a style and render out
-// strings directly with Style.Render.
+// strings directly with [Style.Render].
 func (s Style) SetString(strs ...string) Style {
 	s.value = joinString(strs...)
 	return s

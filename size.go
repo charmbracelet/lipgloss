@@ -10,7 +10,7 @@ import (
 // ignored and characters wider than one cell (such as Chinese characters and
 // emojis) are appropriately measured.
 //
-// You should use this instead of len(string) len([]rune(string) as neither
+// You should use this instead of len(string) or len([]rune(string) as neither
 // will give you accurate results.
 func Width(str string) (width int) {
 	for _, l := range strings.Split(str, "\n") {
@@ -24,9 +24,8 @@ func Width(str string) (width int) {
 }
 
 // Height returns height of a string in cells. This is done simply by
-// counting \n characters. If your strings use \r\n for newlines you should
-// convert them to \n first, or simply write a separate function for measuring
-// height.
+// counting \n characters. If your output has \r\n, that sequence will be
+// replaced with a \n in [Style.Render].
 func Height(str string) int {
 	return strings.Count(str, "\n") + 1
 }
