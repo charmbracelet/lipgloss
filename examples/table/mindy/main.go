@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 )
 
 func main() {
@@ -33,8 +33,8 @@ func main() {
 		Rows(data...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			color := lipgloss.Color(fmt.Sprint(data[row][col-col%2]))
-			switch {
-			case col%2 == 0:
+			switch col % 2 {
+			case 0:
 				return labelStyle.Foreground(color)
 			default:
 				return swatchStyle.Background(color)

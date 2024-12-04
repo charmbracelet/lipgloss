@@ -7,32 +7,24 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/compat"
+)
+
+var (
+	frameColor      = compat.AdaptiveColor{Light: lipgloss.Color("#C5ADF9"), Dark: lipgloss.Color("#864EFF")}
+	textColor       = compat.AdaptiveColor{Light: lipgloss.Color("#696969"), Dark: lipgloss.Color("#bdbdbd")}
+	keywordColor    = compat.AdaptiveColor{Light: lipgloss.Color("#37CD96"), Dark: lipgloss.Color("#22C78A")}
+	inactiveBgColor = compat.AdaptiveColor{Light: lipgloss.Color(0x988F95), Dark: lipgloss.Color(0x978692)}
+	inactiveFgColor = compat.AdaptiveColor{Light: lipgloss.Color(0xFDFCE3), Dark: lipgloss.Color(0xFBFAE7)}
 )
 
 func main() {
-	// Query for the background color. We only need to do this once, and only
-	// when using Lip Gloss standalone.
-	//
-	// In Bubble Tea listen for tea.BackgroundColorMsg in your Update.
-	hasDarkBG, err := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not detect background color: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Create a new helper function for choosing either a light or dark color
-	// based on the detected background color.
-	lightDark := lipgloss.LightDark(hasDarkBG)
-
 	// Define some styles. adaptive.Color() can be used to choose the
 	// appropriate light or dark color based on the detected background color.
 	frameStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lightDark("#C5ADF9", "#864EFF")).
+		BorderForeground(frameColor).
 		Padding(1, 3).
 		Margin(1, 3)
 	paragraphStyle := lipgloss.NewStyle().
@@ -40,9 +32,9 @@ func main() {
 		MarginBottom(1).
 		Align(lipgloss.Center)
 	textStyle := lipgloss.NewStyle().
-		Foreground(lightDark("#696969", "#bdbdbd"))
+		Foreground(textColor)
 	keywordStyle := lipgloss.NewStyle().
-		Foreground(lightDark("#37CD96", "#22C78A")).
+		Foreground(keywordColor).
 		Bold(true)
 
 	activeButton := lipgloss.NewStyle().
@@ -50,8 +42,8 @@ func main() {
 		Background(lipgloss.Color(0xFF6AD2)). // you can also use octal format for colors, i.e 0xff38ec.
 		Foreground(lipgloss.Color(0xFFFCC2))
 	inactiveButton := activeButton.
-		Background(lightDark(0x988F95, 0x978692)).
-		Foreground(lightDark(0xFDFCE3, 0xFBFAE7))
+		Background(inactiveBgColor).
+		Foreground(inactiveFgColor)
 
 	// Build layout.
 	text := paragraphStyle.Render(

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/tree"
 )
 
 func main() {

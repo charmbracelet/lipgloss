@@ -1,7 +1,6 @@
 package lipgloss
 
 import (
-	"errors"
 	"fmt"
 	"image/color"
 	"os"
@@ -34,6 +33,23 @@ func backgroundColor(in *os.File, out *os.File) (color.Color, error) {
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
 func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 	if runtime.GOOS == "windows" {
+		// On Windows, when the input/output is redirected or piped, we need to
+		// open the console explicitly.
+		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks
+		if !term.IsTerminal(in.Fd()) {
+			f, err := os.OpenFile("CONIN$", os.O_RDWR, 0o644)
+			if err != nil {
+				return nil, fmt.Errorf("error opening CONIN$: %w", err)
+			}
+			in = f
+		}
+		if !term.IsTerminal(out.Fd()) {
+			f, err := os.OpenFile("CONOUT$", os.O_RDWR, 0o644)
+			if err != nil {
+				return nil, fmt.Errorf("error opening CONOUT$: %w", err)
+			}
+			out = f
+		}
 		return backgroundColor(in, out)
 	}
 
@@ -53,8 +69,8 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 // Typically, you'll want to query against stdin and either stdout or stderr
 // depending on what you're writing to.
 //
-//	hasDarkBG, _ := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-//	lightDark := lipgloss.LightDark(hasDarkBG)
+//	hasDarkBG := HasDarkBackground(os.Stdin, os.Stdout)
+//	lightDark := LightDark(hasDarkBG)
 //	myHotColor := lightDark("#ff0000", "#0000ff")
 //
 // This is intended for use in standalone Lip Gloss only. In Bubble Tea, listen
@@ -62,14 +78,12 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 //
 //	case tea.BackgroundColorMsg:
 //	    hasDarkBackground = msg.IsDark()
-func HasDarkBackground(in *os.File, out *os.File) (bool, error) {
+//
+// By default, this function will return true if it encounters an error.
+func HasDarkBackground(in *os.File, out *os.File) bool {
 	bg, err := BackgroundColor(in, out)
-	if err != nil {
-		return true, fmt.Errorf("could not detect background color: %w", err)
+	if err != nil || bg == nil {
+		return true
 	}
-	if bg == nil {
-		return true, errors.New("detected background color is nil")
-	}
-
-	return isDarkColor(bg), nil
+	return isDarkColor(bg)
 }
