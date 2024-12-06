@@ -31,7 +31,10 @@ func main() {
 					"Leek",
 					"Artichoke",
 				),
-		).ItemStyle(itemStyle).EnumeratorStyle(enumeratorStyle).Enumerator(tree.RoundedEnumerator)
+		).ItemStyle(itemStyle).
+		EnumeratorStyle(enumeratorStyle).
+		Enumerator(tree.RoundedEnumerator).
+		IndenterStyle(enumeratorStyle)
 
 	fmt.Println(t)
 }
