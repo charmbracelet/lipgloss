@@ -30,7 +30,9 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 	// appropriate light or dark color based on the detected background color.
 	s.frame = lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lightDark("#C5ADF9", "#864EFF")).
+		BorderForeground(lightDark(
+			lipgloss.Color("#C5ADF9"),
+			lipgloss.Color("#864EFF"))).
 		Padding(1, 3).
 		Margin(1, 3)
 	s.paragraph = lipgloss.NewStyle().
@@ -38,18 +40,26 @@ func newStyles(backgroundIsDark bool) (s *styles) {
 		MarginBottom(1).
 		Align(lipgloss.Center)
 	s.text = lipgloss.NewStyle().
-		Foreground(lightDark("#696969", "#bdbdbd"))
+		Foreground(lightDark(
+			lipgloss.Color("#696969"),
+			lipgloss.Color("#bdbdbd")))
 	s.keyword = lipgloss.NewStyle().
-		Foreground(lightDark("#37CD96", "#22C78A")).
+		Foreground(lightDark(
+			lipgloss.Color("#37CD96"),
+			lipgloss.Color("#22C78A"))).
 		Bold(true)
 
 	s.activeButton = lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color(0xFF6AD2)). // you can also use octal format for colors, i.e 0xff38ec.
-		Foreground(lipgloss.Color(0xFFFCC2))
+		Background(lipgloss.Color("0xFF6AD2")). // you can also use octal format for colors, i.e 0xff38ec.
+		Foreground(lipgloss.Color("0xFFFCC2"))
 	s.inactiveButton = s.activeButton.
-		Background(lightDark(0x988F95, 0x978692)).
-		Foreground(lightDark(0xFDFCE3, 0xFBFAE7))
+		Background(lightDark(
+			lipgloss.Color("0x988F95"),
+			lipgloss.Color("0x978692"))).
+		Foreground(lightDark(
+			lipgloss.Color("0xFDFCE3"),
+			lipgloss.Color("0xFBFAE7")))
 	return s
 }
 
