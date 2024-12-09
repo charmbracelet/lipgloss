@@ -42,11 +42,11 @@ func main() {
 
 	activeButton := lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color("0xFF6AD2")). // you can also use octal format for colors, i.e 0xff38ec.
-		Foreground(lipgloss.Color("0xFFFCC2"))
+		Background(lipgloss.Color("#FF6AD2")).
+		Foreground(lipgloss.Color("#FFFCC2"))
 	inactiveButton := activeButton.
-		Background(lightDark(lipgloss.Color("0x988F95"), lipgloss.Color("0x978692"))).
-		Foreground(lightDark(lipgloss.Color("0xFDFCE3"), lipgloss.Color("0xFBFAE7")))
+		Background(lightDark(lipgloss.Color("#988F95"), lipgloss.Color("#978692"))).
+		Foreground(lightDark(lipgloss.Color("#FDFCE3"), lipgloss.Color("#FBFAE7")))
 
 	// Build layout.
 	text := paragraphStyle.Render(
