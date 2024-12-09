@@ -102,12 +102,7 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.gray,
 		)
 
-		hasDarkBG, err := lipgloss.HasDarkBackground(pty.Slave, pty.Slave)
-		if err != nil {
-			log.Print("Could not detect background color: %w", err)
-			return
-		}
-
+		hasDarkBG := lipgloss.HasDarkBackground(pty.Slave, pty.Slave)
 		lightDark := lipgloss.LightDark(hasDarkBG)
 
 		fmt.Fprintf(&str, "%s %s\n\n",
@@ -123,7 +118,11 @@ func handler(next ssh.Handler) ssh.Handler {
 		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
 			lipgloss.WithWhitespaceChars("/"),
-			lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Foreground(lightDark(250, 236))),
+			lipgloss.WithWhitespaceStyle(
+				lipgloss.NewStyle().Foreground(lightDark(
+					lipgloss.ANSIColor(250),
+					lipgloss.ANSIColor(236),
+				))),
 		)
 
 		// Render to client.

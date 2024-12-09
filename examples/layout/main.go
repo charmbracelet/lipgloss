@@ -35,14 +35,8 @@ var (
 )
 
 func init() {
-	var err error
-
 	// Detect the background color.
-	hasDarkBG, err = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not detect background color: %v\n", err)
-		os.Exit(1)
-	}
+	hasDarkBG = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
@@ -55,9 +49,9 @@ func main() {
 
 		// General.
 
-		subtle    = lightDark("#D9DCCF", "#383838")
-		highlight = lightDark("#874BFD", "#7D56F4")
-		special   = lightDark("#43BF6D", "#73F59F")
+		subtle    = lightDark(lipgloss.Color("#D9DCCF"), lipgloss.Color("#383838"))
+		highlight = lightDark(lipgloss.Color("#874BFD"), lipgloss.Color("#7D56F4"))
+		special   = lightDark(lipgloss.Color("#43BF6D"), lipgloss.Color("#73F59F"))
 
 		divider = lipgloss.NewStyle().
 			SetString("•").
@@ -169,7 +163,7 @@ func main() {
 		listDone = func(s string) string {
 			return checkMark + lipgloss.NewStyle().
 				Strikethrough(true).
-				Foreground(lightDark("#969B86", "#696969")).
+				Foreground(lightDark(lipgloss.Color("#969B86"), lipgloss.Color("#696969"))).
 				Render(s)
 		}
 
@@ -191,8 +185,8 @@ func main() {
 				Padding(0, 1)
 
 		statusBarStyle = lipgloss.NewStyle().
-				Foreground(lightDark("#343433", "#C1C6B2")).
-				Background(lightDark("#D9DCCF", "#353533"))
+				Foreground(lightDark(lipgloss.Color("#343433"), lipgloss.Color("#C1C6B2"))).
+				Background(lightDark(lipgloss.Color("#D9DCCF"), lipgloss.Color("#353533")))
 
 		statusStyle = lipgloss.NewStyle().
 				Inherit(statusBarStyle).

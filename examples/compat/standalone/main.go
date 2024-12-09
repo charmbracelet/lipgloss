@@ -15,8 +15,8 @@ var (
 	frameColor      = compat.AdaptiveColor{Light: lipgloss.Color("#C5ADF9"), Dark: lipgloss.Color("#864EFF")}
 	textColor       = compat.AdaptiveColor{Light: lipgloss.Color("#696969"), Dark: lipgloss.Color("#bdbdbd")}
 	keywordColor    = compat.AdaptiveColor{Light: lipgloss.Color("#37CD96"), Dark: lipgloss.Color("#22C78A")}
-	inactiveBgColor = compat.AdaptiveColor{Light: lipgloss.Color(0x988F95), Dark: lipgloss.Color(0x978692)}
-	inactiveFgColor = compat.AdaptiveColor{Light: lipgloss.Color(0xFDFCE3), Dark: lipgloss.Color(0xFBFAE7)}
+	inactiveBgColor = compat.AdaptiveColor{Light: lipgloss.Color("0x988F95"), Dark: lipgloss.Color("0x978692")}
+	inactiveFgColor = compat.AdaptiveColor{Light: lipgloss.Color("0xFDFCE3"), Dark: lipgloss.Color("0xFBFAE7")}
 )
 
 func main() {
@@ -39,8 +39,8 @@ func main() {
 
 	activeButton := lipgloss.NewStyle().
 		Padding(0, 3).
-		Background(lipgloss.Color(0xFF6AD2)). // you can also use octal format for colors, i.e 0xff38ec.
-		Foreground(lipgloss.Color(0xFFFCC2))
+		Background(lipgloss.Color("0xFF6AD2")). // you can also use octal format for colors, i.e 0xff38ec.
+		Foreground(lipgloss.Color("0xFFFCC2"))
 	inactiveButton := activeButton.
 		Background(inactiveBgColor).
 		Foreground(inactiveFgColor)
