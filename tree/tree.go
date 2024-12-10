@@ -38,6 +38,7 @@ type Node interface {
 	Value() string
 	Children() Children
 	Hidden() bool
+	Hide(bool) *Node
 }
 
 // Leaf is a node without children.
@@ -47,22 +48,27 @@ type Leaf struct {
 }
 
 // Children of a Leaf node are always empty.
-func (Leaf) Children() Children {
+func (*Leaf) Children() Children {
 	return NodeChildren(nil)
 }
 
 // Value of a leaf node returns its value.
-func (s Leaf) Value() string {
+func (s *Leaf) Value() string {
 	return s.value
 }
 
 // Hidden returns whether a Leaf node is hidden.
-func (s Leaf) Hidden() bool {
+func (s *Leaf) Hidden() bool {
 	return s.hidden
 }
 
+func (s *Leaf) Hide(hide bool) *Leaf {
+	s.hidden = hide
+	return s
+}
+
 // String returns the string representation of a Leaf node.
-func (s Leaf) String() string {
+func (s *Leaf) String() string {
 	return s.Value()
 }
 
@@ -147,7 +153,7 @@ func (t *Tree) Child(children ...any) *Tree {
 			t.children = t.children.(NodeChildren).Append(item)
 		case fmt.Stringer:
 			s := Leaf{value: item.String()}
-			t.children = t.children.(NodeChildren).Append(s)
+			t.children = t.children.(NodeChildren).Append(&s)
 		case string:
 			s := Leaf{value: item}
 			t.children = t.children.(NodeChildren).Append(&s)
@@ -180,9 +186,6 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 			parent.Child(item.children.At(i))
 		}
 		return parent, j
-	case Leaf:
-		item.value = parent.Value()
-		return item, j
 	case *Leaf:
 		item.value = parent.Value()
 		return item, j

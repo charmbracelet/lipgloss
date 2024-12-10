@@ -29,5 +29,8 @@ func main() {
 		EnumeratorStyle(enumeratorStyle).
 		RootStyle(rootStyle).
 		ItemStyle(itemStyle)
+	t.Children().At(1).Hide(true)
+	t.Children().At(2).Hide(true)
+
 	fmt.Println(t)
 }

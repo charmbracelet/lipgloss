@@ -83,6 +83,36 @@ func TestTreeHidden(t *testing.T) {
 	assertEqual(t, want, tree.String())
 }
 
+func TestLeafHidden(t *testing.T) {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("Foo", "Bar").
+						Hide(true),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	// Hide Qux.
+	tr.Children().At(1).Children().At(0).Hide(true)
+
+	want := `
+├── Foo
+├── Bar
+│   ├── Quux
+│   │   ├── Foo
+│   │   ╰── Bar
+│   └── Quuux
+└── Baz
+	`
+	assertEqual(t, want, tr.String())
+}
+
 func TestTreeAllHidden(t *testing.T) {
 	tree := tree.New().
 		Child(
