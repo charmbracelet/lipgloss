@@ -705,6 +705,33 @@ func TestTypes(t *testing.T) {
 	assertEqual(t, want, tree.String())
 }
 
+func TestLeafHidden(t *testing.T) {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("This should be hidden").
+						Hide(true),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	// Hide Qux.
+	tr.Children().At(1).Children().At(0).SetHidden(true)
+
+	want := `
+├── Foo
+├── Bar
+│   └── Quuux
+└── Baz
+	`
+	assertEqual(t, want, tr.String())
+}
+
 // assertEqual verifies the strings are equal, assuming its terminal output.
 func assertEqual(tb testing.TB, want, got string) {
 	tb.Helper()

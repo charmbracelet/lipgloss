@@ -38,6 +38,7 @@ type Node interface {
 	Value() string
 	Children() Children
 	Hidden() bool
+	SetHidden(bool)
 }
 
 // Leaf is a node without children.
@@ -45,6 +46,9 @@ type Leaf struct {
 	value  string
 	hidden bool
 }
+
+// SetHidden implements Node.
+func (s *Leaf) SetHidden(hidden bool) { s.hidden = hidden }
 
 // Children of a Leaf node are always empty.
 func (Leaf) Children() Children {
@@ -76,6 +80,9 @@ type Tree struct { //nolint:revive
 	r     *renderer
 	ronce sync.Once
 }
+
+// SetHidden implements Node.
+func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
 
 // Hidden returns whether this node is hidden.
 func (t *Tree) Hidden() bool {
@@ -147,7 +154,7 @@ func (t *Tree) Child(children ...any) *Tree {
 			t.children = t.children.(NodeChildren).Append(item)
 		case fmt.Stringer:
 			s := Leaf{value: item.String()}
-			t.children = t.children.(NodeChildren).Append(s)
+			t.children = t.children.(NodeChildren).Append(&s)
 		case string:
 			s := Leaf{value: item}
 			t.children = t.children.(NodeChildren).Append(&s)
@@ -180,9 +187,6 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 			parent.Child(item.children.At(i))
 		}
 		return parent, j
-	case Leaf:
-		item.value = parent.Value()
-		return item, j
 	case *Leaf:
 		item.value = parent.Value()
 		return item, j
