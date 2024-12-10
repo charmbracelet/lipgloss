@@ -51,7 +51,7 @@ func (Leaf) Children() Children {
 	return NodeChildren(nil)
 }
 
-// Value of a leaf node returns its value.
+// Value of a Leaf node returns its value.
 func (s Leaf) Value() string {
 	return s.value
 }
@@ -60,6 +60,9 @@ func (s Leaf) Value() string {
 func (s Leaf) Hidden() bool {
 	return s.hidden
 }
+
+// SetHidden hides the Leaf.
+func (s *Leaf) SetHidden(hidden bool) { s.hidden = hidden }
 
 // String returns the string representation of a Leaf node.
 func (s Leaf) String() string {
@@ -77,18 +80,22 @@ type Tree struct { //nolint:revive
 	ronce sync.Once
 }
 
-// Hidden returns whether this node is hidden.
+// Hidden returns whether a Tree node is hidden.
 func (t *Tree) Hidden() bool {
 	return t.hidden
 }
 
-// Hide sets whether to hide the tree node.
+// Hide sets whether to hide the Tree node. Use this when creating a new
+// hidden Tree.
 func (t *Tree) Hide(hide bool) *Tree {
 	t.hidden = hide
 	return t
 }
 
-// Offset sets the tree children offsets.
+// SetHidden hides the Tree.
+func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
+
+// Offset sets the Tree children offsets.
 func (t *Tree) Offset(start, end int) *Tree {
 	if start > end {
 		_start := start
@@ -113,12 +120,12 @@ func (t *Tree) Value() string {
 	return t.value
 }
 
-// String returns the string representation of the tree node.
+// String returns the string representation of the Tree node.
 func (t *Tree) String() string {
 	return t.ensureRenderer().render(t, true, "")
 }
 
-// Child adds a child to this tree.
+// Child adds a child to this Tree.
 //
 // If a Child Tree is passed without a root, it will be parented to it's sibling
 // child (auto-nesting).
