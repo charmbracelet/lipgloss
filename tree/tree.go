@@ -144,7 +144,7 @@ func (t *Tree) Value() string {
 
 // SetValue sets the value of a Tree node.
 func (t *Tree) SetValue(value any) {
-	t = t.Root(value)
+	t.Root(value)
 }
 
 // String returns the string representation of the Tree node.
