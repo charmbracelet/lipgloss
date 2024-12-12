@@ -55,9 +55,18 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	}
 
 	for i := 0; i < children.Length(); i++ {
-		prefix := enumerator(children, i)
-		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
-		maxLen = max(lipgloss.Width(prefix), maxLen)
+		if i < children.Length()-1 {
+			if child := children.At(i + 1); child.Hidden() {
+				// Don't count the last child if its hidden. This renders the
+				// last visible element with the right prefix
+				//
+				// The only type of Children is NodeChildren.
+				children = children.(NodeChildren).Remove(i + 1)
+			}
+			prefix := enumerator(children, i)
+			prefix = r.style.enumeratorFunc(children, i).Render(prefix)
+			maxLen = max(lipgloss.Width(prefix), maxLen)
+		}
 	}
 
 	for i := 0; i < children.Length(); i++ {
