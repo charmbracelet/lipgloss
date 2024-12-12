@@ -1,6 +1,7 @@
 package tree_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"unicode"
@@ -728,4 +729,62 @@ func trimSpace(s string) string {
 		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
 	}
 	return strings.Join(result, "\n")
+}
+
+func ExampleLeaf_SetHidden() {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("Hello!"),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	tr.Children().At(1).Children().At(2).SetHidden(true)
+	fmt.Println(tr.String())
+	// Output:
+	//
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quux
+	// │       └── Hello!
+	// └── Baz
+	//
+}
+
+func ExampleNewLeaf() {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child(
+							tree.NewLeaf("This should be hidden", true),
+							tree.NewLeaf(
+								tree.Root("I am groot").Child("leaves"), false),
+						),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	fmt.Println(tr.String())
+	// Output:
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   ├── Quux
+	// │   │   └── I am groot
+	// │   │       └── leaves
+	// │   └── Quuux
+	// └── Baz
+	//
 }

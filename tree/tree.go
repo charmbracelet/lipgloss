@@ -38,6 +38,8 @@ type Node interface {
 	Value() string
 	Children() Children
 	Hidden() bool
+	SetHidden(bool)
+	SetValue(any)
 }
 
 // Leaf is a node without children.
@@ -46,14 +48,34 @@ type Leaf struct {
 	hidden bool
 }
 
+// NewLeaf returns a new Leaf.
+func NewLeaf(value any, hidden bool) *Leaf {
+	s := Leaf{}
+	s.SetValue(value)
+	s.SetHidden(hidden)
+	return &s
+}
+
 // Children of a Leaf node are always empty.
 func (Leaf) Children() Children {
 	return NodeChildren(nil)
 }
 
-// Value of a Leaf node returns its value.
+// Value returns the value of a Leaf node.
 func (s Leaf) Value() string {
 	return s.value
+}
+
+// SetValue sets the value of a Leaf node.
+func (s *Leaf) SetValue(value any) {
+	switch item := value.(type) {
+	case Node, fmt.Stringer:
+		s.value = item.(fmt.Stringer).String()
+	case string, nil:
+		s.value = item.(string)
+	default:
+		s.value = fmt.Sprintf("%v", item)
+	}
 }
 
 // Hidden returns whether a Leaf node is hidden.
@@ -61,7 +83,7 @@ func (s Leaf) Hidden() bool {
 	return s.hidden
 }
 
-// SetHidden hides the Leaf.
+// SetHidden hides a Leaf node.
 func (s *Leaf) SetHidden(hidden bool) { s.hidden = hidden }
 
 // String returns the string representation of a Leaf node.
@@ -92,7 +114,7 @@ func (t *Tree) Hide(hide bool) *Tree {
 	return t
 }
 
-// SetHidden hides the Tree.
+// SetHidden hides a Tree node.
 func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
 
 // Offset sets the Tree children offsets.
@@ -118,6 +140,11 @@ func (t *Tree) Offset(start, end int) *Tree {
 // Value returns the root name of this node.
 func (t *Tree) Value() string {
 	return t.value
+}
+
+// SetValue sets the value of a Tree node.
+func (t *Tree) SetValue(value any) {
+	t = t.Root(value)
 }
 
 // String returns the string representation of the Tree node.
