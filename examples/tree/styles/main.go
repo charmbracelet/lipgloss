@@ -17,10 +17,12 @@ func main() {
 			"Claire’s Boutique",
 			tree.Root("Nyx").
 				Child("Lip Gloss", "Foundation").
-				EnumeratorStyle(pink),
+				EnumeratorStyle(pink).
+				IndenterStyle(purple),
 			"Mac",
 			"Milk",
 		).
-		EnumeratorStyle(purple)
+		EnumeratorStyle(purple).
+		IndenterStyle(purple)
 	fmt.Println(t)
 }
