@@ -63,10 +63,10 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 				// The only type of Children is NodeChildren.
 				children = children.(NodeChildren).Remove(i + 1)
 			}
-			prefix := enumerator(children, i)
-			prefix = r.style.enumeratorFunc(children, i).Render(prefix)
-			maxLen = max(lipgloss.Width(prefix), maxLen)
 		}
+		prefix := enumerator(children, i)
+		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
+		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
 	for i := 0; i < children.Length(); i++ {
