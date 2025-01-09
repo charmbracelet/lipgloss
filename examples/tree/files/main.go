@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/tree"
 )
 
 func addBranches(root *tree.Tree, path string) error {
@@ -68,5 +68,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }

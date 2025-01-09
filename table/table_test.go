@@ -5,10 +5,10 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/aymanbagabas/go-udiff"
+	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
-	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1143,7 +1143,6 @@ func TestTableHeightWithOffset(t *testing.T) {
 }
 
 func TestStyleFunc(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	tests := []struct {
 		name  string
 		style StyleFunc
@@ -1372,4 +1371,29 @@ func stripString(str string) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+// assertEqual verifies the strings are equal, assuming its terminal output.
+func assertEqual(tb testing.TB, want, got string) {
+	tb.Helper()
+
+	want = trimSpace(want)
+	got = trimSpace(got)
+
+	diff := udiff.Unified("want", "got", want, got)
+	if diff != "" {
+		tb.Fatalf("\nwant:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", want, got, diff)
+	}
+}
+
+func trimSpace(s string) string {
+	var result []string //nolint: prealloc
+	ss := strings.Split(s, "\n")
+	for i, line := range ss {
+		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
+			continue
+		}
+		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
+	}
+	return strings.Join(result, "\n")
 }

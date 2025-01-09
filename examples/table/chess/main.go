@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-	labelStyle := re.NewStyle().Foreground(lipgloss.Color("241"))
+	labelStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
 	board := [][]string{
 		{"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"},
@@ -36,5 +33,11 @@ func main() {
 	ranks := labelStyle.Render(strings.Join([]string{" A", "B", "C", "D", "E", "F", "G", "H  "}, "   "))
 	files := labelStyle.Render(strings.Join([]string{" 1", "2", "3", "4", "5", "6", "7", "8 "}, "\n\n "))
 
-	fmt.Println(lipgloss.JoinVertical(lipgloss.Right, lipgloss.JoinHorizontal(lipgloss.Center, files, t.Render()), ranks) + "\n")
+	lipgloss.Println(
+		lipgloss.JoinVertical(
+			lipgloss.Right,
+			lipgloss.JoinHorizontal(lipgloss.Center, files, t.Render()),
+			ranks,
+		) + "\n",
+	)
 }

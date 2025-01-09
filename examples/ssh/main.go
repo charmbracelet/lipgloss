@@ -12,15 +12,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/colorprofile"
+	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	lm "github.com/charmbracelet/wish/logging"
-	"github.com/creack/pty"
-	"github.com/muesli/termenv"
 )
 
 // Available styles.
@@ -40,100 +37,44 @@ type styles struct {
 }
 
 // Create new styles against a given renderer.
-func makeStyles(r *lipgloss.Renderer) styles {
+func makeStyles() styles {
 	return styles{
-		bold:          r.NewStyle().SetString("bold").Bold(true),
-		faint:         r.NewStyle().SetString("faint").Faint(true),
-		italic:        r.NewStyle().SetString("italic").Italic(true),
-		underline:     r.NewStyle().SetString("underline").Underline(true),
-		strikethrough: r.NewStyle().SetString("strikethrough").Strikethrough(true),
-		red:           r.NewStyle().SetString("red").Foreground(lipgloss.Color("#E88388")),
-		green:         r.NewStyle().SetString("green").Foreground(lipgloss.Color("#A8CC8C")),
-		yellow:        r.NewStyle().SetString("yellow").Foreground(lipgloss.Color("#DBAB79")),
-		blue:          r.NewStyle().SetString("blue").Foreground(lipgloss.Color("#71BEF2")),
-		magenta:       r.NewStyle().SetString("magenta").Foreground(lipgloss.Color("#D290E4")),
-		cyan:          r.NewStyle().SetString("cyan").Foreground(lipgloss.Color("#66C2CD")),
-		gray:          r.NewStyle().SetString("gray").Foreground(lipgloss.Color("#B9BFCA")),
+		bold:          lipgloss.NewStyle().SetString("bold").Bold(true),
+		faint:         lipgloss.NewStyle().SetString("faint").Faint(true),
+		italic:        lipgloss.NewStyle().SetString("italic").Italic(true),
+		underline:     lipgloss.NewStyle().SetString("underline").Underline(true),
+		strikethrough: lipgloss.NewStyle().SetString("strikethrough").Strikethrough(true),
+		red:           lipgloss.NewStyle().SetString("red").Foreground(lipgloss.Color("#E88388")),
+		green:         lipgloss.NewStyle().SetString("green").Foreground(lipgloss.Color("#A8CC8C")),
+		yellow:        lipgloss.NewStyle().SetString("yellow").Foreground(lipgloss.Color("#DBAB79")),
+		blue:          lipgloss.NewStyle().SetString("blue").Foreground(lipgloss.Color("#71BEF2")),
+		magenta:       lipgloss.NewStyle().SetString("magenta").Foreground(lipgloss.Color("#D290E4")),
+		cyan:          lipgloss.NewStyle().SetString("cyan").Foreground(lipgloss.Color("#66C2CD")),
+		gray:          lipgloss.NewStyle().SetString("gray").Foreground(lipgloss.Color("#B9BFCA")),
 	}
-}
-
-// Bridge Wish and Termenv so we can query for a user's terminal capabilities.
-type sshOutput struct {
-	ssh.Session
-	tty *os.File
-}
-
-func (s *sshOutput) Write(p []byte) (int, error) {
-	return s.Session.Write(p)
-}
-
-func (s *sshOutput) Read(p []byte) (int, error) {
-	return s.Session.Read(p)
-}
-
-func (s *sshOutput) Fd() uintptr {
-	return s.tty.Fd()
-}
-
-type sshEnviron struct {
-	environ []string
-}
-
-func (s *sshEnviron) Getenv(key string) string {
-	for _, v := range s.environ {
-		if strings.HasPrefix(v, key+"=") {
-			return v[len(key)+1:]
-		}
-	}
-	return ""
-}
-
-func (s *sshEnviron) Environ() []string {
-	return s.environ
-}
-
-// Create a termenv.Output from the session.
-func outputFromSession(sess ssh.Session) *termenv.Output {
-	sshPty, _, _ := sess.Pty()
-	_, tty, err := pty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	o := &sshOutput{
-		Session: sess,
-		tty:     tty,
-	}
-	environ := sess.Environ()
-	environ = append(environ, fmt.Sprintf("TERM=%s", sshPty.Term))
-	e := &sshEnviron{environ: environ}
-	// We need to use unsafe mode here because the ssh session is not running
-	// locally and we already know that the session is a TTY.
-	return termenv.NewOutput(o, termenv.WithUnsafe(), termenv.WithEnvironment(e))
 }
 
 // Handle SSH requests.
 func handler(next ssh.Handler) ssh.Handler {
 	return func(sess ssh.Session) {
-		// Get client's output.
-		clientOutput := outputFromSession(sess)
-
 		pty, _, active := sess.Pty()
 		if !active {
 			next(sess)
 			return
 		}
+
+		environ := sess.Environ()
+		environ = append(environ, fmt.Sprintf("TERM=%s", pty.Term))
+		output := colorprofile.NewWriter(pty.Slave, environ)
 		width := pty.Window.Width
 
-		// Initialize new renderer for the client.
-		renderer := lipgloss.NewRenderer(sess)
-		renderer.SetOutput(clientOutput)
-
 		// Initialize new styles against the renderer.
-		styles := makeStyles(renderer)
+		styles := makeStyles()
 
 		str := strings.Builder{}
 
-		fmt.Fprintf(&str, "\n\n%s %s %s %s %s",
+		fmt.Fprintf(&str, "\n\nProfile: %s\n%s %s %s %s %s",
+			colorprofile.Detect(pty.Slave, environ),
 			styles.bold,
 			styles.faint,
 			styles.italic,
@@ -161,18 +102,31 @@ func handler(next ssh.Handler) ssh.Handler {
 			styles.gray,
 		)
 
-		fmt.Fprintf(&str, "%s %t %s\n\n", styles.bold.UnsetString().Render("Has dark background?"),
-			renderer.HasDarkBackground(),
-			renderer.Output().BackgroundColor())
+		hasDarkBG := lipgloss.HasDarkBackground(pty.Slave, pty.Slave)
+		lightDark := lipgloss.LightDark(hasDarkBG)
 
-		block := renderer.Place(width,
+		fmt.Fprintf(&str, "%s %s\n\n",
+			styles.bold.UnsetString().Render("Has dark background?"),
+			func() string {
+				if hasDarkBG {
+					return "Yep."
+				}
+				return "Nope!"
+			}(),
+		)
+
+		block := lipgloss.Place(width,
 			lipgloss.Height(str.String()), lipgloss.Center, lipgloss.Center, str.String(),
 			lipgloss.WithWhitespaceChars("/"),
-			lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "250", Dark: "236"}),
+			lipgloss.WithWhitespaceStyle(
+				lipgloss.NewStyle().Foreground(lightDark(
+					lipgloss.ANSIColor(250),
+					lipgloss.ANSIColor(236),
+				))),
 		)
 
 		// Render to client.
-		wish.WriteString(sess, block)
+		output.WriteString(block)
 
 		next(sess)
 	}
@@ -181,9 +135,10 @@ func handler(next ssh.Handler) ssh.Handler {
 func main() {
 	port := 3456
 	s, err := wish.NewServer(
+		ssh.AllocatePty(),
 		wish.WithAddress(fmt.Sprintf(":%d", port)),
 		wish.WithHostKeyPath("ssh_example"),
-		wish.WithMiddleware(handler, lm.Middleware()),
+		wish.WithMiddleware(handler),
 	)
 	if err != nil {
 		log.Fatal(err)

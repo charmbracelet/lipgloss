@@ -4,13 +4,12 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/muesli/termenv"
 )
 
 // Perform text alignment. If the string is multi-lined, we also make all lines
-// the same width by padding them with spaces. If a termenv style is passed,
-// use that to style the spaces added.
-func alignTextHorizontal(str string, pos Position, width int, style *termenv.Style) string {
+// the same width by padding them with spaces. If a style is passed, use that
+// to style the spaces added.
+func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style) string {
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
@@ -30,8 +29,8 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 				l = s + l
 			case Center:
 				// Note: remainder goes on the right.
-				left := shortAmount / 2       //nolint:gomnd
-				right := left + shortAmount%2 //nolint:gomnd
+				left := shortAmount / 2       //nolint:mnd
+				right := left + shortAmount%2 //nolint:mnd
 
 				leftSpaces := strings.Repeat(" ", left)
 				rightSpaces := strings.Repeat(" ", right)
@@ -59,7 +58,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *termenv.Sty
 	return b.String()
 }
 
-func alignTextVertical(str string, pos Position, height int, _ *termenv.Style) string {
+func alignTextVertical(str string, pos Position, height int, _ *ansi.Style) string {
 	strHeight := strings.Count(str, "\n") + 1
 	if height < strHeight {
 		return str
@@ -69,7 +68,7 @@ func alignTextVertical(str string, pos Position, height int, _ *termenv.Style) s
 	case Top:
 		return str + strings.Repeat("\n", height-strHeight)
 	case Center:
-		topPadding, bottomPadding := (height-strHeight)/2, (height-strHeight)/2 //nolint:gomnd
+		topPadding, bottomPadding := (height-strHeight)/2, (height-strHeight)/2 //nolint:mnd
 		if strHeight+topPadding+bottomPadding > height {
 			topPadding--
 		} else if strHeight+topPadding+bottomPadding < height {

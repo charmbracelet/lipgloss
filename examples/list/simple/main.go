@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 )
 
 func main() {
@@ -18,5 +17,5 @@ func main() {
 		).Enumerator(list.Roman),
 		"G",
 	)
-	fmt.Println(l)
+	lipgloss.Println(l)
 }

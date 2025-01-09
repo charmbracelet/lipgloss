@@ -2,19 +2,18 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"image/color"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 )
 
 func main() {
-	re := lipgloss.NewRenderer(os.Stdout)
-	baseStyle := re.NewStyle().Padding(0, 1)
+	baseStyle := lipgloss.NewStyle().Padding(0, 1)
 	headerStyle := baseStyle.Foreground(lipgloss.Color("252")).Bold(true)
 	selectedStyle := baseStyle.Foreground(lipgloss.Color("#01BE85")).Background(lipgloss.Color("#00432F"))
-	typeColors := map[string]lipgloss.Color{
+	typeColors := map[string]color.Color{
 		"Bug":      lipgloss.Color("#D7FF87"),
 		"Electric": lipgloss.Color("#FDFF90"),
 		"Fire":     lipgloss.Color("#FF7698"),
@@ -25,7 +24,7 @@ func main() {
 		"Poison":   lipgloss.Color("#7D5AFC"),
 		"Water":    lipgloss.Color("#00E2C7"),
 	}
-	dimTypeColors := map[string]lipgloss.Color{
+	dimTypeColors := map[string]color.Color{
 		"Bug":      lipgloss.Color("#97AD64"),
 		"Electric": lipgloss.Color("#FCFF5F"),
 		"Fire":     lipgloss.Color("#BA5F75"),
@@ -39,9 +38,9 @@ func main() {
 
 	headers := []string{"#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."}
 	data := [][]string{
-		{"1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Fushigidane"},
-		{"2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Fushigisou"},
-		{"3", "Venusaur", "Grass", "Poison", "フシギバナ", "Fushigibana"},
+		{"1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"},
+		{"2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Ivysaur"},
+		{"3", "Venusaur", "Grass", "Poison", "フシギバナ", "Venusaur"},
 		{"4", "Charmander", "Fire", "", "ヒトカゲ", "Hitokage"},
 		{"5", "Charmeleon", "Fire", "", "リザード", "Lizardo"},
 		{"6", "Charizard", "Fire", "Flying", "リザードン", "Lizardon"},
@@ -78,7 +77,7 @@ func main() {
 
 	t := table.New().
 		Border(lipgloss.NormalBorder()).
-		BorderStyle(re.NewStyle().Foreground(lipgloss.Color("238"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("238"))).
 		Headers(CapitalizeHeaders(headers)...).
 		Width(80).
 		Rows(data...).
@@ -109,5 +108,6 @@ func main() {
 			}
 			return baseStyle.Foreground(lipgloss.Color("252"))
 		})
-	fmt.Println(t)
+
+	lipgloss.Println(t)
 }

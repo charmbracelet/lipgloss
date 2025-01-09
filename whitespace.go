@@ -4,24 +4,19 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/muesli/termenv"
 )
 
 // whitespace is a whitespace renderer.
 type whitespace struct {
-	re    *Renderer
-	style termenv.Style
 	chars string
+	style Style
 }
 
 // newWhitespace creates a new whitespace renderer. The order of the options
 // matters, if you're using WithWhitespaceRenderer, make sure it comes first as
 // other options might depend on it.
-func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
-	w := &whitespace{
-		re:    r,
-		style: r.ColorProfile().String(),
-	}
+func newWhitespace(opts ...WhitespaceOption) *whitespace {
+	w := &whitespace{}
 	for _, opt := range opts {
 		opt(w)
 	}
@@ -55,23 +50,16 @@ func (w whitespace) render(width int) string {
 		b.WriteString(strings.Repeat(" ", short))
 	}
 
-	return w.style.Styled(b.String())
+	return w.style.Render(b.String())
 }
 
 // WhitespaceOption sets a styling rule for rendering whitespace.
 type WhitespaceOption func(*whitespace)
 
-// WithWhitespaceForeground sets the color of the characters in the whitespace.
-func WithWhitespaceForeground(c TerminalColor) WhitespaceOption {
+// WithWhitespaceStyle sets the style for the whitespace.
+func WithWhitespaceStyle(s Style) WhitespaceOption {
 	return func(w *whitespace) {
-		w.style = w.style.Foreground(c.color(w.re))
-	}
-}
-
-// WithWhitespaceBackground sets the background color of the whitespace.
-func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
-	return func(w *whitespace) {
-		w.style = w.style.Background(c.color(w.re))
+		w.style = s
 	}
 }
 

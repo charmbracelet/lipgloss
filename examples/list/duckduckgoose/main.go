@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 )
 
 func duckDuckGooseEnumerator(items list.Items, i int) string {
@@ -22,5 +20,6 @@ func main() {
 		ItemStyle(itemStyle).
 		EnumeratorStyle(enumStyle).
 		Enumerator(duckDuckGooseEnumerator)
-	fmt.Println(l)
+
+	lipgloss.Println(l)
 }
