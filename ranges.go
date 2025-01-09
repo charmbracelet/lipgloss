@@ -6,24 +6,10 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// StyleRanges allows to, given a string, style a range of it differently.
-// The function will take into account existing styles.
-// See [StyleRanges] to style multipe ranges in the same string.
-func StyleRange(s string, start, end int, style Style) string {
-	if end == 0 {
-		return s
-	}
-	return StyleRanges(s, []Range{{
-		start,
-		end,
-		style,
-	}})
-}
-
 // StyleRanges allows to, given a string, style ranges of it differently.
 // The function will take into account existing styles.
 // Ranges should not overlap.
-func StyleRanges(s string, ranges []Range) string {
+func StyleRanges(s string, ranges ...Range) string {
 	if len(ranges) == 0 {
 		return s
 	}
