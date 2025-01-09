@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/tree"
 )
 
 type styles struct {
@@ -88,5 +86,5 @@ func main() {
 			dir{"maas", false, s},
 		)
 
-	fmt.Println(s.block.Render(t.String()))
+	lipgloss.Println(s.block.Render(t.String()))
 }

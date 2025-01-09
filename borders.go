@@ -1,10 +1,10 @@
 package lipgloss
 
 import (
+	"image/color"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/muesli/termenv"
 	"github.com/rivo/uniseg"
 )
 
@@ -228,6 +228,11 @@ func HiddenBorder() Border {
 
 func (s Style) applyBorder(str string) string {
 	var (
+		topSet    = s.isSet(borderTopKey)
+		rightSet  = s.isSet(borderRightKey)
+		bottomSet = s.isSet(borderBottomKey)
+		leftSet   = s.isSet(borderLeftKey)
+
 		border    = s.getBorderStyle()
 		hasTop    = s.getAsBool(borderTopKey, false)
 		hasRight  = s.getAsBool(borderRightKey, false)
@@ -247,7 +252,7 @@ func (s Style) applyBorder(str string) string {
 
 	// If a border is set and no sides have been specifically turned on or off
 	// render borders on all sides.
-	if s.implicitBorders() {
+	if border != noBorder && !(topSet || rightSet || bottomSet || leftSet) {
 		hasTop = true
 		hasRight = true
 		hasBottom = true
@@ -397,18 +402,17 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 }
 
 // Apply foreground and background styling to a border.
-func (s Style) styleBorder(border string, fg, bg TerminalColor) string {
+func (s Style) styleBorder(border string, fg, bg color.Color) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}
 
-	style := termenv.Style{}
-
+	var style ansi.Style
 	if fg != noColor {
-		style = style.Foreground(fg.color(s.r))
+		style = style.ForegroundColor(fg)
 	}
 	if bg != noColor {
-		style = style.Background(bg.color(s.r))
+		style = style.BackgroundColor(bg)
 	}
 
 	return style.Styled(border)

@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 )
 
 func main() {
@@ -22,5 +20,5 @@ func main() {
 		EnumeratorStyle(enumeratorStyle).
 		ItemStyle(itemStyle)
 
-	fmt.Println(l)
+	lipgloss.Println(l)
 }

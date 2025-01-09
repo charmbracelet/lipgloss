@@ -3,7 +3,7 @@ package table
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -209,9 +209,6 @@ func (t *Table) Height(h int) *Table {
 }
 
 // Offset sets the table rendering offset.
-//
-// Warning: you may declare Offset only after setting Rows. Otherwise it will be
-// ignored.
 func (t *Table) Offset(o int) *Table {
 	t.offset = o
 	return t

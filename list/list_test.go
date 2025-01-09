@@ -6,9 +6,10 @@ import (
 	"unicode"
 
 	"github.com/aymanbagabas/go-udiff"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
+	"github.com/charmbracelet/lipgloss/v2/tree"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // XXX: can't write multi-line examples if the underlying string uses
@@ -194,7 +195,7 @@ func TestComplexSublist(t *testing.T) {
   C. bar
 • Baz
 	`
-	assertEqual(t, expected, l.String())
+	assertEqual(t, expected, ansi.Strip(l.String()))
 }
 
 func TestMultiline(t *testing.T) {

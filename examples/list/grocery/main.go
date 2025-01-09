@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 )
 
 var purchased = []string{
@@ -71,5 +69,5 @@ func main() {
 		EnumeratorStyleFunc(enumStyleFunc).
 		ItemStyleFunc(itemStyleFunc)
 
-	fmt.Println(l)
+	lipgloss.Println(l)
 }

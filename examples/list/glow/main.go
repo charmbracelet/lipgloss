@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 )
 
 type Document struct {
@@ -59,6 +57,5 @@ func main() {
 		l.Item(d.String())
 	}
 
-	fmt.Println()
-	fmt.Println(l)
+	lipgloss.Print("\n", l, "\n")
 }

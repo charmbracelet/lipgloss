@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 )
 
 func main() {
@@ -14,5 +12,5 @@ func main() {
 	t.Row("Bubble Tea", s("Milky"))
 	t.Row("Milk Tea", s("Also milky"))
 	t.Row("Actual milk", s("Milky as well"))
-	fmt.Println(t.Render())
+	lipgloss.Println(t.Render())
 }
