@@ -512,3 +512,53 @@ func TestCarriageReturnInRender(t *testing.T) {
 		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
 	}
 }
+
+func TestWidth(t *testing.T) {
+	tests := []struct {
+		name  string
+		style Style
+	}{
+		{"width with borders", NewStyle().Padding(0, 2).Border(NormalBorder(), true)},
+		{"width no borders", NewStyle().Padding(0, 2)},
+		{"width unset borders", NewStyle().Padding(0, 2).Border(NormalBorder(), true).BorderLeft(false).BorderRight(false)},
+		{"width single-sided border", NewStyle().Padding(0, 2).Border(NormalBorder(), true).UnsetBorderBottom().UnsetBorderTop().UnsetBorderRight()},
+	}
+	{
+		for _, tc := range tests {
+			t.Run(tc.name, func(t *testing.T) {
+				content := "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+				contentWidth := 80 - tc.style.GetHorizontalFrameSize()
+				rendered := tc.style.Width(contentWidth).Render(content)
+				if Width(rendered) != contentWidth {
+					t.Log("\n" + rendered)
+					t.Fatalf("got: %d\n, want: %d", Width(rendered), contentWidth)
+				}
+			})
+		}
+	}
+}
+
+func TestHeight(t *testing.T) {
+	tests := []struct {
+		name  string
+		style Style
+	}{
+		{"height with borders", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true)},
+		{"height no borders", NewStyle().Width(80).Padding(0, 2)},
+		{"height unset borders", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true).BorderBottom(false).BorderTop(false)},
+		{"height single-sided border", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true).UnsetBorderLeft().UnsetBorderBottom().UnsetBorderRight()},
+	}
+	{
+		for _, tc := range tests {
+			t.Run(tc.name, func(t *testing.T) {
+				content := "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+				contentHeight := 20 - tc.style.GetVerticalFrameSize()
+				rendered := tc.style.Height(contentHeight).Render(content)
+				if Height(rendered) != contentHeight {
+					t.Log("\n" + rendered)
+					t.Fatalf("got: %d\n, want: %d", Height(rendered), contentHeight)
+				}
+			})
+		}
+	}
+}
