@@ -75,12 +75,16 @@ func (s *Leaf) SetChildren(children ...any) *Tree {
 	return s.Child(children)
 }
 
-// Replace turns the Leaf into a Tree with the given child.
+// Replace turns the Leaf into a Tree with the given child. Because of the type
+// change, you'll need to reassign the result of this function to the value with
+// [Tree.Replace].
 func (s *Leaf) Replace(_ int, child any) *Tree {
 	return s.Child(child)
 }
 
-// Insert turns the Leaf into a Tree with the given child.
+// Insert turns the Leaf into a Tree with the given child. Because of the type
+// change, you'll need to reassign the result of this function to the value with
+// [Tree.Replace].
 func (s *Leaf) Insert(_ int, child any) *Tree {
 	return s.Child(child)
 }
