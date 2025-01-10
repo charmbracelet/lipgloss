@@ -3,7 +3,6 @@ package tree_test
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -69,10 +68,6 @@ func ExampleNewLeaf() {
 }
 
 func ExampleLeaf_SetValue() {
-	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
-	rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
-	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
-
 	t := tree.
 		Root("⁜ Makeup").
 		Child(
@@ -86,10 +81,7 @@ func ExampleLeaf_SetValue() {
 			"Mac",
 			"Milk",
 		).
-		Enumerator(tree.RoundedEnumerator).
-		EnumeratorStyle(enumeratorStyle).
-		RootStyle(rootStyle).
-		ItemStyle(itemStyle)
+		Enumerator(tree.RoundedEnumerator)
 	glossier := t.Children().At(0)
 	glossier.SetValue("Il Makiage")
 	fmt.Println(ansi.Strip(t.String()))
