@@ -33,7 +33,7 @@ func (n NodeChildren) Replace(index int, child Node) NodeChildren {
 	if index < 0 || len(n) < index+1 {
 		return n
 	}
-	return slices.Replace(n, index, index, child)
+	return slices.Replace(n, index, index+1, child)
 }
 
 // Remove removes a child from the list at the given index.

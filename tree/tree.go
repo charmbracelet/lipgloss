@@ -40,6 +40,7 @@ type Node interface {
 	Hidden() bool
 	SetHidden(bool)
 	SetValue(any)
+	Child(...any) *Tree
 }
 
 // Leaf is a node without children.
@@ -76,6 +77,16 @@ func (s *Leaf) SetValue(value any) {
 	default:
 		s.value = fmt.Sprintf("%v", item)
 	}
+}
+
+// Child adds a child to this Tree, converting a Leaf to a Tree in the process.
+func (s *Leaf) Child(children ...any) *Tree {
+	t := &Tree{
+		value:    s.value,
+		hidden:   s.hidden,
+		children: NodeChildren(nil),
+	}
+	return t.Child(children)
 }
 
 // Hidden returns whether a Leaf node is hidden.
