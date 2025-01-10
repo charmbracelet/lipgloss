@@ -3,7 +3,6 @@ package tree_test
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -68,11 +67,7 @@ func ExampleNewLeaf() {
 	//
 }
 
-func ExampleTree_Replace() {
-	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
-	rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
-	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
-
+func ExampleLeaf_Insert() {
 	t := tree.
 		Root("⁜ Makeup").
 		Child(
@@ -86,16 +81,78 @@ func ExampleTree_Replace() {
 			"Mac",
 			"Milk",
 		).
-		Enumerator(tree.RoundedEnumerator).
-		EnumeratorStyle(enumeratorStyle).
-		RootStyle(rootStyle).
-		ItemStyle(itemStyle)
-	// Add a Tree as a Child of "Glossier"
+		Enumerator(tree.RoundedEnumerator)
+	// Adds a new Tree Node to a Leaf (Mac).
+	t.Replace(3, t.Children().At(3).Insert(0, "Glow Play Cushion Blush"))
+	fmt.Println(ansi.Strip(t.String()))
+	// Output:
+	//⁜ Makeup
+	//├── Glossier
+	//├── Fenty Beauty
+	//│   ├── Gloss Bomb Universal Lip Luminizer
+	//│   ╰── Hot Cheeks Velour Blushlighter
+	//├── Nyx
+	//├── Mac
+	//│   ╰── Glow Play Cushion Blush
+	//╰── Milk
+}
+
+func ExampleLeaf_Replace() {
+	t := tree.
+		Root("⁜ Makeup").
+		Child(
+			"Glossier",
+			"Fenty Beauty",
+			tree.New().Child(
+				"Gloss Bomb Universal Lip Luminizer",
+				"Hot Cheeks Velour Blushlighter",
+			),
+			"Nyx",
+			"Mac",
+			"Milk",
+		).
+		Enumerator(tree.RoundedEnumerator)
+	// Add Glow Play Cushion Blush to Mac Leaf.
+	t.Replace(3, t.Children().At(3).Replace(0, "Glow Play Cushion Blush"))
+	fmt.Println(ansi.Strip(t.String()))
+	// Output:
+	//⁜ Makeup
+	//├── Glossier
+	//├── Fenty Beauty
+	//│   ├── Gloss Bomb Universal Lip Luminizer
+	//│   ╰── Hot Cheeks Velour Blushlighter
+	//├── Nyx
+	//├── Mac
+	//│   ╰── Glow Play Cushion Blush
+	//╰── Milk
+}
+
+// Tree Examples
+
+func ExampleTree_Replace() {
+	t := tree.
+		Root("⁜ Makeup").
+		Child(
+			"Glossier",
+			"Fenty Beauty",
+			tree.New().Child(
+				"Gloss Bomb Universal Lip Luminizer",
+				"Hot Cheeks Velour Blushlighter",
+			),
+			"Nyx",
+			"Mac",
+			"Milk",
+		).
+		Enumerator(tree.RoundedEnumerator)
+	// Add a Tree as a Child of "Glossier". At this stage "Glossier" is a Leaf,
+	// so we re-assign the value of "Glossier" in the "Makeup" Tree to its new
+	// Tree value returned from Child().
 	t.Replace(0, t.Children().At(0).Child(
 		tree.Root("Apparel").Child("Pink Hoodie", "Baseball Cap"),
 	))
 
-	// Add a Leaf as a Child of "Glossier"
+	// Add a Leaf as a Child of "Glossier". At this stage "Glossier" is a Tree,
+	// so we don't need to use [Tree.Replace] on the parent tree.
 	t.Children().At(0).Child("Makeup")
 	fmt.Println(ansi.Strip(t.String()))
 	// Output:
@@ -115,11 +172,6 @@ func ExampleTree_Replace() {
 }
 
 func ExampleTree_Insert() {
-	// Styles are here in case we want to test that styles are properly inherited...
-	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
-	rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
-	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
-
 	t := tree.
 		Root("⁜ Makeup").
 		Child(
@@ -133,18 +185,15 @@ func ExampleTree_Insert() {
 			"Mac",
 			"Milk",
 		).
-		Enumerator(tree.RoundedEnumerator).
-		EnumeratorStyle(enumeratorStyle).
-		RootStyle(rootStyle).
-		ItemStyle(itemStyle)
-	// Adds a new Tree Node after Fenty Beauty
+		Enumerator(tree.RoundedEnumerator)
+	// Adds a new Tree Node after Fenty Beauty.
 	t.Insert(2, tree.Root("Lancôme").Child("Juicy Tubes Lip Gloss", "Lash Idôle", "Teint Idôle Highlighter"))
 
-	// Adds a new Tree Node in Fenty Beauty
-	t.Replace(1, t.Children().At(1).Insert(0, tree.NewLeaf("Blurring Skin Tint", false)))
+	// Adds a new Tree Node in Fenty Beauty.
+	t.Replace(1, t.Children().At(1).Insert(0, "Blurring Skin Tint"))
 
-	// Adds a new Tree Node to a Leaf (Mac)
-	t.Replace(4, t.Children().At(4).Insert(0, tree.NewLeaf("Glow Play Cushion Blush", false)))
+	// Adds a new Tree Node to a Leaf (Mac).
+	t.Replace(4, t.Children().At(4).Insert(0, "Glow Play Cushion Blush"))
 	fmt.Println(ansi.Strip(t.String()))
 	// Output:
 	//⁜ Makeup
@@ -162,8 +211,6 @@ func ExampleTree_Insert() {
 	//│   ╰── Glow Play Cushion Blush
 	//╰── Milk
 }
-
-// Tree Examples
 
 func ExampleTree_Hide() {
 	tr := tree.New().
