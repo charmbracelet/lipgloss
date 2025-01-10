@@ -39,6 +39,9 @@ type Node interface {
 	Children() Children
 	Hidden() bool
 	Child(...any) *Tree
+	SetChildren(...any) *Tree
+	Insert(int, any) *Tree
+	Replace(int, any) *Tree
 }
 
 // Leaf is a node without children.
@@ -65,6 +68,21 @@ func (s *Leaf) Child(children ...any) *Tree {
 		children: NodeChildren(nil),
 	}
 	return t.Child(children)
+}
+
+// SetChildren turns the Leaf into a Tree with the given children.
+func (s *Leaf) SetChildren(children ...any) *Tree {
+	return s.Child(children)
+}
+
+// Replace turns the Leaf into a Tree with the given child.
+func (s *Leaf) Replace(_ int, child any) *Tree {
+	return s.Child(child)
+}
+
+// Insert turns the Leaf into a Tree with the given child.
+func (s *Leaf) Insert(_ int, child any) *Tree {
+	return s.Child(child)
 }
 
 // Hidden returns whether a Leaf node is hidden.
@@ -129,7 +147,64 @@ func (t *Tree) String() string {
 	return t.ensureRenderer().render(t, true, "")
 }
 
-// Child adds a child to this tree.
+// SetChildren overwrites a Tree's Children.
+func (t *Tree) SetChildren(children ...any) *Tree {
+	t.children = NodeChildren(nil)
+	return t.Child(children)
+}
+
+// Replace swaps the child at the given index with the given child.
+func (t *Tree) Replace(index int, child any) *Tree {
+	nodes := t.anyToNode(child)
+	t.children = t.children.(NodeChildren).Replace(index, nodes[0])
+	return t
+}
+
+// Insert child at the given index.
+func (t *Tree) Insert(index int, child any) *Tree {
+	nodes := t.anyToNode(child)
+	t.children = t.children.(NodeChildren).Insert(index, nodes[0])
+	return t
+}
+
+// TODO probably don't need this to be an []any
+func (t *Tree) anyToNode(children ...any) []Node {
+	var nodes []Node
+	for _, child := range children {
+		switch item := child.(type) {
+		case *Tree:
+			child, _ := child.(*Tree)
+			nodes = append(nodes, child)
+		case Children:
+			for i := 0; i < item.Length(); i++ {
+				nodes = append(nodes, item.At(i))
+			}
+		case Node:
+			nodes = append(nodes, item)
+		case fmt.Stringer:
+			s := Leaf{value: item.String()}
+			nodes = append(nodes, &s)
+		case string:
+			s := Leaf{value: item}
+			nodes = append(nodes, &s)
+		case []any:
+			return t.anyToNode(item...)
+		case []string:
+			ss := make([]any, 0, len(item))
+			for _, s := range item {
+				ss = append(ss, s)
+			}
+			return t.anyToNode(ss...)
+		case nil:
+			continue
+		default:
+			return t.anyToNode(fmt.Sprintf("%v", item))
+		}
+	}
+	return nodes
+}
+
+// Child adds a child to this Tree.
 //
 // If a Child Tree is passed without a root, it will be parented to it's sibling
 // child (auto-nesting).
