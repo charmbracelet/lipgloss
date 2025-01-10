@@ -152,6 +152,12 @@ func (t *Tree) String() string {
 	return t.ensureRenderer().render(t, true, "")
 }
 
+// SetChildren overwrites a Tree's Children.
+func (t *Tree) SetChildren(children ...any) *Tree {
+	t.children = NodeChildren(nil)
+	return t.Child(children)
+}
+
 // Child adds a child to this Tree.
 //
 // If a Child Tree is passed without a root, it will be parented to it's sibling

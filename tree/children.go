@@ -1,5 +1,7 @@
 package tree
 
+import "slices"
+
 // Children is the interface that wraps the basic methods of a tree model.
 type Children interface {
 	// At returns the content item of the given index.
@@ -16,6 +18,22 @@ type NodeChildren []Node
 func (n NodeChildren) Append(child Node) NodeChildren {
 	n = append(n, child)
 	return n
+}
+
+// Insert inserts a child to the list at the given index.
+func (n NodeChildren) Insert(index int, child Node) NodeChildren {
+	if index < 0 || len(n) < index+1 {
+		return n
+	}
+	return slices.Insert(n, index, child)
+}
+
+// Replace swaps the child at the given index with the given child.
+func (n NodeChildren) Replace(index int, child Node) NodeChildren {
+	if index < 0 || len(n) < index+1 {
+		return n
+	}
+	return slices.Replace(n, index, index, child)
 }
 
 // Remove removes a child from the list at the given index.
