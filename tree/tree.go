@@ -181,7 +181,7 @@ func (t *Tree) Child(children ...any) *Tree {
 			t.children = t.children.(NodeChildren).Append(item)
 		case fmt.Stringer:
 			s := Leaf{value: item.String()}
-			t.children = t.children.(NodeChildren).Append(s)
+			t.children = t.children.(NodeChildren).Append(&s)
 		case string:
 			s := Leaf{value: item}
 			t.children = t.children.(NodeChildren).Append(&s)
@@ -214,9 +214,6 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 			parent.Child(item.children.At(i))
 		}
 		return parent, j
-	case Leaf:
-		item.value = parent.Value()
-		return item, j
 	case *Leaf:
 		item.value = parent.Value()
 		return item, j
