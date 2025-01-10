@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Leaf Examples
@@ -67,7 +68,7 @@ func ExampleNewLeaf() {
 	//
 }
 
-func ExampleSetValue() {
+func ExampleLeaf_SetValue() {
 	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
 	rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
 	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
@@ -90,10 +91,17 @@ func ExampleSetValue() {
 		RootStyle(rootStyle).
 		ItemStyle(itemStyle)
 	glossier := t.Children().At(0)
-	glossier.SetValue(tree.Root(glossier.Value()).Child(tree.Root("Apparel").Child("Pink Hoodie", "Baseball Cap")))
-	fmt.Println(t.String())
+	glossier.SetValue("Il Makiage")
+	fmt.Println(ansi.Strip(t.String()))
 	// Output:
-	// hello
+	//⁜ Makeup
+	//├── Il Makiage
+	//├── Fenty Beauty
+	//│   ├── Gloss Bomb Universal Lip Luminizer
+	//│   ╰── Hot Cheeks Velour Blushlighter
+	//├── Nyx
+	//├── Mac
+	//╰── Milk
 }
 
 // Tree Examples
