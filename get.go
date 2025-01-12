@@ -519,6 +519,10 @@ func (s Style) getBorderStyle() Border {
 	return s.borderStyle
 }
 
+func (s Style) getBorderTitle() string {
+	return s.borderTitle
+}
+
 // Returns whether or not the style has implicit borders. This happens when
 // a border style has been set but no border sides have been explicitly turned
 // on or off.

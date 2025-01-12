@@ -1,6 +1,11 @@
 package lipgloss
 
-import "testing"
+import (
+	"strings"
+	"testing"
+
+	"github.com/charmbracelet/x/ansi"
+)
 
 func TestStyle_GetBorderSizes(t *testing.T) {
 	tests := []struct {
@@ -90,6 +95,68 @@ func TestStyle_GetBorderSizes(t *testing.T) {
 			gotX, gotY = tt.style.GetFrameSize()
 			if gotX != tt.wantX || gotY != tt.wantY {
 				t.Errorf("Style.GetFrameSize() got (%d, %d), want (%d, %d)", gotX, gotY, tt.wantX, tt.wantY)
+			}
+		})
+	}
+}
+
+func TestBorderStyle(t *testing.T) {
+	tests := []struct {
+		name     string
+		title    string
+		expected string
+	}{
+		{
+			name:  "standard case",
+			title: "Test",
+			expected: strings.TrimSpace(`
+┌─ Test ───┐
+│          │
+│          │
+│          │
+│          │
+└──────────┘
+`),
+		},
+		{
+			name:  "ignores title if does not fit",
+			title: "Title is too long a string and exceeds width",
+			expected: strings.TrimSpace(`
+┌──────────┐
+│          │
+│          │
+│          │
+│          │
+└──────────┘
+`),
+		},
+		{
+			name:  "works with ansi escapes",
+			title: NewStyle().Foreground(Color("#0ff")).Render("Test"),
+			expected: strings.TrimSpace(`
+┌─ Test ───┐
+│          │
+│          │
+│          │
+│          │
+└──────────┘
+`),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := NewStyle().
+				Width(10).
+				Height(4).
+				Border(NormalBorder()).
+				BorderTitle(tt.title).
+				Render()
+
+			actual = ansi.Strip(actual)
+
+			if actual != tt.expected {
+				t.Errorf("expected:\n%s\n but got:\n%s", tt.expected, actual)
 			}
 		})
 	}

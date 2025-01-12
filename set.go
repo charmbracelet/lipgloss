@@ -39,6 +39,8 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.marginBgColor = colorOrNil(value)
 	case borderStyleKey:
 		s.borderStyle = value.(Border)
+	case borderTitleKey:
+		s.borderTitle = value.(string)
 	case borderTopForegroundKey:
 		s.borderTopFgColor = colorOrNil(value)
 	case borderRightForegroundKey:
@@ -426,6 +428,13 @@ func (s Style) Border(b Border, sides ...bool) Style {
 	s.set(borderBottomKey, bottom)
 	s.set(borderLeftKey, left)
 
+	return s
+}
+
+// BorderTitle sets a title on the top border if top border is present and if
+// the title fits within the width of the border. Otherwise this has no effect.
+func (s Style) BorderTitle(title string) Style {
+	s.set(borderTitleKey, title)
 	return s
 }
 

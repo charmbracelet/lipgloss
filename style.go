@@ -51,6 +51,9 @@ const (
 	// Border runes.
 	borderStyleKey
 
+	// Border title.
+	borderTitleKey
+
 	// Border edges.
 	borderTopKey
 	borderRightKey
@@ -143,6 +146,7 @@ type Style struct {
 	marginBgColor TerminalColor
 
 	borderStyle         Border
+	borderTitle         string
 	borderTopFgColor    TerminalColor
 	borderRightFgColor  TerminalColor
 	borderBottomFgColor TerminalColor
