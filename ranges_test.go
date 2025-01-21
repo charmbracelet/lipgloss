@@ -94,7 +94,7 @@ func TestStyleRanges(t *testing.T) {
 			ranges: []Range{
 				NewRange(2, 5, NewStyle().Foreground(Color("2"))),
 			},
-			expected: "\x1b[90m\ue615\x1b[39m \x1b[3m\x1b[32mDow\x1b[0m\x1b[90m\x1b[39m\x1b[3wnloads",
+			expected: "\x1b[90m\ue615\x1b[39m \x1b[3m\x1b[32mDow\x1b[0m\x1b[90m\x1b[39m\x1b[3mnloads",
 		},
 	}
 
