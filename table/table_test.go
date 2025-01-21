@@ -1215,6 +1215,16 @@ func TestClearRows(t *testing.T) {
 	table.String()
 }
 
+func TestContentWrapping(t *testing.T) {
+	table := New().
+		Headers("Name", "Description", "Type", "Required", "Default").
+		Row("command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes")
+	//		Row("command", lipgloss.NewStyle().Width(60).Render("A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures."), "yes")
+	table.Width(80)
+
+	t.Log("\n" + table.String() + "\n")
+}
+
 func TestCarriageReturn(t *testing.T) {
 	data := [][]string{
 		{"a0", "b0", "c0", "d0"},
