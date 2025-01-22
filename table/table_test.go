@@ -1216,13 +1216,40 @@ func TestClearRows(t *testing.T) {
 }
 
 func TestContentWrapping(t *testing.T) {
-	table := New().
-		Headers("Name", "Description", "Type", "Required", "Default").
-		Row("command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes")
-	//		Row("command", lipgloss.NewStyle().Width(60).Render("A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures."), "yes")
-	table.Width(80)
+	//	data := []string{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}
+	//
+	//	table := New().
+	//		Headers("Name", "Description", "Type", "Required", "Default").
+	//		Row(data...).
+	//		StyleFunc(func(_, col int) lipgloss.Style {
+	//			if len(data[col]) > 25 {
+	//				return lipgloss.NewStyle().Width(30)
+	//			}
+	//			return lipgloss.NewStyle()
+	//		})
+	//	//		Row("command", lipgloss.NewStyle().Width(60).Render("A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures."), "yes")
+	//	table.Width(80)
+	//
+	//	t.Log(lipgloss.Width(table.String()))
+	//	t.Log("\n" + table.String() + "\n")
 
-	t.Log("\n" + table.String() + "\n")
+	dataWithMissingValues := []string{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}
+
+	tableWithMissingValues := New().
+		Width(80).
+		Headers("Name", "Description", "Type", "Required", "Default").
+		Row(dataWithMissingValues...)
+	//		StyleFunc(func(_, col int) lipgloss.Style {
+	//			if len(dataWithMissingValues[col]) > 25 {
+	//				return lipgloss.NewStyle().Width(60)
+	//			}
+	//			return lipgloss.NewStyle()
+	//		})
+	//		Row("command", lipgloss.NewStyle().Width(60).Render("A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures."), "yes")
+	tableWithMissingValues.Width(80)
+
+	t.Log(lipgloss.Width(tableWithMissingValues.String()))
+	t.Log("\n" + tableWithMissingValues.String() + "\n")
 }
 
 func TestCarriageReturn(t *testing.T) {
