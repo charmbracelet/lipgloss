@@ -38,7 +38,9 @@ func sum(n []int) int {
 }
 
 // median returns the median of a slice of integers.
-func median(n []int) int {
+func median(original []int) int {
+	// Don't modify the original array.
+	n := append([]int{}, original...)
 	sort.Ints(n)
 
 	if len(n) <= 0 {

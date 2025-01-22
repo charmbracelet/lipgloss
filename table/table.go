@@ -308,13 +308,26 @@ func (t *Table) String() string {
 		// column, and shrink the columns based on the largest difference.
 		columnMedians := make([]int, len(t.widths))
 		for c := range t.widths {
-			trimmedWidth := make([]int, t.data.Rows())
+			trimmedWidth := make([]int, btoi(hasHeaders)+t.data.Rows())
+
+			// Get median widths across headers.
+			d := t.headers[c]
+			renderedCell := t.style(HeaderRow, c).Render(d)
+			nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
+			trimmedWidth[0] = nonWhitespaceChars + 1
+
+			columnMedians[c] = median(trimmedWidth)
+
+			// Get median widths across rows.
 			for r := 0; r < t.data.Rows(); r++ {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
+				d := t.data.At(r, c)
+				renderedCell := t.style(r, c).Render(d)
 				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
-				trimmedWidth[r] = nonWhitespaceChars + 1
+				// Index 0 of trimmedWidth is the header row.
+				trimmedWidth[r+1] = nonWhitespaceChars + 1
 			}
 
+			// Get the median based on all header and row values in the current column.
 			columnMedians[c] = median(trimmedWidth)
 		}
 
