@@ -467,8 +467,9 @@ func (t *Table) constructHeaders() string {
 		s.WriteString(t.style(HeaderRow, i).
 			MaxHeight(1).
 			Width(t.widths[i]).
-			MaxWidth(t.widths[i]).
-			Render(ansi.Truncate(header, t.widths[i], "…")))
+			//			MaxWidth(t.widths[i]).
+			Render(header))
+		// Render(ansi.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
