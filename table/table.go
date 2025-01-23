@@ -246,8 +246,6 @@ func (t *Table) String() string {
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
 	}
 
-	// TODO
-	//	minWidths := append([]int{}, t.widths...)
 	for r := 0; r < t.data.Rows(); r++ {
 		for i := 0; i < t.data.Columns(); i++ {
 			cell := t.data.At(r, i)
@@ -298,9 +296,6 @@ func (t *Table) String() string {
 
 	width := t.computeWidth()
 
-	// TODO use this
-	//	colMinWidth := width / len(t.widths)
-
 	if width < t.width && t.width > 0 {
 		// Table is too narrow, expand the columns evenly until it reaches the
 		// desired width.
@@ -340,7 +335,7 @@ func (t *Table) String() string {
 			columnMedians[c] = median(trimmedWidth)
 		}
 
-		// TODO is header is greater than calculated width, wrap it at an acceptable %.
+		// TODO if header is greater than calculated width, wrap it at an acceptable %.
 
 		// Find the biggest differences between the median and the column width.
 		// Shrink the columns based on the largest difference.
@@ -354,10 +349,17 @@ func (t *Table) String() string {
 		// header. In case of a very long header, we should wrap that... but
 		// when?
 		for width > t.width {
+			// check difference between width and median AND width and evenColumnWidth??
 			index, _ := largest(differences)
 			// is there a difference and is that value greater than the size of the column header?
-			if differences[index] < 1 || differences[index] < headerWidths[index] {
+			if differences[index] < 1 {
 				break
+			}
+
+			// Ignore columns that are already an acceptable size.
+			if columnMedians[index] < headerWidths[index] && headerWidths[index] <= t.evenColumnWidth() {
+				differences[index] = 0
+				continue
 			}
 
 			shrink := min(differences[index], width-t.width)
@@ -370,9 +372,7 @@ func (t *Table) String() string {
 
 			// what should be happening here?
 			// if the table is too big, continue to shrink largest columns until they are a minimum acceptable width (1/x where x is the number of columns)
-
-			// TODO delete this I think?
-			// differences[index] = 0
+			differences[index] = 0
 		}
 
 		// Table is still too wide, begin shrinking the columns based on the
@@ -380,7 +380,7 @@ func (t *Table) String() string {
 		for width > t.width {
 			index, _ := largest(t.widths)
 			// when calculating the content width allowance, we should consider borders...
-			if t.widths[index] < 1 || headerWidths[index] == width/len(t.headers) {
+			if t.widths[index] < 1 || headerWidths[index] == t.evenColumnWidth() {
 				break
 			}
 			t.widths[index]--
@@ -433,6 +433,16 @@ func (t *Table) String() string {
 		MaxHeight(t.computeHeight()).
 		MaxWidth(t.width).
 		Render(sb.String())
+}
+
+// returns the even widths of columns only
+func (t *Table) evenColumnWidth() int {
+	numCols := len(t.headers)
+	colWidth := t.width - btoi(t.borderLeft) - btoi(t.borderRight)
+	if t.borderColumn {
+		colWidth -= numCols - 1
+	}
+	return colWidth / numCols
 }
 
 // computeWidth computes the width of the table in it's current configuration.
