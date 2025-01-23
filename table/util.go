@@ -48,7 +48,8 @@ func median(original []int) int {
 	}
 	if len(n)%2 == 0 {
 		h := len(n) / 2            //nolint:gomnd
-		return (n[h-1] + n[h]) / 2 //nolint:gomnd
+		tmp := (n[h-1] + n[h]) / 2 //nolint:gomnd
+		return tmp
 	}
 	return n[len(n)/2]
 }
