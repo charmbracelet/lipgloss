@@ -243,6 +243,7 @@ func (t *Table) String() string {
 	// time.
 	for i, cell := range t.headers {
 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+		// TODO if header is greater than calculated width, wrap it at an acceptable %.
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
 	}
 
@@ -253,7 +254,6 @@ func (t *Table) String() string {
 			rendered := t.style(r, i).Render(cell)
 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
 			// TODO not sure about this part... We want to know how wide the headers are so we can compare the resulting wrapped width to the header width
-
 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
 	}
@@ -335,8 +335,6 @@ func (t *Table) String() string {
 			columnMedians[c] = median(trimmedWidth)
 		}
 
-		// TODO if header is greater than calculated width, wrap it at an acceptable %.
-
 		// Find the biggest differences between the median and the column width.
 		// Shrink the columns based on the largest difference.
 		differences := make([]int, len(t.widths))
@@ -344,20 +342,24 @@ func (t *Table) String() string {
 			differences[i] = t.widths[i] - columnMedians[i]
 		}
 
-		// Go through all of the differences to see where we can possibly cut
+		// TODO Go through all of the differences to see where we can possibly cut
 		// content. Don't cut content if the difference is smaller than the
 		// header. In case of a very long header, we should wrap that... but
 		// when?
+		//
+		// In this loop, each column is shrunk if the median width is bigger
+		// than the header (preserve headers where possible) or if the column
+		// width is bigger than the minimum width. The minimum width would be 1/5 if
+		// there are 5 columns.
 		for width > t.width {
-			// check difference between width and median AND width and evenColumnWidth??
 			index, _ := largest(differences)
-			// is there a difference and is that value greater than the size of the column header?
+			// If all columns and rows are equally sized, exit the loop.
 			if differences[index] < 1 {
 				break
 			}
 
 			// Ignore columns that are already an acceptable size.
-			if columnMedians[index] < headerWidths[index] && headerWidths[index] <= t.evenColumnWidth() {
+			if t.widths[index] <= t.evenColumnWidth() || columnMedians[index] < headerWidths[index] && headerWidths[index] <= t.evenColumnWidth() {
 				differences[index] = 0
 				continue
 			}
@@ -435,7 +437,8 @@ func (t *Table) String() string {
 		Render(sb.String())
 }
 
-// returns the even widths of columns only
+// evenColumnWidth returns the column widths, excluding borders, if the total
+// table width is evenly distributed.
 func (t *Table) evenColumnWidth() int {
 	numCols := len(t.headers)
 	colWidth := t.width - btoi(t.borderLeft) - btoi(t.borderRight)
