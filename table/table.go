@@ -243,6 +243,7 @@ func (t *Table) String() string {
 	// time.
 	for i, cell := range t.headers {
 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+		// TODO if header is greater than calculated width, wrap it at an acceptable %.
 		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
 	}
 
@@ -252,6 +253,7 @@ func (t *Table) String() string {
 
 			rendered := t.style(r, i).Render(cell)
 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
+			// TODO not sure about this part... We want to know how wide the headers are so we can compare the resulting wrapped width to the header width
 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
 		}
 	}
@@ -307,14 +309,29 @@ func (t *Table) String() string {
 		// Table is too wide, calculate the median non-whitespace length of each
 		// column, and shrink the columns based on the largest difference.
 		columnMedians := make([]int, len(t.widths))
+		var headerWidths []int
 		for c := range t.widths {
-			trimmedWidth := make([]int, t.data.Rows())
+			trimmedWidth := make([]int, btoi(hasHeaders)+t.data.Rows())
+
+			// Get median widths across headers.
+			d := t.headers[c]
+			renderedCell := t.style(HeaderRow, c).Render(d)
+			nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
+			headerWidths = append(headerWidths, nonWhitespaceChars)
+			trimmedWidth[0] = nonWhitespaceChars + 1
+			// TODO I don't think I need this here
+			columnMedians[c] = median(trimmedWidth)
+
+			// Get median widths across rows.
 			for r := 0; r < t.data.Rows(); r++ {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
+				d := t.data.At(r, c)
+				renderedCell := t.style(r, c).Render(d)
 				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
-				trimmedWidth[r] = nonWhitespaceChars + 1
+				// Index 0 of trimmedWidth is the header row.
+				trimmedWidth[r+1] = nonWhitespaceChars + 1
 			}
 
+			// Get the median based on all header and row values in the current column.
 			columnMedians[c] = median(trimmedWidth)
 		}
 
@@ -325,15 +342,38 @@ func (t *Table) String() string {
 			differences[i] = t.widths[i] - columnMedians[i]
 		}
 
+		// TODO Go through all of the differences to see where we can possibly cut
+		// content. Don't cut content if the difference is smaller than the
+		// header. In case of a very long header, we should wrap that... but
+		// when?
+		//
+		// In this loop, each column is shrunk if the median width is bigger
+		// than the header (preserve headers where possible) or if the column
+		// width is bigger than the minimum width. The minimum width would be 1/5 if
+		// there are 5 columns.
 		for width > t.width {
 			index, _ := largest(differences)
+			// If all columns and rows are equally sized, exit the loop.
 			if differences[index] < 1 {
 				break
+			}
+
+			// Ignore columns that are already an acceptable size.
+			if t.widths[index] <= t.evenColumnWidth() || columnMedians[index] < headerWidths[index] && headerWidths[index] <= t.evenColumnWidth() {
+				differences[index] = 0
+				continue
 			}
 
 			shrink := min(differences[index], width-t.width)
 			t.widths[index] -= shrink
 			width -= shrink
+			// this doesn't make sense. It's still the largest column, but doesn't have the largest difference anymore, so it won't be shrunk anymore.
+			// e.g. column medians: [7, 250, 4, 8, 7] -> [7, 131, 4, 8, 7]
+			// differences: [1, 119, 0, 3, 3] -> [1, 119, 0, 3, 3]
+			// that means that the headers with empty rows are targeted in the next run of this loop next since they have the greatest difference.
+
+			// what should be happening here?
+			// if the table is too big, continue to shrink largest columns until they are a minimum acceptable width (1/x where x is the number of columns)
 			differences[index] = 0
 		}
 
@@ -341,7 +381,8 @@ func (t *Table) String() string {
 		// largest column.
 		for width > t.width {
 			index, _ := largest(t.widths)
-			if t.widths[index] < 1 {
+			// when calculating the content width allowance, we should consider borders...
+			if t.widths[index] < 1 || headerWidths[index] == t.evenColumnWidth() {
 				break
 			}
 			t.widths[index]--
@@ -394,6 +435,17 @@ func (t *Table) String() string {
 		MaxHeight(t.computeHeight()).
 		MaxWidth(t.width).
 		Render(sb.String())
+}
+
+// evenColumnWidth returns the column widths, excluding borders, if the total
+// table width is evenly distributed.
+func (t *Table) evenColumnWidth() int {
+	numCols := len(t.headers)
+	colWidth := t.width - btoi(t.borderLeft) - btoi(t.borderRight)
+	if t.borderColumn {
+		colWidth -= numCols - 1
+	}
+	return colWidth / numCols
 }
 
 // computeWidth computes the width of the table in it's current configuration.
@@ -467,8 +519,9 @@ func (t *Table) constructHeaders() string {
 		s.WriteString(t.style(HeaderRow, i).
 			MaxHeight(1).
 			Width(t.widths[i]).
-			MaxWidth(t.widths[i]).
-			Render(ansi.Truncate(header, t.widths[i], "…")))
+			//			MaxWidth(t.widths[i]).
+			Render(header))
+		// Render(ansi.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
