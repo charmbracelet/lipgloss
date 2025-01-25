@@ -28,7 +28,7 @@ func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error
 		func(seq string, pa *ansi.Parser) bool {
 			switch {
 			case ansi.HasOscPrefix(seq):
-				switch pa.Cmd() {
+				switch pa.Command() {
 				case 11: // OSC 11
 					parts := strings.Split(string(pa.Data()), ";")
 					if len(parts) != 2 {
@@ -37,8 +37,8 @@ func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error
 					c = ansi.XParseColor(parts[1])
 				}
 			case ansi.HasCsiPrefix(seq):
-				switch pa.Cmd() {
-				case ansi.Cmd('?', 0, 'c'): // DA1
+				switch pa.Command() {
+				case ansi.Command('?', 0, 'c'): // DA1
 					return false
 				}
 			}
