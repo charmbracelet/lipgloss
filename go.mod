@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/charmbracelet/colorprofile v0.1.10-0.20250125232710-602ea259b0c8
-	github.com/charmbracelet/x/ansi v0.7.1-0.20250125231001-6f3bcd3f0ebe
+	github.com/charmbracelet/colorprofile v0.1.10
+	github.com/charmbracelet/x/ansi v0.8.0
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
