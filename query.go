@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
-func backgroundColor(in *os.File, out *os.File) (color.Color, error) {
+func backgroundColor(in term.File, out term.File) (color.Color, error) {
 	state, err := term.MakeRaw(in.Fd())
 	if err != nil {
 		return nil, fmt.Errorf("error setting raw state to detect background color: %w", err)
@@ -31,7 +31,7 @@ func backgroundColor(in *os.File, out *os.File) (color.Color, error) {
 //
 // This function is intended for standalone Lip Gloss use only. If you're using
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
-func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
+func BackgroundColor(in term.File, out term.File) (bg color.Color, err error) {
 	if runtime.GOOS == "windows" {
 		// On Windows, when the input/output is redirected or piped, we need to
 		// open the console explicitly.
@@ -54,7 +54,7 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 	}
 
 	// NOTE: On Unix, one of the given files must be a tty.
-	for _, f := range []*os.File{in, out} {
+	for _, f := range []term.File{in, out} {
 		if bg, err = backgroundColor(f, f); err == nil {
 			return bg, nil
 		}
@@ -80,7 +80,7 @@ func BackgroundColor(in *os.File, out *os.File) (bg color.Color, err error) {
 //	    hasDarkBackground = msg.IsDark()
 //
 // By default, this function will return true if it encounters an error.
-func HasDarkBackground(in *os.File, out *os.File) bool {
+func HasDarkBackground(in term.File, out term.File) bool {
 	bg, err := BackgroundColor(in, out)
 	if err != nil || bg == nil {
 		return true
