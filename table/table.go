@@ -542,9 +542,11 @@ func (t *Table) constructHeaders() string {
 	}
 	// wrap headers after width style, add borders from split?
 	for i, header := range t.headers {
-		styledHeader := t.style(HeaderRow, i).
+		cellStyle := t.style(HeaderRow, i)
+		styledHeader := cellStyle.
+			// TODO what about horizontal margins?
 			// MaxHeight(1).
-			Width(t.widths[i]).
+			Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
 			// MaxWidth(t.widths[i]).
 			Render(header)
 		// update the height for headers
@@ -638,8 +640,6 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cellWidth := t.widths[c]
-
 		cell := "…"
 		if !isOverflow {
 			cell = t.data.At(index, c)
@@ -649,10 +649,12 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		cells = append(cells, cellStyle.
 			// Account for the margins in the cell sizing.
 			Height(height-cellStyle.GetVerticalMargins()).
-			MaxHeight(height).
+			//			MaxHeight(height).
 			Width(t.widths[c]-cellStyle.GetHorizontalMargins()).
-			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(cell, cellWidth*height, "…")))
+			//			MaxWidth(t.widths[c]).
+			//			 TODO only truncate if height if using manual height
+			// Render(ansi.Truncate(cell, cellWidth*height, "…")))
+			Render(cell))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
