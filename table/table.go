@@ -244,7 +244,8 @@ func (t *Table) String() string {
 	for i, cell := range t.headers {
 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
 		// TODO if header is greater than calculated width, wrap it at an acceptable %.
-		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
+		h := lipgloss.Height(t.style(HeaderRow, i).Width(t.widths[i]).Render(cell))
+		t.heights[0] = max(t.heights[0], h)
 	}
 
 	for r := 0; r < t.data.Rows(); r++ {
@@ -388,6 +389,27 @@ func (t *Table) String() string {
 			t.widths[index]--
 			width--
 		}
+
+		// Adjust heights to account for wrapped content
+		//		rowHeights := make([]int, len(t.heights))
+		for h := 0; h < len(t.headers); h++ {
+			d := t.headers[h]
+			renderedCell := t.style(HeaderRow, h).Width(t.widths[h]).Render(d)
+			// TODO remove magic number
+			h := lipgloss.Height(renderedCell)
+			t.heights[0] = max(t.heights[0], h)
+		}
+		for r := 1; r < t.data.Rows(); r++ {
+			// Rows
+			// TODO update height with new rendered width? Will need this if we're wrapping content.
+			for i := 0; i < t.data.Columns(); i++ {
+				cell := t.data.At(r, i)
+				rendered := t.style(r, i).Render(cell)
+				t.heights[r] = max(t.heights[r], lipgloss.Height(rendered))
+				// TODO not sure about this part... We want to know how wide the headers are so we can compare the resulting wrapped width to the header width
+			}
+		}
+
 	}
 
 	var sb strings.Builder
@@ -512,25 +534,43 @@ func (t *Table) constructBottomBorder() string {
 // header configuration and data.
 func (t *Table) constructHeaders() string {
 	var s strings.Builder
+	var cells []string
+	headerHeight := t.heights[0]
+	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", headerHeight)
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.Left))
+		cells = append(cells, left)
 	}
+	// wrap headers after width style, add borders from split?
 	for i, header := range t.headers {
-		s.WriteString(t.style(HeaderRow, i).
-			MaxHeight(1).
+		styledHeader := t.style(HeaderRow, i).
+			// MaxHeight(1).
 			Width(t.widths[i]).
-			//			MaxWidth(t.widths[i]).
-			Render(header))
+			// MaxWidth(t.widths[i]).
+			Render(header)
+		// update the height for headers
+		cells = append(cells, styledHeader)
+		//		s.WriteString(styledHeader)
+		// TODO set height after we know new width
+		// TODO if user wants to truncate instead of wrap, then truncate as below
 		// Render(ansi.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
+			cells = append(cells, left)
 		}
+
 	}
+	if t.borderRight {
+		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", headerHeight)
+		cells = append(cells, right)
+	}
+	for i, cell := range cells {
+		cells[i] = strings.TrimRight(cell, "\n")
+	}
+	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...))
+
 	if t.borderHeader {
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
-		}
 		s.WriteString("\n")
+		// TODO if second header needs wrapping, then we also need to wrap the first header...
+		// where are we calculating the heights?
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		}
@@ -543,9 +583,6 @@ func (t *Table) constructHeaders() string {
 		if t.borderRight {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
 		}
-	}
-	if t.borderRight && !t.borderHeader {
-		s.WriteString(t.borderStyle.Render(t.border.Right))
 	}
 	return s.String()
 }
