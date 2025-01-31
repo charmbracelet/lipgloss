@@ -1383,8 +1383,8 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 		table := New().
 			Headers(tc.headers...).
 			Rows(tc.data...).
-			StyleFunc(func(_, col int) lipgloss.Style {
-				return lipgloss.NewStyle().Margin(0, 1)
+			StyleFunc(func(row, col int) lipgloss.Style {
+				return lipgloss.NewStyle().Margin(0, 4)
 			})
 		table.Width(80)
 

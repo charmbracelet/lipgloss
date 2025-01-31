@@ -338,7 +338,7 @@ func (t *Table) String() string {
 			renderedCell := t.style(HeaderRow, c).Render(d)
 			nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
 			headerWidths = append(headerWidths, nonWhitespaceChars)
-			trimmedWidth[0] = nonWhitespaceChars + 1
+			trimmedWidth[headerPos] = nonWhitespaceChars + 1
 			// TODO I don't think I need this here
 			columnMedians[c] = median(trimmedWidth)
 
@@ -413,7 +413,9 @@ func (t *Table) String() string {
 			// rendering and table sizing.
 			for h := 0; h < len(t.headers); h++ {
 				d := t.headers[h]
-				renderedCell := t.style(HeaderRow, h).Width(t.widths[h]).Render(d)
+				// TODO this fixes height calcs
+				cellStyle := t.style(HeaderRow, h)
+				renderedCell := cellStyle.Width(t.widths[h] - cellStyle.GetHorizontalMargins()).Render(d)
 				h := lipgloss.Height(renderedCell)
 				t.heights[headerPos] = max(t.heights[headerPos], h)
 			}
@@ -568,13 +570,13 @@ func (t *Table) constructHeaders() string {
 		var styledHeader string
 		if t.wrap {
 			styledHeader = cellStyle.
+				// Set height to make sure styles display properlu.
+				Height(headerHeight - cellStyle.GetVerticalMargins()).
 				Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
 				Render(header)
 		} else {
 			styledHeader = cellStyle.
-				// TODO handle truncation option with MaxHeight?
-				//				MaxWidth(t.widths[i] - cellStyle.GetHorizontalMargins()).
-				//				MaxHeight(1).
+				Height(headerHeight - cellStyle.GetVerticalMargins()).
 				Width(t.widths[i]).
 				Render(ansi.Truncate(header, t.widths[i], "…"))
 		}
@@ -674,21 +676,22 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		}
 
 		cellStyle := t.style(index, c)
-		var rendered string
-		if t.wrap {
+		rendered := cellStyle.
+			// Account for the margins in cell sizing.
+			// TODO what about padding?
+			// TODO check if this can be an issue if margins are too big. Maybe just convert them to padding?
+			Height(height - cellStyle.GetVerticalMargins()).
+			Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
+			Render(cell)
+		if !t.wrap {
 			rendered = cellStyle.
 				// Account for the margins in the cell sizing.
 				Height(height - cellStyle.GetVerticalMargins()).
 				Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
-				// TODO only truncate if height if using manual height and overflow is false
-				// Render(ansi.Truncate(cell, cellWidth*height, "…")))
-				Render(cell)
-		} else {
-			rendered = cellStyle.
-				// Account for the margins in the cell sizing.
-				Height(height - cellStyle.GetVerticalMargins()).
-				Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
-				Render(ansi.Truncate(cell, t.widths[c]-cellStyle.GetHorizontalMargins(), "…"))
+				// TODO it seems `ansi.Truncate is returning "耐許ヱヨカハ…\n\n".
+				// these newlines are what's breaking this, Stripping all newlines fixes the issue.
+				// https://github.com/charmbracelet/x/issues/351
+				Render(strings.ReplaceAll(ansi.Truncate(cell, t.widths[c]-cellStyle.GetHorizontalMargins(), "…"), "\n", ""))
 		}
 
 		cells = append(cells, rendered)
