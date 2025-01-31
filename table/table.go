@@ -4,11 +4,15 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // HeaderRow denotes the header's row index used when rendering headers. Use
 // this value when looking to customize header styles in StyleFunc.
-const HeaderRow int = -1
+const (
+	HeaderRow int = -1
+	headerPos int = 0
+)
 
 // StyleFunc is the style function that determines the style of a Cell.
 //
@@ -60,6 +64,7 @@ type Table struct {
 	height          int
 	useManualHeight bool
 	offset          int
+	wrap            bool
 
 	// widths tracks the width of each column.
 	widths []int
@@ -82,6 +87,7 @@ func New() *Table {
 		borderLeft:   true,
 		borderRight:  true,
 		borderTop:    true,
+		wrap:         true,
 		data:         NewStringData(),
 	}
 }
@@ -216,6 +222,12 @@ func (t *Table) Offset(o int) *Table {
 	return t
 }
 
+// Wrap dictates whether or not the table content should wrap.
+func (t *Table) Wrap(w bool) *Table {
+	t.wrap = w
+	return t
+}
+
 // String returns the table as a string.
 func (t *Table) String() string {
 	hasHeaders := len(t.headers) > 0
@@ -233,33 +245,36 @@ func (t *Table) String() string {
 		}
 	}
 
-	// Initialize the widths.
+	// t.widths accounts for all column widths.
 	t.widths = make([]int, max(len(t.headers), t.data.Columns()))
+	// t.heights accounts for all row heights, including headers if they're set.
 	t.heights = make([]int, btoi(hasHeaders)+t.data.Rows())
 
 	// The style function may affect width of the table. It's possible to set
 	// the StyleFunc after the headers and rows. Update the widths for a final
 	// time.
 	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
-		// TODO if header is greater than calculated width, wrap it at an acceptable %.
-		h := lipgloss.Height(t.style(HeaderRow, i).Width(t.widths[i]).Render(cell))
-		t.heights[0] = max(t.heights[0], h)
+		if t.wrap {
+			t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+			h := lipgloss.Height(t.style(HeaderRow, i).Width(t.widths[i]).Render(cell))
+			t.heights[headerPos] = max(t.heights[headerPos], h)
+		} else {
+			t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+			t.heights[headerPos] = max(t.heights[headerPos], 1)
+		}
 	}
 
 	for r := 0; r < t.data.Rows(); r++ {
 		for i := 0; i < t.data.Columns(); i++ {
 			cell := t.data.At(r, i)
-
 			rendered := t.style(r, i).Render(cell)
-			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
-			// TODO not sure about this part... We want to know how wide the headers are so we can compare the resulting wrapped width to the header width
-
-			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
-
-			//			t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(r, i).Render(cell)))
-			//			height := lipgloss.Height(t.style(r, i).Width(t.widths[i]).Render(cell))
-			//			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], height)
+			if t.wrap {
+				t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
+				t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
+			} else {
+				t.heights[r+btoi(hasHeaders)] = 1
+				t.widths[i] = max(t.widths[i], lipgloss.Width(ansi.Truncate(rendered, t.widths[i], "…")))
+			}
 		}
 	}
 
@@ -347,15 +362,15 @@ func (t *Table) String() string {
 			differences[i] = t.widths[i] - columnMedians[i]
 		}
 
-		// TODO Go through all of the differences to see where we can possibly cut
-		// content. Don't cut content if the difference is smaller than the
-		// header. In case of a very long header, we should wrap that... but
-		// when?
-		//
 		// In this loop, each column is shrunk if the median width is bigger
 		// than the header (preserve headers where possible) or if the column
-		// width is bigger than the minimum width. The minimum width would be 1/5 if
-		// there are 5 columns.
+		// width is bigger than the minimum width.
+		//
+		// The minimum width would be 1/5 if there are 5 columns.
+		//
+		// If the table is too big, continue to shrink largest columns until
+		// they are a minimum acceptable width (1/x where x is the number of
+		// columns).
 		for width > t.width {
 			index, _ := largest(differences)
 			// If all columns and rows are equally sized, exit the loop.
@@ -377,8 +392,6 @@ func (t *Table) String() string {
 			// differences: [1, 119, 0, 3, 3] -> [1, 119, 0, 3, 3]
 			// that means that the headers with empty rows are targeted in the next run of this loop next since they have the greatest difference.
 
-			// what should be happening here?
-			// if the table is too big, continue to shrink largest columns until they are a minimum acceptable width (1/x where x is the number of columns)
 			differences[index] = 0
 		}
 
@@ -386,7 +399,7 @@ func (t *Table) String() string {
 		// largest column.
 		for width > t.width {
 			index, _ := largest(t.widths)
-			// when calculating the content width allowance, we should consider borders...
+			// TODO when calculating the content width allowance, we should consider borders...
 			if t.widths[index] < 1 || headerWidths[index] == t.evenColumnWidth() {
 				break
 			}
@@ -394,24 +407,25 @@ func (t *Table) String() string {
 			width--
 		}
 
-		// Adjust heights to account for wrapped content
-		//		rowHeights := make([]int, len(t.heights))
-		for h := 0; h < len(t.headers); h++ {
-			d := t.headers[h]
-			renderedCell := t.style(HeaderRow, h).Width(t.widths[h]).Render(d)
-			// TODO remove magic number
-			h := lipgloss.Height(renderedCell)
-			t.heights[0] = max(t.heights[0], h)
-		}
-		for r := 0; r < t.data.Rows(); r++ {
-			// Rows
-			// TODO update height with new rendered width? Will need this if we're wrapping content.
-			for i := 0; i < t.data.Columns(); i++ {
-				cell := t.data.At(r, i)
-				cellStyle := t.style(r, i)
-				rendered := cellStyle.Width(t.widths[i] - cellStyle.GetHorizontalMargins()).Render(cell)
-				t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
-				// TODO not sure about this part... We want to know how wide the headers are so we can compare the resulting wrapped width to the header width
+		if t.wrap {
+			// Adjust heights to account for wrapped content from final calculated
+			// width. Needs to happen for both headers and rows for proper border
+			// rendering and table sizing.
+			for h := 0; h < len(t.headers); h++ {
+				d := t.headers[h]
+				renderedCell := t.style(HeaderRow, h).Width(t.widths[h]).Render(d)
+				h := lipgloss.Height(renderedCell)
+				t.heights[headerPos] = max(t.heights[headerPos], h)
+			}
+
+			for r := 0; r < t.data.Rows(); r++ {
+				for i := 0; i < t.data.Columns(); i++ {
+					cell := t.data.At(r, i)
+					cellStyle := t.style(r, i)
+					// Update height with actual cell widths.
+					rendered := cellStyle.Width(t.widths[i] - cellStyle.GetHorizontalMargins()).Render(cell)
+					t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
+				}
 			}
 		}
 
@@ -451,6 +465,7 @@ func (t *Table) String() string {
 
 		default:
 			for r := t.offset; r < t.data.Rows(); r++ {
+				// TODO handle overflow false
 				sb.WriteString(t.constructRow(r, false))
 			}
 		}
@@ -542,7 +557,7 @@ func (t *Table) constructBottomBorder() string {
 func (t *Table) constructHeaders() string {
 	var s strings.Builder
 	var cells []string
-	headerHeight := t.heights[0]
+	headerHeight := t.heights[headerPos]
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", headerHeight)
 	if t.borderLeft {
 		cells = append(cells, left)
@@ -550,18 +565,25 @@ func (t *Table) constructHeaders() string {
 	// wrap headers after width style, add borders from split?
 	for i, header := range t.headers {
 		cellStyle := t.style(HeaderRow, i)
-		styledHeader := cellStyle.
-			// TODO what about horizontal margins?
-			// MaxHeight(1).
-			Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
-			// MaxWidth(t.widths[i]).
-			Render(header)
+		var styledHeader string
+		if t.wrap {
+			styledHeader = cellStyle.
+				Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
+				Render(header)
+		} else {
+			styledHeader = cellStyle.
+				// TODO handle truncation option with MaxHeight?
+				//				MaxWidth(t.widths[i] - cellStyle.GetHorizontalMargins()).
+				//				MaxHeight(1).
+				Width(t.widths[i]).
+				Render(ansi.Truncate(header, t.widths[i], "…"))
+		}
+
 		// update the height for headers
 		cells = append(cells, styledHeader)
 		//		s.WriteString(styledHeader)
 		// TODO set height after we know new width
 		// TODO if user wants to truncate instead of wrap, then truncate as below
-		// Render(ansi.Truncate(header, t.widths[i], "…")))
 		if i < len(t.headers)-1 && t.borderColumn {
 			cells = append(cells, left)
 		}
@@ -578,8 +600,6 @@ func (t *Table) constructHeaders() string {
 
 	if t.borderHeader {
 		s.WriteString("\n")
-		// TODO if second header needs wrapping, then we also need to wrap the first header...
-		// where are we calculating the heights?
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		}
@@ -620,6 +640,7 @@ func (t *Table) constructRows(availableLines int) string {
 		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
 		isOverflow := needsOverflow && rowsToRender == 1
 
+		// TODO handle overflow
 		sb.WriteString(t.constructRow(rowIdx, isOverflow))
 
 		rowIdx++
@@ -653,15 +674,22 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		}
 
 		cellStyle := t.style(index, c)
-		rendered := cellStyle.
-			// Account for the margins in the cell sizing.
-			Height(height - cellStyle.GetVerticalMargins()).
-			Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
-			//			MaxHeight(height).
-			//			MaxWidth(t.widths[c]).
-			//			 TODO only truncate if height if using manual height
-			// Render(ansi.Truncate(cell, cellWidth*height, "…")))
-			Render(cell)
+		var rendered string
+		if t.wrap {
+			rendered = cellStyle.
+				// Account for the margins in the cell sizing.
+				Height(height - cellStyle.GetVerticalMargins()).
+				Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
+				// TODO only truncate if height if using manual height and overflow is false
+				// Render(ansi.Truncate(cell, cellWidth*height, "…")))
+				Render(cell)
+		} else {
+			rendered = cellStyle.
+				// Account for the margins in the cell sizing.
+				Height(height - cellStyle.GetVerticalMargins()).
+				Width(t.widths[c] - cellStyle.GetHorizontalMargins()).
+				Render(ansi.Truncate(cell, t.widths[c]-cellStyle.GetHorizontalMargins(), "…"))
+		}
 
 		cells = append(cells, rendered)
 		if c < t.data.Columns()-1 && t.borderColumn {
