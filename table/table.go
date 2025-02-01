@@ -372,6 +372,47 @@ func (t *Table) String() string {
 		// they are a minimum acceptable width (1/x where x is the number of
 		// columns).
 		for width > t.width {
+
+			// TODO rows are cutting based on longest content, not accounting
+			// for headers... Not true. It's looking at the greatest
+			// differences, though if a bunch of widths are equivalent it does
+			// this shrink function in order.
+			//
+			//         ╭──────────┬─────────────────────┬────────────┬────────────────┬───────────────╮
+			//         │    Na    │    Description      │    Type    │    Required    │    Default    │
+			//         │    me    │                     │            │                │               │
+			//         ├──────────┼─────────────────────┼────────────┼────────────────┼───────────────┤
+			//         │    co    │    A command to     │    yes     │                │               │
+			//         │    mm    │    be executed      │            │                │               │
+			//         │    an    │    inside the       │            │                │               │
+			//         │    d     │    container to     │            │                │               │
+			//         │          │    assess its       │            │                │               │
+			//         │          │    health. Each     │            │                │               │
+			//         │          │    space            │            │                │               │
+			//         │          │    delimited        │            │                │               │
+			//         │          │    token of the     │            │                │               │
+			//         │          │    command is a     │            │                │               │
+			//         │          │    separate         │            │                │               │
+			//         │          │    array            │            │                │               │
+			//         │          │    element.         │            │                │               │
+			//         │          │    Commands         │            │                │               │
+			//         │          │    exiting 0 are    │            │                │               │
+			//         │          │    considered to    │            │                │               │
+			//         │          │    be successful    │            │                │               │
+			//         │          │    probes,          │            │                │               │
+			//         │          │    whilst all       │            │                │               │
+			//         │          │    other exit       │            │                │               │
+			//         │          │    codes are        │            │                │               │
+			//         │          │    considered       │            │                │               │
+			//         │          │    failures.        │            │                │               │
+			//         ╰──────────┴─────────────────────┴────────────┴────────────────┴───────────────╯
+			//
+			//
+			// in this case, it shrinks the first column drastically which has
+			// the same median column as the two rightmost columns, then skips
+			// those because we;ve achieved the width we're looking for.
+			//
+
 			index, _ := largest(differences)
 			// If all columns and rows are equally sized, exit the loop.
 			if differences[index] < 1 {
