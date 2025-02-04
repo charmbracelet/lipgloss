@@ -20,7 +20,7 @@ func max(a, b int) int { //nolint:predeclared
 	return b
 }
 
-// min returns the greater of two integers.
+// min returns the smaller of two integers.
 func min(a, b int) int { //nolint:predeclared
 	if a < b {
 		return a
