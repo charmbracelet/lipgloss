@@ -2,8 +2,6 @@ package lipgloss
 
 import (
 	"testing"
-
-	"github.com/muesli/termenv"
 )
 
 func TestStyleRanges(t *testing.T) {
@@ -25,7 +23,7 @@ func TestStyleRanges(t *testing.T) {
 			ranges: []Range{
 				NewRange(6, 11, NewStyle().Bold(true)),
 			},
-			expected: "hello \x1b[1mworld\x1b[0m",
+			expected: "hello \x1b[1mworld\x1b[m",
 		},
 		{
 			name:  "multiple ranges",
@@ -34,15 +32,15 @@ func TestStyleRanges(t *testing.T) {
 				NewRange(0, 5, NewStyle().Bold(true)),
 				NewRange(6, 11, NewStyle().Italic(true)),
 			},
-			expected: "\x1b[1mhello\x1b[0m \x1b[3mworld\x1b[0m",
+			expected: "\x1b[1mhello\x1b[m \x1b[3mworld\x1b[m",
 		},
 		{
 			name:  "overlapping with existing ANSI",
-			input: "hello \x1b[32mworld\x1b[0m",
+			input: "hello \x1b[32mworld\x1b[m",
 			ranges: []Range{
 				NewRange(0, 5, NewStyle().Bold(true)),
 			},
-			expected: "\x1b[1mhello\x1b[0m \x1b[32mworld\x1b[0m",
+			expected: "\x1b[1mhello\x1b[m \x1b[32mworld\x1b[m",
 		},
 		{
 			name:  "style at start",
@@ -50,7 +48,7 @@ func TestStyleRanges(t *testing.T) {
 			ranges: []Range{
 				NewRange(0, 5, NewStyle().Bold(true)),
 			},
-			expected: "\x1b[1mhello\x1b[0m world",
+			expected: "\x1b[1mhello\x1b[m world",
 		},
 		{
 			name:  "style at end",
@@ -58,7 +56,7 @@ func TestStyleRanges(t *testing.T) {
 			ranges: []Range{
 				NewRange(6, 11, NewStyle().Bold(true)),
 			},
-			expected: "hello \x1b[1mworld\x1b[0m",
+			expected: "hello \x1b[1mworld\x1b[m",
 		},
 		{
 			name:  "multiple styles with gap",
@@ -67,7 +65,7 @@ func TestStyleRanges(t *testing.T) {
 				NewRange(0, 5, NewStyle().Bold(true)),
 				NewRange(16, 23, NewStyle().Italic(true)),
 			},
-			expected: "\x1b[1mhello\x1b[0m beautiful \x1b[3mworld\x1b[0m",
+			expected: "\x1b[1mhello\x1b[m beautiful \x1b[3mworld\x1b[m",
 		},
 		{
 			name:  "adjacent ranges",
@@ -76,7 +74,7 @@ func TestStyleRanges(t *testing.T) {
 				NewRange(0, 5, NewStyle().Bold(true)),
 				NewRange(6, 11, NewStyle().Italic(true)),
 			},
-			expected: "\x1b[1mhello\x1b[0m \x1b[3mworld\x1b[0m",
+			expected: "\x1b[1mhello\x1b[m \x1b[3mworld\x1b[m",
 		},
 		{
 			name:  "wide-width characters",
@@ -86,7 +84,7 @@ func TestStyleRanges(t *testing.T) {
 				NewRange(7, 10, NewStyle().Italic(true)), // "你好"
 				NewRange(11, 50, NewStyle().Bold(true)),  // "世界"
 			},
-			expected: "\x1b[1mHello\x1b[0m \x1b[3m你好\x1b[0m \x1b[1m世界\x1b[0m",
+			expected: "\x1b[1mHello\x1b[m \x1b[3m你好\x1b[m \x1b[1m世界\x1b[m",
 		},
 		{
 			name:  "ansi and emoji",
@@ -94,12 +92,11 @@ func TestStyleRanges(t *testing.T) {
 			ranges: []Range{
 				NewRange(2, 5, NewStyle().Foreground(Color("2"))),
 			},
-			expected: "\x1b[90m\ue615\x1b[39m \x1b[3m\x1b[32mDow\x1b[0m\x1b[90m\x1b[39m\x1b[3mnloads",
+			expected: "\x1b[90m\ue615\x1b[39m \x1b[3m\x1b[32mDow\x1b[m\x1b[90m\x1b[39m\x1b[3mnloads",
 		},
 	}
 
 	for _, tt := range tests {
-		renderer.SetColorProfile(termenv.ANSI)
 		t.Run(tt.name, func(t *testing.T) {
 			result := StyleRanges(tt.input, tt.ranges...)
 			if result != tt.expected {
