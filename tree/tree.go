@@ -171,7 +171,6 @@ func (t *Tree) Insert(index int, child any) *Tree {
 	return t
 }
 
-// TODO probably don't need this to be an []any
 func (t *Tree) anyToNode(children ...any) []Node {
 	var nodes []Node
 	for _, child := range children {
