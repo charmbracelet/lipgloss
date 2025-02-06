@@ -88,6 +88,14 @@ func TestStyleRanges(t *testing.T) {
 			},
 			expected: "\x1b[1mHello\x1b[0m \x1b[3m你好\x1b[0m \x1b[1m世界\x1b[0m",
 		},
+		{
+			name:  "ansi and emoji",
+			input: "\x1b[90m\ue615\x1b[39m \x1b[3mDownloads",
+			ranges: []Range{
+				NewRange(2, 5, NewStyle().Foreground(Color("2"))),
+			},
+			expected: "\x1b[90m\ue615\x1b[39m \x1b[3m\x1b[32mDow\x1b[0m\x1b[90m\x1b[39m\x1b[3mnloads",
+		},
 	}
 
 	for _, tt := range tests {
