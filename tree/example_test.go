@@ -7,6 +7,95 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+// Leaf Examples
+
+func ExampleNewLeaf() {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child(
+							tree.NewLeaf("This should be hidden", true),
+							tree.NewLeaf(
+								tree.Root("I am groot").Child("leaves"), false),
+						),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	fmt.Println(tr.String())
+	// Output:
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   ├── Quux
+	// │   │   └── I am groot
+	// │   │       └── leaves
+	// │   └── Quuux
+	// └── Baz
+	//
+}
+
+func ExampleLeaf_SetHidden() {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("Hello!"),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	tr.Children().At(1).Children().At(2).SetHidden(true)
+	fmt.Println(tr.String())
+	// Output:
+	//
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quux
+	// │       └── Hello!
+	// └── Baz
+	//
+}
+
+func ExampleLeaf_SetValue() {
+	t := tree.
+		Root("⁜ Makeup").
+		Child(
+			"Glossier",
+			"Fenty Beauty",
+			tree.New().Child(
+				"Gloss Bomb Universal Lip Luminizer",
+				"Hot Cheeks Velour Blushlighter",
+			),
+			"Nyx",
+			"Mac",
+			"Milk",
+		).
+		Enumerator(tree.RoundedEnumerator)
+	glossier := t.Children().At(0)
+	glossier.SetValue("Il Makiage")
+	fmt.Println(ansi.Strip(t.String()))
+	// Output:
+	//⁜ Makeup
+	//├── Il Makiage
+	//├── Fenty Beauty
+	//│   ├── Gloss Bomb Universal Lip Luminizer
+	//│   ╰── Hot Cheeks Velour Blushlighter
+	//├── Nyx
+	//├── Mac
+	//╰── Milk
+}
+
 func ExampleLeaf_Insert() {
 	t := tree.
 		Root("⁜ Makeup").
@@ -69,6 +158,48 @@ func ExampleLeaf_Replace() {
 
 // Tree Examples
 
+func ExampleTree_Insert() {
+	t := tree.
+		Root("⁜ Makeup").
+		Child(
+			"Glossier",
+			"Fenty Beauty",
+			tree.New().Child(
+				"Gloss Bomb Universal Lip Luminizer",
+				"Hot Cheeks Velour Blushlighter",
+			),
+			"Nyx",
+			"Mac",
+			"Milk",
+		).
+		Enumerator(tree.RoundedEnumerator)
+	// Adds a new Tree Node after Fenty Beauty.
+	t.Insert(2, tree.Root("Lancôme").Child("Juicy Tubes Lip Gloss", "Lash Idôle", "Teint Idôle Highlighter"))
+
+	// Adds a new Tree Node in Fenty Beauty
+	t.Replace(1, t.Children().At(1).Insert(0, "Blurring Skin Tint"))
+
+	// Adds a new Tree Node to a Leaf (Mac)
+	t.Replace(4, t.Children().At(4).Insert(0, "Glow Play Cushion Blush"))
+	fmt.Println(ansi.Strip(t.String()))
+	// Output:
+	//⁜ Makeup
+	//├── Glossier
+	//├── Fenty Beauty
+	//│   ├── Blurring Skin Tint
+	//│   ├── Gloss Bomb Universal Lip Luminizer
+	//│   ╰── Hot Cheeks Velour Blushlighter
+	//├── Lancôme
+	//│   ├── Juicy Tubes Lip Gloss
+	//│   ├── Lash Idôle
+	//│   ╰── Teint Idôle Highlighter
+	//├── Nyx
+	//├── Mac
+	//│   ╰── Glow Play Cushion Blush
+	//╰── Milk
+	//
+}
+
 func ExampleTree_Replace() {
 	t := tree.
 		Root("⁜ Makeup").
@@ -111,43 +242,52 @@ func ExampleTree_Replace() {
 	//
 }
 
-func ExampleTree_Insert() {
-	t := tree.
-		Root("⁜ Makeup").
+func ExampleTree_Hide() {
+	tr := tree.New().
 		Child(
-			"Glossier",
-			"Fenty Beauty",
-			tree.New().Child(
-				"Gloss Bomb Universal Lip Luminizer",
-				"Hot Cheeks Velour Blushlighter",
-			),
-			"Nyx",
-			"Mac",
-			"Milk",
-		).
-		Enumerator(tree.RoundedEnumerator)
-	// Adds a new Tree Node after Fenty Beauty.
-	t.Insert(2, tree.Root("Lancôme").Child("Juicy Tubes Lip Gloss", "Lash Idôle", "Teint Idôle Highlighter"))
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("Foo", "Bar").
+						Hide(true),
+					"Quuux",
+				),
+			"Baz",
+		)
 
-	// Adds a new Tree Node in Fenty Beauty
-	t.Replace(1, t.Children().At(1).Insert(0, "Blurring Skin Tint"))
-
-	// Adds a new Tree Node to a Leaf (Mac)
-	t.Replace(4, t.Children().At(4).Insert(0, "Glow Play Cushion Blush"))
-	fmt.Println(ansi.Strip(t.String()))
+	fmt.Println(tr.String())
 	// Output:
-	//⁜ Makeup
-	//├── Glossier
-	//├── Fenty Beauty
-	//│   ├── Blurring Skin Tint
-	//│   ├── Gloss Bomb Universal Lip Luminizer
-	//│   ╰── Hot Cheeks Velour Blushlighter
-	//├── Lancôme
-	//│   ├── Juicy Tubes Lip Gloss
-	//│   ├── Lash Idôle
-	//│   ╰── Teint Idôle Highlighter
-	//├── Nyx
-	//├── Mac
-	//│   ╰── Glow Play Cushion Blush
-	//╰── Milk
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quuux
+	// └── Baz
+}
+
+func ExampleTree_SetHidden() {
+	tr := tree.New().
+		Child(
+			"Foo",
+			tree.Root("Bar").
+				Child(
+					"Qux",
+					tree.Root("Quux").
+						Child("Foo", "Bar"),
+					"Quuux",
+				),
+			"Baz",
+		)
+
+	// Hide a tree after its creation. We'll hide Quux.
+	tr.Children().At(1).Children().At(1).SetHidden(true)
+	// Output:
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quuux
+	// └── Baz
+	//
+	fmt.Println(tr.String())
 }
