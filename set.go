@@ -1,6 +1,9 @@
 package lipgloss
 
-import "image/color"
+import (
+	"image/color"
+	"strings"
+)
 
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value interface{}) {
@@ -67,6 +70,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.tabWidth = value.(int)
 	case transformKey:
 		s.transform = value.(func(string) string)
+	case linkKey:
+		s.link = value.(string)
+	case linkParamsKey:
+		s.linkParams = value.(string)
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
@@ -685,6 +692,21 @@ func (s Style) StrikethroughSpaces(v bool) Style {
 //	fmt.Println(s.Render("raow!") // "RAOW!"
 func (s Style) Transform(fn func(string) string) Style {
 	s.set(transformKey, fn)
+	return s
+}
+
+// Hyperlink sets a hyperlink on a style. This is useful for rendering text that
+// can be clicked on in a terminal emulator that supports hyperlinks.
+//
+// Example:
+//
+//	s := lipgloss.NewStyle().Hyperlink("https://charm.sh")
+//	s := lipgloss.NewStyle().Hyperlink("https://charm.sh", "id=1")
+func (s Style) Hyperlink(link string, params ...string) Style {
+	s.set(linkKey, link)
+	if len(params) > 0 {
+		s.set(linkParamsKey, strings.Join(params, ":"))
+	}
 	return s
 }
 
