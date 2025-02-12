@@ -8,7 +8,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/compat"
 	"github.com/segmentio/ksuid"
 )
 
@@ -38,8 +37,8 @@ var (
 	hoveredDialogStyle = dialogStyle.
 				BorderForeground(lipgloss.Color("#F25D94"))
 
-	specialWordStyle = lipgloss.NewStyle().
-				Foreground(compat.AdaptiveColor{Light: lipgloss.Color("#43BF6D"), Dark: lipgloss.Color("#73F59F")})
+	specialWordLightColor = lipgloss.Color("#43BF6D")
+	specialWordDarkColor  = lipgloss.Color("#73F59F")
 
 	buttonStyle = lipgloss.NewStyle().
 			Padding(0, 3).
@@ -53,24 +52,35 @@ var (
 // Model
 
 type model struct {
-	width, height int
-	dialogs       []dialog
-	canvas        *lipgloss.Canvas
-	mouseDown     bool
-	pressID       string
-	dragID        string
-	dragOffsetX   int
-	dragOffsetY   int
+	specialWordStyle lipgloss.Style
+	width, height    int
+	dialogs          []dialog
+	canvas           *lipgloss.Canvas
+	mouseDown        bool
+	pressID          string
+	dragID           string
+	dragOffsetX      int
+	dragOffsetY      int
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(tea.EnableMouseAllMotion)
+	return tea.Batch(
+		tea.EnableMouseAllMotion,
+		tea.RequestBackgroundColor,
+	)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
+
+	case tea.BackgroundColorMsg:
+		if msg.IsDark() {
+			m.specialWordStyle = m.specialWordStyle.Foreground(specialWordDarkColor)
+		} else {
+			m.specialWordStyle = m.specialWordStyle.Foreground(specialWordLightColor)
+		}
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -234,6 +244,7 @@ func (m model) View() string {
 }
 
 func (m *model) newDialog(x, y int) (d dialog) {
+	d.specialWordStyle = &m.specialWordStyle
 	dummyView := d.windowView()
 	w := lipgloss.Width(dummyView)
 	h := lipgloss.Height(dummyView)
@@ -260,12 +271,13 @@ func (m model) removeDialog(index int) []dialog {
 // Dialog Windows
 
 type dialog struct {
-	id             string
-	buttonID       string
-	x, y           int
-	text           string
-	hovering       bool
-	hoveringButton bool
+	specialWordStyle *lipgloss.Style
+	id               string
+	buttonID         string
+	x, y             int
+	text             string
+	hovering         bool
+	hoveringButton   bool
 }
 
 func (d dialog) buttonView() string {
@@ -285,7 +297,7 @@ func (d dialog) windowView() string {
 		style = dialogStyle
 	}
 
-	s := specialWordStyle.Render(d.text) + dialogWordStyle.Render(" draws near. Command?")
+	s := d.specialWordStyle.Render(d.text) + dialogWordStyle.Render(" draws near. Command?")
 	return style.Render(s)
 }
 
