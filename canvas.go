@@ -32,15 +32,15 @@ func (c *Canvas) Bounds() image.Rectangle {
 	return c.buf.Bounds()
 }
 
-// Hit returns the [Layer.ID] at the given point. If no Layer is found, it
-// returns an empty string.
-func (c *Canvas) Hit(x, y int) string {
+// Hit returns the [Layer.ID] at the given point. If no Layer is found,
+// nil is returned.
+func (c *Canvas) Hit(x, y int) *Layer {
 	for i := len(c.layers) - 1; i >= 0; i-- {
 		if c.layers[i].InBounds(x, y) {
 			return c.layers[i].Hit(x, y)
 		}
 	}
-	return ""
+	return nil
 }
 
 // AddLayers adds the given layers to the Canvas.
@@ -49,8 +49,8 @@ func (c *Canvas) AddLayers(layers ...*Layer) {
 	sortLayers(c.layers, false)
 }
 
-// Get returns the Layer with the given ID. If the ID is not found, it returns
-// nil.
+// Get returns the Layer with the given ID. If the ID is not found, nil is
+// returned.
 func (c *Canvas) Get(id string) *Layer {
 	for _, l := range c.layers {
 		if la := l.Get(id); la != nil {
@@ -132,9 +132,9 @@ func (l *Layer) Bounds() image.Rectangle {
 	return l.rect
 }
 
-// Hit returns the [Layer.ID] at the given point. If no Layer is found, it
-// returns an empty string.
-func (l *Layer) Hit(x, y int) string {
+// Hit returns the [Layer.ID] at the given point. If no Layer is found,
+// returns nil is returned.
+func (l *Layer) Hit(x, y int) *Layer {
 	// Reverse the order of the layers so that the top-most layer is checked
 	// first.
 	for i := len(l.children) - 1; i >= 0; i-- {
@@ -144,10 +144,10 @@ func (l *Layer) Hit(x, y int) string {
 	}
 
 	if image.Pt(x, y).In(l.Bounds()) {
-		return l.id
+		return l
 	}
 
-	return ""
+	return nil
 }
 
 // ID sets the ID of the Layer. The ID can be used to identify the Layer when
