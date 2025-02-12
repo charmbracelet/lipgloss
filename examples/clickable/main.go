@@ -100,16 +100,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Initial press
 			if !m.mouseDown {
 				m.mouseDown = true
-				m.pressID = hit
+				m.pressID = ""
+				if hit != nil {
+					m.pressID = hit.GetID()
+				}
 
 				// Did we press on a dialog box?
 				for i, d := range m.dialogs {
-					if d.id != hit {
+					if hit != nil && d.id != hit.GetID() {
 						continue
 					}
 
 					// Init drag
-					m.dragID = hit
+					m.dragID = hit.GetID()
 					m.dragOffsetX = mouse.X - d.x
 					m.dragOffsetY = mouse.Y - d.y
 
@@ -158,11 +161,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				d.hovering = false
 				d.hoveringButton = false
 
-				if d.id == hit {
+				if d.id == hit.GetID() {
 					d.hovering = true
 					continue
 				}
-				if d.buttonID == hit {
+				if d.buttonID == hit.GetID() {
 					d.hovering = true
 					d.hoveringButton = true
 					continue
@@ -179,7 +182,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Did we click a button?
 			for i, d := range m.dialogs {
-				if hit == d.buttonID && m.pressID == d.buttonID {
+				if hit.GetID() == d.buttonID && m.pressID == d.buttonID {
 					// "Close" the window
 					m.dialogs = m.removeDialog(i)
 					break
@@ -187,7 +190,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Clicking the background spawns a new dialog
-			if hit == "bg" && m.pressID == "bg" {
+			if hit.GetID() == "bg" && m.pressID == "bg" {
 				if len(m.dialogs) < maxDialogs {
 					m.dialogs = append(m.dialogs, m.newDialog(mouse.X, mouse.Y))
 				}
