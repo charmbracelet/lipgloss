@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
@@ -230,7 +228,10 @@ func (m model) Composite() *lipgloss.Canvas {
 	)
 
 	layers := make([]*lipgloss.Layer, len(m.dialogs)+1)
-	layers[0] = lipgloss.NewLayer("bg", bg).Width(m.width).Height(m.height)
+	layers[0] = lipgloss.NewLayer(bg).
+		ID("bg").
+		Width(m.width).
+		Height(m.height)
 
 	for i, d := range m.dialogs {
 		layers[i+1] = d.view().Z(i + 1)
@@ -310,11 +311,13 @@ func (d dialog) view() *lipgloss.Layer {
 	buttonX := lipgloss.Width(window) - lipgloss.Width(button) - 1 - hGap
 	buttonY := lipgloss.Height(window) - lipgloss.Height(button) - 1 - vGap
 
-	buttonLayer := lipgloss.NewLayer(d.buttonID, button).
+	buttonLayer := lipgloss.NewLayer(button).
+		ID(d.buttonID).
 		X(buttonX).
 		Y(buttonY)
 
-	return lipgloss.NewLayer(d.id, window).
+	return lipgloss.NewLayer(window).
+		ID(d.id).
 		X(d.x).
 		Y(d.y).
 		AddLayers(buttonLayer)
@@ -323,7 +326,6 @@ func (d dialog) view() *lipgloss.Layer {
 // Main
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	ksuid.SetRand(ksuid.FastRander)
 
 	path := os.Getenv("TEA_LOGFILE")
