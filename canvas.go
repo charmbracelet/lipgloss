@@ -113,9 +113,8 @@ type Layer struct {
 
 // NewLayer creates a new Layer with the given content. It calculates the size
 // based on the widest line and the number of lines in the content.
-func NewLayer(id, content string) (l *Layer) {
+func NewLayer(content string) (l *Layer) {
 	l = new(Layer)
-	l.id = id
 	l.content = content
 	height := Height(content)
 	width := Width(content)
@@ -151,7 +150,8 @@ func (l *Layer) Hit(x, y int) string {
 	return ""
 }
 
-// ID sets the ID of the Layer.
+// ID sets the ID of the Layer. The ID can be used to identify the Layer when
+// performing hit tests.
 func (l *Layer) ID(id string) *Layer {
 	l.id = id
 	return l
