@@ -234,6 +234,7 @@ func TestTreeNil(t *testing.T) {
 }
 
 func TestTreeCustom(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
 	tree := tree.New().
 		Child(
 			"Foo",
