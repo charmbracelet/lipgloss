@@ -61,6 +61,7 @@ type Table struct {
 	height          int
 	useManualHeight bool
 	offset          int
+	wrap            bool
 
 	// widths tracks the width of each column.
 	widths []int
@@ -83,6 +84,7 @@ func New() *Table {
 		borderLeft:   true,
 		borderRight:  true,
 		borderTop:    true,
+		wrap:         true,
 		data:         NewStringData(),
 	}
 }
@@ -217,6 +219,12 @@ func (t *Table) Offset(o int) *Table {
 	return t
 }
 
+// Wrap dictates whether or not the table content should wrap.
+func (t *Table) Wrap(w bool) *Table {
+	t.wrap = w
+	return t
+}
+
 // String returns the table as a string.
 func (t *Table) String() string {
 	hasHeaders := len(t.headers) > 0
@@ -292,62 +300,64 @@ func (t *Table) String() string {
 	//
 	// The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 
-	width := t.computeWidth()
+	t.resize()
 
-	if width < t.width && t.width > 0 {
-		// Table is too narrow, expand the columns evenly until it reaches the
-		// desired width.
-		var i int
-		for width < t.width {
-			t.widths[i]++
-			width++
-			i = (i + 1) % len(t.widths)
-		}
-	} else if width > t.width && t.width > 0 {
-		// Table is too wide, calculate the median non-whitespace length of each
-		// column, and shrink the columns based on the largest difference.
-		columnMedians := make([]int, len(t.widths))
-		for c := range t.widths {
-			trimmedWidth := make([]int, t.data.Rows())
-			for r := 0; r < t.data.Rows(); r++ {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
-				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
-				trimmedWidth[r] = nonWhitespaceChars + 1
-			}
+	// width := t.computeWidth()
 
-			columnMedians[c] = median(trimmedWidth)
-		}
+	// if width < t.width && t.width > 0 {
+	// 	// Table is too narrow, expand the columns evenly until it reaches the
+	// 	// desired width.
+	// 	var i int
+	// 	for width < t.width {
+	// 		t.widths[i]++
+	// 		width++
+	// 		i = (i + 1) % len(t.widths)
+	// 	}
+	// } else if width > t.width && t.width > 0 {
+	// 	// Table is too wide, calculate the median non-whitespace length of each
+	// 	// column, and shrink the columns based on the largest difference.
+	// 	columnMedians := make([]int, len(t.widths))
+	// 	for c := range t.widths {
+	// 		trimmedWidth := make([]int, t.data.Rows())
+	// 		for r := 0; r < t.data.Rows(); r++ {
+	// 			renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
+	// 			nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
+	// 			trimmedWidth[r] = nonWhitespaceChars + 1
+	// 		}
 
-		// Find the biggest differences between the median and the column width.
-		// Shrink the columns based on the largest difference.
-		differences := make([]int, len(t.widths))
-		for i := range t.widths {
-			differences[i] = t.widths[i] - columnMedians[i]
-		}
+	// 		columnMedians[c] = median(trimmedWidth)
+	// 	}
 
-		for width > t.width {
-			index, _ := largest(differences)
-			if differences[index] < 1 {
-				break
-			}
+	// 	// Find the biggest differences between the median and the column width.
+	// 	// Shrink the columns based on the largest difference.
+	// 	differences := make([]int, len(t.widths))
+	// 	for i := range t.widths {
+	// 		differences[i] = t.widths[i] - columnMedians[i]
+	// 	}
 
-			shrink := min(differences[index], width-t.width)
-			t.widths[index] -= shrink
-			width -= shrink
-			differences[index] = 0
-		}
+	// 	for width > t.width {
+	// 		index, _ := largest(differences)
+	// 		if differences[index] < 1 {
+	// 			break
+	// 		}
 
-		// Table is still too wide, begin shrinking the columns based on the
-		// largest column.
-		for width > t.width {
-			index, _ := largest(t.widths)
-			if t.widths[index] < 1 {
-				break
-			}
-			t.widths[index]--
-			width--
-		}
-	}
+	// 		shrink := min(differences[index], width-t.width)
+	// 		t.widths[index] -= shrink
+	// 		width -= shrink
+	// 		differences[index] = 0
+	// 	}
+
+	// 	// Table is still too wide, begin shrinking the columns based on the
+	// 	// largest column.
+	// 	for width > t.width {
+	// 		index, _ := largest(t.widths)
+	// 		if t.widths[index] < 1 {
+	// 			break
+	// 		}
+	// 		t.widths[index]--
+	// 		width--
+	// 	}
+	// }
 
 	var sb strings.Builder
 
