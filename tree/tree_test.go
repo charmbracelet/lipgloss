@@ -234,6 +234,7 @@ func TestTreeNil(t *testing.T) {
 }
 
 func TestTreeCustom(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
 	tree := tree.New().
 		Child(
 			"Foo",
@@ -262,17 +263,7 @@ func TestTreeCustom(t *testing.T) {
 			return "->"
 		})
 
-	want := `
--> Foo
--> Bar
--> -> Qux
--> -> Quux
--> -> -> Foo
--> -> -> Bar
--> -> Quuux
--> Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeMultilineNode(t *testing.T) {
