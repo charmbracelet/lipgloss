@@ -203,6 +203,15 @@ func main() {
 
 		fishCakeStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
 
+		// Floating thing.
+
+		floatingStyle = lipgloss.NewStyle().
+				Italic(true).
+				Foreground(lipgloss.Color("#FFF7DB")).
+				Background(lipgloss.Color("#F25D94")).
+				Padding(1, 6).
+				Align(lipgloss.Center)
+
 		// Page.
 
 		docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
@@ -370,10 +379,20 @@ func main() {
 		docStyle = docStyle.MaxWidth(physicalWidth)
 	}
 
+	// Render the document.
+	document := docStyle.Render(doc.String())
+
+	// Surprise! Composite some bonus content on top of the document.
+	modal := floatingStyle.Render("Now with Compositing!")
+	canvas := lipgloss.NewCanvas(
+		lipgloss.NewLayer(document),
+		lipgloss.NewLayer(modal).X(58).Y(44),
+	)
+
 	// Okay, let's print it. We use a special Lipgloss writer to downsample
 	// colors to the terminal's color palette. And, if output's not a TTY, we
 	// will remove color entirely.
-	lipgloss.Println(docStyle.Render(doc.String()))
+	lipgloss.Println(canvas.Render())
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {
