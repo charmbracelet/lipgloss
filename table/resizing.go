@@ -2,15 +2,10 @@ package table
 
 import (
 	"math"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-)
-
-type shrinkStrategy string
-
-const (
-	biggestDiffToMedian shrinkStrategy = "biggestDiffToMedian"
-	biggestColumn       shrinkStrategy = "biggestColumn"
+	"github.com/charmbracelet/x/ansi"
 )
 
 func (t *Table) resize() {
@@ -21,23 +16,29 @@ func (t *Table) resize() {
 	r := newResizer(t.width, t.height, t.headers, strData.rows)
 	r.wrap = t.wrap
 	r.borderColumn = t.borderColumn
+	r.yPaddings = make([][]int, len(r.allRows))
 
 	allRows := append([][]string{t.headers}, strData.rows...)
 	r.rowHeights = r.defaultRowHeigths()
 
 	for i, row := range allRows {
+		r.yPaddings[i] = make([]int, len(row))
+
 		for j := range row {
 			column := &r.columns[j]
 			style := t.styleFunc(i, j)
 
-			_, rightMargin, _, leftMargin := style.GetMargin()
-			_, rightPadding, _, leftPadding := style.GetPadding()
+			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
+			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()
 
-			totalPadding := leftMargin + rightMargin + leftPadding + rightPadding
-			column.padding = max(column.padding, totalPadding)
+			totalHorizontalPadding := leftMargin + rightMargin + leftPadding + rightPadding
+			column.xPadding = max(column.xPadding, totalHorizontalPadding)
 			column.fixedWidth = max(column.fixedWidth, style.GetWidth())
 
 			r.rowHeights[i] = max(r.rowHeights[i], style.GetHeight())
+
+			totalVerticalPadding := topMargin + bottomMargin + topPadding + bottomPadding
+			r.yPaddings[i][j] = totalVerticalPadding
 		}
 	}
 
@@ -48,8 +49,6 @@ func (t *Table) resize() {
 	}
 
 	t.widths, t.heights = r.optimizedWidths()
-
-	// fmt.Printf("t.heights: %+v\n", t.heights)
 }
 
 type resizerColumn struct {
@@ -58,7 +57,7 @@ type resizerColumn struct {
 	max        int
 	median     int
 	rows       [][]string
-	padding    int
+	xPadding   int // horizontal padding
 	fixedWidth int
 }
 
@@ -72,6 +71,7 @@ type resizer struct {
 
 	wrap         bool
 	borderColumn bool
+	yPaddings    [][]int // vertical paddings
 }
 
 func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) *resizer {
@@ -118,12 +118,7 @@ func (r *resizer) optimizedWidths() (colWidths, rowHeights []int) {
 	if r.maxTotal() <= r.tableWidth {
 		return r.expandTableWidth()
 	}
-	return r.shrinkTableWidth(biggestDiffToMedian)
-	// shrinkedWidths, ok := r.shrinkTableWidth()
-	// if ok {
-	// 	return shrinkedWidths
-	// }
-	// return r.shrinkTableAndContentWidth()
+	return r.shrinkTableWidth()
 }
 
 func (r *resizer) detectTableWidth() int {
@@ -132,7 +127,6 @@ func (r *resizer) detectTableWidth() int {
 
 func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 	colWidths = r.maxColumnWidths()
-	rowHeights = r.defaultRowHeigths()
 
 	for {
 		totalWidth := sum(colWidths) + r.totalBorder()
@@ -153,131 +147,104 @@ func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 		colWidths[shorterColumnIndex]++
 	}
 
+	rowHeights = r.expandRowHeigths(colWidths)
 	return
 }
 
-// func (r *resizer) shrinkTableWidth() (colWidths []int, ok bool) {
-func (r *resizer) shrinkTableWidth(strategy shrinkStrategy) (colWidths, rowHeights []int) {
+func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 	colWidths = r.maxColumnWidths()
-	rowHeights = r.defaultRowHeigths()
-	// startCuttingContent := false
 
-	for {
-		totalWidth := sum(colWidths) + r.totalBorder()
-		if totalWidth <= r.tableWidth {
-			break
+	// Cut width of columns that are way too big.
+	shrinkBiggestColumns := func(veryBigOnly bool) {
+		for {
+			totalWidth := sum(colWidths) + r.totalBorder()
+			if totalWidth <= r.tableWidth {
+				break
+			}
+
+			bigColumnIndex := -math.MaxInt32
+			bigColumnWidth := -math.MaxInt32
+
+			for j, width := range colWidths {
+				if veryBigOnly {
+					if width >= (r.tableWidth/2) && width > bigColumnWidth {
+						bigColumnWidth = width
+						bigColumnIndex = j
+					}
+				} else {
+					if width > bigColumnWidth {
+						bigColumnWidth = width
+						bigColumnIndex = j
+					}
+				}
+			}
+
+			if bigColumnIndex < 0 || colWidths[bigColumnIndex] == 0 {
+				break
+			}
+			colWidths[bigColumnIndex]--
 		}
+	}
 
-		biggestDiffToMedian := -math.MaxInt32
-		biggestColumn := -math.MaxInt32
-		biggestDiffToMedianIndex := -math.MaxInt32
+	// Cut width of columns that differ the most from the median.
+	shrinkToMedian := func() {
+		for {
+			totalWidth := sum(colWidths) + r.totalBorder()
+			if totalWidth <= r.tableWidth {
+				break
+			}
 
-		for j, width := range colWidths {
-			// Do not truncate headers.
-			// if len(r.headers) > j && lipgloss.Width(r.headers[j]) <= width {
-			// 	continue
-			// }
+			biggestDiffToMedian := -math.MaxInt32
+			biggestDiffToMedianIndex := -math.MaxInt32
 
-			switch strategy {
-			case "biggestDiffToMedian":
+			for j, width := range colWidths {
 				diffToMedian := width - r.columns[j].median
 				if diffToMedian > 0 && diffToMedian > biggestDiffToMedian {
 					biggestDiffToMedian = diffToMedian
 					biggestDiffToMedianIndex = j
 				}
-			case "biggestColumn":
-				if width > biggestColumn {
-					biggestColumn = width
-					biggestDiffToMedianIndex = j
-				}
 			}
-		}
 
-		// println("biggestDiffToMedianIndex", biggestDiffToMedianIndex, "biggestDiffToMedian", biggestDiffToMedian)
-
-		// Shirinking would cut content.
-		// if biggestDiffToMedianIndex < 0 {
-		if strategy == "biggestDiffToMedian" && biggestDiffToMedian <= 0 {
-			println("shirinking would cut content")
-			strategy = "biggestColumn"
-			// startCuttingContent = true
-			continue
-		}
-
-		// No more space to shrink.
-		if colWidths[biggestDiffToMedianIndex] == 0 {
-			println("no more space to shrink")
-			// startCuttingContent = true
-			break
-		}
-
-		colWidths[biggestDiffToMedianIndex]--
-	}
-
-	// If wrap is enabled (the default), increase the height of the rows
-	// that have content that would not fit into a single line.
-	if r.wrap {
-		for i, row := range r.allRows {
-			for j, cell := range row {
-				if lipgloss.Width(cell) > colWidths[j] {
-					// panic("here!")
-					rowHeights[i] += 5
-					// biggestDiffToMedianIndex = j
-					break
-				}
+			if biggestDiffToMedianIndex <= 0 || colWidths[biggestDiffToMedianIndex] == 0 {
+				break
 			}
+			colWidths[biggestDiffToMedianIndex]--
 		}
 	}
 
-	// if !shinkWouldCutContent {
-	// 	return colWidths
-	// }
+	shrinkBiggestColumns(true)
+	shrinkToMedian()
+	shrinkBiggestColumns(false)
 
-	// if !r.wrap {
-	// 	panic("TODO: implement")
-	// }
-
-	// for j := range r.columns {
-
-	// }
-
-	// for i, row := range r.allRows {
-	// 	for j, col := range row {
-	// 		recordWidth, _ := lipgloss.Size(col)
-
-	// 		println("recordWidth", recordWidth, "colWidths[j]", colWidths[j])
-
-	// 		if recordWidth > colWidths[j] {
-	// 			r.rowHeights[i]++
-	// 			biggestDiffToMedianIndex = j
-
-	// 			// if r.rowHeights[i] > r.tableHeight {
-	// 			// 	break
-	// 			// }
-
-	// 			// colWidths[j] = max(colWidths[j], recordWidth)
-
-	// 			// totalWidth := sum(colWidths) + r.totalBorder()
-	// 			// if totalWidth >= r.tableWidth {
-	// 			// 	break
-	// 			// }
-
-	// 			// break
-	// 		}
-	// 	}
-	// }
-
+	rowHeights = r.expandRowHeigths(colWidths)
 	return
 }
 
-// func (r *resizer) shrinkTableAndContentWidth() []int {
-
-// }
+func (r *resizer) expandRowHeigths(colWidths []int) (rowHeights []int) {
+	rowHeights = r.defaultRowHeigths()
+	if !r.wrap {
+		return rowHeights
+	}
+	for i, row := range r.allRows {
+		for j, cell := range row {
+			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.xPaddingForCell(i, j)
+			if height > rowHeights[i] {
+				rowHeights[i] = height
+			}
+		}
+	}
+	return
+}
 
 func (r *resizer) defaultRowHeigths() (rowHeights []int) {
 	rowHeights = make([]int, len(r.allRows))
 	for i := range rowHeights {
-		rowHeights[i] = 1
+		if i < len(r.rowHeights) {
+			rowHeights[i] = r.rowHeights[i]
+		}
+		if rowHeights[i] < 1 {
+			rowHeights[i] = 1
+		}
 	}
 	return
 }
@@ -288,23 +255,11 @@ func (r *resizer) maxColumnWidths() []int {
 		if col.fixedWidth > 0 {
 			maxColumnWidths[i] = col.fixedWidth
 		} else {
-			maxColumnWidths[i] = col.max + r.paddingForCol(col.index)
+			maxColumnWidths[i] = col.max + r.xPaddingForCol(col.index)
 		}
 	}
 	return maxColumnWidths
 }
-
-// func (r *resizer) medianColumnWidths() []int {
-// 	medianColumnWidths := make([]int, len(r.columns))
-// 	for i, col := range r.columns {
-// 		if col.fixedWidth > 0 {
-// 			medianColumnWidths[i] = col.fixedWidth
-// 		} else {
-// 			medianColumnWidths[i] = col.median + r.paddingForCol(col.index)
-// 		}
-// 	}
-// 	return medianColumnWidths
-// }
 
 func (r *resizer) columnCount() int {
 	return len(r.columns)
@@ -314,7 +269,7 @@ func (r *resizer) maxCharCount() int {
 	var count int
 	for _, col := range r.columns {
 		if col.fixedWidth > 0 {
-			count += col.fixedWidth - r.paddingForCol(col.index)
+			count += col.fixedWidth - r.xPaddingForCol(col.index)
 		} else {
 			count += col.max
 		}
@@ -327,7 +282,7 @@ func (r *resizer) maxTotal() (maxTotal int) {
 		if column.fixedWidth > 0 {
 			maxTotal += column.fixedWidth
 		} else {
-			maxTotal += column.max + r.paddingForCol(j)
+			maxTotal += column.max + r.xPaddingForCol(j)
 		}
 	}
 	return
@@ -335,16 +290,23 @@ func (r *resizer) maxTotal() (maxTotal int) {
 
 func (r *resizer) totalPadding() (totalPadding int) {
 	for _, col := range r.columns {
-		totalPadding += col.padding
+		totalPadding += col.xPadding
 	}
 	return
 }
 
-func (r *resizer) paddingForCol(j int) int {
+func (r *resizer) xPaddingForCol(j int) int {
 	if j >= len(r.columns) {
 		return 0
 	}
-	return r.columns[j].padding
+	return r.columns[j].xPadding
+}
+
+func (r *resizer) xPaddingForCell(i, j int) int {
+	if i >= len(r.yPaddings) || j >= len(r.yPaddings[i]) {
+		return 0
+	}
+	return r.yPaddings[i][j]
 }
 
 func (r *resizer) totalBorder() int {
@@ -363,4 +325,15 @@ func (r *resizer) extraBorder() int {
 		return 1
 	}
 	return 0
+}
+
+func (r *resizer) detectContentHeight(content string, width int) (height int) {
+	if width == 0 {
+		return 1
+	}
+	content = strings.ReplaceAll(content, "\r\n", "\n")
+	for _, line := range strings.Split(content, "\n") {
+		height += strings.Count(ansi.Wrap(line, width, ""), "\n") + 1
+	}
+	return
 }

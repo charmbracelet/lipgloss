@@ -1654,12 +1654,13 @@ func ExampleWrap() {
 		table := New().
 			Headers(tc.headers...).
 			Rows(tc.data...).
-			StyleFunc(func(row, col int) lipgloss.Style {
-				//				if col == 1 {
-				//					return lipgloss.NewStyle().MaxWidth(10)
-				//				}
-				return DefaultStyles(row, col)
-			}).Wrap(true)
+			StyleFunc(TableStyle)
+			// StyleFunc(func(row, col int) lipgloss.Style {
+			// 	//				if col == 1 {
+			// 	//					return lipgloss.NewStyle().MaxWidth(10)
+			// 	//				}
+			// 	return DefaultStyles(row, col)
+			// }).Wrap(true)
 		table.Width(80)
 
 		fmt.Println(table.String())

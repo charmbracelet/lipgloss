@@ -252,32 +252,32 @@ func (t *Table) String() string {
 	// The style function may affect width of the table. It's possible to set
 	// the StyleFunc after the headers and rows. Update the widths for a final
 	// time.
-	// for i, cell := range t.headers {
-	// 	if t.wrap {
-	// 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
-	// 		h := lipgloss.Height(t.style(HeaderRow, i).Width(t.widths[i]).Render(cell))
-	// 		t.heights[headerPos] = max(t.heights[headerPos], h)
-	// 	} else {
-	// 		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
-	// 		t.heights[headerPos] = max(t.heights[headerPos], 1)
-	// 	}
-	// }
+	for i, cell := range t.headers {
+		if t.wrap {
+			t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+			h := lipgloss.Height(t.style(HeaderRow, i).Width(t.widths[i]).Render(cell))
+			t.heights[headerPos] = max(t.heights[headerPos], h)
+		} else {
+			t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
+			t.heights[headerPos] = max(t.heights[headerPos], 1)
+		}
+	}
 
-	// for r := 0; r < t.data.Rows(); r++ {
-	// 	for i := 0; i < t.data.Columns(); i++ {
-	// 		cell := t.data.At(r, i)
-	// 		rendered := t.style(r, i).Render(cell)
-	// 		if t.wrap {
-	// 			// println("wrap", "r", r, "btoi(hasHeaders)", btoi(hasHeaders), "lipgloss.Height(rendered)", lipgloss.Height(rendered))
-	// 			// println("rendered", rendered)
-	// 			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
-	// 			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
-	// 		} else {
-	// 			t.heights[r+btoi(hasHeaders)] = 1
-	// 			t.widths[i] = max(t.widths[i], lipgloss.Width(ansi.Truncate(rendered, t.widths[i], "…")))
-	// 		}
-	// 	}
-	// }
+	for r := 0; r < t.data.Rows(); r++ {
+		for i := 0; i < t.data.Columns(); i++ {
+			cell := t.data.At(r, i)
+			rendered := t.style(r, i).Render(cell)
+			if t.wrap {
+				// println("wrap", "r", r, "btoi(hasHeaders)", btoi(hasHeaders), "lipgloss.Height(rendered)", lipgloss.Height(rendered))
+				// println("rendered", rendered)
+				t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
+				t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
+			} else {
+				t.heights[r+btoi(hasHeaders)] = 1
+				t.widths[i] = max(t.widths[i], lipgloss.Width(ansi.Truncate(rendered, t.widths[i], "…")))
+			}
+		}
+	}
 
 	// Table Resizing Logic.
 	//
