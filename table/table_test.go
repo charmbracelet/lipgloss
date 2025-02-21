@@ -1150,7 +1150,7 @@ func TestStyleFunc(t *testing.T) {
 		style StyleFunc
 	}{
 		{
-			"right-aligned text with margins",
+			"RightAlignedTextWithMargins",
 			func(row, col int) lipgloss.Style {
 				switch {
 				case row == HeaderRow:
@@ -1161,7 +1161,7 @@ func TestStyleFunc(t *testing.T) {
 			},
 		},
 		{
-			"margin and padding set",
+			"MarginAndPaddingSet",
 			// this test case uses background colors to differentiate margins
 			// and padding.
 			func(row, col int) lipgloss.Style {
@@ -1227,18 +1227,18 @@ func TestContentWrapping(t *testing.T) {
 		headers []string
 		data    [][]string
 	}{
-		//		{
-		//			"long row content",
-		//			[]string{"Name", "Description", "Type", "Required", "Default"},
-		//			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
-		//		},
-		//		{
-		//			"missing row content",
-		//			[]string{"Name", "Description", "Type", "Required", "Default"},
-		//			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
-		//		},
 		{
-			"long header content, long and short rows",
+			"LongRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+		},
+		{
+			"MissingRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
+		},
+		{
+			"LongHeaderContentLongAndShortRows",
 			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
 			[][]string{
 				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
@@ -1247,7 +1247,7 @@ func TestContentWrapping(t *testing.T) {
 			},
 		},
 		{
-			"Long text, different languages",
+			"LongTextDifferentLanguages",
 			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
 			[][]string{
 				{
@@ -1263,20 +1263,22 @@ func TestContentWrapping(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		table := New().
-			Headers(tc.headers...).
-			Rows(tc.data...)
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				Width(80).
+				StyleFunc(TableStyle)
 			//		StyleFunc(func(_, col int) lipgloss.Style {
 			//			if len(data[col]) > 25 {
 			//				return lipgloss.NewStyle().Width(30)
 			//			}
 			//			return lipgloss.NewStyle()
 			//		})
-		//		table.Row("command", lipgloss.NewStyle().Width(60).Render("A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures."), "yes")
-		table.Width(80)
 
-		t.Log(lipgloss.Width(table.String()))
-		t.Log("\n" + table.String() + "\n")
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+
 	}
 }
 
@@ -1657,7 +1659,7 @@ func ExampleWrap() {
 				//					return lipgloss.NewStyle().MaxWidth(10)
 				//				}
 				return DefaultStyles(row, col)
-			}).Wrap(false)
+			}).Wrap(true)
 		table.Width(80)
 
 		fmt.Println(table.String())
