@@ -467,6 +467,42 @@ fmt.Println(t)
 > [!WARNING]
 > Table `Rows` need to be declared before `Offset` otherwise it does nothing.
 
+### Table Borders
+
+There are helpers to generate tables in markdown or ASCII style:
+
+#### Markdown Table
+
+```go
+table.New().Border(lipgloss.MarkdownBorder()).BorderTop(false).BorderBottom(false)
+```
+
+```
+| LANGUAGE |    FORMAL    | INFORMAL  |
+|----------|--------------|-----------|
+| Chinese  | Nǐn hǎo      | Nǐ hǎo    |
+| French   | Bonjour      | Salut     |
+| Russian  | Zdravstvuyte | Privet    |
+| Spanish  | Hola         | ¿Qué tal? |
+```
+
+#### ASCII Table
+
+```go
+table.New().Border(lipgloss.ASCIIBorder())
+```
+
+```
++----------+--------------+-----------+
+| LANGUAGE |    FORMAL    | INFORMAL  |
++----------+--------------+-----------+
+| Chinese  | Nǐn hǎo      | Nǐ hǎo    |
+| French   | Bonjour      | Salut     |
+| Russian  | Zdravstvuyte | Privet    |
+| Spanish  | Hola         | ¿Qué tal? |
++----------+--------------+-----------+
+```
+
 For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
 ## Rendering Lists
