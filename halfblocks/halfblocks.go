@@ -90,6 +90,17 @@ type Renderer struct {
 	Blocks  []Block
 }
 
+type shiftable interface {
+	~uint | ~uint16 | ~uint32 | ~uint64
+}
+
+func shift[T shiftable](x T) T {
+	if x > 0xff {
+		x >>= 8
+	}
+	return x
+}
+
 // Encode creates a new renderer with the given options.
 func Encode(img image.Image, options Options) string {
 	var blocks []Block
@@ -287,11 +298,12 @@ func (r *Renderer) averageColors(colors []color.Color) color.Color {
 	var sumR, sumG, sumB, sumA uint32
 
 	for _, c := range colors {
-		var r, g, b, a = c.RGBA()
-		sumR += uint32(uint8(r))
-		sumG += uint32(uint8(g))
-		sumB += uint32(uint8(b))
-		sumA += uint32(uint8(a))
+		r, g, b, a := c.RGBA()
+		r, g, b, a = shift(r), shift(g), shift(b), shift(a)
+		sumR += r
+		sumG += g
+		sumB += b
+		sumA += a
 	}
 
 	count := uint32(len(colors))
@@ -519,7 +531,8 @@ func (r *Renderer) invertImage(img image.Image) image.Image {
 
 // rgbaToLuminance converts RGBA color to luminance (brightness).
 func rgbaToLuminance(c color.Color) uint8 {
-	var r, g, b, _ = c.RGBA()
+	r, g, b, a := c.RGBA()
+	r, g, b, a = shift(r), shift(g), shift(b), shift(a)
 	// Weighted RGB to account for human perception.
 	return uint8(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
 }
