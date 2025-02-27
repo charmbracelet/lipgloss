@@ -47,6 +47,13 @@ type Block struct {
 // Symbol represents the symbol type to use when rendering the image.
 type Symbol string
 
+// Symbol types.
+const (
+	AllSymbols     Symbol = "all"
+	HalfSymbols    Symbol = "half"
+	QuarterSymbols Symbol = "quarter"
+)
+
 // Options contains all configurable settings.
 type Options struct {
 	ColorMode    int     // 0=none, 1=8colors, 2=256colors, 3=truecolor.
