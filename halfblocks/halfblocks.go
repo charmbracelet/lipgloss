@@ -44,6 +44,7 @@ type Block struct {
 	CoverageMap string  // Visual representation of coverage for debugging.
 }
 
+// Symbol represents the symbol type to use when rendering the image.
 type Symbol string
 
 // Options contains all configurable settings.
@@ -60,7 +61,7 @@ type Options struct {
 }
 
 // PixelBlock represents a 2x2 pixel block from the image.
-type PixelBlock struct {
+type pixelBlock struct {
 	Pixels      [2][2]color.Color // 2x2 pixel grid.
 	AvgFg       color.Color       // Average foreground color.
 	AvgBg       color.Color       // Average background color.
@@ -101,8 +102,8 @@ func shift[T shiftable](x T) T {
 	return x
 }
 
-// Encode creates a new renderer with the given options.
-func Encode(img image.Image, options Options) string {
+// Render creates a new renderer with the given options.
+func Render(img image.Image, options Options) string {
 	var blocks []Block
 	blocks = append(blocks, HalfBlocks...)
 
@@ -196,8 +197,8 @@ func (r *Renderer) Render(img image.Image) string {
 }
 
 // createPixelBlock extracts a 2x2 block of pixels from the image.
-func (r *Renderer) createPixelBlock(img image.Image, x, y int) *PixelBlock {
-	block := &PixelBlock{}
+func (r *Renderer) createPixelBlock(img image.Image, x, y int) *pixelBlock {
+	block := &pixelBlock{}
 
 	// Extract the 2x2 pixel grid.
 	for dy := 0; dy < 2; dy++ {
@@ -210,7 +211,7 @@ func (r *Renderer) createPixelBlock(img image.Image, x, y int) *PixelBlock {
 }
 
 // findBestRepresentation finds the best block character and colors for a 2x2 pixel block.
-func (r *Renderer) findBestRepresentation(block *PixelBlock) {
+func (r *Renderer) findBestRepresentation(block *pixelBlock) {
 	// Simple case: use only foreground/background colors.
 	if r.Options.UseFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
