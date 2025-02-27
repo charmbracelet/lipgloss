@@ -4,22 +4,49 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"math"
 	"strings"
+)
+
+// Blocks definition
+var (
+	HalfBlocks = []Block{
+		{Char: '▀', Coverage: [4]bool{true, true, false, false}, CoverageMap: "██\n  "},   // Upper half block
+		{Char: '▄', Coverage: [4]bool{false, false, true, true}, CoverageMap: "  \n██"},   // Lower half block
+		{Char: ' ', Coverage: [4]bool{false, false, false, false}, CoverageMap: "  \n  "}, // Space
+		{Char: '█', Coverage: [4]bool{true, true, true, true}, CoverageMap: "██\n██"},     // Full block
+	}
+	QuarterBlocks = []Block{
+		{Char: '▘', Coverage: [4]bool{true, false, false, false}, CoverageMap: "█ \n  "}, // Quadrant upper left
+		{Char: '▝', Coverage: [4]bool{false, true, false, false}, CoverageMap: " █\n  "}, // Quadrant upper right
+		{Char: '▖', Coverage: [4]bool{false, false, true, false}, CoverageMap: "  \n█ "}, // Quadrant lower left
+		{Char: '▗', Coverage: [4]bool{false, false, false, true}, CoverageMap: "  \n █"}, // Quadrant lower right
+		{Char: '▌', Coverage: [4]bool{true, false, true, false}, CoverageMap: "█ \n█ "},  // Left half block
+		{Char: '▐', Coverage: [4]bool{false, true, false, true}, CoverageMap: " █\n █"},  // Right half block
+		{Char: '▀', Coverage: [4]bool{true, true, false, false}, CoverageMap: "██\n  "},  // Upper half block (already added)
+		{Char: '▄', Coverage: [4]bool{false, false, true, true}, CoverageMap: "  \n██"},  // Lower half block (already added)
+	}
+	ComplexBlocks = []Block{
+		{Char: '▙', Coverage: [4]bool{true, false, true, true}, CoverageMap: "█ \n██"},  // Quadrant upper left and lower half
+		{Char: '▟', Coverage: [4]bool{false, true, true, true}, CoverageMap: " █\n██"},  // Quadrant upper right and lower half
+		{Char: '▛', Coverage: [4]bool{true, true, true, false}, CoverageMap: "██\n█ "},  // Quadrant upper half and lower left
+		{Char: '▜', Coverage: [4]bool{true, true, false, true}, CoverageMap: "██\n █"},  // Quadrant upper half and lower right
+		{Char: '▚', Coverage: [4]bool{true, false, false, true}, CoverageMap: "█ \n █"}, // Quadrant upper left and lower right
+		{Char: '▞', Coverage: [4]bool{false, true, true, false}, CoverageMap: " █\n█ "}, // Quadrant upper right and lower left
+	}
 )
 
 // Block represents different Unicode block characters
 type Block struct {
 	Char        rune
-	Coverage    []bool // Which parts of the block are filled (true = filled)
-	CoverageMap string // Visual representation of coverage for debugging
+	Coverage    [4]bool // Which parts of the block are filled (true = filled)
+	CoverageMap string  // Visual representation of coverage for debugging
 }
 
-// EncoderOptions contains all configurable settings
-type EncoderOptions struct {
+type Symbol string
+
+// Options contains all configurable settings
+type Options struct {
 	ColorMode    int     // 0=none, 1=8colors, 2=256colors, 3=truecolor
 	Width        int     // Output width
 	Height       int     // Output height (0 for auto)
@@ -28,7 +55,7 @@ type EncoderOptions struct {
 	UseFgBgOnly  bool    // Use only foreground/background colors (no block symbols)
 	InvertColors bool    // Invert colors
 	ScaleMode    string  // fit, stretch, center
-	Symbols      string  // Which symbols to use: "half", "quarter", "all"
+	Symbols      Symbol  // Which symbols to use: "half", "quarter", "all"
 }
 
 // PixelBlock represents a 2x2 pixel block from the image
@@ -42,8 +69,8 @@ type PixelBlock struct {
 }
 
 // DefaultOptions returns the default rendering options
-func DefaultOptions() EncoderOptions {
-	return EncoderOptions{
+func DefaultOptions() Options {
+	return Options{
 		ColorMode:    3,         // Truecolor
 		Width:        80,        // Default width
 		Height:       0,         // Auto height
@@ -56,61 +83,30 @@ func DefaultOptions() EncoderOptions {
 	}
 }
 
-// GenerateBlocks returns supported block characters based on the symbols option
-func GenerateBlocks(symbolsOption string) []Block {
-	var blocks []Block
-
-	// Half blocks are always included
-	halfBlocks := []Block{
-		{Char: '▀', Coverage: []bool{true, true, false, false}, CoverageMap: "██\n  "},   // Upper half block
-		{Char: '▄', Coverage: []bool{false, false, true, true}, CoverageMap: "  \n██"},   // Lower half block
-		{Char: ' ', Coverage: []bool{false, false, false, false}, CoverageMap: "  \n  "}, // Space
-		{Char: '█', Coverage: []bool{true, true, true, true}, CoverageMap: "██\n██"},     // Full block
-	}
-	blocks = append(blocks, halfBlocks...)
-
-	// Quarter blocks
-	if symbolsOption == "quarter" || symbolsOption == "all" {
-		quarterBlocks := []Block{
-			{Char: '▘', Coverage: []bool{true, false, false, false}, CoverageMap: "█ \n  "}, // Quadrant upper left
-			{Char: '▝', Coverage: []bool{false, true, false, false}, CoverageMap: " █\n  "}, // Quadrant upper right
-			{Char: '▖', Coverage: []bool{false, false, true, false}, CoverageMap: "  \n█ "}, // Quadrant lower left
-			{Char: '▗', Coverage: []bool{false, false, false, true}, CoverageMap: "  \n █"}, // Quadrant lower right
-			{Char: '▌', Coverage: []bool{true, false, true, false}, CoverageMap: "█ \n█ "},  // Left half block
-			{Char: '▐', Coverage: []bool{false, true, false, true}, CoverageMap: " █\n █"},  // Right half block
-			{Char: '▀', Coverage: []bool{true, true, false, false}, CoverageMap: "██\n  "},  // Upper half block (already added)
-			{Char: '▄', Coverage: []bool{false, false, true, true}, CoverageMap: "  \n██"},  // Lower half block (already added)
-		}
-		blocks = append(blocks, quarterBlocks...)
-	}
-
-	// All block elements (including complex combinations)
-	if symbolsOption == "all" {
-		complexBlocks := []Block{
-			{Char: '▙', Coverage: []bool{true, false, true, true}, CoverageMap: "█ \n██"},  // Quadrant upper left and lower half
-			{Char: '▟', Coverage: []bool{false, true, true, true}, CoverageMap: " █\n██"},  // Quadrant upper right and lower half
-			{Char: '▛', Coverage: []bool{true, true, true, false}, CoverageMap: "██\n█ "},  // Quadrant upper half and lower left
-			{Char: '▜', Coverage: []bool{true, true, false, true}, CoverageMap: "██\n █"},  // Quadrant upper half and lower right
-			{Char: '▚', Coverage: []bool{true, false, false, true}, CoverageMap: "█ \n █"}, // Quadrant upper left and lower right
-			{Char: '▞', Coverage: []bool{false, true, true, false}, CoverageMap: " █\n█ "}, // Quadrant upper right and lower left
-		}
-		blocks = append(blocks, complexBlocks...)
-	}
-
-	return blocks
-}
-
 // Renderer handles the image-to-terminal conversion
 type Renderer struct {
-	Options EncoderOptions
+	Options Options
 	Blocks  []Block
 }
 
 // Encode creates a new renderer with the given options
-func Encode(img image.Image, options EncoderOptions) string {
+func Encode(img image.Image, options Options) string {
+	var blocks []Block
+	blocks = append(blocks, HalfBlocks...)
+
+	// Quarter blocks
+	if options.Symbols == "quarter" || options.Symbols == "all" {
+		blocks = append(blocks, QuarterBlocks...)
+	}
+
+	// All block elements (including complex combinations)
+	if options.Symbols == "all" {
+		blocks = append(blocks, ComplexBlocks...)
+	}
+
 	r := Renderer{
 		Options: options,
-		Blocks:  GenerateBlocks(options.Symbols),
+		Blocks:  blocks,
 	}
 	return r.Render(img)
 }
@@ -243,7 +239,7 @@ func (r *Renderer) findBestRepresentation(block *PixelBlock) {
 	var fgPixels, bgPixels []color.RGBA
 
 	// Get the coverage pattern for the selected character
-	var coverage []bool
+	var coverage [4]bool
 	for _, b := range r.Blocks {
 		if b.Char == bestChar {
 			coverage = b.Coverage
