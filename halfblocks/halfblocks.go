@@ -1,11 +1,12 @@
 package halfblocks
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"math"
 	"strings"
+
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Blocks definition
@@ -173,7 +174,9 @@ func (r *Renderer) Render(img image.Image) string {
 			r.findBestRepresentation(block)
 
 			// Append to output
-			output.WriteString(r.formatSymbol(block.BestSymbol, block.BestFgColor, block.BestBgColor))
+			output.WriteString(
+				ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol)),
+			)
 		}
 		output.WriteString("\n")
 	}
@@ -297,36 +300,6 @@ func (r *Renderer) averageColors(colors []color.RGBA) color.RGBA {
 		B: uint8(sumB / count),
 		A: uint8(sumA / count),
 	}
-}
-
-// formatSymbol formats a symbol with ANSI color codes
-func (r *Renderer) formatSymbol(char rune, fg, bg color.RGBA) string {
-	if r.Options.ColorMode == 0 {
-		// No color, just return the character
-		return string(char)
-	}
-
-	var fgStr, bgStr string
-
-	switch r.Options.ColorMode {
-	case 1: // 8 colors
-		fgCode := nearestAnsi8Color(fg.R, fg.G, fg.B)
-		bgCode := nearestAnsi8Color(bg.R, bg.G, bg.B)
-		fgStr = fmt.Sprintf("\033[%dm", 30+fgCode)
-		bgStr = fmt.Sprintf("\033[%dm", 40+bgCode)
-
-	case 2: // 256 colors
-		fgCode := nearestAnsi256Color(fg.R, fg.G, fg.B)
-		bgCode := nearestAnsi256Color(bg.R, bg.G, bg.B)
-		fgStr = fmt.Sprintf("\033[38;5;%dm", fgCode)
-		bgStr = fmt.Sprintf("\033[48;5;%dm", bgCode)
-
-	case 3: // True color
-		fgStr = fmt.Sprintf("\033[38;2;%d;%d;%dm", fg.R, fg.G, fg.B)
-		bgStr = fmt.Sprintf("\033[48;2;%d;%d;%dm", bg.R, bg.G, bg.B)
-	}
-
-	return fgStr + bgStr + string(char) + "\033[0m"
 }
 
 // getPixelSafe returns the color at (x,y) or black if out of bounds
@@ -558,65 +531,4 @@ func clamp(v int) int {
 		return 255
 	}
 	return v
-}
-
-// nearestAnsi8Color finds the nearest 8-color ANSI code
-func nearestAnsi8Color(r, g, b uint8) int {
-	// Standard 8 ANSI colors
-	colors := []struct {
-		code    int
-		r, g, b uint8
-	}{
-		{0, 0, 0, 0},       // Black
-		{1, 128, 0, 0},     // Red
-		{2, 0, 128, 0},     // Green
-		{3, 128, 128, 0},   // Yellow
-		{4, 0, 0, 128},     // Blue
-		{5, 128, 0, 128},   // Magenta
-		{6, 0, 128, 128},   // Cyan
-		{7, 192, 192, 192}, // White/Light gray
-	}
-
-	bestCode := 0
-	bestDist := math.MaxFloat64
-
-	for _, c := range colors {
-		// Calculate weighted Euclidean distance
-		rDiff := float64(r) - float64(c.r)
-		gDiff := float64(g) - float64(c.g)
-		bDiff := float64(b) - float64(c.b)
-
-		// Human eye is more sensitive to green
-		dist := 0.3*rDiff*rDiff + 0.59*gDiff*gDiff + 0.11*bDiff*bDiff
-
-		if dist < bestDist {
-			bestDist = dist
-			bestCode = c.code
-		}
-	}
-
-	return bestCode
-}
-
-// nearestAnsi256Color finds the nearest 256-color ANSI code
-func nearestAnsi256Color(r, g, b uint8) int {
-	// Check for grayscale (16-231 are the 6x6x6 color cube)
-	if r == g && g == b {
-		if r < 8 {
-			return 16 // Black
-		}
-		if r > 248 {
-			return 231 // White
-		}
-
-		// Use grayscale ramp 232-255
-		return 232 + (int(r)-8)/10
-	}
-
-	// Quantize to the 6x6x6 color cube (16-231)
-	rIdx := (int(r) * 6) / 256
-	gIdx := (int(g) * 6) / 256
-	bIdx := (int(b) * 6) / 256
-
-	return 16 + 36*rIdx + 6*gIdx + bIdx
 }
