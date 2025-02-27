@@ -61,12 +61,12 @@ type Options struct {
 
 // PixelBlock represents a 2x2 pixel block from the image
 type PixelBlock struct {
-	Pixels      [2][2]color.RGBA // 2x2 pixel grid
-	AvgFg       color.RGBA       // Average foreground color
-	AvgBg       color.RGBA       // Average background color
-	BestSymbol  rune             // Best matching character
-	BestFgColor color.RGBA       // Best foreground color
-	BestBgColor color.RGBA       // Best background color
+	Pixels      [2][2]color.Color // 2x2 pixel grid
+	AvgFg       color.Color       // Average foreground color
+	AvgBg       color.Color       // Average background color
+	BestSymbol  rune              // Best matching character
+	BestFgColor color.Color       // Best foreground color
+	BestBgColor color.Color       // Best background color
 }
 
 // DefaultOptions returns the default rendering options
@@ -204,8 +204,8 @@ func (r *Renderer) findBestRepresentation(block *PixelBlock) {
 	if r.Options.UseFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground
 		block.BestSymbol = '▀'
-		block.BestBgColor = r.averageColors([]color.RGBA{block.Pixels[0][0], block.Pixels[0][1]})
-		block.BestFgColor = r.averageColors([]color.RGBA{block.Pixels[1][0], block.Pixels[1][1]})
+		block.BestBgColor = r.averageColors([]color.Color{block.Pixels[0][0], block.Pixels[0][1]})
+		block.BestFgColor = r.averageColors([]color.Color{block.Pixels[1][0], block.Pixels[1][1]})
 		return
 	}
 
@@ -239,7 +239,7 @@ func (r *Renderer) findBestRepresentation(block *PixelBlock) {
 	}
 
 	// Determine foreground and background colors based on the best character
-	var fgPixels, bgPixels []color.RGBA
+	var fgPixels, bgPixels []color.Color
 
 	// Get the coverage pattern for the selected character
 	var coverage [4]bool
@@ -265,32 +265,33 @@ func (r *Renderer) findBestRepresentation(block *PixelBlock) {
 		block.BestFgColor = r.averageColors(fgPixels)
 	} else {
 		// Default to black if no foreground pixels
-		block.BestFgColor = color.RGBA{0, 0, 0, 255}
+		block.BestFgColor = color.Black
 	}
 
 	if len(bgPixels) > 0 {
 		block.BestBgColor = r.averageColors(bgPixels)
 	} else {
 		// Default to black if no background pixels
-		block.BestBgColor = color.RGBA{0, 0, 0, 255}
+		block.BestBgColor = color.Black
 	}
 
 	block.BestSymbol = bestChar
 }
 
 // averageColors calculates the average color from a slice of colors
-func (r *Renderer) averageColors(colors []color.RGBA) color.RGBA {
+func (r *Renderer) averageColors(colors []color.Color) color.Color {
 	if len(colors) == 0 {
-		return color.RGBA{0, 0, 0, 255}
+		return color.Black
 	}
 
 	var sumR, sumG, sumB, sumA uint32
 
 	for _, c := range colors {
-		sumR += uint32(c.R)
-		sumG += uint32(c.G)
-		sumB += uint32(c.B)
-		sumA += uint32(c.A)
+		var r, g, b, a = c.RGBA()
+		sumR += uint32(uint8(r))
+		sumG += uint32(uint8(g))
+		sumB += uint32(uint8(b))
+		sumA += uint32(uint8(a))
 	}
 
 	count := uint32(len(colors))
@@ -517,9 +518,10 @@ func (r *Renderer) invertImage(img image.Image) image.Image {
 }
 
 // rgbaToLuminance converts RGBA color to luminance (brightness)
-func rgbaToLuminance(c color.RGBA) uint8 {
+func rgbaToLuminance(c color.Color) uint8 {
+	var r, g, b, _ = c.RGBA()
 	// Weighted RGB to account for human perception
-	return uint8(float64(c.R)*0.299 + float64(c.G)*0.587 + float64(c.B)*0.114)
+	return uint8(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
 }
 
 // clamp ensures value is between 0-255
