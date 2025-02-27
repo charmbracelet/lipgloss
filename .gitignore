@@ -1,1 +1,5 @@
 ssh_example_ed25519*
+dist/
+
+# MacOS invisible file
+.DS_Store
