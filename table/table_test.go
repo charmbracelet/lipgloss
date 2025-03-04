@@ -1334,17 +1334,17 @@ func TestContentWrapping_WithPadding(t *testing.T) {
 		data    [][]string
 	}{
 		{
-			"long row content",
+			"LongRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
 		},
 		{
-			"missing row content",
+			"MissingRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
 		},
 		{
-			"long header content, long and short rows",
+			"LongHeaderContentLongAndShortRows",
 			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
 			[][]string{
 				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
@@ -1353,7 +1353,7 @@ func TestContentWrapping_WithPadding(t *testing.T) {
 			},
 		},
 		{
-			"Long text, different languages",
+			"LongTextDifferentLanguages",
 			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
 			[][]string{
 				{
@@ -1368,17 +1368,24 @@ func TestContentWrapping_WithPadding(t *testing.T) {
 		},
 	}
 
+	defaultWidth := 80
 	for _, tc := range tests {
-		table := New().
-			Headers(tc.headers...).
-			Rows(tc.data...).
-			StyleFunc(func(_, col int) lipgloss.Style {
-				return lipgloss.NewStyle().Padding(0, 1)
-			})
-		table.Width(80)
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(_, col int) lipgloss.Style {
+					return lipgloss.NewStyle().Padding(0, 1)
+				})
+			table.Width(defaultWidth)
 
-		t.Log(lipgloss.Width(table.String()))
-		t.Log("\n" + table.String() + "\n")
+			// check total width.
+			if got := lipgloss.Width(table.String()); got != defaultWidth {
+				t.Fatalf("Table is not the correct width. got %d, want %d", got, defaultWidth)
+				t.Log(table.String())
+			}
+			golden.RequireEqual(t, []byte(table.String()))
+		})
 	}
 }
 
@@ -1389,17 +1396,17 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 		data    [][]string
 	}{
 		{
-			"long row content",
+			"LongRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
 		},
 		{
-			"missing row content",
+			"MissingRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
 		},
 		{
-			"long header content, long and short rows",
+			"LongHeaderContentLongAndShortRows",
 			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
 			[][]string{
 				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
@@ -1408,7 +1415,7 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 			},
 		},
 		{
-			"Long text, different languages",
+			"LongTextDifferentLanguages",
 			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
 			[][]string{
 				{
@@ -1424,16 +1431,16 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		table := New().
-			Headers(tc.headers...).
-			Rows(tc.data...).
-			StyleFunc(func(row, col int) lipgloss.Style {
-				return lipgloss.NewStyle().Margin(0, 4)
-			})
-		table.Width(80)
-
-		t.Log(lipgloss.Width(table.String()))
-		t.Log("\n" + table.String() + "\n")
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					return lipgloss.NewStyle().Margin(0, 4)
+				})
+			table.Width(80)
+			golden.RequireEqual(t, []byte(table.String()))
+		})
 	}
 }
 
@@ -1444,17 +1451,17 @@ func TestContentWrapping_ColumnWidth(t *testing.T) {
 		data    [][]string
 	}{
 		{
-			"long row content",
+			"LongRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
 		},
 		{
-			"missing row content",
+			"MissingRowContent",
 			[]string{"Name", "Description", "Type", "Required", "Default"},
 			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
 		},
 		{
-			"long header content, long and short rows",
+			"LongHeaderContentLongAndShortRows",
 			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
 			[][]string{
 				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
@@ -1463,7 +1470,7 @@ func TestContentWrapping_ColumnWidth(t *testing.T) {
 			},
 		},
 		{
-			"Long text, different languages",
+			"LongTextDifferentLanguages",
 			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
 			[][]string{
 				{
@@ -1477,25 +1484,54 @@ func TestContentWrapping_ColumnWidth(t *testing.T) {
 			},
 		},
 	}
+	defaultWidth := 80
 	for _, tc := range tests {
-		table := New().
-			Headers(tc.headers...).
-			Rows(tc.data...).
-			StyleFunc(func(row, col int) lipgloss.Style {
-				if row == 0 && col == 1 {
-					return lipgloss.NewStyle().Width(15)
-				}
-				return lipgloss.NewStyle()
-			})
-		table.Width(80)
-		t.Log(lipgloss.Width(table.String()))
-		t.Log("\n" + table.String() + "\n")
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					// If we set a specific cell width, it should count for all rows
+					// in that column.
+					if row == 0 && col == 1 {
+						return lipgloss.NewStyle().Width(30)
+					}
+					// Set a column's width directly.
+					if col == 2 {
+						return lipgloss.NewStyle().Width(5)
+					}
+					return lipgloss.NewStyle()
+				})
+			table.Width(defaultWidth)
+			// check total width.
+			if got := lipgloss.Width(table.String()); got != defaultWidth {
+				t.Log(table.String())
+				t.Fatalf("Table is not the correct width. got %d, want %d", got, defaultWidth)
+			}
+
+			// check that width is overridden with a small value.
+			if table.widths[2] != 5 {
+				t.Log(table.String())
+				t.Fatalf("Did not set correct width value at column at index %d.\ngot %d, want %d", 2, table.widths[2], 5)
+			}
+
+			// check that width is overridden with a wide value.
+			if table.widths[1] != 30 {
+				t.Log(table.String())
+				t.Fatalf("Did not set correct width value at column at index %d.\ngot %d, want %d", 1, table.widths[1], 30)
+			}
+
+			t.Log(table.widths[2])
+			t.Log("\n" + table.String() + "\n")
+			// TODO update golden file when the widths pass
+			golden.RequireEqual(t, []byte(table.String()))
+		})
 	}
 }
 
 // Test truncation for overflow and no wrap when combined.
 func TestTableOverFlowNoWrap(t *testing.T) {
-	// Long text, different languages
+	// LongTextDifferentLanguages
 	headers := []string{"Hello", "你好", "مرحبًا", "안녕하세요"}
 	data := [][]string{
 		{
@@ -1685,7 +1721,7 @@ func stripString(str string) string {
 // Examples
 
 func ExampleTable_Wrap() {
-	// Long text, different languages
+	// LongTextDifferentLanguages
 	headers := []string{"Hello", "你好", "مرحبًا", "안녕하세요"}
 	data := [][]string{
 		{
