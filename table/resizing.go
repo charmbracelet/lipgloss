@@ -186,10 +186,13 @@ func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 		shorterColumnIndex := 0
 		shorterColumnWidth := math.MaxInt32
 
-		for i, width := range colWidths {
+		for j, width := range colWidths {
+			if width == r.columns[j].fixedWidth {
+				continue
+			}
 			if width < shorterColumnWidth {
 				shorterColumnWidth = width
-				shorterColumnIndex = i
+				shorterColumnIndex = j
 			}
 		}
 
@@ -216,6 +219,9 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 			bigColumnWidth := -math.MaxInt32
 
 			for j, width := range colWidths {
+				if width == r.columns[j].fixedWidth {
+					continue
+				}
 				if veryBigOnly {
 					if width >= (r.tableWidth/2) && width > bigColumnWidth { //nolint:mnd
 						bigColumnWidth = width
@@ -248,6 +254,9 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 			biggestDiffToMedianIndex := -math.MaxInt32
 
 			for j, width := range colWidths {
+				if width == r.columns[j].fixedWidth {
+					continue
+				}
 				diffToMedian := width - r.columns[j].median
 				if diffToMedian > 0 && diffToMedian > biggestDiffToMedian {
 					biggestDiffToMedian = diffToMedian
