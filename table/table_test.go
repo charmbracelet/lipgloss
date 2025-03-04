@@ -1324,7 +1324,6 @@ func TestContentWrapping(t *testing.T) {
 
 			golden.RequireEqual(t, []byte(table.String()))
 		})
-
 	}
 }
 
@@ -1655,111 +1654,32 @@ func stripString(str string) string {
 
 // Examples
 
-func ExampleWrap() {
-	tests := []struct {
-		name    string
-		headers []string
-		data    [][]string
-	}{
+func ExampleTable_Wrap() {
+	// Long text, different languages
+	headers := []string{"Hello", "你好", "مرحبًا", "안녕하세요"}
+	data := [][]string{
 		{
-			"long row content",
-			[]string{"Name", "Description", "Type", "Required", "Default"},
-			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
-		},
-		{
-			"missing row content",
-			[]string{"Name", "Description", "Type", "Required", "Default"},
-			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
-		},
-		{
-			"long header content, long and short rows",
-			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
-			[][]string{
-				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
-				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
-				{"California", "", "$$$"},
-			},
-		},
-		{
-			"Long text, different languages",
-			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
-			[][]string{
-				{
-					"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
-					`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+			"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+			`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
 禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
-					"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
-					"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
-					"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
-				},
-			},
+			"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+			"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+			"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
 		},
 	}
 
-	for _, tc := range tests {
-		for _, wrap := range []bool{false, true} {
-			table := New().
-				Headers(tc.headers...).
-				Rows(tc.data...).
-				StyleFunc(TableStyle).
-				Width(80).
-				Wrap(wrap)
-			fmt.Println(table.String())
-		}
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		StyleFunc(TableStyle).
+		Width(80).
+		Wrap(false)
+	fmt.Println(table.String())
 
-	}
+	table.Wrap(true)
+	fmt.Println(table.String())
 
 	// Output:
-	// ╭─────────┬────────────────────────────────────────┬──────┬──────────┬─────────╮
-	// │  Name   │              Description               │ Type │ Required │ Default │
-	// ├─────────┼────────────────────────────────────────┼──────┼──────────┼─────────┤
-	// │ command │ A command to be executed inside the c… │ yes  │ hello    │ yep     │
-	// ╰─────────┴────────────────────────────────────────┴──────┴──────────┴─────────╯
-	// ╭─────────┬────────────────────────────────────────┬──────┬──────────┬─────────╮
-	// │  Name   │              Description               │ Type │ Required │ Default │
-	// ├─────────┼────────────────────────────────────────┼──────┼──────────┼─────────┤
-	// │ command │ A command to be executed inside the    │ yes  │ hello    │ yep     │
-	// │         │ container to assess its health. Each   │      │          │         │
-	// │         │ space delimited token of the command   │      │          │         │
-	// │         │ is a separate array element. Commands  │      │          │         │
-	// │         │ exiting 0 are considered to be         │      │          │         │
-	// │         │ successful probes, whilst all other    │      │          │         │
-	// │         │ exit codes are considered failures.    │      │          │         │
-	// ╰─────────┴────────────────────────────────────────┴──────┴──────────┴─────────╯
-	// ╭─────────┬────────────────────────────────────────┬──────┬──────────┬─────────╮
-	// │  Name   │              Description               │ Type │ Required │ Default │
-	// ├─────────┼────────────────────────────────────────┼──────┼──────────┼─────────┤
-	// │ command │ A command to be executed inside the c… │ yes  │          │         │
-	// ╰─────────┴────────────────────────────────────────┴──────┴──────────┴─────────╯
-	// ╭─────────┬────────────────────────────────────────┬──────┬──────────┬─────────╮
-	// │  Name   │              Description               │ Type │ Required │ Default │
-	// ├─────────┼────────────────────────────────────────┼──────┼──────────┼─────────┤
-	// │ command │ A command to be executed inside the    │ yes  │          │         │
-	// │         │ container to assess its health. Each   │      │          │         │
-	// │         │ space delimited token of the command   │      │          │         │
-	// │         │ is a separate array element. Commands  │      │          │         │
-	// │         │ exiting 0 are considered to be         │      │          │         │
-	// │         │ successful probes, whilst all other    │      │          │         │
-	// │         │ exit codes are considered failures.    │      │          │         │
-	// ╰─────────┴────────────────────────────────────────┴──────┴──────────┴─────────╯
-	// ╭─────────────┬────────────────────────────────────────────────┬───────────────╮
-	// │ Destination │ Why are you going on this trip? Is it a hot or │ Affordability │
-	// ├─────────────┼────────────────────────────────────────────────┼───────────────┤
-	// │ Mexico      │ I want to go somewhere hot, dry, and affordab… │ $             │
-	// │ New York    │ I'm thinking about going during the Christmas… │ $$$           │
-	// │ California  │                                                │ $$$           │
-	// ╰─────────────┴────────────────────────────────────────────────┴───────────────╯
-	// ╭─────────────┬────────────────────────────────────────────────┬───────────────╮
-	// │ Destination │ Why are you going on this trip? Is it a hot or │ Affordability │
-	// ├─────────────┼────────────────────────────────────────────────┼───────────────┤
-	// │ Mexico      │ I want to go somewhere hot, dry, and           │ $             │
-	// │             │ affordable. Mexico has really good food, just  │               │
-	// │             │ don't drink tap water!                         │               │
-	// │ New York    │ I'm thinking about going during the Christmas  │ $$$           │
-	// │             │ season to check out Rockefeller center. Might  │               │
-	// │             │ be cold though...                              │               │
-	// │ California  │                                                │ $$$           │
-	// ╰─────────────┴────────────────────────────────────────────────┴───────────────╯
 	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
 	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
