@@ -170,7 +170,7 @@ func (r *resizer) optimizedWidths() (colWidths, rowHeights []int) {
 
 // detectTableWidth detects the table width.
 func (r *resizer) detectTableWidth() int {
-	return r.maxCharCount() + r.totalPadding() + r.totalBorder()
+	return r.maxCharCount() + r.totalHorizontalPadding() + r.totalHorizontalBorder()
 }
 
 // expandTableWidth expands the table width.
@@ -178,7 +178,7 @@ func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 	colWidths = r.maxColumnWidths()
 
 	for {
-		totalWidth := sum(colWidths) + r.totalBorder()
+		totalWidth := sum(colWidths) + r.totalHorizontalBorder()
 		if totalWidth >= r.tableWidth {
 			break
 		}
@@ -207,7 +207,7 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 	// Cut width of columns that are way too big.
 	shrinkBiggestColumns := func(veryBigOnly bool) {
 		for {
-			totalWidth := sum(colWidths) + r.totalBorder()
+			totalWidth := sum(colWidths) + r.totalHorizontalBorder()
 			if totalWidth <= r.tableWidth {
 				break
 			}
@@ -239,7 +239,7 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 	// Cut width of columns that differ the most from the median.
 	shrinkToMedian := func() {
 		for {
-			totalWidth := sum(colWidths) + r.totalBorder()
+			totalWidth := sum(colWidths) + r.totalHorizontalBorder()
 			if totalWidth <= r.tableWidth {
 				break
 			}
@@ -343,10 +343,10 @@ func (r *resizer) maxTotal() (maxTotal int) {
 	return
 }
 
-// totalPadding returns the total padding.
-func (r *resizer) totalPadding() (totalPadding int) {
+// totalHorizontalPadding returns the total padding.
+func (r *resizer) totalHorizontalPadding() (totalHorizontalPadding int) {
 	for _, col := range r.columns {
-		totalPadding += col.xPadding
+		totalHorizontalPadding += col.xPadding
 	}
 	return
 }
@@ -367,8 +367,8 @@ func (r *resizer) xPaddingForCell(i, j int) int {
 	return r.yPaddings[i][j]
 }
 
-// totalBorder returns the total border.
-func (r *resizer) totalBorder() int {
+// totalHorizontalBorder returns the total border.
+func (r *resizer) totalHorizontalBorder() int {
 	return (r.columnCount() * r.borderPerCell()) + r.extraBorder()
 }
 
