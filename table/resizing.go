@@ -45,6 +45,7 @@ import (
 //
 // The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 func (t *Table) resize() {
+	hasHeaders := len(t.headers) > 0
 	rows := dataToMatrix(t.data)
 	r := newResizer(t.width, t.height, t.headers, rows)
 	r.wrap = t.wrap
@@ -52,7 +53,7 @@ func (t *Table) resize() {
 	r.yPaddings = make([][]int, len(r.allRows))
 
 	var allRows [][]string
-	if len(t.headers) > 0 {
+	if hasHeaders {
 		allRows = append([][]string{t.headers}, rows...)
 	} else {
 		allRows = rows
@@ -65,7 +66,14 @@ func (t *Table) resize() {
 
 		for j := range row {
 			column := &r.columns[j]
-			style := t.styleFunc(i, j)
+
+			// Making sure we're passing the right index to `styleFunc`. The header row should be `-1` and
+			// the others should start from `0`.
+			rowIndex := i
+			if hasHeaders {
+				rowIndex--
+			}
+			style := t.styleFunc(rowIndex, j)
 
 			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
 			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()
