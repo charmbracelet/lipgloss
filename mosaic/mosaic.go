@@ -56,6 +56,7 @@ const (
 	QuarterSymbols Symbol = "quarter"
 )
 
+// Scale represents scale mode that will be used when rendering the image.
 type Scale string
 
 // Symbol types.
@@ -80,6 +81,7 @@ type Mosaic struct {
 	Symbols        Symbol  // Which symbols to use: "half", "quarter", "all".
 }
 
+// Create Mosaic
 func New() *Mosaic {
 	return &Mosaic{
 		Blocks:         HalfBlocks,
@@ -116,41 +118,49 @@ func shift[T shiftable](x T) T {
 	return x
 }
 
+// Set ScaleMode on Mosaic
 func (m *Mosaic) Scale(scale Scale) *Mosaic {
 	m.ScaleMode = scale
 	return m
 }
 
+// Set UseFgBgOnly on Mosaic
 func (m *Mosaic) OnlyForeground(fgOnly bool) *Mosaic {
 	m.UseFgBgOnly = fgOnly
 	return m
 }
 
+// Set DitherLevel on Mosaic
 func (m *Mosaic) Dither(ditherLevel float64) *Mosaic {
 	m.DitherLevel = ditherLevel
 	return m
 }
 
+// Set ThresholdLevel on Mosaic
 func (m *Mosaic) Threshold(threshold uint8) *Mosaic {
 	m.ThresholdLevel = threshold
 	return m
 }
 
+// Set InvertColors on Mosaic
 func (m *Mosaic) WithInvertColors(invertColors bool) *Mosaic {
 	m.InvertColors = invertColors
 	return m
 }
 
+// Set OutputWidth on Mosaic
 func (m *Mosaic) Width(width int) *Mosaic {
 	m.OutputWidth = width
 	return m
 }
 
+// Set OutputHeight on Mosaic
 func (m *Mosaic) Height(height int) *Mosaic {
 	m.OutputHeight = height
 	return m
 }
 
+// Set Symbols on Mosaic
 func (m *Mosaic) SetSymbols(symbol Symbol) *Mosaic {
 	m.Symbols = symbol
 	return m
@@ -220,7 +230,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	imageBounds := scaledImg.Bounds()
 
 	for y := 0; y < imageBounds.Max.Y; y += 2 {
-		for x := 0; x < imageBounds.Max.X; x += 1 {
+		for x := 0; x < imageBounds.Max.X; x++ {
 			// Create and analyze the 2x2 pixel block.
 			block := m.createPixelBlock(scaledImg, x, y)
 
@@ -514,9 +524,9 @@ func (m *Mosaic) applyDithering(img image.Image) image.Image {
 			oldA8 := uint8(oldA >> 8)
 
 			// Quantize to nearest color in palette.
-			newR8 := uint8(math.Round(float64(int(oldR8)*int(levels))/255) * (255.0 / float64(levels)))
-			newG8 := uint8(math.Round(float64(int(oldG8)*int(levels))/255) * (255.0 / float64(levels)))
-			newB8 := uint8(math.Round(float64(int(oldB8)*int(levels))/255) * (255.0 / float64(levels)))
+			newR8 := uint8(math.Round(float64(int(oldR8)*levels)/255) * (255.0 / float64(levels)))
+			newG8 := uint8(math.Round(float64(int(oldG8)*levels)/255) * (255.0 / float64(levels)))
+			newB8 := uint8(math.Round(float64(int(oldB8)*levels)/255) * (255.0 / float64(levels)))
 
 			// Set the new color.
 			result.Set(x, y, color.RGBA{newR8, newG8, newB8, oldA8})
