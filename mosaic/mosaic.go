@@ -239,13 +239,13 @@ func (m *Mosaic) Render(img image.Image) string {
 }
 
 // createPixelBlock extracts a 2x2 block of pixels from the image.
-func (r *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
+func (m *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
 	block := &pixelBlock{}
 
 	// Extract the 2x2 pixel grid.
 	for dy := 0; dy < 2; dy++ {
 		for dx := 0; dx < 2; dx++ {
-			block.Pixels[dy][dx] = r.getPixelSafe(img, x+dx, y+dy)
+			block.Pixels[dy][dx] = m.getPixelSafe(img, x+dx, y+dy)
 		}
 	}
 
@@ -253,13 +253,13 @@ func (r *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
 }
 
 // findBestRepresentation finds the best block character and colors for a 2x2 pixel block.
-func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
+func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 	// Simple case: use only foreground/background colors.
-	if r.UseFgBgOnly {
+	if m.UseFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
 		block.BestSymbol = '▀'
-		block.BestBgColor = r.averageColors([]color.Color{block.Pixels[0][0], block.Pixels[0][1]})
-		block.BestFgColor = r.averageColors([]color.Color{block.Pixels[1][0], block.Pixels[1][1]})
+		block.BestBgColor = m.averageColors([]color.Color{block.Pixels[0][0], block.Pixels[0][1]})
+		block.BestFgColor = m.averageColors([]color.Color{block.Pixels[1][0], block.Pixels[1][1]})
 		return
 	}
 
@@ -269,7 +269,7 @@ func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
 		for x := 0; x < 2; x++ {
 			// Calculate luminance.
 			luma := rgbaToLuminance(block.Pixels[y][x])
-			pixelMask[y][x] = luma >= r.ThresholdLevel
+			pixelMask[y][x] = luma >= m.ThresholdLevel
 		}
 	}
 
@@ -277,7 +277,7 @@ func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
 	bestChar := ' '
 	bestScore := math.MaxFloat64
 
-	for _, blockChar := range r.Blocks {
+	for _, blockChar := range m.Blocks {
 		score := 0.0
 		for i := 0; i < 4; i++ {
 			y, x := i/2, i%2
@@ -297,7 +297,7 @@ func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
 
 	// Get the coverage pattern for the selected character.
 	var coverage [4]bool
-	for _, b := range r.Blocks {
+	for _, b := range m.Blocks {
 		if b.Char == bestChar {
 			coverage = b.Coverage
 			break
@@ -316,14 +316,14 @@ func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
 
 	// Calculate average colors.
 	if len(fgPixels) > 0 {
-		block.BestFgColor = r.averageColors(fgPixels)
+		block.BestFgColor = m.averageColors(fgPixels)
 	} else {
 		// Default to black if no foreground pixels.
 		block.BestFgColor = color.Black
 	}
 
 	if len(bgPixels) > 0 {
-		block.BestBgColor = r.averageColors(bgPixels)
+		block.BestBgColor = m.averageColors(bgPixels)
 	} else {
 		// Default to black if no background pixels.
 		block.BestBgColor = color.Black
@@ -333,7 +333,7 @@ func (r *Mosaic) findBestRepresentation(block *pixelBlock) {
 }
 
 // averageColors calculates the average color from a slice of colors.
-func (r *Mosaic) averageColors(colors []color.Color) color.Color {
+func (m *Mosaic) averageColors(colors []color.Color) color.Color {
 	if len(colors) == 0 {
 		return color.Black
 	}
@@ -359,7 +359,7 @@ func (r *Mosaic) averageColors(colors []color.Color) color.Color {
 }
 
 // getPixelSafe returns the color at (x,y) or black if out of bounds.
-func (r *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
+func (m *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
 	bounds := img.Bounds()
 	if x < bounds.Min.X || x >= bounds.Max.X || y < bounds.Min.Y || y >= bounds.Max.Y {
 		return color.RGBA{0, 0, 0, 255}
@@ -375,7 +375,7 @@ func (r *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
 }
 
 // scaleImage resizes an image to the specified dimensions.
-func (r *Mosaic) scaleImage(img image.Image, width, height int) image.Image {
+func (m *Mosaic) scaleImage(img image.Image, width, height int) image.Image {
 	result := image.NewRGBA(image.Rect(0, 0, width, height))
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
@@ -393,7 +393,7 @@ func (r *Mosaic) scaleImage(img image.Image, width, height int) image.Image {
 }
 
 // fitImage scales image while preserving aspect ratio.
-func (r *Mosaic) fitImage(img image.Image, maxWidth, maxHeight int) image.Image {
+func (m *Mosaic) fitImage(img image.Image, maxWidth, maxHeight int) image.Image {
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
 	srcHeight := bounds.Max.Y - bounds.Min.Y
@@ -409,13 +409,13 @@ func (r *Mosaic) fitImage(img image.Image, maxWidth, maxHeight int) image.Image 
 	newHeight := int(float64(srcHeight) * ratio)
 
 	// Scale the image.
-	scaledImg := r.scaleImage(img, newWidth, newHeight)
+	scaledImg := m.scaleImage(img, newWidth, newHeight)
 
 	return scaledImg
 }
 
 // fitImage scales image while preserving aspect ratio.
-func (r *Mosaic) scaleImageWithoutDistortion(img image.Image, maxWidth, maxHeight int) image.Image {
+func (m *Mosaic) scaleImageWithoutDistortion(img image.Image, maxWidth, maxHeight int) image.Image {
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
 	srcHeight := bounds.Max.Y - bounds.Min.Y
@@ -431,28 +431,28 @@ func (r *Mosaic) scaleImageWithoutDistortion(img image.Image, maxWidth, maxHeigh
 	newHeight := int(float64(srcHeight) * ratio)
 
 	// Scale the image.
-	scaledImg := r.scaleImage(img, newWidth, newHeight)
+	scaledImg := m.scaleImage(img, newWidth, newHeight)
 
 	return scaledImg
 }
 
 // centerImage centers the original image without scaling.
-func (r *Mosaic) centerImage(img image.Image, maxWidth, maxHeight int) image.Image {
+func (m *Mosaic) centerImage(img image.Image, maxWidth, maxHeight int) image.Image {
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
 	srcHeight := bounds.Max.Y - bounds.Min.Y
 
 	// If image is larger than max dimensions, scale it down.
 	if srcWidth > maxWidth || srcHeight > maxHeight {
-		return r.fitImage(img, maxWidth, maxHeight)
+		return m.fitImage(img, maxWidth, maxHeight)
 	}
 
 	// Otherwise center it without scaling.
-	return r.centerScaledImage(img, maxWidth, maxHeight)
+	return m.centerScaledImage(img, maxWidth, maxHeight)
 }
 
 // centerScaledImage places a scaled image in the center of a larger canvas.
-func (r *Mosaic) centerScaledImage(img image.Image, maxWidth, maxHeight int) image.Image {
+func (m *Mosaic) centerScaledImage(img image.Image, maxWidth, maxHeight int) image.Image {
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
 	srcHeight := bounds.Max.Y - bounds.Min.Y
@@ -477,7 +477,7 @@ func (r *Mosaic) centerScaledImage(img image.Image, maxWidth, maxHeight int) ima
 }
 
 // applyDithering applies Floyd-Steinberg dithering.
-func (r *Mosaic) applyDithering(img image.Image) image.Image {
+func (m *Mosaic) applyDithering(img image.Image) image.Image {
 	bounds := img.Bounds()
 	width := bounds.Max.X - bounds.Min.X
 	height := bounds.Max.Y - bounds.Min.Y
@@ -492,7 +492,7 @@ func (r *Mosaic) applyDithering(img image.Image) image.Image {
 
 	// Apply dithering based on color mode.
 	var levels int
-	switch r.colorMode {
+	switch m.colorMode {
 	case 0, 1: // No color or 8 colors.
 		levels = 2 // Binary dithering.
 	case 2: // 256 colors.
@@ -532,9 +532,9 @@ func (r *Mosaic) applyDithering(img image.Image) image.Image {
 				if nx >= 0 && nx < width && ny >= 0 && ny < height {
 					c := result.At(nx, ny)
 					r32, g32, b32, a32 := c.RGBA()
-					r8 := clamp(int(r32>>8) + int(float64(errR)*factor*r.DitherLevel))
-					g8 := clamp(int(g32>>8) + int(float64(errG)*factor*r.DitherLevel))
-					b8 := clamp(int(b32>>8) + int(float64(errB)*factor*r.DitherLevel))
+					r8 := clamp(int(r32>>8) + int(float64(errR)*factor*m.DitherLevel))
+					g8 := clamp(int(g32>>8) + int(float64(errG)*factor*m.DitherLevel))
+					b8 := clamp(int(b32>>8) + int(float64(errB)*factor*m.DitherLevel))
 					result.Set(nx, ny, color.RGBA{uint8(r8), uint8(g8), uint8(b8), uint8(a32 >> 8)})
 				}
 			}
@@ -551,7 +551,7 @@ func (r *Mosaic) applyDithering(img image.Image) image.Image {
 }
 
 // invertImage inverts the colors of an image.
-func (r *Mosaic) invertImage(img image.Image) image.Image {
+func (m *Mosaic) invertImage(img image.Image) image.Image {
 	bounds := img.Bounds()
 	width := bounds.Max.X - bounds.Min.X
 	height := bounds.Max.Y - bounds.Min.Y
