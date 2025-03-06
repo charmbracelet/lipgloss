@@ -57,43 +57,43 @@ const (
 )
 
 // Scale represents scale mode that will be used when rendering the image.
-type Scale string
+type Scale uint8
 
 // Symbol types.
 const (
-	Fit     Scale = "all"
-	None    Scale = "none"
-	Stretch Scale = "stretch"
-	Center  Scale = "center"
+	None Scale = iota
+	Fit
+	Stretch
+	Center
 )
 
 // Options contains all configurable settings.
 type Mosaic struct {
-	Blocks         []Block
+	blocks         []Block
 	colorMode      int     // 0=none, 1=8colors, 2=256colors, 3=truecolor.
-	OutputWidth    int     // Output width.
-	OutputHeight   int     // Output height (0 for auto).
-	ThresholdLevel uint8   // Threshold for considering a pixel as set (0-255).
-	DitherLevel    float64 // Dithering amount (0.0-1.0).
-	UseFgBgOnly    bool    // Use only foreground/background colors (no block symbols).
-	InvertColors   bool    // Invert colors.
-	ScaleMode      Scale   // fit, stretch, center.
-	Symbols        Symbol  // Which symbols to use: "half", "quarter", "all".
+	outputWidth    int     // Output width.
+	outputHeight   int     // Output height (0 for auto).
+	thresholdLevel uint8   // Threshold for considering a pixel as set (0-255).
+	ditherLevel    float64 // Dithering amount (0.0-1.0).
+	useFgBgOnly    bool    // Use only foreground/background colors (no block symbols).
+	invertColors   bool    // Invert colors.
+	scaleMode      Scale   // fit, stretch, center.
+	symbols        Symbol  // Which symbols to use: "half", "quarter", "all".
 }
 
 // Create Mosaic
 func New() *Mosaic {
 	return &Mosaic{
-		Blocks:         HalfBlocks,
+		blocks:         HalfBlocks,
 		colorMode:      3,      // Truecolor.
-		OutputWidth:    80,     // Default width.
-		OutputHeight:   0,      // Auto height.
-		ThresholdLevel: 128,    // Middle threshold.
-		DitherLevel:    0.0,    // Medium dithering.
-		UseFgBgOnly:    false,  // Use block symbols.
-		InvertColors:   false,  // Don't invert.
-		ScaleMode:      None,   // Fit to terminal.
-		Symbols:        "half", // Use half blocks.
+		outputWidth:    80,     // Default width.
+		outputHeight:   0,      // Auto height.
+		thresholdLevel: 128,    // Middle threshold.
+		ditherLevel:    0.0,    // Medium dithering.
+		useFgBgOnly:    false,  // Use block symbols.
+		invertColors:   false,  // Don't invert.
+		scaleMode:      None,   // Fit to terminal.
+		symbols:        "half", // Use half blocks.
 	}
 }
 
@@ -120,62 +120,62 @@ func shift[T shiftable](x T) T {
 
 // Set ScaleMode on Mosaic
 func (m *Mosaic) Scale(scale Scale) *Mosaic {
-	m.ScaleMode = scale
+	m.scaleMode = scale
 	return m
 }
 
 // Set UseFgBgOnly on Mosaic
 func (m *Mosaic) OnlyForeground(fgOnly bool) *Mosaic {
-	m.UseFgBgOnly = fgOnly
+	m.useFgBgOnly = fgOnly
 	return m
 }
 
 // Set DitherLevel on Mosaic
 func (m *Mosaic) Dither(ditherLevel float64) *Mosaic {
-	m.DitherLevel = ditherLevel
+	m.ditherLevel = ditherLevel
 	return m
 }
 
 // Set ThresholdLevel on Mosaic
 func (m *Mosaic) Threshold(threshold uint8) *Mosaic {
-	m.ThresholdLevel = threshold
+	m.thresholdLevel = threshold
 	return m
 }
 
 // Set InvertColors on Mosaic
 func (m *Mosaic) WithInvertColors(invertColors bool) *Mosaic {
-	m.InvertColors = invertColors
+	m.invertColors = invertColors
 	return m
 }
 
 // Set OutputWidth on Mosaic
 func (m *Mosaic) Width(width int) *Mosaic {
-	m.OutputWidth = width
+	m.outputWidth = width
 	return m
 }
 
 // Set OutputHeight on Mosaic
 func (m *Mosaic) Height(height int) *Mosaic {
-	m.OutputHeight = height
+	m.outputHeight = height
 	return m
 }
 
 // Set Symbols on Mosaic
-func (m *Mosaic) SetSymbols(symbol Symbol) *Mosaic {
-	m.Symbols = symbol
+func (m *Mosaic) Symbol(symbol Symbol) *Mosaic {
+	m.symbols = symbol
 	return m
 }
 
 // Render creates a new renderer with the given options.
 func (m *Mosaic) Render(img image.Image) string {
 	// Quarter blocks.
-	if m.Symbols == "quarter" || m.Symbols == "all" {
-		m.Blocks = append(m.Blocks, QuarterBlocks...)
+	if m.symbols == "quarter" || m.symbols == "all" {
+		m.blocks = append(m.blocks, QuarterBlocks...)
 	}
 
 	// All block elements (including complex combinations).
-	if m.Symbols == "all" {
-		m.Blocks = append(m.Blocks, ComplexBlocks...)
+	if m.symbols == "all" {
+		m.blocks = append(m.blocks, ComplexBlocks...)
 	}
 
 	// Calculate dimensions.
@@ -184,8 +184,8 @@ func (m *Mosaic) Render(img image.Image) string {
 	srcHeight := bounds.Max.Y - bounds.Min.Y
 
 	// Determine output dimensions.
-	outWidth := m.OutputWidth
-	outHeight := m.OutputHeight
+	outWidth := m.outputWidth
+	outHeight := m.outputHeight
 
 	if outHeight <= 0 {
 		// Calculate height based on aspect ratio and character cell proportions.
@@ -198,13 +198,13 @@ func (m *Mosaic) Render(img image.Image) string {
 
 	// Scale image according to the selected mode.
 	var scaledImg image.Image
-	switch m.ScaleMode {
-	case "stretch":
+	switch m.scaleMode {
+	case Stretch:
 		scaledImg = m.scaleImage(img, outWidth*2, outHeight*2) // *2 for sub-character precision.
-	case "center":
+	case Center:
 		// Center the image, maintaining original size.
 		scaledImg = m.centerImage(img, outWidth*2, outHeight*2)
-	case "fit":
+	case Fit:
 		// Scale while preserving aspect ratio.
 		scaledImg = m.fitImage(img, outWidth*2, outHeight*2)
 	default:
@@ -213,12 +213,12 @@ func (m *Mosaic) Render(img image.Image) string {
 	}
 
 	// Apply dithering if enabled.
-	if m.DitherLevel > 0 {
+	if m.ditherLevel > 0 {
 		scaledImg = m.applyDithering(scaledImg)
 	}
 
 	// Invert colors if needed.
-	if m.InvertColors {
+	if m.invertColors {
 		scaledImg = m.invertImage(scaledImg)
 	}
 
@@ -265,7 +265,7 @@ func (m *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
 // findBestRepresentation finds the best block character and colors for a 2x2 pixel block.
 func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 	// Simple case: use only foreground/background colors.
-	if m.UseFgBgOnly {
+	if m.useFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
 		block.BestSymbol = '▀'
 		block.BestBgColor = m.averageColors([]color.Color{block.Pixels[0][0], block.Pixels[0][1]})
@@ -279,7 +279,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 		for x := 0; x < 2; x++ {
 			// Calculate luminance.
 			luma := rgbaToLuminance(block.Pixels[y][x])
-			pixelMask[y][x] = luma >= m.ThresholdLevel
+			pixelMask[y][x] = luma >= m.thresholdLevel
 		}
 	}
 
@@ -287,7 +287,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 	bestChar := ' '
 	bestScore := math.MaxFloat64
 
-	for _, blockChar := range m.Blocks {
+	for _, blockChar := range m.blocks {
 		score := 0.0
 		for i := 0; i < 4; i++ {
 			y, x := i/2, i%2
@@ -307,7 +307,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 
 	// Get the coverage pattern for the selected character.
 	var coverage [4]bool
-	for _, b := range m.Blocks {
+	for _, b := range m.blocks {
 		if b.Char == bestChar {
 			coverage = b.Coverage
 			break
@@ -542,9 +542,9 @@ func (m *Mosaic) applyDithering(img image.Image) image.Image {
 				if nx >= 0 && nx < width && ny >= 0 && ny < height {
 					c := result.At(nx, ny)
 					r32, g32, b32, a32 := c.RGBA()
-					r8 := clamp(int(r32>>8) + int(float64(errR)*factor*m.DitherLevel))
-					g8 := clamp(int(g32>>8) + int(float64(errG)*factor*m.DitherLevel))
-					b8 := clamp(int(b32>>8) + int(float64(errB)*factor*m.DitherLevel))
+					r8 := clamp(int(r32>>8) + int(float64(errR)*factor*m.ditherLevel))
+					g8 := clamp(int(g32>>8) + int(float64(errG)*factor*m.ditherLevel))
+					b8 := clamp(int(b32>>8) + int(float64(errB)*factor*m.ditherLevel))
 					result.Set(nx, ny, color.RGBA{uint8(r8), uint8(g8), uint8(b8), uint8(a32 >> 8)})
 				}
 			}
