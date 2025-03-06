@@ -67,6 +67,11 @@ const (
 	Center
 )
 
+// Render mosaic with default values
+func Render(img image.Image) string {
+	return New().Render(img)
+}
+
 // Options contains all configurable settings.
 type Mosaic struct {
 	blocks         []Block
