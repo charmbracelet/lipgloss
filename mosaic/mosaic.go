@@ -71,7 +71,8 @@ const (
 
 // Render mosaic with default values
 func Render(img image.Image) string {
-	return New().Render(img)
+	m := New()
+	return m.Render(img)
 }
 
 // Options contains all configurable settings.
@@ -88,8 +89,8 @@ type Mosaic struct {
 }
 
 // Create Mosaic
-func New() *Mosaic {
-	return &Mosaic{
+func New() Mosaic {
+	return Mosaic{
 		blocks:         HalfBlocks,
 		outputWidth:    80,     // Default width.
 		outputHeight:   0,      // Auto height.
