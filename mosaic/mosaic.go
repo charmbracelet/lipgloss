@@ -76,7 +76,6 @@ func Render(img image.Image) string {
 
 // Options contains all configurable settings.
 type Mosaic struct {
-	blocks         []Block
 	outputWidth    int    // Output width.
 	outputHeight   int    // Output height (0 for auto).
 	thresholdLevel uint8  // Threshold for considering a pixel as set (0-255).
@@ -90,7 +89,6 @@ type Mosaic struct {
 // Create Mosaic
 func New() Mosaic {
 	return Mosaic{
-		blocks:         HalfBlocks,
 		outputWidth:    80,     // Default width.
 		outputHeight:   0,      // Auto height.
 		thresholdLevel: 128,    // Middle threshold.
@@ -173,16 +171,6 @@ func (m Mosaic) Symbol(symbol Symbol) Mosaic {
 
 // Render creates a new renderer with the given options.
 func (m *Mosaic) Render(img image.Image) string {
-	// Quarter blocks.
-	if m.symbols == "quarter" || m.symbols == "all" {
-		m.blocks = append(m.blocks, QuarterBlocks...)
-	}
-
-	// All block elements (including complex combinations).
-	if m.symbols == "all" {
-		m.blocks = append(m.blocks, ComplexBlocks...)
-	}
-
 	// Calculate dimensions.
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
@@ -218,8 +206,20 @@ func (m *Mosaic) Render(img image.Image) string {
 	var output strings.Builder
 
 	// Process the image by 2x2 blocks (representing one character cell).
-
 	imageBounds := scaledImg.Bounds()
+
+	// Set initial blocks based on symbols value (initial/default is half)
+	var blocks = HalfBlocks
+
+	// Quarter blocks.
+	if m.symbols == "quarter" || m.symbols == "all" {
+		blocks = append(blocks, QuarterBlocks...)
+	}
+
+	// All block elements (including complex combinations).
+	if m.symbols == "all" {
+		blocks = append(blocks, ComplexBlocks...)
+	}
 
 	for y := 0; y < imageBounds.Max.Y; y += 2 {
 		for x := 0; x < imageBounds.Max.X; x += 2 {
@@ -227,7 +227,7 @@ func (m *Mosaic) Render(img image.Image) string {
 			block := m.createPixelBlock(scaledImg, x, y)
 
 			// Determine best symbol and colors.
-			m.findBestRepresentation(block)
+			m.findBestRepresentation(block, blocks)
 
 			// Append to output.
 			output.WriteString(
@@ -255,7 +255,7 @@ func (m *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
 }
 
 // findBestRepresentation finds the best block character and colors for a 2x2 pixel block.
-func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
+func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []Block) {
 	// Simple case: use only foreground/background colors.
 	if m.useFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
@@ -279,7 +279,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 	bestChar := ' '
 	bestScore := math.MaxFloat64
 
-	for _, blockChar := range m.blocks {
+	for _, blockChar := range availableBlocks {
 		score := 0.0
 		for i := 0; i < 4; i++ {
 			y, x := i/2, i%2
@@ -299,7 +299,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock) {
 
 	// Get the coverage pattern for the selected character.
 	var coverage [4]bool
-	for _, b := range m.blocks {
+	for _, b := range availableBlocks {
 		if b.Char == bestChar {
 			coverage = b.Coverage
 			break
