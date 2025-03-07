@@ -57,16 +57,11 @@ const (
 	Quarter
 )
 
-// Scale represents scale mode that will be used when rendering the image.
-type Scale uint8
-
-// Symbol types.
-const (
-	None Scale = iota
-	Fit
-	Stretch
-	Center
-)
+// In many contexts, a default threshold level is often set to 0.5 (or 50%),
+// which means that values above this threshold are considered positive,
+// while those below are considered negative.
+// The value 128 represents the 0.5 of 0..255.
+const middleThresholdLevel = 128
 
 // Render mosaic with default values.
 func Render(img image.Image) string {
@@ -89,14 +84,14 @@ type Mosaic struct {
 // New creates and returns a [Renderer].
 func New() Mosaic {
 	return Mosaic{
-		outputWidth:    80,    // Default width.
-		outputHeight:   0,     // Auto height.
-		thresholdLevel: 128,   // Middle threshold.
-		dither:         false, // Enable dithering.
-		useFgBgOnly:    false, // Use block symbols.
-		invertColors:   false, // Don't invert.
-		scale:          1,     // Don't scale.
-		symbols:        Half,  // Use half blocks.
+		outputWidth:    80,                   // Override width.
+		outputHeight:   0,                    // Override height.
+		thresholdLevel: middleThresholdLevel, // Middle threshold.
+		dither:         false,                // Enable dithering.
+		useFgBgOnly:    false,                // Use block symbols.
+		invertColors:   false,                // Don't invert.
+		scale:          1,                    // Don't scale.
+		symbols:        Half,                 // Use half blocks.
 	}
 }
 
