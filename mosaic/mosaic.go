@@ -68,13 +68,13 @@ const (
 	Center
 )
 
-// Render mosaic with default values
+// Render mosaic with default values.
 func Render(img image.Image) string {
 	m := New()
 	return m.Render(img)
 }
 
-// Options contains all configurable settings.
+// Mosaic is a renderer and its options.
 type Mosaic struct {
 	outputWidth    int    // Output width.
 	outputHeight   int    // Output height (0 for auto).
@@ -86,7 +86,7 @@ type Mosaic struct {
 	symbols        Symbol // Which symbols to use: "half", "quarter", "all".
 }
 
-// Create Mosaic
+// New creates and returns a [Renderer].
 func New() Mosaic {
 	return Mosaic{
 		outputWidth:    80,     // Default width.
@@ -121,19 +121,19 @@ func shift[T shiftable](x T) T {
 	return x
 }
 
-// Set ScaleMode on Mosaic
+// Scale sets the [ScaleMode] on [Mosaic].
 func (m Mosaic) Scale(scale int) Mosaic {
 	m.scale = scale
 	return m
 }
 
-// Set UseFgBgOnly on Mosaic
+// IgnoreBlockSymbols set UseFgBgOnly on [Mosaic].
 func (m Mosaic) IgnoreBlockSymbols(fgOnly bool) Mosaic {
 	m.useFgBgOnly = fgOnly
 	return m
 }
 
-// Set DitherLevel on Mosaic
+// Dither sets the dither level on [Mosaic].
 func (m Mosaic) Dither(dither bool) Mosaic {
 	m.dither = dither
 	return m

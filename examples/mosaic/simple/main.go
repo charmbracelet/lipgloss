@@ -24,6 +24,7 @@ func main() {
 
 func loadImage(path string) (image.Image, error) {
 	f, err := os.Open(path)
+	defer f.Close()
 	if err != nil {
 		return nil, err
 	}
