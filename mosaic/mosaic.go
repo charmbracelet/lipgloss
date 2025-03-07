@@ -203,7 +203,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	}
 
 	// Scale image according to the scale.
-	var scaledImg = m.scaleImage(img, outWidth*m.scale, outHeight*m.scale)
+	scaledImg := m.scaleImage(img, outWidth*m.scale, outHeight*m.scale)
 
 	// Apply dithering if enabled.
 	if m.dither {
