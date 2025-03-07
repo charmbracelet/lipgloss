@@ -14,13 +14,13 @@ import (
 
 // Blocks definition.
 var (
-	HalfBlocks = []Block{
+	halfBlocks = []block{
 		{Char: '▀', Coverage: [4]bool{true, true, false, false}, CoverageMap: "██\n  "},   // Upper half block.
 		{Char: '▄', Coverage: [4]bool{false, false, true, true}, CoverageMap: "  \n██"},   // Lower half block.
 		{Char: ' ', Coverage: [4]bool{false, false, false, false}, CoverageMap: "  \n  "}, // Space.
 		{Char: '█', Coverage: [4]bool{true, true, true, true}, CoverageMap: "██\n██"},     // Full block.
 	}
-	QuarterBlocks = []Block{
+	quarterBlocks = []block{
 		{Char: '▘', Coverage: [4]bool{true, false, false, false}, CoverageMap: "█ \n  "}, // Quadrant upper left.
 		{Char: '▝', Coverage: [4]bool{false, true, false, false}, CoverageMap: " █\n  "}, // Quadrant upper right.
 		{Char: '▖', Coverage: [4]bool{false, false, true, false}, CoverageMap: "  \n█ "}, // Quadrant lower left.
@@ -30,7 +30,7 @@ var (
 		{Char: '▀', Coverage: [4]bool{true, true, false, false}, CoverageMap: "██\n  "},  // Upper half block (already added).
 		{Char: '▄', Coverage: [4]bool{false, false, true, true}, CoverageMap: "  \n██"},  // Lower half block (already added).
 	}
-	ComplexBlocks = []Block{
+	complexBlocks = []block{
 		{Char: '▙', Coverage: [4]bool{true, false, true, true}, CoverageMap: "█ \n██"},  // Quadrant upper left and lower half.
 		{Char: '▟', Coverage: [4]bool{false, true, true, true}, CoverageMap: " █\n██"},  // Quadrant upper right and lower half.
 		{Char: '▛', Coverage: [4]bool{true, true, true, false}, CoverageMap: "██\n█ "},  // Quadrant upper half and lower left.
@@ -41,20 +41,20 @@ var (
 )
 
 // Block represents different Unicode block characters.
-type Block struct {
+type block struct {
 	Char        rune
 	Coverage    [4]bool // Which parts of the block are filled (true = filled).
 	CoverageMap string  // Visual representation of coverage for debugging.
 }
 
 // Symbol represents the symbol type to use when rendering the image.
-type Symbol string
+type Symbol uint8
 
 // Symbol types.
 const (
-	AllSymbols     Symbol = "all"
-	HalfSymbols    Symbol = "half"
-	QuarterSymbols Symbol = "quarter"
+	AllSymbols = iota
+	HalfSymbols
+	QuarterSymbols
 )
 
 // Scale represents scale mode that will be used when rendering the image.
@@ -89,14 +89,14 @@ type Mosaic struct {
 // New creates and returns a [Renderer].
 func New() Mosaic {
 	return Mosaic{
-		outputWidth:    80,     // Default width.
-		outputHeight:   0,      // Auto height.
-		thresholdLevel: 128,    // Middle threshold.
-		dither:         false,  // Enable dithering.
-		useFgBgOnly:    false,  // Use block symbols.
-		invertColors:   false,  // Don't invert.
-		scale:          1,      // Don't scale.
-		symbols:        "half", // Use half blocks.
+		outputWidth:    80,    // Default width.
+		outputHeight:   0,     // Auto height.
+		thresholdLevel: 128,   // Middle threshold.
+		dither:         false, // Enable dithering.
+		useFgBgOnly:    false, // Use block symbols.
+		invertColors:   false, // Don't invert.
+		scale:          1,     // Don't scale.
+		symbols:        0,     // Use half blocks.
 	}
 }
 
@@ -145,31 +145,31 @@ func (m Mosaic) Threshold(threshold uint8) Mosaic {
 	return m
 }
 
-// Set InvertColors on Mosaic
+// InvertColors whether to invert the colors of the mosaic image.
 func (m Mosaic) InvertColors(invertColors bool) Mosaic {
 	m.invertColors = invertColors
 	return m
 }
 
-// Set OutputWidth on Mosaic
+// Width sets the maximum width the image can have. Defaults to the image width.
 func (m Mosaic) Width(width int) Mosaic {
 	m.outputWidth = width
 	return m
 }
 
-// Set OutputHeight on Mosaic
+// Height sets the maximum height the image can have. Defaults to the image height.
 func (m Mosaic) Height(height int) Mosaic {
 	m.outputHeight = height
 	return m
 }
 
-// Set Symbols on Mosaic
+// Symbol sets the mosaic symbol type.
 func (m Mosaic) Symbol(symbol Symbol) Mosaic {
 	m.symbols = symbol
 	return m
 }
 
-// Render creates a new renderer with the given options.
+// Render renders the image to a string.
 func (m *Mosaic) Render(img image.Image) string {
 	// Calculate dimensions.
 	bounds := img.Bounds()
@@ -209,16 +209,16 @@ func (m *Mosaic) Render(img image.Image) string {
 	imageBounds := scaledImg.Bounds()
 
 	// Set initial blocks based on symbols value (initial/default is half)
-	blocks := HalfBlocks
+	blocks := halfBlocks
 
 	// Quarter blocks.
-	if m.symbols == "quarter" || m.symbols == "all" {
-		blocks = append(blocks, QuarterBlocks...)
+	if m.symbols == QuarterSymbols || m.symbols == AllSymbols {
+		blocks = append(blocks, quarterBlocks...)
 	}
 
 	// All block elements (including complex combinations).
-	if m.symbols == "all" {
-		blocks = append(blocks, ComplexBlocks...)
+	if m.symbols == AllSymbols {
+		blocks = append(blocks, complexBlocks...)
 	}
 
 	for y := 0; y < imageBounds.Max.Y; y += 2 {
@@ -255,7 +255,7 @@ func (m *Mosaic) createPixelBlock(img image.Image, x, y int) *pixelBlock {
 }
 
 // findBestRepresentation finds the best block character and colors for a 2x2 pixel block.
-func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []Block) {
+func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []block) {
 	// Simple case: use only foreground/background colors.
 	if m.useFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
