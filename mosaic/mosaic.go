@@ -365,12 +365,12 @@ func (m *Mosaic) averageColors(colors []color.Color) color.Color {
 		sumA += a
 	}
 
-	count := uint32(len(colors))
+	count := uint32(len(colors)) //nolint:gosec
 	return color.RGBA{
-		R: uint8(sumR / count),
-		G: uint8(sumG / count),
-		B: uint8(sumB / count),
-		A: uint8(sumA / count),
+		R: uint8(sumR / count), //nolint:gosec
+		G: uint8(sumG / count), //nolint:gosec
+		B: uint8(sumB / count), //nolint:gosec
+		A: uint8(sumA / count), //nolint:gosec
 	}
 }
 
@@ -383,10 +383,10 @@ func (m *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
 
 	r8, g8, b8, a8 := img.At(x, y).RGBA()
 	return color.RGBA{
-		R: uint8(r8 >> 8),
-		G: uint8(g8 >> 8),
-		B: uint8(b8 >> 8),
-		A: uint8(a8 >> 8),
+		R: uint8(r8 >> 8), //nolint:gosec
+		G: uint8(g8 >> 8), //nolint:gosec
+		B: uint8(b8 >> 8), //nolint:gosec
+		A: uint8(a8 >> 8), //nolint:gosec
 	}
 }
 
@@ -511,10 +511,10 @@ func (m *Mosaic) invertImage(img image.Image) image.Image {
 		for x := 0; x < width; x++ {
 			r8, g8, b8, a8 := img.At(x+bounds.Min.X, y+bounds.Min.Y).RGBA()
 			result.Set(x, y, color.RGBA{
-				R: uint8(255 - (r8 >> 8)),
-				G: uint8(255 - (g8 >> 8)),
-				B: uint8(255 - (b8 >> 8)),
-				A: uint8(a8 >> 8),
+				R: uint8(255 - (r8 >> 8)), //nolint:gosec
+				G: uint8(255 - (g8 >> 8)), //nolint:gosec
+				B: uint8(255 - (b8 >> 8)), //nolint:gosec
+				A: uint8(a8 >> 8),         //nolint:gosec
 			})
 		}
 	}
@@ -524,8 +524,8 @@ func (m *Mosaic) invertImage(img image.Image) image.Image {
 
 // rgbaToLuminance converts RGBA color to luminance (brightness).
 func rgbaToLuminance(c color.Color) uint8 {
-	r, g, b, a := c.RGBA()
-	r, g, b, a = shift(r), shift(g), shift(b), shift(a)
+	r, g, b, _ := c.RGBA()
+	r, g, b = shift(r), shift(g), shift(b)
 	// Weighted RGB to account for human perception.
 	return uint8(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
 }
