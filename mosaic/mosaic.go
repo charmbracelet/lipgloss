@@ -3,6 +3,8 @@ package mosaic
 import (
 	"image"
 	"image/color"
+	"image/color/palette"
+	"image/draw"
 	"math"
 	"strings"
 
@@ -75,26 +77,24 @@ func Render(img image.Image) string {
 // Options contains all configurable settings.
 type Mosaic struct {
 	blocks         []Block
-	colorMode      int     // 0=none, 1=8colors, 2=256colors, 3=truecolor.
-	outputWidth    int     // Output width.
-	outputHeight   int     // Output height (0 for auto).
-	thresholdLevel uint8   // Threshold for considering a pixel as set (0-255).
-	ditherLevel    float64 // Dithering amount (0.0-1.0).
-	useFgBgOnly    bool    // Use only foreground/background colors (no block symbols).
-	invertColors   bool    // Invert colors.
-	scaleMode      Scale   // fit, stretch, center.
-	symbols        Symbol  // Which symbols to use: "half", "quarter", "all".
+	outputWidth    int    // Output width.
+	outputHeight   int    // Output height (0 for auto).
+	thresholdLevel uint8  // Threshold for considering a pixel as set (0-255).
+	dither         bool   // Enable Dithering (false as default).
+	useFgBgOnly    bool   // Use only foreground/background colors (no block symbols).
+	invertColors   bool   // Invert colors.
+	scaleMode      Scale  // fit, stretch, center.
+	symbols        Symbol // Which symbols to use: "half", "quarter", "all".
 }
 
 // Create Mosaic
 func New() *Mosaic {
 	return &Mosaic{
 		blocks:         HalfBlocks,
-		colorMode:      3,      // Truecolor.
 		outputWidth:    80,     // Default width.
 		outputHeight:   0,      // Auto height.
 		thresholdLevel: 128,    // Middle threshold.
-		ditherLevel:    0.0,    // Medium dithering.
+		dither:         false,  // Enable dithering.
 		useFgBgOnly:    false,  // Use block symbols.
 		invertColors:   false,  // Don't invert.
 		scaleMode:      None,   // Fit to terminal.
@@ -136,8 +136,8 @@ func (m *Mosaic) OnlyForeground(fgOnly bool) *Mosaic {
 }
 
 // Set DitherLevel on Mosaic
-func (m *Mosaic) Dither(ditherLevel float64) *Mosaic {
-	m.ditherLevel = ditherLevel
+func (m *Mosaic) Dither(dither bool) *Mosaic {
+	m.dither = dither
 	return m
 }
 
@@ -218,7 +218,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	}
 
 	// Apply dithering if enabled.
-	if m.ditherLevel > 0 {
+	if m.dither {
 		scaledImg = m.applyDithering(scaledImg)
 	}
 
@@ -493,76 +493,10 @@ func (m *Mosaic) centerScaledImage(img image.Image, maxWidth, maxHeight int) ima
 
 // applyDithering applies Floyd-Steinberg dithering.
 func (m *Mosaic) applyDithering(img image.Image) image.Image {
-	bounds := img.Bounds()
-	width := bounds.Max.X - bounds.Min.X
-	height := bounds.Max.Y - bounds.Min.Y
-
-	// Create a copy of the image.
-	result := image.NewRGBA(bounds)
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			result.Set(x, y, img.At(x+bounds.Min.X, y+bounds.Min.Y))
-		}
-	}
-
-	// Apply dithering based on color mode.
-	var levels int
-	switch m.colorMode {
-	case 0, 1: // No color or 8 colors.
-		levels = 2 // Binary dithering.
-	case 2: // 256 colors.
-		levels = 6 // 6 levels per channel (color cube).
-	case 3: // True color.
-		levels = 32 // Reduced levels for dithering.
-	}
-
-	// Floyd-Steinberg dithering.
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			oldColor := result.At(x, y)
-			oldR, oldG, oldB, oldA := oldColor.RGBA()
-
-			// Convert from 0-65535 to 0-255.
-			oldR8 := uint8(oldR >> 8)
-			oldG8 := uint8(oldG >> 8)
-			oldB8 := uint8(oldB >> 8)
-			oldA8 := uint8(oldA >> 8)
-
-			// Quantize to nearest color in palette.
-			newR8 := uint8(math.Round(float64(int(oldR8)*levels)/255) * (255.0 / float64(levels)))
-			newG8 := uint8(math.Round(float64(int(oldG8)*levels)/255) * (255.0 / float64(levels)))
-			newB8 := uint8(math.Round(float64(int(oldB8)*levels)/255) * (255.0 / float64(levels)))
-
-			// Set the new color.
-			result.Set(x, y, color.RGBA{newR8, newG8, newB8, oldA8})
-
-			// Calculate error.
-			errR := oldR8 - newR8
-			errG := oldG8 - newG8
-			errB := oldB8 - newB8
-
-			// Distribute error to neighboring pixels.
-			dither := func(dx, dy int, factor float64) {
-				nx, ny := x+dx, y+dy
-				if nx >= 0 && nx < width && ny >= 0 && ny < height {
-					c := result.At(nx, ny)
-					r32, g32, b32, a32 := c.RGBA()
-					r8 := clamp(int(r32>>8) + int(float64(errR)*factor*m.ditherLevel))
-					g8 := clamp(int(g32>>8) + int(float64(errG)*factor*m.ditherLevel))
-					b8 := clamp(int(b32>>8) + int(float64(errB)*factor*m.ditherLevel))
-					result.Set(nx, ny, color.RGBA{uint8(r8), uint8(g8), uint8(b8), uint8(a32 >> 8)})
-				}
-			}
-
-			// Floyd-Steinberg distribution.
-			dither(1, 0, 7.0/16.0)
-			dither(-1, 1, 3.0/16.0)
-			dither(0, 1, 5.0/16.0)
-			dither(1, 1, 1.0/16.0)
-		}
-	}
-
-	return result
+	b := img.Bounds()
+	pm := image.NewPaletted(b, palette.Plan9)
+	draw.FloydSteinberg.Draw(pm, b, img, image.Point{})
+	return pm
 }
 
 // invertImage inverts the colors of an image.
