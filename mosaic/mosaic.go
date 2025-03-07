@@ -84,7 +84,7 @@ type Mosaic struct {
 	dither         bool   // Enable Dithering (false as default).
 	useFgBgOnly    bool   // Use only foreground/background colors (no block symbols).
 	invertColors   bool   // Invert colors.
-	scaleMode      Scale  // fit, stretch, center.
+	scale          int    // Scale level
 	symbols        Symbol // Which symbols to use: "half", "quarter", "all".
 }
 
@@ -98,7 +98,7 @@ func New() Mosaic {
 		dither:         false,  // Enable dithering.
 		useFgBgOnly:    false,  // Use block symbols.
 		invertColors:   false,  // Don't invert.
-		scaleMode:      None,   // Fit to terminal.
+		scale:          1,      // Don't scale.
 		symbols:        "half", // Use half blocks.
 	}
 }
@@ -125,49 +125,49 @@ func shift[T shiftable](x T) T {
 }
 
 // Set ScaleMode on Mosaic
-func (m *Mosaic) Scale(scale Scale) *Mosaic {
-	m.scaleMode = scale
+func (m Mosaic) Scale(scale int) Mosaic {
+	m.scale = scale
 	return m
 }
 
 // Set UseFgBgOnly on Mosaic
-func (m *Mosaic) OnlyForeground(fgOnly bool) *Mosaic {
+func (m Mosaic) OnlyForeground(fgOnly bool) Mosaic {
 	m.useFgBgOnly = fgOnly
 	return m
 }
 
 // Set DitherLevel on Mosaic
-func (m *Mosaic) Dither(dither bool) *Mosaic {
+func (m Mosaic) Dither(dither bool) Mosaic {
 	m.dither = dither
 	return m
 }
 
 // Set ThresholdLevel on Mosaic
-func (m *Mosaic) Threshold(threshold uint8) *Mosaic {
+func (m Mosaic) Threshold(threshold uint8) Mosaic {
 	m.thresholdLevel = threshold
 	return m
 }
 
 // Set InvertColors on Mosaic
-func (m *Mosaic) WithInvertColors(invertColors bool) *Mosaic {
+func (m Mosaic) WithInvertColors(invertColors bool) Mosaic {
 	m.invertColors = invertColors
 	return m
 }
 
 // Set OutputWidth on Mosaic
-func (m *Mosaic) Width(width int) *Mosaic {
+func (m Mosaic) Width(width int) Mosaic {
 	m.outputWidth = width
 	return m
 }
 
 // Set OutputHeight on Mosaic
-func (m *Mosaic) Height(height int) *Mosaic {
+func (m Mosaic) Height(height int) Mosaic {
 	m.outputHeight = height
 	return m
 }
 
 // Set Symbols on Mosaic
-func (m *Mosaic) Symbol(symbol Symbol) *Mosaic {
+func (m Mosaic) Symbol(symbol Symbol) Mosaic {
 	m.symbols = symbol
 	return m
 }
@@ -202,21 +202,8 @@ func (m *Mosaic) Render(img image.Image) string {
 		}
 	}
 
-	// Scale image according to the selected mode.
-	var scaledImg image.Image
-	switch m.scaleMode {
-	case Stretch:
-		scaledImg = m.scaleImage(img, outWidth*2, outHeight*2) // *2 for sub-character precision.
-	case Center:
-		// Center the image, maintaining original size.
-		scaledImg = m.centerImage(img, outWidth*2, outHeight*2)
-	case Fit:
-		// Scale while preserving aspect ratio.
-		scaledImg = m.fitImage(img, outWidth*2, outHeight*2)
-	default:
-		// Do nothing.
-		scaledImg = m.scaleImageWithoutDistortion(img, outWidth, outHeight)
-	}
+	// Scale image according to the scale.
+	var scaledImg = m.scaleImage(img, outWidth*m.scale, outHeight*m.scale)
 
 	// Apply dithering if enabled.
 	if m.dither {
@@ -236,7 +223,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	imageBounds := scaledImg.Bounds()
 
 	for y := 0; y < imageBounds.Max.Y; y += 2 {
-		for x := 0; x < imageBounds.Max.X; x++ {
+		for x := 0; x < imageBounds.Max.X; x += 2 {
 			// Create and analyze the 2x2 pixel block.
 			block := m.createPixelBlock(scaledImg, x, y)
 
@@ -402,90 +389,6 @@ func (m *Mosaic) scaleImage(img image.Image, width, height int) image.Image {
 		for x := 0; x < width; x++ {
 			srcX := bounds.Min.X + x*srcWidth/width
 			result.Set(x, y, img.At(srcX, srcY))
-		}
-	}
-
-	return result
-}
-
-// fitImage scales image while preserving aspect ratio.
-func (m *Mosaic) fitImage(img image.Image, maxWidth, maxHeight int) image.Image {
-	bounds := img.Bounds()
-	srcWidth := bounds.Max.X - bounds.Min.X
-	srcHeight := bounds.Max.Y - bounds.Min.Y
-
-	// Calculate scaling factor to fit within maxWidth/maxHeight.
-	widthRatio := float64(maxWidth) / float64(srcWidth)
-	heightRatio := float64(maxHeight) / float64(srcHeight)
-
-	// Use the smaller ratio to ensure image fits.
-	ratio := math.Min(widthRatio, heightRatio)
-
-	newWidth := int(float64(srcWidth) * ratio)
-	newHeight := int(float64(srcHeight) * ratio)
-
-	// Scale the image.
-	scaledImg := m.scaleImage(img, newWidth, newHeight)
-
-	return scaledImg
-}
-
-// fitImage scales image while preserving aspect ratio.
-func (m *Mosaic) scaleImageWithoutDistortion(img image.Image, maxWidth, maxHeight int) image.Image {
-	bounds := img.Bounds()
-	srcWidth := bounds.Max.X - bounds.Min.X
-	srcHeight := bounds.Max.Y - bounds.Min.Y
-
-	// Calculate scaling factor to fit within maxWidth/maxHeight.
-	widthRatio := float64(maxWidth) / float64(srcWidth)
-	heightRatio := float64(maxHeight) / float64(srcHeight)
-
-	// Use the smaller ratio to ensure image fits.
-	ratio := math.Min(widthRatio, heightRatio)
-
-	newWidth := int(float64(srcWidth) * ratio)
-	newHeight := int(float64(srcHeight) * ratio)
-
-	// Scale the image.
-	scaledImg := m.scaleImage(img, newWidth, newHeight)
-
-	return scaledImg
-}
-
-// centerImage centers the original image without scaling.
-func (m *Mosaic) centerImage(img image.Image, maxWidth, maxHeight int) image.Image {
-	bounds := img.Bounds()
-	srcWidth := bounds.Max.X - bounds.Min.X
-	srcHeight := bounds.Max.Y - bounds.Min.Y
-
-	// If image is larger than max dimensions, scale it down.
-	if srcWidth > maxWidth || srcHeight > maxHeight {
-		return m.fitImage(img, maxWidth, maxHeight)
-	}
-
-	// Otherwise center it without scaling.
-	return m.centerScaledImage(img, maxWidth, maxHeight)
-}
-
-// centerScaledImage places a scaled image in the center of a larger canvas.
-func (m *Mosaic) centerScaledImage(img image.Image, maxWidth, maxHeight int) image.Image {
-	bounds := img.Bounds()
-	srcWidth := bounds.Max.X - bounds.Min.X
-	srcHeight := bounds.Max.Y - bounds.Min.Y
-
-	// Create a new black canvas.
-	result := image.NewRGBA(image.Rect(0, 0, maxWidth, maxHeight))
-
-	// Calculate offsets to center the image.
-	xOffset := (maxWidth - srcWidth) / 2
-	yOffset := (maxHeight - srcHeight) / 2
-
-	// Copy the image to the center of the canvas.
-	for y := 0; y < srcHeight; y++ {
-		for x := 0; x < srcWidth; x++ {
-			if x+xOffset >= 0 && x+xOffset < maxWidth && y+yOffset >= 0 && y+yOffset < maxHeight {
-				result.Set(x+xOffset, y+yOffset, img.At(x+bounds.Min.X, y+bounds.Min.Y))
-			}
 		}
 	}
 

@@ -4,11 +4,10 @@ go 1.19
 
 replace github.com/charmbracelet/lipgloss/v2 => ../
 
-replace github.com/charmbracelet/lipgloss/mosaic => ../mosaic
-
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.1.0.20241031200731-4f70d4c680b8
-	github.com/charmbracelet/colorprofile v0.1.8
+	github.com/charmbracelet/colorprofile v0.2.2
+	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-20241101153040-904e60506df7
 	github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917
 	github.com/charmbracelet/wish v1.4.0
@@ -22,7 +21,6 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/bubbletea v0.25.0 // indirect
 	github.com/charmbracelet/keygen v0.5.0 // indirect
-	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect
@@ -43,6 +41,7 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
 

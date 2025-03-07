@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/mosaic"
+	"github.com/charmbracelet/lipgloss/v2/mosaic"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	m := mosaic.New().Scale(mosaic.Center)
+	m := mosaic.New().Scale(1)
 
 	fmt.Println(lipgloss.JoinVertical(lipgloss.Right, lipgloss.JoinHorizontal(lipgloss.Center, m.Render(dogImg))))
 }
