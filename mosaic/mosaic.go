@@ -418,6 +418,8 @@ func (m *Mosaic) invertImage(img image.Image) image.Image {
 func rgbaToLuminance(c color.Color) uint8 {
 	r, g, b, _ := c.RGBA()
 	r, g, b = shift(r), shift(g), shift(b)
-	// Weighted RGB to account for human perception.
+	// Weighted RGB to account for human perception
+	// source: https://www.w3.org/TR/AERT/#color-contrast
+	// context: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
 	return uint8(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
 }
