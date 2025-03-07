@@ -52,9 +52,9 @@ type Symbol uint8
 
 // Symbol types.
 const (
-	AllSymbols = iota
-	HalfSymbols
-	QuarterSymbols
+	All Symbol = iota
+	Half
+	Quarter
 )
 
 // Scale represents scale mode that will be used when rendering the image.
@@ -96,7 +96,7 @@ func New() Mosaic {
 		useFgBgOnly:    false, // Use block symbols.
 		invertColors:   false, // Don't invert.
 		scale:          1,     // Don't scale.
-		symbols:        0,     // Use half blocks.
+		symbols:        Half,  // Use half blocks.
 	}
 }
 
@@ -212,12 +212,12 @@ func (m *Mosaic) Render(img image.Image) string {
 	blocks := halfBlocks
 
 	// Quarter blocks.
-	if m.symbols == QuarterSymbols || m.symbols == AllSymbols {
+	if m.symbols == Quarter || m.symbols == All {
 		blocks = append(blocks, quarterBlocks...)
 	}
 
 	// All block elements (including complex combinations).
-	if m.symbols == AllSymbols {
+	if m.symbols == All {
 		blocks = append(blocks, complexBlocks...)
 	}
 
