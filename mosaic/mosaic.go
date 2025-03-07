@@ -9,9 +9,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
+	xdraw "golang.org/x/image/draw"
 )
-
-// mosaic.New().Scale(mosaic.Fit).Width(100).Render(img)
 
 // Blocks definition.
 var (
@@ -203,7 +202,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	}
 
 	// Scale image according to the scale.
-	scaledImg := m.scaleImage(img, outWidth*m.scale, outHeight*m.scale)
+	scaledImg := m.applyScaling(img, outWidth*m.scale, outHeight*m.scale)
 
 	// Apply dithering if enabled.
 	if m.dither {
@@ -377,22 +376,12 @@ func (m *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
 	}
 }
 
-// scaleImage resizes an image to the specified dimensions.
-func (m *Mosaic) scaleImage(img image.Image, width, height int) image.Image {
-	result := image.NewRGBA(image.Rect(0, 0, width, height))
-	bounds := img.Bounds()
-	srcWidth := bounds.Max.X - bounds.Min.X
-	srcHeight := bounds.Max.Y - bounds.Min.Y
-
-	for y := 0; y < height; y++ {
-		srcY := bounds.Min.Y + y*srcHeight/height
-		for x := 0; x < width; x++ {
-			srcX := bounds.Min.X + x*srcWidth/width
-			result.Set(x, y, img.At(srcX, srcY))
-		}
-	}
-
-	return result
+// applyScaling resizes an image to the specified dimensions.
+func (m *Mosaic) applyScaling(img image.Image, width, height int) image.Image {
+	rect := image.Rect(0, 0, width, height)
+	dst := image.NewRGBA(rect)
+	xdraw.ApproxBiLinear.Scale(dst, rect, img, img.Bounds(), draw.Over, nil)
+	return dst
 }
 
 // applyDithering applies Floyd-Steinberg dithering.

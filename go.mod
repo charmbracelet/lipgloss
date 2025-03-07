@@ -11,6 +11,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/muesli/cancelreader v0.2.2
 	github.com/rivo/uniseg v0.4.7
+	golang.org/x/image v0.20.0
 	golang.org/x/sys v0.30.0
 )
 
