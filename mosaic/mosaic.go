@@ -128,7 +128,7 @@ func (m Mosaic) Scale(scale int) Mosaic {
 }
 
 // Set UseFgBgOnly on Mosaic
-func (m Mosaic) OnlyForeground(fgOnly bool) Mosaic {
+func (m Mosaic) IgnoreBlockSymbols(fgOnly bool) Mosaic {
 	m.useFgBgOnly = fgOnly
 	return m
 }
@@ -146,7 +146,7 @@ func (m Mosaic) Threshold(threshold uint8) Mosaic {
 }
 
 // Set InvertColors on Mosaic
-func (m Mosaic) WithInvertColors(invertColors bool) Mosaic {
+func (m Mosaic) InvertColors(invertColors bool) Mosaic {
 	m.invertColors = invertColors
 	return m
 }
