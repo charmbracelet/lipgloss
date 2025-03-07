@@ -529,14 +529,3 @@ func rgbaToLuminance(c color.Color) uint8 {
 	// Weighted RGB to account for human perception.
 	return uint8(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
 }
-
-// clamp ensures value is between 0-255.
-func clamp(v int) int {
-	if v < 0 {
-		return 0
-	}
-	if v > 255 {
-		return 255
-	}
-	return v
-}
