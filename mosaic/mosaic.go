@@ -209,7 +209,7 @@ func (m *Mosaic) Render(img image.Image) string {
 	imageBounds := scaledImg.Bounds()
 
 	// Set initial blocks based on symbols value (initial/default is half)
-	var blocks = HalfBlocks
+	blocks := HalfBlocks
 
 	// Quarter blocks.
 	if m.symbols == "quarter" || m.symbols == "all" {
