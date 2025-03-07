@@ -260,8 +260,8 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []Blo
 	if m.useFgBgOnly {
 		// Just use the upper half block with top pixels as background and bottom as foreground.
 		block.BestSymbol = '▀'
-		block.BestBgColor = m.averageColors([]color.Color{block.Pixels[0][0], block.Pixels[0][1]})
-		block.BestFgColor = m.averageColors([]color.Color{block.Pixels[1][0], block.Pixels[1][1]})
+		block.BestBgColor = m.averageColors(block.Pixels[0][0], block.Pixels[0][1])
+		block.BestFgColor = m.averageColors(block.Pixels[1][0], block.Pixels[1][1])
 		return
 	}
 
@@ -318,14 +318,14 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []Blo
 
 	// Calculate average colors.
 	if len(fgPixels) > 0 {
-		block.BestFgColor = m.averageColors(fgPixels)
+		block.BestFgColor = m.averageColors(fgPixels...)
 	} else {
 		// Default to black if no foreground pixels.
 		block.BestFgColor = color.Black
 	}
 
 	if len(bgPixels) > 0 {
-		block.BestBgColor = m.averageColors(bgPixels)
+		block.BestBgColor = m.averageColors(bgPixels...)
 	} else {
 		// Default to black if no background pixels.
 		block.BestBgColor = color.Black
@@ -335,7 +335,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []Blo
 }
 
 // averageColors calculates the average color from a slice of colors.
-func (m *Mosaic) averageColors(colors []color.Color) color.Color {
+func (m *Mosaic) averageColors(colors ...color.Color) color.Color {
 	if len(colors) == 0 {
 		return color.Black
 	}
