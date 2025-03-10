@@ -148,14 +148,10 @@ func (m Mosaic) Dither(dither bool) Mosaic {
 // Threshold sets the threshold level on [Mosaic].
 // It expectes a value between 0-255, anything else will be ignored.
 func (m Mosaic) Threshold(threshold int) Mosaic {
-	var thresholdLevel uint8
-	if threshold > u8MaxValue {
-		thresholdLevel = u8MaxValue
-	} else if threshold > 0 {
-		thresholdLevel = uint8(threshold)
+	if threshold >= 0 && threshold <= u8MaxValue {
+		m.thresholdLevel = uint8(threshold)
 	}
 
-	m.thresholdLevel = thresholdLevel
 	return m
 }
 
