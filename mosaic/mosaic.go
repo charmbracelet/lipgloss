@@ -64,8 +64,8 @@ const (
 const middleThresholdLevel = 128
 
 // Render mosaic with default values.
-func Render(img image.Image) string {
-	m := New()
+func Render(img image.Image, width int, height int) string {
+	m := New().Width(width).Height(height)
 	return m.Render(img)
 }
 
@@ -84,7 +84,7 @@ type Mosaic struct {
 // New creates and returns a [Renderer].
 func New() Mosaic {
 	return Mosaic{
-		outputWidth:    80,                   // Override width.
+		outputWidth:    0,                    // Override width.
 		outputHeight:   0,                    // Override height.
 		thresholdLevel: middleThresholdLevel, // Middle threshold.
 		dither:         false,                // Enable dithering.
@@ -172,8 +172,15 @@ func (m *Mosaic) Render(img image.Image) string {
 	srcHeight := bounds.Max.Y - bounds.Min.Y
 
 	// Determine output dimensions.
-	outWidth := m.outputWidth
-	outHeight := m.outputHeight
+	outWidth := srcWidth
+	if m.outputWidth > 0 {
+		outWidth = m.outputWidth
+	}
+
+	outHeight := srcHeight
+	if m.outputHeight > 0 {
+		outHeight = m.outputHeight
+	}
 
 	if outHeight <= 0 {
 		// Calculate height based on aspect ratio and character cell proportions.

@@ -17,7 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	m := mosaic.New().Scale(1)
+	m := mosaic.New().Width(80).Scale(1)
 
 	fmt.Println(lipgloss.JoinVertical(lipgloss.Right, lipgloss.JoinHorizontal(lipgloss.Center, m.Render(dogImg))))
 }
