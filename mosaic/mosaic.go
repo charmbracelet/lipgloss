@@ -113,14 +113,15 @@ type pixelBlock struct {
 	BestBgColor color.Color       // Best background color.
 }
 
+// represents 255
+const u8MaxValue = 0xff
+
 type shiftable interface {
 	~uint | ~uint16 | ~uint32 | ~uint64
 }
 
 func shift[T shiftable](x T) T {
-	// represents 255
-	const max = 0xff
-	if x > max {
+	if x > u8MaxValue {
 		x >>= 8
 	}
 	return x
@@ -145,8 +146,16 @@ func (m Mosaic) Dither(dither bool) Mosaic {
 }
 
 // Threshold sets the threshold level on [Mosaic].
-func (m Mosaic) Threshold(threshold uint8) Mosaic {
-	m.thresholdLevel = threshold
+// It expectes a value between 0-255, anything else will be ignored.
+func (m Mosaic) Threshold(threshold int) Mosaic {
+	var thresholdLevel uint8
+	if threshold > u8MaxValue {
+		thresholdLevel = u8MaxValue
+	} else if threshold > 0 {
+		thresholdLevel = uint8(threshold)
+	}
+
+	m.thresholdLevel = thresholdLevel
 	return m
 }
 
