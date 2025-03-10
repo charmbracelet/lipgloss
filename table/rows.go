@@ -111,3 +111,19 @@ func (m *Filter) Rows() int {
 
 	return j
 }
+
+// dataToMatrix converts an object that implements the Data interface to a table.
+func dataToMatrix(data Data) (rows [][]string) {
+	numRows := data.Rows()
+	numCols := data.Columns()
+	rows = make([][]string, numRows)
+
+	for i := 0; i < numRows; i++ {
+		rows[i] = make([]string, numCols)
+
+		for j := 0; j < numCols; j++ {
+			rows[i][j] = data.At(i, j)
+		}
+	}
+	return
+}
