@@ -1810,3 +1810,23 @@ func ExampleTable_Wrap() {
 	// │              │ ざな。        │               │               │               │
 	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
 }
+
+// Check that stylized wrapped content does not go beyond its cell.
+func TestTableWithLinks(t *testing.T) {
+	headers := []string{"Package", "Version", "Link"}
+	data := [][]string{
+		{"sourcegit", "0.19", lipgloss.JoinHorizontal(lipgloss.Left, lipgloss.NewStyle().Foreground(lipgloss.Color("#31BB71")).Render("https://aur.archlinux.org/packages/sourcegit-bin"))},
+		{},
+		{"Welcome", "いらっしゃいませ", "مرحباً", "환영", "欢迎"},
+		{"Goodbye", "さようなら", "مع السلامة", "안녕히 가세요", "再见"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		//		StyleFunc(TableStyle).
+		Width(80).
+		Wrap(true)
+	t.Log(table.String())
+	// TODO once we have the desired result, save it as a golden file
+	//	golden.RequireEqual(t, []byte(table.String()))
+}
