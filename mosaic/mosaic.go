@@ -134,7 +134,7 @@ func (m Mosaic) Dither(dither bool) Mosaic {
 	return m
 }
 
-// Set ThresholdLevel on Mosaic
+// Set ThresholdLevel on [Mosaic].
 func (m Mosaic) Threshold(threshold uint8) Mosaic {
 	m.thresholdLevel = threshold
 	return m
@@ -185,7 +185,8 @@ func (m *Mosaic) Render(img image.Image) string {
 	if outHeight <= 0 {
 		// Calculate height based on aspect ratio and character cell proportions.
 		// Terminal characters are roughly twice as tall as wide, so we divide by 2.
-		outHeight = int(float64(outWidth) * float64(srcHeight) / float64(srcWidth) / 2)
+		const divider = 2
+		outHeight = int(float64(outWidth) * float64(srcHeight) / float64(srcWidth) / divider)
 		if outHeight < 1 {
 			outHeight = 1
 		}
@@ -405,10 +406,10 @@ func (m *Mosaic) invertImage(img image.Image) image.Image {
 		for x := 0; x < width; x++ {
 			r8, g8, b8, a8 := img.At(x+bounds.Min.X, y+bounds.Min.Y).RGBA()
 			result.Set(x, y, color.RGBA{
-				R: uint8(255 - (r8 >> 8)), //nolint:gosec
-				G: uint8(255 - (g8 >> 8)), //nolint:gosec
-				B: uint8(255 - (b8 >> 8)), //nolint:gosec
-				A: uint8(a8 >> 8),         //nolint:gosec
+				R: uint8(255 - (r8 >> 8)), //nolint:gosec,mnd
+				G: uint8(255 - (g8 >> 8)), //nolint:gosec,mnd
+				B: uint8(255 - (b8 >> 8)), //nolint:gosec,mnd
+				A: uint8(a8 >> 8),         //nolint:gosec,mnd
 			})
 		}
 	}
