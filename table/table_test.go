@@ -1812,7 +1812,7 @@ func ExampleTable_Wrap() {
 }
 
 // Check that stylized wrapped content does not go beyond its cell.
-func TestTableWithLinks(t *testing.T) {
+func TestWrapPreStyledContent(t *testing.T) {
 	headers := []string{"Package", "Version", "Link"}
 	data := [][]string{
 		{"sourcegit", "0.19", lipgloss.JoinHorizontal(lipgloss.Left, lipgloss.NewStyle().Foreground(lipgloss.Color("#31BB71")).Render("https://aur.archlinux.org/packages/sourcegit-bin"))},
@@ -1823,10 +1823,32 @@ func TestTableWithLinks(t *testing.T) {
 	table := New().
 		Headers(headers...).
 		Rows(data...).
-		//		StyleFunc(TableStyle).
 		Width(80).
 		Wrap(true)
-	t.Log(table.String())
-	// TODO once we have the desired result, save it as a golden file
-	//	golden.RequireEqual(t, []byte(table.String()))
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+// Check that stylized wrapped content does not go beyond its cell.
+func TestWrapStyleFuncContent(t *testing.T) {
+	headers := []string{"Package", "Version", "Link"}
+	data := [][]string{
+		{"sourcegit", "0.19", "https://aur.archlinux.org/packages/sourcegit-bin"},
+		{"Welcome", "いらっしゃいませ", "مرحباً"},
+		{"Goodbye", "さようなら", "مع السلامة"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			if row == HeaderRow {
+				return lipgloss.NewStyle()
+			}
+			if strings.Contains(data[row][col], "https://") {
+				return lipgloss.NewStyle().Foreground(lipgloss.Color("#31BB71"))
+			}
+			return lipgloss.NewStyle()
+		}).
+		Width(60).
+		Wrap(true)
+	golden.RequireEqual(t, []byte(table.String()))
 }
