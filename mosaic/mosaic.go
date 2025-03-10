@@ -110,7 +110,9 @@ type shiftable interface {
 }
 
 func shift[T shiftable](x T) T {
-	if x > 0xff {
+	// represents 255
+	const max = 0xff
+	if x > max {
 		x >>= 8
 	}
 	return x
@@ -285,7 +287,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []blo
 	for _, blockChar := range availableBlocks {
 		score := 0.0
 		for i := 0; i < 4; i++ {
-			y, x := i/2, i%2
+			y, x := i/2, i%2 //nolint:mnd
 			if blockChar.Coverage[i] != pixelMask[y][x] {
 				score += 1.0
 			}
@@ -311,7 +313,7 @@ func (m *Mosaic) findBestRepresentation(block *pixelBlock, availableBlocks []blo
 
 	// Assign pixels to foreground or background based on the character's coverage.
 	for i := 0; i < 4; i++ {
-		y, x := i/2, i%2
+		y, x := i/2, i%2 //nolint:mnd
 		if coverage[i] {
 			fgPixels = append(fgPixels, block.Pixels[y][x])
 		} else {
@@ -372,10 +374,10 @@ func (m *Mosaic) getPixelSafe(img image.Image, x, y int) color.RGBA {
 
 	r8, g8, b8, a8 := img.At(x, y).RGBA()
 	return color.RGBA{
-		R: uint8(r8 >> 8), //nolint:gosec
-		G: uint8(g8 >> 8), //nolint:gosec
-		B: uint8(b8 >> 8), //nolint:gosec
-		A: uint8(a8 >> 8), //nolint:gosec
+		R: uint8(r8 >> 8), //nolint:gosec,mnd
+		G: uint8(g8 >> 8), //nolint:gosec,mnd
+		B: uint8(b8 >> 8), //nolint:gosec,mnd
+		A: uint8(a8 >> 8), //nolint:gosec,mnd
 	}
 }
 
