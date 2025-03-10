@@ -69,7 +69,15 @@ func Render(img image.Image, width int, height int) string {
 	return m.Render(img)
 }
 
-// Mosaic is a renderer and its options.
+// Mosaic represents a Unicode image renderer.
+//
+// Example:
+//
+//	```go
+//	art := mosaic.New().Width(100). // Limit to 100 cells
+//	    Scale(mosaic.Fit).          // Fit to width
+//	    Render()
+//	```
 type Mosaic struct {
 	outputWidth    int    // Output width.
 	outputHeight   int    // Output height (0 for auto).
@@ -136,7 +144,7 @@ func (m Mosaic) Dither(dither bool) Mosaic {
 	return m
 }
 
-// Set ThresholdLevel on [Mosaic].
+// Threshold sets the threshold level on [Mosaic].
 func (m Mosaic) Threshold(threshold uint8) Mosaic {
 	m.thresholdLevel = threshold
 	return m
