@@ -13,6 +13,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
 		s.bgColor = colorOrNil(value)
+	case underlineColorKey:
+		s.ulColor = colorOrNil(value)
+	case underlineKey:
+		s.ul = value.(Underline)
 	case widthKey:
 		s.width = max(0, value.(int))
 	case heightKey:
@@ -95,6 +99,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(foregroundKey, i.fgColor)
 	case backgroundKey:
 		s.set(backgroundKey, i.bgColor)
+	case underlineColorKey:
+		s.set(underlineColorKey, i.ulColor)
+	case underlineKey:
+		s.set(underlineKey, i.ul)
 	case widthKey:
 		s.set(widthKey, i.width)
 	case heightKey:
@@ -177,7 +185,23 @@ func (s Style) Italic(v bool) Style {
 // whitespace like margins and padding. To change this behavior set
 // [Style.UnderlineSpaces].
 func (s Style) Underline(v bool) Style {
-	s.set(underlineKey, v)
+	if v {
+		return s.UnderlineStyle(SingleUnderline)
+	}
+	return s.UnderlineStyle(NoUnderline)
+}
+
+// UnderlineStyle sets the underline style. This can be used to set the underline
+// to be a single, double, curly, dotted, or dashed line.
+func (s Style) UnderlineStyle(u Underline) Style {
+	s.set(underlineKey, u)
+	return s
+}
+
+// UnderlineColor sets the color of the underline. By default, the underline
+// will be the same color as the foreground.
+func (s Style) UnderlineColor(c color.Color) Style {
+	s.set(underlineColorKey, c)
 	return s
 }
 
