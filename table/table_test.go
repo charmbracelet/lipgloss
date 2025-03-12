@@ -1716,6 +1716,44 @@ func stripString(str string) string {
 	return strings.Join(lines, "\n")
 }
 
+func TestBorderStyles(t *testing.T) {
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	tests := []struct {
+		name             string
+		borderFunc       func() lipgloss.Border
+		topBottomBorders bool
+	}{
+		{"NormalBorder", lipgloss.NormalBorder, true},
+		{"RoundedBorder", lipgloss.RoundedBorder, true},
+		{"BlockBorder", lipgloss.BlockBorder, true},
+		{"ThickBorder", lipgloss.ThickBorder, true},
+		{"HiddenBorder", lipgloss.HiddenBorder, true},
+		{"MarkdownBorder", lipgloss.MarkdownBorder, false},
+		{"ASCIIBorder", lipgloss.ASCIIBorder, true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			table := New().
+				StyleFunc(TableStyle).
+				Border(test.borderFunc()).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Rows(rows...).
+				BorderTop(test.topBottomBorders).
+				BorderBottom(test.topBottomBorders)
+
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
 // Examples
 
 func ExampleTable_Wrap() {
