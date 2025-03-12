@@ -92,7 +92,7 @@ func (s Leaf) String() string {
 }
 
 // Tree implements a Node.
-type Tree struct { //nolint:revive
+type Tree struct {
 	value    string
 	hidden   bool
 	offset   [2]int
