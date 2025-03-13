@@ -32,7 +32,7 @@ func backgroundColor(in term.File, out term.File) (color.Color, error) {
 // This function is intended for standalone Lip Gloss use only. If you're using
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
 func BackgroundColor(in term.File, out term.File) (bg color.Color, err error) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" { //nolint:nestif
 		// On Windows, when the input/output is redirected or piped, we need to
 		// open the console explicitly.
 		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks

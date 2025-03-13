@@ -57,33 +57,31 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	ansi256Color := lipgloss.Color("21")
 //	hexColor := lipgloss.Color("#0000ff")
 func Color(s string) color.Color {
-	var c color.Color = noColor
 	if strings.HasPrefix(s, "#") {
 		hex, err := colorful.Hex(s)
 		if err != nil {
-			return c
+			return noColor
 		}
-		c = hex
-	} else {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return c
-		}
-
-		if i < 0 {
-			// Only positive numbers
-			i = -i
-		}
-
-		if i < 16 {
-			c = ansi.BasicColor(i) //nolint:gosec
-		} else if i < 256 {
-			c = ANSIColor(i) //nolint:gosec
-		} else {
-			c = ansi.TrueColor(i) //nolint:gosec
-		}
+		return hex
 	}
-	return c
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return noColor
+	}
+
+	if i < 0 {
+		// Only positive numbers
+		i = -i
+	}
+
+	if i < 16 {
+		return ansi.BasicColor(i) //nolint:gosec
+	} else if i < 256 {
+		return ANSIColor(i) //nolint:gosec
+	}
+
+	return ansi.TrueColor(i) //nolint:gosec
 }
 
 // RGBColor is a color specified by red, green, and blue values.
@@ -216,7 +214,7 @@ type CompleteFunc func(ansi, ansi256, truecolor color.Color) color.Color
 //	fmt.Println("Ooh, pretty color: ", color)
 func Complete(p colorprofile.Profile) CompleteFunc {
 	return func(ansi, ansi256, truecolor color.Color) color.Color {
-		switch p {
+		switch p { //nolint:exhaustive
 		case colorprofile.ANSI:
 			return ansi
 		case colorprofile.ANSI256:
