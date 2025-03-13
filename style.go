@@ -525,7 +525,9 @@ func pad(str string, n int, style *ansi.Style) string {
 		return str
 	}
 
-	sp := strings.Repeat(" ", abs(n))
+	// We use a non-breaking space to pad so that the padding is
+	// preserved when the string is copied and pasted.
+	sp := strings.Repeat("\u00a0", abs(n))
 	if style != nil {
 		sp = style.Styled(sp)
 	}
