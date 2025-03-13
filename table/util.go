@@ -50,15 +50,3 @@ func median(n []int) int {
 	}
 	return n[len(n)/2]
 }
-
-// largest returns the largest element and it's index from a slice of integers.
-func largest(n []int) (int, int) { //nolint:unparam
-	var largest, index int
-	for i, e := range n {
-		if n[i] > n[index] {
-			largest = e
-			index = i
-		}
-	}
-	return index, largest
-}
