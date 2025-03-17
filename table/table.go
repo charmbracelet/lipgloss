@@ -444,7 +444,7 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 		cellStyle := t.style(index, c)
 		if !t.wrap {
-			length := (cellWidth * height) - cellStyle.GetHorizontalPadding()
+			length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
 			cell = ansi.Truncate(cell, length, "…")
 		}
 		cells = append(cells, cellStyle.
