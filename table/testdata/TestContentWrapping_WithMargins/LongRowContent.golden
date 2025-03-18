@@ -1,5 +1,5 @@
 ╭───────────────┬────────────────────────┬───────────┬─────────────┬───────────╮
-│    Name       │    Description         │    Type   │    Required │    Default│
+│    Name       │    Description         │    Ty…    │    Requ…    │    De…    │
 ├───────────────┼────────────────────────┼───────────┼─────────────┼───────────┤
 │    command    │    A command to be     │    yes    │    hello    │    yep    │
 │               │    executed inside     │           │             │           │
