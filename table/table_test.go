@@ -697,7 +697,7 @@ func TestTableWidthShrink(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┌────────┬─────────┬─────────┐
-│ LANGUA │ FORMAL  │ INFORMA │
+│ LANGU… │ FORMAL  │ INFORM… │
 ├────────┼─────────┼─────────┤
 │ Chines │ Nǐn hǎo │ Nǐ hǎo  │
 │ e      │         │         │
@@ -732,7 +732,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┌──────┬─────┬──────────┐
-│ Name │ Age │ Location │
+│ Name │ Ag… │ Location │
 ├──────┼─────┼──────────┤
 │ Kini │ 40  │ New York │
 │ Eli  │ 30  │ London   │
@@ -765,7 +765,7 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 
 	expected := strings.TrimSpace(`
 ┏━━━━┳━━━━━┳━━━━━┓
-┃ LA ┃ FOR ┃ INF ┃
+┃ L… ┃ FO… ┃ IN… ┃
 ┣━━━━╋━━━━━╋━━━━━┫
 ┃ C… ┃ 您… ┃ 你… ┃
 ┃ J… ┃ こ… ┃ や… ┃

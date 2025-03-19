@@ -355,7 +355,7 @@ func (t *Table) constructHeaders() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(ansi.Truncate(header, t.widths[i], "…")))
+			Render(t.truncateCell(header, -1, i)))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
@@ -435,8 +435,6 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cellWidth := t.widths[c]
-
 		cell := "…"
 		if !isOverflow {
 			cell = t.data.At(index, c)
@@ -444,8 +442,7 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 		cellStyle := t.style(index, c)
 		if !t.wrap {
-			length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
-			cell = ansi.Truncate(cell, length, "…")
+			cell = t.truncateCell(cell, index, c)
 		}
 		cells = append(cells, cellStyle.
 			// Account for the margins in the cell sizing.
@@ -483,4 +480,14 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	}
 
 	return s.String()
+}
+
+func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
+	hasHeaders := len(t.headers) > 0
+	height := t.heights[rowIndex+btoi(hasHeaders)]
+	cellWidth := t.widths[colIndex]
+	cellStyle := t.style(rowIndex, colIndex)
+
+	length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
+	return ansi.Truncate(cell, length, "…")
 }
