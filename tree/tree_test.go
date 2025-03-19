@@ -262,17 +262,7 @@ func TestTreeCustom(t *testing.T) {
 			return "->"
 		})
 
-	want := `
--> Foo
--> Bar
--> -> Qux
--> -> Quux
--> -> -> Foo
--> -> -> Bar
--> -> Quuux
--> Baz
-	`
-	assertEqual(t, want, ansi.Strip(tree.String()))
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeMultilineNode(t *testing.T) {

@@ -1,5 +1,5 @@
 ╭───────────────┬────────────────────────────────┬───────────┬────────┬────────╮
-│    Name       │    Description                 │    Type   │    Requ│    Defa│
+│    Name       │    Description                 │    Ty…    │        │        │
 ├───────────────┼────────────────────────────────┼───────────┼────────┼────────┤
 │    command    │    A command to be executed    │    yes    │        │        │
 │               │    inside the container to     │           │        │        │

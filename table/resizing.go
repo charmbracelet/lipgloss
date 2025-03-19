@@ -292,8 +292,14 @@ func (r *resizer) expandRowHeigths(colWidths []int) (rowHeights []int) {
 	if !r.wrap {
 		return rowHeights
 	}
+	hasHeaders := len(r.headers) > 0
+
 	for i, row := range r.allRows {
 		for j, cell := range row {
+			// NOTE(@andreynering): Headers always have a height of 1, even when wrap is enabled.
+			if hasHeaders && i == 0 {
+				continue
+			}
 			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.xPaddingForCell(i, j)
 			if height > rowHeights[i] {
 				rowHeights[i] = height
