@@ -76,6 +76,10 @@ const (
 	tabWidthKey
 
 	transformKey
+
+	// Hyperlink.
+	linkKey
+	linkParamsKey
 )
 
 // props is a set of properties.
@@ -107,6 +111,9 @@ func NewStyle() Style {
 type Style struct {
 	props props
 	value string
+
+	// hyperlink
+	link, linkParams string
 
 	// we store bool props values here
 	attrs int
@@ -272,6 +279,8 @@ func (s Style) Render(strs ...string) string {
 		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
+
+		link, linkParams = s.GetHyperlink()
 	)
 
 	if transform != nil {
@@ -380,6 +389,10 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		str = b.String()
+
+		if len(link) > 0 {
+			str = ansi.SetHyperlink(link, linkParams) + str + ansi.ResetHyperlink()
+		}
 	}
 
 	// Padding
