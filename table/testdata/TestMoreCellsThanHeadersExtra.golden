@@ -1,0 +1,9 @@
+┌──────────┬──────────────┬───────────┬────────┬────────┐
+│ LANGUAGE │    FORMAL    │           │        │        │
+├──────────┼──────────────┼───────────┼────────┼────────┤
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │        │        │
+│ French   │ Bonjour      │ Salut     │ Salut  │        │
+│ Japanese │ こんにちは   │ やあ      │        │        │
+│ Russian  │ Zdravstvuyte │ Privet    │ Privet │ Privet │
+│ Spanish  │ Hola         │ ¿Qué tal? │        │        │
+└──────────┴──────────────┴───────────┴────────┴────────┘
