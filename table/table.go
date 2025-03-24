@@ -509,7 +509,7 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 }
 
 // Draws the borders separating rows for singular row.
-func (t *Table) drawRowBorders(s *strings.Builder, row int, isOverflow) {
+func (t *Table) drawRowBorders(s *strings.Builder, row int, isOverflow bool) {
 	if t.borderRow && row < t.data.Rows()-1 && !isOverflow {
 		t.drawLeftmostBorder(s, row)
 		t.drawMiddleBorders(s, row)
