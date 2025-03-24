@@ -12,6 +12,7 @@ const (
 	// HeaderRow denotes the header's row index used when rendering headers. Use
 	// this value when looking to customize header styles in StyleFunc.
 	HeaderRow int = -1
+	// FirstCol stores the index of the first column in a table
 	FirstCol  int = 0
 	// NoBorder is used to fill a gap with repeated spaces instead of drawing a border.
 	NoBorder string = " "
@@ -453,10 +454,9 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 	verticalCellsEqual := func(row, c int) bool { return t.data.At(row-1, c) == t.data.At(row, c) }
 	modifyCell := func(c int, cell string) string {
 		if row > 0 && slices.Contains(t.borderMergeColumns, c) && verticalCellsEqual(row, c) {
-			return EmptyCell // if merging column, clear cells with identical data excluding the first occurence
-		} else {
-			return cell
+			return EmptyCell // if merging column, clear cells with identical data excluding the first occurrence
 		}
+		return cell
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
@@ -501,7 +501,7 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 	return s.String()
 }
 
-// Draws the borders seperating rows for singular row
+// Draws the borders seperating rows for singular row.
 func (t *Table) drawRowBorders(s *strings.Builder, row int) {
 	if t.borderRow && row < t.data.Rows()-1 {
 		t.drawLeftmostBorder(s, row)
@@ -510,7 +510,7 @@ func (t *Table) drawRowBorders(s *strings.Builder, row int) {
 	}
 }
 
-// Draws the leftmost border intersection for a singular row
+// Draws the leftmost border intersection for a singular row.
 func (t *Table) drawLeftmostBorder(s *strings.Builder, row int) {
 	if slices.Contains(t.borderMergeColumns, FirstCol) && t.verticalCellsEqual(row, FirstCol) {
 		s.WriteString(t.borderStyle.Render(t.border.Left))
@@ -519,7 +519,7 @@ func (t *Table) drawLeftmostBorder(s *strings.Builder, row int) {
 	}
 }
 
-// Draws all the horizontal and intersection borders for a singular row, exluding the last column
+// Draws all the horizontal and intersection borders for a singular row, exluding the last column.
 func (t *Table) drawMiddleBorders(s *strings.Builder, row int) {
 	for col := 0; col < len(t.widths)-1; col++ {
 		if !t.borderColumn {
@@ -541,7 +541,7 @@ func (t *Table) drawMiddleBorders(s *strings.Builder, row int) {
 	}
 }
 
-// Draws the rightmost column's horizontal and intersection border for a singular row
+// Draws the rightmost column's horizontal and intersection border for a singular row.
 func (t *Table) drawRightmostBorders(s *strings.Builder, row int) {
 	lastCol := len(t.widths) - 1
 	if slices.Contains(t.borderMergeColumns, lastCol) && t.verticalCellsEqual(row, lastCol) {
