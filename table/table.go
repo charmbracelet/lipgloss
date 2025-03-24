@@ -12,8 +12,8 @@ const (
 	// HeaderRow denotes the header's row index used when rendering headers. Use
 	// this value when looking to customize header styles in StyleFunc.
 	HeaderRow int = -1
-	// FirstCol stores the index of the first column in a table
-	FirstCol  int = 0
+	// FirstCol stores the index of the first column in a table.
+	FirstCol int = 0
 	// NoBorder is used to fill a gap with repeated spaces instead of drawing a border.
 	NoBorder string = " "
 	// EmptyCell is used to clear a cell value.
@@ -451,33 +451,33 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 		cells = append(cells, left)
 	}
 
-	verticalCellsEqual := func(row, c int) bool { return t.data.At(row-1, c) == t.data.At(row, c) }
-	modifyCell := func(c int, cell string) string {
-		if row > 0 && slices.Contains(t.borderMergeColumns, c) && verticalCellsEqual(row, c) {
+	verticalCellsEqual := func(row, col int) bool { return t.data.At(row-1, col) == t.data.At(row, col) }
+	modifyCell := func(col int, cell string) string {
+		if row > 0 && slices.Contains(t.borderMergeColumns, col) && verticalCellsEqual(row, col) {
 			return EmptyCell // if merging column, clear cells with identical data excluding the first occurrence
 		}
 		return cell
 	}
 
-	for c := 0; c < t.data.Columns(); c++ {
+	for col := 0; col < t.data.Columns(); col++ {
 		cell := "…"
 		if !isOverflow {
-			cell = t.data.At(row, c)
+			cell = t.data.At(row, col)
 		}
 
-		cellStyle := t.style(row, c)
+		cellStyle := t.style(row, col)
 		if !t.wrap {
-			cell = t.truncateCell(cell, index, c)
+			cell = t.truncateCell(cell, row, col)
 		}
 		cells = append(cells, cellStyle.
 			// Account for the margins in the cell sizing.
 			Height(height-cellStyle.GetVerticalMargins()).
 			MaxHeight(height).
-			Width(t.widths[c]-cellStyle.GetHorizontalMargins()).
-			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(modifyCell(c, cell), cellWidth*height, "…")))
+			Width(t.widths[col]-cellStyle.GetHorizontalMargins()).
+			MaxWidth(t.widths[col]).
+			Render(modifyCell(col, cell)))
 
-		if c < t.data.Columns()-1 && t.borderColumn {
+		if col < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
 		}
 	}
@@ -498,7 +498,7 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 	return s.String()
 }
 
-// Draws the borders seperating rows for singular row.
+// Draws the borders separating rows for singular row.
 func (t *Table) drawRowBorders(s *strings.Builder, row int) {
 	if t.borderRow && row < t.data.Rows()-1 {
 		t.drawLeftmostBorder(s, row)
