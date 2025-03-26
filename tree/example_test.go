@@ -27,13 +27,12 @@ func ExampleLeaf_SetHidden() {
 	fmt.Println(tr.String())
 	// Output:
 	//
-	// ├── Foo
-	// ├── Bar
-	// │   ├── Qux
-	// │   └── Quux
-	// │       └── Hello!
-	// └── Baz
-	//
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quux
+	// │       └── Hello!
+	// └── Baz
 }
 
 func ExampleNewLeaf() {
@@ -56,15 +55,14 @@ func ExampleNewLeaf() {
 
 	fmt.Println(tr.String())
 	// Output:
-	// ├── Foo
-	// ├── Bar
-	// │   ├── Qux
-	// │   ├── Quux
-	// │   │   └── I am groot
-	// │   │       └── leaves
-	// │   └── Quuux
-	// └── Baz
-	//
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   ├── Quux
+	// │   │   └── I am groot
+	// │   │       └── leaves
+	// │   └── Quuux
+	// └── Baz
 }
 
 func ExampleLeaf_SetValue() {
@@ -86,14 +84,14 @@ func ExampleLeaf_SetValue() {
 	glossier.SetValue("Il Makiage")
 	fmt.Println(ansi.Strip(t.String()))
 	// Output:
-	//⁜ Makeup
-	//├── Il Makiage
-	//├── Fenty Beauty
-	//│   ├── Gloss Bomb Universal Lip Luminizer
-	//│   ╰── Hot Cheeks Velour Blushlighter
-	//├── Nyx
-	//├── Mac
-	//╰── Milk
+	// ⁜ Makeup
+	// ├── Il Makiage
+	// ├── Fenty Beauty
+	// │   ├── Gloss Bomb Universal Lip Luminizer
+	// │   ╰── Hot Cheeks Velour Blushlighter
+	// ├── Nyx
+	// ├── Mac
+	// ╰── Milk
 }
 
 // Tree Examples
@@ -115,11 +113,11 @@ func ExampleTree_Hide() {
 
 	fmt.Println(tr.String())
 	// Output:
-	// ├── Foo
-	// ├── Bar
-	// │   ├── Qux
-	// │   └── Quuux
-	// └── Baz
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quuux
+	// └── Baz
 }
 
 func ExampleTree_SetHidden() {
@@ -139,11 +137,10 @@ func ExampleTree_SetHidden() {
 	// Hide a tree after its creation. We'll hide Quux.
 	tr.Children().At(1).Children().At(1).SetHidden(true)
 	// Output:
-	// ├── Foo
-	// ├── Bar
-	// │   ├── Qux
-	// │   └── Quuux
-	// └── Baz
-	//
+	// ├── Foo
+	// ├── Bar
+	// │   ├── Qux
+	// │   └── Quuux
+	// └── Baz
 	fmt.Println(tr.String())
 }
