@@ -1,11 +1,8 @@
 package main
 
-// This example demonstrates how to use a custom Lip Gloss renderer with Wish,
-// a package for building custom SSH servers.
-//
-// The big advantage to using custom renderers here is that we can accurately
-// detect the background color and color profile for each client and render
-// against that accordingly.
+// This example demonstrates how to use a colorprofile to accurately detect
+// client terminal color capabilities for Lip Gloss rendering with Wish, a
+// package for building custom SSH servers.
 //
 // For details on wish see: https://github.com/charmbracelet/wish/
 
@@ -36,7 +33,7 @@ type styles struct {
 	gray          lipgloss.Style
 }
 
-// Create new styles against a given renderer.
+// Create new styles.
 func makeStyles() styles {
 	return styles{
 		bold:          lipgloss.NewStyle().SetString("bold").Bold(true),
@@ -68,7 +65,7 @@ func handler(next ssh.Handler) ssh.Handler {
 		output := colorprofile.NewWriter(pty.Slave, environ)
 		width := pty.Window.Width
 
-		// Initialize new styles against the renderer.
+		// Initialize new styles.
 		styles := makeStyles()
 
 		str := strings.Builder{}
