@@ -120,7 +120,7 @@ func (l *List) String() string {
 // EnumeratorStyle sets the enumerator style for all enumerators.
 //
 // To set the enumerator style conditionally based on the item value or index,
-// use [EnumeratorStyleFunc].
+// use [List.EnumeratorStyleFunc].
 func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
 	l.tree.EnumeratorStyle(style)
 	return l
@@ -180,7 +180,7 @@ func (l *List) Indenter(indenter Indenter) *List {
 // ItemStyle sets the item style for all items.
 //
 // To set the item style conditionally based on the item value or index,
-// use [ItemStyleFunc].
+// use [List.ItemStyleFunc].
 func (l *List) ItemStyle(style lipgloss.Style) *List {
 	l.tree.ItemStyle(style)
 	return l
