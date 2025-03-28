@@ -12,13 +12,13 @@ type Data interface {
 	Columns() int
 }
 
-// StringData is a string-based implementation of the Data interface.
+// StringData is a string-based implementation of the [Data] interface.
 type StringData struct {
 	rows    [][]string
 	columns int
 }
 
-// NewStringData creates a new StringData with the given number of columns.
+// NewStringData creates a new [StringData] with the given number of columns.
 func NewStringData(rows ...[]string) *StringData {
 	m := StringData{columns: 0}
 

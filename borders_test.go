@@ -1,6 +1,8 @@
 package lipgloss
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestStyle_GetBorderSizes(t *testing.T) {
 	tests := []struct {

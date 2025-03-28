@@ -8,34 +8,16 @@ import (
 )
 
 // HeaderRow denotes the header's row index used when rendering headers. Use
-// this value when looking to customize header styles in StyleFunc.
+// this value when looking to customize header styles in [StyleFunc].
 const HeaderRow int = -1
 
-// StyleFunc is the style function that determines the style of a Cell.
+// StyleFunc is the style function that determines the style of a cell.
 //
 // It takes the row and column of the cell as an input and determines the
 // lipgloss Style to use for that cell position.
-//
-// Example:
-//
-//	t := table.New().
-//	    Headers("Name", "Age").
-//	    Row("Kini", 4).
-//	    Row("Eli", 1).
-//	    Row("Iris", 102).
-//	    StyleFunc(func(row, col int) lipgloss.Style {
-//	        switch {
-//	           case row == 0:
-//	               return HeaderStyle
-//	           case row%2 == 0:
-//	               return EvenRowStyle
-//	           default:
-//	               return OddRowStyle
-//	           }
-//	    })
 type StyleFunc func(row, col int) lipgloss.Style
 
-// DefaultStyles is a TableStyleFunc that returns a new Style with no attributes.
+// DefaultStyles is a [StyleFunc] that returns a new Style with no attributes.
 func DefaultStyles(_, _ int) lipgloss.Style {
 	return lipgloss.NewStyle()
 }
@@ -70,7 +52,7 @@ type Table struct {
 	heights []int
 }
 
-// New returns a new Table that can be modified through different
+// New returns a new [Table] that can be modified through different
 // attributes.
 //
 // By default, a table has no border, no styling, and no rows.
@@ -95,13 +77,13 @@ func (t *Table) ClearRows() *Table {
 	return t
 }
 
-// StyleFunc sets the style for a cell based on it's position (row, column).
+// StyleFunc sets the style for a cell based on its position (row, column).
 func (t *Table) StyleFunc(style StyleFunc) *Table {
 	t.styleFunc = style
 	return t
 }
 
-// style returns the style for a cell based on it's position (row, column).
+// style returns the style for a cell based on its position (row, column).
 func (t *Table) style(row, col int) lipgloss.Style {
 	if t.styleFunc == nil {
 		return lipgloss.NewStyle()

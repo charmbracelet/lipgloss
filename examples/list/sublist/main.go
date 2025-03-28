@@ -162,7 +162,7 @@ func main() {
 															} else {
 																style = style.Align(lipgloss.Right).PaddingRight(2)
 															}
-															if row == 0 {
+															if row == table.HeaderRow {
 																return style.Bold(true).Align(lipgloss.Center).PaddingRight(0)
 															}
 															return style.Faint(true)
