@@ -562,20 +562,6 @@ func pad(str string, n int, style *ansi.Style, r rune) string {
 	return b.String()
 }
 
-func max(a, b int) int { //nolint:unparam,predeclared
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int { //nolint:predeclared
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func abs(a int) int {
 	if a < 0 {
 		return -a

@@ -37,14 +37,14 @@ func BackgroundColor(in term.File, out term.File) (bg color.Color, err error) {
 		// open the console explicitly.
 		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks
 		if !term.IsTerminal(in.Fd()) {
-			f, err := os.OpenFile("CONIN$", os.O_RDWR, 0o644)
+			f, err := os.OpenFile("CONIN$", os.O_RDWR, 0o644) //nolint:gosec
 			if err != nil {
 				return nil, fmt.Errorf("error opening CONIN$: %w", err)
 			}
 			in = f
 		}
 		if !term.IsTerminal(out.Fd()) {
-			f, err := os.OpenFile("CONOUT$", os.O_RDWR, 0o644)
+			f, err := os.OpenFile("CONOUT$", os.O_RDWR, 0o644) //nolint:gosec
 			if err != nil {
 				return nil, fmt.Errorf("error opening CONOUT$: %w", err)
 			}

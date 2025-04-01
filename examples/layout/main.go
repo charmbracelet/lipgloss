@@ -404,13 +404,6 @@ func colorGrid(xSteps, ySteps int) [][]string {
 	return grid
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 // applyGradient applies a gradient to the given string string.
 func applyGradient(base lipgloss.Style, input string, from, to color.Color) string {
 	// We want to get the graphemes of the input string, which is the number of

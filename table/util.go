@@ -12,22 +12,6 @@ func btoi(b bool) int {
 	return 0
 }
 
-// max returns the greater of two integers.
-func max(a, b int) int { //nolint:predeclared
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// min returns the smaller of two integers.
-func min(a, b int) int { //nolint:predeclared
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // sum returns the sum of all integers in a slice.
 func sum(n []int) int {
 	var sum int
