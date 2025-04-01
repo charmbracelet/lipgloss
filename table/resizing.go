@@ -59,6 +59,11 @@ func (t *Table) resize() {
 		allRows = rows
 	}
 
+	styleFunc := t.styleFunc
+	if t.styleFunc == nil {
+		styleFunc = DefaultStyles
+	}
+
 	r.rowHeights = r.defaultRowHeights()
 
 	for i, row := range allRows {
@@ -73,7 +78,7 @@ func (t *Table) resize() {
 			if hasHeaders {
 				rowIndex--
 			}
-			style := t.styleFunc(rowIndex, j)
+			style := styleFunc(rowIndex, j)
 
 			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
 			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()

@@ -77,6 +77,20 @@ func TestTableEmpty(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableNoStyleFunc(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(nil).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
