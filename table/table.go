@@ -60,7 +60,7 @@ type Table struct {
 	width           int
 	height          int
 	useManualHeight bool
-	yOffset          int
+	yOffset         int
 	wrap            bool
 
 	// widths tracks the width of each column.
