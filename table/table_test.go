@@ -92,6 +92,23 @@ func TestTableNoStyleFunc(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableMarginAndRightAlignment(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Arabic", "أهلين", "أهلا").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
