@@ -319,14 +319,28 @@ func TestTableRowSeparators(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		BorderRow(true).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("no manual height", func(t *testing.T) {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(TableStyle).
+			BorderRow(true).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
 
-	golden.RequireEqual(t, []byte(table.String()))
+		golden.RequireEqual(t, []byte(table.String()))
+	})
+
+	t.Run("manual height", func(t *testing.T) {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(TableStyle).
+			BorderRow(true).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			Height(8)
+
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableHeights(t *testing.T) {
