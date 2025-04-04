@@ -60,7 +60,7 @@ type Table struct {
 	width           int
 	height          int
 	useManualHeight bool
-	offset          int
+	yOffset          int
 	wrap            bool
 
 	// widths tracks the width of each column.
@@ -210,9 +210,9 @@ func (t *Table) Height(h int) *Table {
 	return t
 }
 
-// Offset sets the table rendering offset.
-func (t *Table) Offset(o int) *Table {
-	t.offset = o
+// YOffset sets the table rendering offset.
+func (t *Table) YOffset(o int) *Table {
+	t.yOffset = o
 	return t
 }
 
@@ -275,7 +275,7 @@ func (t *Table) String() string {
 			sb.WriteString(t.constructRows(availableLines))
 
 		default:
-			for r := t.offset; r < t.data.Rows(); r++ {
+			for r := t.yOffset; r < t.data.Rows(); r++ {
 				sb.WriteString(t.constructRow(r, false))
 			}
 		}
@@ -385,7 +385,7 @@ func (t *Table) constructRows(availableLines int) string {
 	var sb strings.Builder
 
 	// The number of rows to render after removing the offset.
-	offsetRowCount := t.data.Rows() - t.offset
+	offsetRowCount := t.data.Rows() - t.yOffset
 
 	// The number of rows to render. We always render at least one row.
 	rowsToRender := availableLines
@@ -395,7 +395,7 @@ func (t *Table) constructRows(availableLines int) string {
 	needsOverflow := rowsToRender < offsetRowCount
 
 	// only use the offset as the starting value if there is overflow.
-	rowIdx := t.offset
+	rowIdx := t.yOffset
 	if !needsOverflow {
 		// if there is no overflow, just render to the height of the table
 		// check there's enough content to fill the table
