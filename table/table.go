@@ -347,16 +347,25 @@ func (t *Table) constructBottomBorder() string {
 // constructHeaders constructs the headers for the table given it's current
 // header configuration and data.
 func (t *Table) constructHeaders() string {
+	height := t.heights[HeaderRow+1]
+
 	var s strings.Builder
 	if t.borderLeft {
 		s.WriteString(t.borderStyle.Render(t.border.Left))
 	}
 	for i, header := range t.headers {
-		s.WriteString(t.style(HeaderRow, i).
-			MaxHeight(1).
-			Width(t.widths[i]).
+		cellStyle := t.style(HeaderRow, i)
+
+		if !t.wrap {
+			header = t.truncateCell(header, HeaderRow, i)
+		}
+
+		s.WriteString(cellStyle.
+			Height(height - cellStyle.GetVerticalMargins()).
+			MaxHeight(height).
+			Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
 			MaxWidth(t.widths[i]).
-			Render(t.truncateCell(header, -1, i)))
+			Render(t.truncateCell(header, HeaderRow, i)))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
