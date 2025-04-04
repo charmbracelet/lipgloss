@@ -319,7 +319,7 @@ func TestTableRowSeparators(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	t.Run("no manual height", func(t *testing.T) {
+	t.Run("no overflow", func(t *testing.T) {
 		table := New().
 			Border(lipgloss.NormalBorder()).
 			StyleFunc(TableStyle).
@@ -330,7 +330,7 @@ func TestTableRowSeparators(t *testing.T) {
 		golden.RequireEqual(t, []byte(table.String()))
 	})
 
-	t.Run("manual height", func(t *testing.T) {
+	t.Run("with overflow", func(t *testing.T) {
 		table := New().
 			Border(lipgloss.NormalBorder()).
 			StyleFunc(TableStyle).
