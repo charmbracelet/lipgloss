@@ -1182,7 +1182,7 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 
 	got := lipgloss.Height(table.String())
 	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
+		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, table.String())
 	}
 }
 
