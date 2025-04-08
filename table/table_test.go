@@ -78,6 +78,37 @@ func TestTableEmpty(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableNoStyleFunc(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(nil).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestTableMarginAndRightAlignment(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Arabic", "أهلين", "أهلا").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
@@ -305,14 +336,28 @@ func TestTableRowSeparators(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		BorderRow(true).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("no overflow", func(t *testing.T) {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(TableStyle).
+			BorderRow(true).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
 
-	golden.RequireEqual(t, []byte(table.String()))
+		golden.RequireEqual(t, []byte(table.String()))
+	})
+
+	t.Run("with overflow", func(t *testing.T) {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(TableStyle).
+			BorderRow(true).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			Height(8)
+
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableHeights(t *testing.T) {

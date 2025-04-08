@@ -59,6 +59,11 @@ func (t *Table) resize() {
 		allRows = rows
 	}
 
+	styleFunc := t.styleFunc
+	if t.styleFunc == nil {
+		styleFunc = DefaultStyles
+	}
+
 	r.rowHeights = r.defaultRowHeights()
 
 	for i, row := range allRows {
@@ -73,7 +78,7 @@ func (t *Table) resize() {
 			if hasHeaders {
 				rowIndex--
 			}
-			style := t.styleFunc(rowIndex, j)
+			style := styleFunc(rowIndex, j)
 
 			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
 			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()
@@ -207,7 +212,7 @@ func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 		colWidths[shorterColumnIndex]++
 	}
 
-	rowHeights = r.expandRowHeigths(colWidths)
+	rowHeights = r.expandRowHeights(colWidths)
 	return
 }
 
@@ -283,11 +288,11 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 	shrinkToMedian()
 	shrinkBiggestColumns(false)
 
-	return colWidths, r.expandRowHeigths(colWidths)
+	return colWidths, r.expandRowHeights(colWidths)
 }
 
-// expandRowHeigths expands the row heights.
-func (r *resizer) expandRowHeigths(colWidths []int) (rowHeights []int) {
+// expandRowHeights expands the row heights.
+func (r *resizer) expandRowHeights(colWidths []int) (rowHeights []int) {
 	rowHeights = r.defaultRowHeights()
 	if !r.wrap {
 		return rowHeights

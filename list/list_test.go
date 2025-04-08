@@ -9,6 +9,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/list"
 	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/x/exp/golden"
+	"github.com/muesli/termenv"
 )
 
 // XXX: can't write multi-line examples if the underlying string uses
@@ -20,24 +22,14 @@ func TestList(t *testing.T) {
 		Item("Bar").
 		Item("Baz")
 
-	expected := `
-• Foo
-• Bar
-• Baz
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestListItems(t *testing.T) {
 	l := list.New().
 		Items([]string{"Foo", "Bar", "Baz"})
 
-	expected := `
-• Foo
-• Bar
-• Baz
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestSublist(t *testing.T) {
@@ -47,15 +39,7 @@ func TestSublist(t *testing.T) {
 		Item(list.New("Hi", "Hello", "Halo").Enumerator(list.Roman)).
 		Item("Qux")
 
-	expected := `
-• Foo
-• Bar
-    I. Hi
-   II. Hello
-  III. Halo
-• Qux
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestSublistItems(t *testing.T) {
@@ -70,19 +54,12 @@ func TestSublistItems(t *testing.T) {
 		).Enumerator(list.Roman),
 		"G",
 	)
-	expected := `
-• A
-• B
-• C
-    I. D
-   II. E
-  III. F
-• G
-	`
-	assertEqual(t, expected, l.String())
+
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestComplexSublist(t *testing.T) {
+	lipgloss.SetColorProfile(termenv.Ascii)
 	style1 := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("99")).
 		PaddingRight(1)
@@ -155,46 +132,7 @@ func TestComplexSublist(t *testing.T) {
 		).
 		Item("Baz")
 
-	expected := `
-• Foo
-• Bar
-  • foo2
-  • bar2
-• Qux
-   I. aaa
-  II. bbb
-• Deep
-  A. foo
-  B. Deeper
-    1. a
-    2. b
-    3. Even Deeper, inherit parent renderer
-      * sus
-      * d minor
-      * f#
-      * One ore level, with another renderer
-        - a
-          multine
-          string
-        - hoccus poccus
-        - abra kadabra
-        - And finally, a tree within all this
-          ├── another
-          │   multine
-          │   string
-          ├── something
-          ├── a subtree
-          │   ├── yup
-          │   ├── many itens
-          │   └── another
-          ├── hallo
-          └── wunderbar!
-        - this is a tree
-          and other obvious statements
-  C. bar
-• Baz
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestMultiline(t *testing.T) {
@@ -203,16 +141,7 @@ func TestMultiline(t *testing.T) {
 		Item("Item2\nline 2\nline 3").
 		Item("3")
 
-	expected := `
-• Item1
-  line 2
-  line 3
-• Item2
-  line 2
-  line 3
-• 3
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestListIntegers(t *testing.T) {
@@ -221,12 +150,7 @@ func TestListIntegers(t *testing.T) {
 		Item("2").
 		Item("3")
 
-	expected := `
-• 1
-• 2
-• 3
-	`
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 func TestEnumerators(t *testing.T) {
@@ -292,7 +216,7 @@ III. Baz
 				Item("Bar").
 				Item("Baz")
 
-			assertEqual(t, test.expected, l.String())
+			golden.RequireEqual(t, []byte(l.String()))
 		})
 	}
 }
@@ -356,7 +280,7 @@ c. Baz
 				Item("Bar").
 				Item("Baz")
 
-			assertEqual(t, test.expected, l.String())
+			golden.RequireEqual(t, []byte(l.String()))
 		})
 	}
 }
@@ -402,112 +326,10 @@ func TestEnumeratorsAlign(t *testing.T) {
 		l.Item(f)
 	}
 
-	expected := strings.TrimPrefix(`
-       I. Foo
-      II. Foo
-     III. Foo
-      IV. Foo
-       V. Foo
-      VI. Foo
-     VII. Foo
-    VIII. Foo
-      IX. Foo
-       X. Foo
-      XI. Foo
-     XII. Foo
-    XIII. Foo
-     XIV. Foo
-      XV. Foo
-     XVI. Foo
-    XVII. Foo
-   XVIII. Foo
-     XIX. Foo
-      XX. Foo
-     XXI. Foo
-    XXII. Foo
-   XXIII. Foo
-    XXIV. Foo
-     XXV. Foo
-    XXVI. Foo
-   XXVII. Foo
-  XXVIII. Foo
-    XXIX. Foo
-     XXX. Foo
-    XXXI. Foo
-   XXXII. Foo
-  XXXIII. Foo
-   XXXIV. Foo
-    XXXV. Foo
-   XXXVI. Foo
-  XXXVII. Foo
- XXXVIII. Foo
-   XXXIX. Foo
-      XL. Foo
-     XLI. Foo
-    XLII. Foo
-   XLIII. Foo
-    XLIV. Foo
-     XLV. Foo
-    XLVI. Foo
-   XLVII. Foo
-  XLVIII. Foo
-    XLIX. Foo
-       L. Foo
-      LI. Foo
-     LII. Foo
-    LIII. Foo
-     LIV. Foo
-      LV. Foo
-     LVI. Foo
-    LVII. Foo
-   LVIII. Foo
-     LIX. Foo
-      LX. Foo
-     LXI. Foo
-    LXII. Foo
-   LXIII. Foo
-    LXIV. Foo
-     LXV. Foo
-    LXVI. Foo
-   LXVII. Foo
-  LXVIII. Foo
-    LXIX. Foo
-     LXX. Foo
-    LXXI. Foo
-   LXXII. Foo
-  LXXIII. Foo
-   LXXIV. Foo
-    LXXV. Foo
-   LXXVI. Foo
-  LXXVII. Foo
- LXXVIII. Foo
-   LXXIX. Foo
-    LXXX. Foo
-   LXXXI. Foo
-  LXXXII. Foo
- LXXXIII. Foo
-  LXXXIV. Foo
-   LXXXV. Foo
-  LXXXVI. Foo
- LXXXVII. Foo
-LXXXVIII. Foo
-  LXXXIX. Foo
-      XC. Foo
-     XCI. Foo
-    XCII. Foo
-   XCIII. Foo
-    XCIV. Foo
-     XCV. Foo
-    XCVI. Foo
-   XCVII. Foo
-  XCVIII. Foo
-    XCIX. Foo
-       C. Foo`, "\n")
-
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
-func TestSubListItems(t *testing.T) {
+func TestSubListItems2(t *testing.T) {
 	l := list.New().Items(
 		"S",
 		list.New().Items("neovim", "vscode"),
@@ -517,18 +339,7 @@ func TestSubListItems(t *testing.T) {
 		list.New().Item("I like fuzzy socks"),
 	)
 
-	expected := `
-• S
-  • neovim
-  • vscode
-• HI
-  • vim
-  • doom emacs
-• Parent 2
-  • I like fuzzy socks
-	`
-
-	assertEqual(t, expected, l.String())
+	golden.RequireEqual(t, []byte(l.String()))
 }
 
 // assertEqual verifies the strings are equal, assuming its terminal output.
