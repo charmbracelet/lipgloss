@@ -25,7 +25,7 @@ func newRenderer() *renderer {
 				return lipgloss.NewStyle().PaddingRight(1)
 			},
 			indenterFunc: func(Children, int) lipgloss.Style {
-				return lipgloss.NewStyle()
+				return lipgloss.NewStyle().PaddingRight(1)
 			},
 			itemFunc: func(Children, int) lipgloss.Style {
 				return lipgloss.NewStyle()
@@ -81,20 +81,22 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		}
 		indentStyle := r.style.indenterFunc(children, i)
 		enumStyle := r.style.enumeratorFunc(children, i)
+
 		itemStyle := r.style.itemFunc(children, i)
 
-		indent := indenter(children, i)
-		nodeIndent := indentStyle.Render(indent)
+		indent := indentStyle.Render(indenter(children, i))
 		nodePrefix := enumStyle.Render(enumerator(children, i))
+
+		// Preserve the background color of the enumerator when adding the padding
+		enumBgStyle := lipgloss.NewStyle().Background(enumStyle.GetBackground())
+
+		// Add padding to the left of the node to align it with the longest prefix of its siblings
 		if l := maxLen - lipgloss.Width(nodePrefix); l > 0 {
-			nodePrefix = enumStyle.Render(strings.Repeat(" ", l)) + nodePrefix
+			nodePrefix = enumBgStyle.Render(strings.Repeat(" ", l)) + nodePrefix
 		}
 
 		item := itemStyle.Render(child.Value())
-		multineLinePrefix := prefix
-		if multineLinePrefix != "" {
-			multineLinePrefix = indentStyle.Render(multineLinePrefix)
-		}
+		multineLinePrefix := enumBgStyle.Render(prefix)
 
 		// This dance below is to account for multiline prefixes, e.g. "|\n|".
 		// In that case, we need to make sure that both the parent prefix and
@@ -103,14 +105,14 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			nodePrefix = lipgloss.JoinVertical(
 				lipgloss.Left,
 				nodePrefix,
-				nodeIndent,
+				indent,
 			)
 		}
 		for lipgloss.Height(nodePrefix) > lipgloss.Height(multineLinePrefix) {
 			multineLinePrefix = lipgloss.JoinVertical(
 				lipgloss.Left,
 				multineLinePrefix,
-				indentStyle.Render(prefix),
+				prefix,
 			)
 		}
 

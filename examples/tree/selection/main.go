@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/tree"
 )
 
 const selected = "/Users/bash/.config/doom-emacs"
@@ -21,8 +21,7 @@ type styles struct {
 
 func defaultStyles() styles {
 	var s styles
-	s.base = lipgloss.NewStyle().
-		Background(lipgloss.Color("235"))
+	s.base = lipgloss.NewStyle()
 	s.container = s.base.
 		Margin(1, 2).
 		Padding(1, 0)
@@ -75,6 +74,14 @@ func (s file) Children() tree.Children {
 
 func (s file) Value() string {
 	return s.String()
+}
+
+func (s file) SetValue(val any) {
+	return
+}
+
+func (s file) SetHidden(val bool) {
+	return
 }
 
 func isItemSelected(children tree.Children, index int) bool {

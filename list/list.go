@@ -147,6 +147,36 @@ func (l *List) EnumeratorStyleFunc(f StyleFunc) *List {
 	return l
 }
 
+// IndenterStyle sets the enumerator style for all enumerators.
+//
+// To set the enumerator style conditionally based on the item value or index,
+// use [IndenterStyleFunc].
+func (l *List) IndenterStyle(style lipgloss.Style) *List {
+	l.tree.IndenterStyle(style)
+	return l
+}
+
+// IndenterStyleFunc sets the enumerator style function for the list items.
+//
+// Use this to conditionally set different styles based on the current items,
+// sibling items, or index values (i.e. even or odd).
+//
+// Example:
+//
+//	l := list.New().
+//		IndenterStyleFunc(func(_ list.Items, i int) lipgloss.Style {
+//			if selected == i {
+//				return lipgloss.NewStyle().Foreground(brightPink)
+//			}
+//			return lipgloss.NewStyle()
+//		})
+func (l *List) IndenterStyleFunc(f StyleFunc) *List {
+	l.tree.IndenterStyleFunc(func(children tree.Children, index int) lipgloss.Style {
+		return f(children, index)
+	})
+	return l
+}
+
 // Indenter sets the indenter implementation. This is used to change the way
 // the tree is indented. The default indentor places a border connecting sibling
 // elements and no border for the last child.

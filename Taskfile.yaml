@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 tasks:
   lint:
@@ -17,3 +17,8 @@ tasks:
     desc: Run table tests
     cmds:
       - go test ./table {{.CLI_ARGS}}
+
+  test:tree:
+    desc: Run tree tests
+    cmds:
+      - go test ./tree {{.CLI_ARGS}}

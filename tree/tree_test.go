@@ -3,12 +3,13 @@ package tree_test
 import (
 	"testing"
 
+	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/exp/golden"
+
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/lipgloss/v2/table"
 	"github.com/charmbracelet/lipgloss/v2/tree"
-	"github.com/charmbracelet/x/ansi"
-	"github.com/charmbracelet/x/exp/golden"
 )
 
 func TestTree(t *testing.T) {
@@ -180,6 +181,9 @@ func TestTreeCustom(t *testing.T) {
 		ItemStyle(lipgloss.NewStyle().
 			Foreground(lipgloss.Color("9"))).
 		EnumeratorStyle(lipgloss.NewStyle().
+			Foreground(lipgloss.Color("12")).
+			PaddingRight(1)).
+		IndenterStyle(lipgloss.NewStyle().
 			Foreground(lipgloss.Color("12")).
 			PaddingRight(1)).
 		Enumerator(func(tree.Children, int) string {
