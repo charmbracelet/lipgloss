@@ -59,6 +59,7 @@ func main() {
 	}
 
 	t := tree.Root(pwd).
+		IndenterStyle(enumeratorStyle).
 		EnumeratorStyle(enumeratorStyle).
 		RootStyle(itemStyle).
 		ItemStyle(itemStyle)
