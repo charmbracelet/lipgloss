@@ -6,17 +6,19 @@ import (
 )
 
 func main() {
+	backgroundColor := lipgloss.Color("#ee6ff8")
+	foregroundColor := lipgloss.Color("#ecfe65")
+
 	darkBg := lipgloss.NewStyle().
-		Background(lipgloss.Color("0")).
+		Background(backgroundColor).
 		Padding(0, 1)
 
 	headerItemStyle := lipgloss.NewStyle().
-		Background(lipgloss.Color("#ee6ff8")).
-		Foreground(lipgloss.Color("#ecfe65")).
+		Foreground(foregroundColor).
 		Bold(true).
 		Padding(0, 1)
 
-	itemStyle := headerItemStyle.Background(lipgloss.Color("0"))
+	itemStyle := headerItemStyle.Background(backgroundColor)
 
 	t := tree.Root("# Table of Contents").
 		RootStyle(itemStyle).
