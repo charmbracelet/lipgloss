@@ -503,13 +503,13 @@ func (t *Table) constructRow(row int, isOverflow bool) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	t.drawRowBorders(&s, row)
+	t.drawRowBorders(&s, row, isOverflow)
 
 	return s.String()
 }
 
 // Draws the borders separating rows for singular row.
-func (t *Table) drawRowBorders(s *strings.Builder, row int) {
+func (t *Table) drawRowBorders(s *strings.Builder, row int, isOverflow) {
 	if t.borderRow && row < t.data.Rows()-1 && !isOverflow {
 		t.drawLeftmostBorder(s, row)
 		t.drawMiddleBorders(s, row)

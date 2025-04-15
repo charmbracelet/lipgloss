@@ -1,6 +1,8 @@
 module examples
 
-go 1.19
+go 1.23.0
+
+toolchain go1.24.1
 
 replace github.com/charmbracelet/lipgloss => ../
 
