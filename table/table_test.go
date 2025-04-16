@@ -91,7 +91,7 @@ func TestTableNoStyleFunc(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableOffset(t *testing.T) {
+func TestTableYOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
@@ -101,7 +101,7 @@ func TestTableOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -653,7 +653,7 @@ func TestTableHeightMinimumShowData(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableHeightWithOffset(t *testing.T) {
+func TestTableHeightWithYOffset(t *testing.T) {
 	// This test exists to check for a bug/edge case when the table has an
 	// offset and the height is set.
 
@@ -667,7 +667,7 @@ func TestTableHeightWithOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -1086,7 +1086,7 @@ func TestCarriageReturn(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableShrinkWithOffset(t *testing.T) {
+func TestTableShrinkWithYOffset(t *testing.T) {
 	rows := [][]string{
 		{"1", "Tokyo", "Japan", "37,274,000"},
 		{"2", "Delhi", "India", "32,065,760"},
@@ -1191,12 +1191,12 @@ func TestTableShrinkWithOffset(t *testing.T) {
 	}
 	table := New().
 		Rows(rows...).
-		Offset(80).
+		YOffset(80).
 		Height(45)
 
 	got := lipgloss.Height(table.String())
 	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
+		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, table.String())
 	}
 }
 
