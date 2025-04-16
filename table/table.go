@@ -1,3 +1,4 @@
+// Package table provides a styled table renderer for terminals.
 package table
 
 import (

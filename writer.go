@@ -27,8 +27,8 @@ func Println(v ...interface{}) (int, error) {
 	return fmt.Fprintln(Writer, v...) //nolint:wrapcheck
 }
 
-// Print formatted text to stdout, automatically downsampling colors when
-// necessary.
+// Printf prints formatted text to stdout, automatically downsampling colors
+// when necessary.
 //
 // Example:
 //
@@ -68,7 +68,7 @@ func Fprint(w io.Writer, v ...interface{}) (int, error) {
 	return fmt.Fprint(colorprofile.NewWriter(w, os.Environ()), v...) //nolint:wrapcheck
 }
 
-// Fprint pritnts to the given writer, automatically downsampling colors when
+// Fprintln prints to the given writer, automatically downsampling colors when
 // necessary, and ending with a trailing newline.
 //
 // Example:
