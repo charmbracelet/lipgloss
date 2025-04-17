@@ -2,15 +2,24 @@
 package table
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 )
 
-// HeaderRow denotes the header's row index used when rendering headers. Use
-// this value when looking to customize header styles in StyleFunc.
-const HeaderRow int = -1
+const (
+	// HeaderRow denotes the header's row index used when rendering headers. Use
+	// this value when looking to customize header styles in StyleFunc.
+	HeaderRow int = -1
+	// FirstCol stores the index of the first column in a table.
+	FirstCol int = 0
+	// NoBorder is used to fill a gap with repeated spaces instead of drawing a border.
+	NoBorder string = " "
+	// EmptyCell is used to clear a cell value.
+	EmptyCell string = ""
+)
 
 // StyleFunc is the style function that determines the style of a Cell.
 //
@@ -46,13 +55,14 @@ type Table struct {
 	styleFunc StyleFunc
 	border    lipgloss.Border
 
-	borderTop    bool
-	borderBottom bool
-	borderLeft   bool
-	borderRight  bool
-	borderHeader bool
-	borderColumn bool
-	borderRow    bool
+	borderTop          bool
+	borderBottom       bool
+	borderLeft         bool
+	borderRight        bool
+	borderHeader       bool
+	borderColumn       bool
+	borderRow          bool
+	borderMergeColumns []int
 
 	borderStyle lipgloss.Style
 	headers     []string
@@ -187,6 +197,16 @@ func (t *Table) BorderColumn(v bool) *Table {
 // BorderRow sets the row border separator.
 func (t *Table) BorderRow(v bool) *Table {
 	t.borderRow = v
+	return t
+}
+
+// BorderColumnMerge sets the columns where adjacent vertical cells that contain
+// the same data get merged into a single cell.
+// Prerequesite: BorderRow and BorderColumn must be set to true.
+func (t *Table) BorderMergeColumns(cols ...int) *Table {
+	if t.borderRow && t.borderColumn {
+		t.borderMergeColumns = cols
+	}
 	return t
 }
 
@@ -426,14 +446,11 @@ func (t *Table) constructRows(availableLines int) string {
 	return sb.String()
 }
 
-// constructRow constructs the row for the table given an index and row data
-// based on the current configuration. If isOverflow is true, the row is
-// rendered as an overflow row (using ellipsis).
-func (t *Table) constructRow(index int, isOverflow bool) string {
+func (t *Table) constructRow(row int, isOverflow bool) string {
 	var s strings.Builder
 
 	hasHeaders := len(t.headers) > 0
-	height := t.heights[index+btoi(hasHeaders)]
+	height := t.heights[row+btoi(hasHeaders)]
 	if isOverflow {
 		height = 1
 	}
@@ -444,25 +461,33 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		cells = append(cells, left)
 	}
 
-	for c := 0; c < t.data.Columns(); c++ {
+	verticalCellsEqual := func(row, col int) bool { return t.data.At(row-1, col) == t.data.At(row, col) }
+	modifyCell := func(col int, cell string) string {
+		if row > 0 && slices.Contains(t.borderMergeColumns, col) && verticalCellsEqual(row, col) {
+			return EmptyCell // if merging column, clear cells with identical data excluding the first occurrence
+		}
+		return cell
+	}
+
+	for col := 0; col < t.data.Columns(); col++ {
 		cell := "…"
 		if !isOverflow {
-			cell = t.data.At(index, c)
+			cell = t.data.At(row, col)
 		}
 
-		cellStyle := t.style(index, c)
+		cellStyle := t.style(row, col)
 		if !t.wrap {
-			cell = t.truncateCell(cell, index, c)
+			cell = t.truncateCell(cell, row, col)
 		}
 		cells = append(cells, cellStyle.
 			// Account for the margins in the cell sizing.
 			Height(height-cellStyle.GetVerticalMargins()).
 			MaxHeight(height).
-			Width(t.widths[c]-cellStyle.GetHorizontalMargins()).
-			MaxWidth(t.widths[c]).
-			Render(cell))
+			Width(t.widths[col]-cellStyle.GetHorizontalMargins()).
+			MaxWidth(t.widths[col]).
+			Render(modifyCell(col, cell)))
 
-		if c < t.data.Columns()-1 && t.borderColumn {
+		if col < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
 		}
 	}
@@ -478,18 +503,66 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && index < t.data.Rows()-1 && !isOverflow {
-		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
-		for i := 0; i < len(t.widths); i++ {
-			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
-			if i < len(t.widths)-1 && t.borderColumn {
-				s.WriteString(t.borderStyle.Render(t.border.Middle))
-			}
-		}
-		s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
-	}
+	t.drawRowBorders(&s, row, isOverflow)
 
 	return s.String()
+}
+
+// Draws the borders separating rows for singular row.
+func (t *Table) drawRowBorders(s *strings.Builder, row int, isOverflow bool) {
+	if t.borderRow && row < t.data.Rows()-1 && !isOverflow {
+		t.drawLeftmostBorder(s, row)
+		t.drawMiddleBorders(s, row)
+		t.drawRightmostBorders(s, row)
+	}
+}
+
+// Draws the leftmost border intersection for a singular row.
+func (t *Table) drawLeftmostBorder(s *strings.Builder, row int) {
+	if slices.Contains(t.borderMergeColumns, FirstCol) && t.verticalCellsEqual(row, FirstCol) {
+		s.WriteString(t.borderStyle.Render(t.border.Left))
+	} else {
+		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+	}
+}
+
+// Draws all the horizontal and intersection borders for a singular row, exluding the last column.
+func (t *Table) drawMiddleBorders(s *strings.Builder, row int) {
+	for col := 0; col < len(t.widths)-1; col++ {
+		if !t.borderColumn {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[col])))
+		} else if slices.Contains(t.borderMergeColumns, col) && slices.Contains(t.borderMergeColumns, col+1) &&
+			t.verticalCellsEqual(row, col) && t.verticalCellsEqual(row, col+1) {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(NoBorder, t.widths[col])))
+			s.WriteString(t.borderStyle.Render(t.border.Left)) // |
+		} else if slices.Contains(t.borderMergeColumns, col) && t.verticalCellsEqual(row, col) {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(NoBorder, t.widths[col])))
+			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft)) // |-
+		} else if slices.Contains(t.borderMergeColumns, col+1) && t.verticalCellsEqual(row, col+1) {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[col])))
+			s.WriteString(t.borderStyle.Render(t.border.MiddleRight)) // -|
+		} else {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[col])))
+			s.WriteString(t.borderStyle.Render(t.border.Middle)) // -|-
+		}
+	}
+}
+
+// Draws the rightmost column's horizontal and intersection border for a singular row.
+func (t *Table) drawRightmostBorders(s *strings.Builder, row int) {
+	lastCol := len(t.widths) - 1
+	if slices.Contains(t.borderMergeColumns, lastCol) && t.verticalCellsEqual(row, lastCol) {
+		s.WriteString(t.borderStyle.Render(strings.Repeat(NoBorder, t.widths[lastCol])))
+		s.WriteString(t.borderStyle.Render(t.border.Right) + "\n") // |
+	} else {
+		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[lastCol])))
+		s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n") // -|
+	}
+}
+
+// Returns true if the cell at (row, col) and the cell below it contain the same data.
+func (t *Table) verticalCellsEqual(row, col int) bool {
+	return t.data.At(row, col) == t.data.At(row+1, col)
 }
 
 func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
