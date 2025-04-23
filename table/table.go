@@ -43,6 +43,7 @@ func DefaultStyles(_, _ int) lipgloss.Style {
 
 // Table is a type for rendering tables.
 type Table struct {
+	baseStyle lipgloss.Style
 	styleFunc StyleFunc
 	border    lipgloss.Border
 
@@ -96,6 +97,14 @@ func (t *Table) ClearRows() *Table {
 	return t
 }
 
+// BaseStyle sets the base style for the whole table. If you need to set a
+// background color for the whole table, use this.
+func (t *Table) BaseStyle(baseStyle lipgloss.Style) *Table {
+	t.baseStyle = baseStyle
+	t.borderStyle = t.borderStyle.Inherit(baseStyle)
+	return t
+}
+
 // StyleFunc sets the style for a cell based on it's position (row, column).
 func (t *Table) StyleFunc(style StyleFunc) *Table {
 	t.styleFunc = style
@@ -105,9 +114,9 @@ func (t *Table) StyleFunc(style StyleFunc) *Table {
 // style returns the style for a cell based on it's position (row, column).
 func (t *Table) style(row, col int) lipgloss.Style {
 	if t.styleFunc == nil {
-		return lipgloss.NewStyle()
+		return t.baseStyle
 	}
-	return t.styleFunc(row, col)
+	return t.styleFunc(row, col).Inherit(t.baseStyle)
 }
 
 // Data sets the table data.
@@ -192,7 +201,7 @@ func (t *Table) BorderRow(v bool) *Table {
 
 // BorderStyle sets the style for the table border.
 func (t *Table) BorderStyle(style lipgloss.Style) *Table {
-	t.borderStyle = style
+	t.borderStyle = style.Inherit(t.baseStyle)
 	return t
 }
 
