@@ -34,6 +34,24 @@ func TestTable(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableWithBackground(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BaseStyle(lipgloss.NewStyle().Background(lipgloss.Color("18"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("15"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableExample(t *testing.T) {
 	HeaderStyle := lipgloss.NewStyle().Padding(0, 1).Align(lipgloss.Center)
 	EvenRowStyle := lipgloss.NewStyle().Padding(0, 1)
