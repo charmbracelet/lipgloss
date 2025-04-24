@@ -415,6 +415,11 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
+// GetKeepPreviousStyle gets the previous style set on the style.
+func (s Style) GetKeepPreviousStyle() bool {
+	return s.getAsBool(keepPreviousStyleKey, false)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)

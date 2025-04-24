@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"image/color"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -30,6 +31,7 @@ const (
 	underlineSpacesKey
 	strikethroughSpacesKey
 	colorWhitespaceKey
+	keepPreviousStyleKey
 
 	// Non-boolean props.
 	foregroundKey
@@ -242,6 +244,7 @@ func (s Style) Render(strs ...string) string {
 		reverse       = s.getAsBool(reverseKey, false)
 		blink         = s.getAsBool(blinkKey, false)
 		faint         = s.getAsBool(faintKey, false)
+		keepPrevious  = s.getAsBool(keepPreviousStyleKey, false)
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -458,6 +461,11 @@ func (s Style) Render(strs ...string) string {
 		if len(lines) > 0 {
 			str = strings.Join(lines[:height], "\n")
 		}
+	}
+
+	if keepPrevious {
+		re := regexp.MustCompile(`\x1b\[m([^\n])`)
+		str = re.ReplaceAllString(str, te.String()+"$1")
 	}
 
 	return str

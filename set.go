@@ -688,6 +688,13 @@ func (s Style) Transform(fn func(string) string) Style {
 	return s
 }
 
+// KeepPreviousStyle ensures that the previosuly set style re-enabled after the
+// rentered text.
+func (s Style) KeepPreviousStyle(v bool) Style {
+	s.set(keepPreviousStyleKey, v)
+	return s
+}
+
 // whichSidesInt is a helper method for setting values on sides of a block based
 // on the number of arguments. It follows the CSS shorthand rules for blocks
 // like margin, padding. and borders. Here are how the rules work:
