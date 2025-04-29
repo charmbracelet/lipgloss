@@ -69,6 +69,26 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 //	colorB := lipgloss.Color("21")
 type ANSIColor uint
 
+// ANSI color codes.
+const (
+	ANSIBlack ANSIColor = iota
+	ANSIRed
+	ANSIGreen
+	ANSIYellow
+	ANSIBlue
+	ANSIMagenta
+	ANSICyan
+	ANSIWhite
+	ANSIBrightBlack
+	ANSIBrightRed
+	ANSIBrightGreen
+	ANSIBrightYellow
+	ANSIBrightBlue
+	ANSIBrightMagenta
+	ANSIBrightCyan
+	ANSIBrightWhite
+)
+
 func (ac ANSIColor) color(r *Renderer) termenv.Color {
 	return Color(strconv.FormatUint(uint64(ac), 10)).color(r)
 }
