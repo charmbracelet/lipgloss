@@ -8,7 +8,7 @@ go 1.18
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/charmbracelet/x/ansi v0.8.0
+	github.com/charmbracelet/x/ansi v0.9.2
 	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
 	github.com/muesli/termenv v0.16.0
