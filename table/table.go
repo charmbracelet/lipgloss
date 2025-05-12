@@ -75,11 +75,11 @@ type Table struct {
 // New returns a new Table that can be modified through different
 // attributes.
 //
-// By default, a table has no border, no styling, and no rows.
+// By default, a table has normal border, no styling, and no rows.
 func New() *Table {
 	return &Table{
 		styleFunc:    DefaultStyles,
-		border:       lipgloss.RoundedBorder(),
+		border:       lipgloss.NormalBorder(),
 		borderBottom: true,
 		borderColumn: true,
 		borderHeader: true,
