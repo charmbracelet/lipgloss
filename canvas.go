@@ -60,7 +60,7 @@ func (c *Canvas) Get(id string) *Layer {
 	return nil
 }
 
-// Renders the Canvas to a string.
+// Render renders the Canvas to a string.
 func (c *Canvas) Render() string {
 	c.init()
 	for _, l := range c.layers {
