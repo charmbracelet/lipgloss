@@ -6,9 +6,13 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/cellbuf"
 )
 
-const tabWidthDefault = 4
+const (
+	nbsp            = '\u00A0'
+	tabWidthDefault = 4
+)
 
 // Property for a key.
 type propKey int64
@@ -352,7 +356,7 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = ansi.Wrap(str, wrapAt, "")
+		str = cellbuf.Wrap(str, wrapAt, "")
 	}
 
 	// Render core text
@@ -388,15 +392,18 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padLeft(str, leftPadding, st)
+			str = padLeft(str, leftPadding, st, nbsp)
 		}
+
+		// XXX: We use a non-breaking space to pad so that the padding is
+		// preserved when the string is copied and pasted.
 
 		if rightPadding > 0 {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padRight(str, rightPadding, st)
+			str = padRight(str, rightPadding, st, nbsp)
 		}
 
 		if topPadding > 0 {
@@ -487,8 +494,8 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &style)
-	str = padRight(str, rightMargin, &style)
+	str = padLeft(str, leftMargin, &style, ' ')
+	str = padRight(str, rightMargin, &style, ' ')
 
 	// Top/bottom margin
 	if !inline {
@@ -507,24 +514,27 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *ansi.Style) string {
-	return pad(str, -n, style)
+func padLeft(str string, n int, style *ansi.Style, r rune) string {
+	return pad(str, -n, style, r)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *ansi.Style) string {
-	return pad(str, n, style)
+func padRight(str string, n int, style *ansi.Style, r rune) string {
+	return pad(str, n, style, r)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *ansi.Style) string {
+// r is the rune to use for padding. We use " " for margins and
+// "\u00A0" for padding so that the padding is preserved when the
+// string is copied and pasted.
+func pad(str string, n int, style *ansi.Style, r rune) string {
 	if n == 0 {
 		return str
 	}
 
-	sp := strings.Repeat(" ", abs(n))
+	sp := strings.Repeat(string(r), abs(n))
 	if style != nil {
 		sp = style.Styled(sp)
 	}
@@ -550,20 +560,6 @@ func pad(str string, n int, style *ansi.Style) string {
 	}
 
 	return b.String()
-}
-
-func max(a, b int) int { //nolint:unparam,predeclared
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int { //nolint:predeclared
-	if a < b {
-		return a
-	}
-	return b
 }
 
 func abs(a int) int {

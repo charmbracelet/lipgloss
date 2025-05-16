@@ -23,7 +23,6 @@ import (
 //
 // copied from x/term@v0.1.3.
 func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error) {
-	//nolint: errcheck
 	err = queryTerminal(in, out, defaultQueryTimeout,
 		func(seq string, pa *ansi.Parser) bool {
 			switch {

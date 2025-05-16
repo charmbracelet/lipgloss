@@ -1,18 +1,18 @@
 module github.com/charmbracelet/lipgloss/v2
 
-go 1.18
+go 1.23.0
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
-	github.com/charmbracelet/colorprofile v0.2.1
+	github.com/charmbracelet/colorprofile v0.3.0
 	github.com/charmbracelet/x/ansi v0.8.0
-	github.com/charmbracelet/x/cellbuf v0.0.12-0.20250211222500-26447de68ad6
+	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/muesli/cancelreader v0.2.2
 	github.com/rivo/uniseg v0.4.7
-	golang.org/x/sys v0.30.0
+	golang.org/x/sys v0.31.0
 )
 
 require (

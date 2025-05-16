@@ -1,3 +1,4 @@
+// Package table provides a styled table renderer for terminals.
 package table
 
 import (
@@ -42,6 +43,7 @@ func DefaultStyles(_, _ int) lipgloss.Style {
 
 // Table is a type for rendering tables.
 type Table struct {
+	baseStyle lipgloss.Style
 	styleFunc StyleFunc
 	border    lipgloss.Border
 
@@ -60,7 +62,8 @@ type Table struct {
 	width           int
 	height          int
 	useManualHeight bool
-	offset          int
+	yOffset         int
+	wrap            bool
 
 	// widths tracks the width of each column.
 	widths []int
@@ -72,17 +75,18 @@ type Table struct {
 // New returns a new Table that can be modified through different
 // attributes.
 //
-// By default, a table has no border, no styling, and no rows.
+// By default, a table has normal border, no styling, and no rows.
 func New() *Table {
 	return &Table{
 		styleFunc:    DefaultStyles,
-		border:       lipgloss.RoundedBorder(),
+		border:       lipgloss.NormalBorder(),
 		borderBottom: true,
 		borderColumn: true,
 		borderHeader: true,
 		borderLeft:   true,
 		borderRight:  true,
 		borderTop:    true,
+		wrap:         true,
 		data:         NewStringData(),
 	}
 }
@@ -90,6 +94,14 @@ func New() *Table {
 // ClearRows clears the table rows.
 func (t *Table) ClearRows() *Table {
 	t.data = NewStringData()
+	return t
+}
+
+// BaseStyle sets the base style for the whole table. If you need to set a
+// background color for the whole table, use this.
+func (t *Table) BaseStyle(baseStyle lipgloss.Style) *Table {
+	t.baseStyle = baseStyle
+	t.borderStyle = t.borderStyle.Inherit(baseStyle)
 	return t
 }
 
@@ -102,9 +114,9 @@ func (t *Table) StyleFunc(style StyleFunc) *Table {
 // style returns the style for a cell based on it's position (row, column).
 func (t *Table) style(row, col int) lipgloss.Style {
 	if t.styleFunc == nil {
-		return lipgloss.NewStyle()
+		return t.baseStyle
 	}
-	return t.styleFunc(row, col)
+	return t.styleFunc(row, col).Inherit(t.baseStyle)
 }
 
 // Data sets the table data.
@@ -189,7 +201,7 @@ func (t *Table) BorderRow(v bool) *Table {
 
 // BorderStyle sets the style for the table border.
 func (t *Table) BorderStyle(style lipgloss.Style) *Table {
-	t.borderStyle = style
+	t.borderStyle = style.Inherit(t.baseStyle)
 	return t
 }
 
@@ -208,9 +220,15 @@ func (t *Table) Height(h int) *Table {
 	return t
 }
 
-// Offset sets the table rendering offset.
-func (t *Table) Offset(o int) *Table {
-	t.offset = o
+// YOffset sets the table rendering offset.
+func (t *Table) YOffset(o int) *Table {
+	t.yOffset = o
+	return t
+}
+
+// Wrap dictates whether or not the table content should wrap.
+func (t *Table) Wrap(w bool) *Table {
+	t.wrap = w
 	return t
 }
 
@@ -231,120 +249,8 @@ func (t *Table) String() string {
 		}
 	}
 
-	// Initialize the widths.
-	t.widths = make([]int, max(len(t.headers), t.data.Columns()))
-	t.heights = make([]int, btoi(hasHeaders)+t.data.Rows())
-
-	// The style function may affect width of the table. It's possible to set
-	// the StyleFunc after the headers and rows. Update the widths for a final
-	// time.
-	for i, cell := range t.headers {
-		t.widths[i] = max(t.widths[i], lipgloss.Width(t.style(HeaderRow, i).Render(cell)))
-		t.heights[0] = max(t.heights[0], lipgloss.Height(t.style(HeaderRow, i).Render(cell)))
-	}
-
-	for r := 0; r < t.data.Rows(); r++ {
-		for i := 0; i < t.data.Columns(); i++ {
-			cell := t.data.At(r, i)
-
-			rendered := t.style(r, i).Render(cell)
-			t.heights[r+btoi(hasHeaders)] = max(t.heights[r+btoi(hasHeaders)], lipgloss.Height(rendered))
-			t.widths[i] = max(t.widths[i], lipgloss.Width(rendered))
-		}
-	}
-
-	// Table Resizing Logic.
-	//
-	// Given a user defined table width, we must ensure the table is exactly that
-	// width. This must account for all borders, column, separators, and column
-	// data.
-	//
-	// In the case where the table is narrower than the specified table width,
-	// we simply expand the columns evenly to fit the width.
-	// For example, a table with 3 columns takes up 50 characters total, and the
-	// width specified is 80, we expand each column by 10 characters, adding 30
-	// to the total width.
-	//
-	// In the case where the table is wider than the specified table width, we
-	// _could_ simply shrink the columns evenly but this would result in data
-	// being truncated (perhaps unnecessarily). The naive approach could result
-	// in very poor cropping of the table data. So, instead of shrinking columns
-	// evenly, we calculate the median non-whitespace length of each column, and
-	// shrink the columns based on the largest median.
-	//
-	// For example,
-	//  ┌──────┬───────────────┬──────────┐
-	//  │ Name │ Age of Person │ Location │
-	//  ├──────┼───────────────┼──────────┤
-	//  │ Kini │ 40            │ New York │
-	//  │ Eli  │ 30            │ London   │
-	//  │ Iris │ 20            │ Paris    │
-	//  └──────┴───────────────┴──────────┘
-	//
-	// Median non-whitespace length  vs column width of each column:
-	//
-	// Name: 4 / 5
-	// Age of Person: 2 / 15
-	// Location: 6 / 10
-	//
-	// The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
-
-	width := t.computeWidth()
-
-	if width < t.width && t.width > 0 {
-		// Table is too narrow, expand the columns evenly until it reaches the
-		// desired width.
-		var i int
-		for width < t.width {
-			t.widths[i]++
-			width++
-			i = (i + 1) % len(t.widths)
-		}
-	} else if width > t.width && t.width > 0 {
-		// Table is too wide, calculate the median non-whitespace length of each
-		// column, and shrink the columns based on the largest difference.
-		columnMedians := make([]int, len(t.widths))
-		for c := range t.widths {
-			trimmedWidth := make([]int, t.data.Rows())
-			for r := 0; r < t.data.Rows(); r++ {
-				renderedCell := t.style(r+btoi(hasHeaders), c).Render(t.data.At(r, c))
-				nonWhitespaceChars := lipgloss.Width(strings.TrimRight(renderedCell, " "))
-				trimmedWidth[r] = nonWhitespaceChars + 1
-			}
-
-			columnMedians[c] = median(trimmedWidth)
-		}
-
-		// Find the biggest differences between the median and the column width.
-		// Shrink the columns based on the largest difference.
-		differences := make([]int, len(t.widths))
-		for i := range t.widths {
-			differences[i] = t.widths[i] - columnMedians[i]
-		}
-
-		for width > t.width {
-			index, _ := largest(differences)
-			if differences[index] < 1 {
-				break
-			}
-
-			shrink := min(differences[index], width-t.width)
-			t.widths[index] -= shrink
-			width -= shrink
-			differences[index] = 0
-		}
-
-		// Table is still too wide, begin shrinking the columns based on the
-		// largest column.
-		for width > t.width {
-			index, _ := largest(t.widths)
-			if t.widths[index] < 1 {
-				break
-			}
-			t.widths[index]--
-			width--
-		}
-	}
+	// Do all the sizing calculations for width and height.
+	t.resize()
 
 	var sb strings.Builder
 
@@ -379,7 +285,7 @@ func (t *Table) String() string {
 			sb.WriteString(t.constructRows(availableLines))
 
 		default:
-			for r := t.offset; r < t.data.Rows(); r++ {
+			for r := t.yOffset; r < t.data.Rows(); r++ {
 				sb.WriteString(t.constructRow(r, false))
 			}
 		}
@@ -391,15 +297,6 @@ func (t *Table) String() string {
 		MaxHeight(t.computeHeight()).
 		MaxWidth(t.width).
 		Render(sb.String())
-}
-
-// computeWidth computes the width of the table in it's current configuration.
-func (t *Table) computeWidth() int {
-	width := sum(t.widths) + btoi(t.borderLeft) + btoi(t.borderRight)
-	if t.borderColumn {
-		width += len(t.widths) - 1
-	}
-	return width
 }
 
 // computeHeight computes the height of the table in it's current configuration.
@@ -465,7 +362,7 @@ func (t *Table) constructHeaders() string {
 			MaxHeight(1).
 			Width(t.widths[i]).
 			MaxWidth(t.widths[i]).
-			Render(ansi.Truncate(header, t.widths[i], "…")))
+			Render(t.truncateCell(header, -1, i)))
 		if i < len(t.headers)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.Left))
 		}
@@ -498,7 +395,7 @@ func (t *Table) constructRows(availableLines int) string {
 	var sb strings.Builder
 
 	// The number of rows to render after removing the offset.
-	offsetRowCount := t.data.Rows() - t.offset
+	offsetRowCount := t.data.Rows() - t.yOffset
 
 	// The number of rows to render. We always render at least one row.
 	rowsToRender := availableLines
@@ -508,7 +405,7 @@ func (t *Table) constructRows(availableLines int) string {
 	needsOverflow := rowsToRender < offsetRowCount
 
 	// only use the offset as the starting value if there is overflow.
-	rowIdx := t.offset
+	rowIdx := t.yOffset
 	if !needsOverflow {
 		// if there is no overflow, just render to the height of the table
 		// check there's enough content to fill the table
@@ -545,21 +442,22 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	}
 
 	for c := 0; c < t.data.Columns(); c++ {
-		cellWidth := t.widths[c]
-
 		cell := "…"
 		if !isOverflow {
 			cell = t.data.At(index, c)
 		}
 
 		cellStyle := t.style(index, c)
+		if !t.wrap {
+			cell = t.truncateCell(cell, index, c)
+		}
 		cells = append(cells, cellStyle.
 			// Account for the margins in the cell sizing.
 			Height(height-cellStyle.GetVerticalMargins()).
 			MaxHeight(height).
 			Width(t.widths[c]-cellStyle.GetHorizontalMargins()).
 			MaxWidth(t.widths[c]).
-			Render(ansi.Truncate(cell, cellWidth*height, "…")))
+			Render(cell))
 
 		if c < t.data.Columns()-1 && t.borderColumn {
 			cells = append(cells, left)
@@ -589,4 +487,14 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 	}
 
 	return s.String()
+}
+
+func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
+	hasHeaders := len(t.headers) > 0
+	height := t.heights[rowIndex+btoi(hasHeaders)]
+	cellWidth := t.widths[colIndex]
+	cellStyle := t.style(rowIndex, colIndex)
+
+	length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
+	return ansi.Truncate(cell, length, "…")
 }

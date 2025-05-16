@@ -1,13 +1,11 @@
 package table
 
 import (
+	"fmt"
 	"strings"
 	"testing"
-	"unicode"
 
-	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
 )
 
@@ -33,21 +31,25 @@ func TestTable(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
+	golden.RequireEqual(t, []byte(table.String()))
+}
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+func TestTableWithBackground(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BaseStyle(lipgloss.NewStyle().Background(lipgloss.Color("18"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("15"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableExample(t *testing.T) {
@@ -81,21 +83,7 @@ func TestTableExample(t *testing.T) {
 	// You can also add tables row-by-row
 	table.Row("English", "You look absolutely fabulous.", "How's it going?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬───────────────────────────────┬─────────────────┐
-│ LANGUAGE │            FORMAL             │    INFORMAL     │
-├──────────┼───────────────────────────────┼─────────────────┤
-│ Chinese  │ 您好                          │ 你好            │
-│ Japanese │ こんにちは                    │ やあ            │
-│ Russian  │ Здравствуйте                  │ Привет          │
-│ Spanish  │ Hola                          │ ¿Qué tal?       │
-│ English  │ You look absolutely fabulous. │ How's it going? │
-└──────────┴───────────────────────────────┴─────────────────┘
-`)
-
-	if got := ansi.Strip(table.String()); got != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, got)
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableEmpty(t *testing.T) {
@@ -104,19 +92,24 @@ func TestTableEmpty(t *testing.T) {
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL")
 
-	expected := strings.TrimSpace(`
-┌──────────┬────────┬──────────┐
-│ LANGUAGE │ FORMAL │ INFORMAL │
-├──────────┼────────┼──────────┤
-└──────────┴────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableOffset(t *testing.T) {
+func TestTableNoStyleFunc(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(nil).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestTableYOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
@@ -126,22 +119,9 @@ func TestTableOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableBorder(t *testing.T) {
@@ -159,21 +139,7 @@ func TestTableBorder(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-╔══════════╦══════════════╦═══════════╗
-║ LANGUAGE ║    FORMAL    ║ INFORMAL  ║
-╠══════════╬══════════════╬═══════════╣
-║ Chinese  ║ Nǐn hǎo      ║ Nǐ hǎo    ║
-║ French   ║ Bonjour      ║ Salut     ║
-║ Japanese ║ こんにちは   ║ やあ      ║
-║ Russian  ║ Zdravstvuyte ║ Privet    ║
-║ Spanish  ║ Hola         ║ ¿Qué tal? ║
-╚══════════╩══════════════╩═══════════╝
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableSetRows(t *testing.T) {
@@ -190,21 +156,7 @@ func TestTableSetRows(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestMoreCellsThanHeaders(t *testing.T) {
@@ -221,21 +173,7 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │           │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestMoreCellsThanHeadersExtra(t *testing.T) {
@@ -253,21 +191,7 @@ func TestMoreCellsThanHeadersExtra(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┬────────┬────────┐
-│ LANGUAGE │    FORMAL    │           │        │        │
-├──────────┼──────────────┼───────────┼────────┼────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │        │        │
-│ French   │ Bonjour      │ Salut     │ Salut  │        │
-│ Japanese │ こんにちは   │ やあ      │        │        │
-│ Russian  │ Zdravstvuyte │ Privet    │ Privet │ Privet │
-│ Spanish  │ Hola         │ ¿Qué tal? │        │        │
-└──────────┴──────────────┴───────────┴────────┴────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoHeaders(t *testing.T) {
@@ -280,19 +204,7 @@ func TestTableNoHeaders(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoColumnSeparators(t *testing.T) {
@@ -306,19 +218,7 @@ func TestTableNoColumnSeparators(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────┐
-│ Chinese   Nǐn hǎo       Nǐ hǎo    │
-│ French    Bonjour       Salut     │
-│ Japanese  こんにちは    やあ      │
-│ Russian   Zdravstvuyte  Privet    │
-│ Spanish   Hola          ¿Qué tal? │
-└───────────────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
@@ -333,21 +233,7 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────┐
-│ LANGUAGE     FORMAL     INFORMAL  │
-├───────────────────────────────────┤
-│ Chinese   Nǐn hǎo       Nǐ hǎo    │
-│ French    Bonjour       Salut     │
-│ Japanese  こんにちは    やあ      │
-│ Russian   Zdravstvuyte  Privet    │
-│ Spanish   Hola          ¿Qué tal? │
-└───────────────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestBorderColumnsWithExtraRows(t *testing.T) {
@@ -366,21 +252,7 @@ func TestBorderColumnsWithExtraRows(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────────────────────┐
-│ LANGUAGE     FORMAL                               │
-├───────────────────────────────────────────────────┤
-│ Chinese   Nǐn hǎo       Nǐ hǎo                    │
-│ French    Bonjour       Salut      Salut          │
-│ Japanese  こんにちは    やあ                      │
-│ Russian   Zdravstvuyte  Privet     Privet  Privet │
-│ Spanish   Hola          ¿Qué tal?                 │
-└───────────────────────────────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestNew(t *testing.T) {
@@ -410,18 +282,7 @@ func TestTableUnsetBorders(t *testing.T) {
 		BorderLeft(false).
 		BorderRight(false)
 
-	expected := strings.TrimPrefix(`
- LANGUAGE │    FORMAL    │ INFORMAL  
-──────────┼──────────────┼───────────
- Chinese  │ Nǐn hǎo      │ Nǐ hǎo    
- French   │ Bonjour      │ Salut     
- Japanese │ こんにちは   │ やあ      
- Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? `, "\n")
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableUnsetHeaderSeparator(t *testing.T) {
@@ -444,17 +305,7 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
 		BorderLeft(false).
 		BorderRight(false)
 
-	expected := strings.TrimPrefix(`
- LANGUAGE │    FORMAL    │ INFORMAL  
- Chinese  │ Nǐn hǎo      │ Nǐ hǎo    
- French   │ Bonjour      │ Salut     
- Japanese │ こんにちは   │ やあ      
- Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? `, "\n")
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
@@ -473,20 +324,7 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 		Rows(rows...).
 		BorderHeader(false)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableRowSeparators(t *testing.T) {
@@ -505,25 +343,7 @@ func TestTableRowSeparators(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-├──────────┼──────────────┼───────────┤
-│ Japanese │ こんにちは   │ やあ      │
-├──────────┼──────────────┼───────────┤
-│ Russian  │ Zdravstvuyte │ Privet    │
-├──────────┼──────────────┼───────────┤
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeights(t *testing.T) {
@@ -549,39 +369,7 @@ func TestTableHeights(t *testing.T) {
 		Headers("EXPRESSION", "MEANING").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────────────┬─────────────────────────┐
-│ EXPRESSION       │ MEANING                 │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Chutar o balde   │  Literally translates   │
-│                  │  to "kick the bucket."  │
-│                  │  It's used when         │
-│                  │  someone gives up or    │
-│                  │  loses patience.        │
-│                  │                         │
-│                  │                         │
-│ Engolir sapos    │  Literally means "to    │
-│                  │  swallow frogs." It's   │
-│                  │  used to describe       │
-│                  │  someone who has to     │
-│                  │  tolerate or endure     │
-│                  │  unpleasant             │
-│                  │  situations.            │
-│                  │                         │
-│                  │                         │
-│ Arroz de festa   │  Literally means        │
-│                  │  "party rice." It´s     │
-│                  │  used to refer to       │
-│                  │  someone who shows up   │
-│                  │  everywhere.            │
-│                  │                         │
-└──────────────────┴─────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableMultiLineRowSeparator(t *testing.T) {
@@ -604,41 +392,7 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 		Row("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
 		Row("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
 
-	expected := strings.TrimSpace(`
-┌──────────────────┬─────────────────────────┐
-│ EXPRESSION       │ MEANING                 │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Chutar o balde   │  Literally translates   │
-│                  │  to "kick the bucket."  │
-│                  │  It's used when         │
-│                  │  someone gives up or    │
-│                  │  loses patience.        │
-│                  │                         │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Engolir sapos    │  Literally means "to    │
-│                  │  swallow frogs." It's   │
-│                  │  used to describe       │
-│                  │  someone who has to     │
-│                  │  tolerate or endure     │
-│                  │  unpleasant             │
-│                  │  situations.            │
-│                  │                         │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Arroz de festa   │  Literally means        │
-│                  │  "party rice." It´s     │
-│                  │  used to refer to       │
-│                  │  someone who shows up   │
-│                  │  everywhere.            │
-│                  │                         │
-└──────────────────┴─────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthExpand(t *testing.T) {
@@ -657,25 +411,11 @@ func TestTableWidthExpand(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌────────────────────────┬────────────────────────────┬────────────────────────┐
-│        LANGUAGE        │           FORMAL           │        INFORMAL        │
-├────────────────────────┼────────────────────────────┼────────────────────────┤
-│ Chinese                │ Nǐn hǎo                    │ Nǐ hǎo                 │
-│ French                 │ Bonjour                    │ Salut                  │
-│ Japanese               │ こんにちは                 │ やあ                   │
-│ Russian                │ Zdravstvuyte               │ Privet                 │
-│ Spanish                │ Hola                       │ ¿Qué tal?              │
-└────────────────────────┴────────────────────────────┴────────────────────────┘
-`)
-
 	if lipgloss.Width(table.String()) != 80 {
 		t.Fatalf("expected table width to be 80, got %d", lipgloss.Width(table.String()))
 	}
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthShrink(t *testing.T) {
@@ -694,21 +434,7 @@ func TestTableWidthShrink(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌─────────┬─────────┬────────┐
-│ LANGUAG │ FORMAL  │ INFORM │
-├─────────┼─────────┼────────┤
-│ Chinese │ Nǐn hǎo │ Nǐ hǎo │
-│ French  │ Bonjour │ Salut  │
-│ Japanes │ こんに  │ やあ   │
-│ Russian │ Zdravst │ Privet │
-│ Spanish │ Hola    │ ¿Qué   │
-└─────────┴─────────┴────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
@@ -725,19 +451,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 		Headers("Name", "Age of Person", "Location").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────┬─────┬──────────┐
-│ Name │ Age │ Location │
-├──────┼─────┼──────────┤
-│ Kini │ 40  │ New York │
-│ Eli  │ 30  │ London   │
-│ Iris │ 20  │ Paris    │
-└──────┴─────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthSmartCropExtensive(t *testing.T) {
@@ -755,24 +469,10 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 		StyleFunc(TableStyle).
 		Border(lipgloss.ThickBorder()).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Wrap(false).
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┏━━━━┳━━━━━┳━━━━━┓
-┃ LA ┃ FOR ┃ INF ┃
-┣━━━━╋━━━━━╋━━━━━┫
-┃ Ch ┃ 您  ┃ 你  ┃
-┃ Ja ┃ こ  ┃ や  ┃
-┃ Ar ┃ أهل ┃ أهل ┃
-┃ Ru ┃ Здр ┃ При ┃
-┃ Sp ┃ Hol ┃ ¿Qu ┃
-┃ En ┃ You ┃ How ┃
-┗━━━━┻━━━━━┻━━━━━┛
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthSmartCropTiny(t *testing.T) {
@@ -791,21 +491,7 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌
-│
-├
-│
-│
-│
-│
-│
-└
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidths(t *testing.T) {
@@ -827,21 +513,7 @@ func TestTableWidths(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-──────────────────────────────
- LANGUAGE  FORMAL   INFORMAL  
-──────────────────────────────
- Chinese   Nǐn hǎo  Nǐ hǎo    
- French    Bonjour  Salut     
- Japanese  こんに   やあ      
- Russian   Zdravst  Privet    
- Spanish   Hola     ¿Qué tal? 
-──────────────────────────────
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthShrinkNoBorders(t *testing.T) {
@@ -863,21 +535,7 @@ func TestTableWidthShrinkNoBorders(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-──────────────────────────────
- LANGUAGE  FORMAL   INFORMAL  
-──────────────────────────────
- Chinese   Nǐn hǎo  Nǐ hǎo    
- French    Bonjour  Salut     
- Japanese  こんに   やあ      
- Russian   Zdravst  Privet    
- Spanish   Hola     ¿Qué tal? 
-──────────────────────────────
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestFilter(t *testing.T) {
@@ -898,20 +556,7 @@ func TestFilter(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Data(filter)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestFilterInverse(t *testing.T) {
@@ -932,17 +577,7 @@ func TestFilterInverse(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Data(filter)
 
-	expected := strings.TrimSpace(`
-┌──────────┬─────────┬──────────┐
-│ LANGUAGE │ FORMAL  │ INFORMAL │
-├──────────┼─────────┼──────────┤
-│ French   │ Bonjour │ Salut    │
-└──────────┴─────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableANSI(t *testing.T) {
@@ -962,20 +597,7 @@ func TestTableANSI(t *testing.T) {
 		Headers("Fruit", "Color", code).
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌───────────┬────────┬──────┐
-│   Fruit   │ Color  │ Code │
-├───────────┼────────┼──────┤
-│ Apple     │ Red    │ 31   │
-│ Lime      │ Green  │ 32   │
-│ Banana    │ Yellow │ 33   │
-│ Blueberry │ Blue   │ 34   │
-└───────────┴────────┴──────┘
-`)
-
-	if stripString(table.String()) != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, stripString(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightExact(t *testing.T) {
@@ -990,21 +612,7 @@ func TestTableHeightExact(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightExtra(t *testing.T) {
@@ -1019,21 +627,7 @@ func TestTableHeightExtra(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightShrink(t *testing.T) {
@@ -1048,20 +642,7 @@ func TestTableHeightShrink(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ …        │ …            │ …         │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightMinimum(t *testing.T) {
@@ -1076,17 +657,7 @@ func TestTableHeightMinimum(t *testing.T) {
 		Row("4", "Russian", "Zdravstvuyte", "Privet").
 		Row("5", "Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌────┬──────────┬──────────────┬───────────┐
-│ ID │ LANGUAGE │    FORMAL    │ INFORMAL  │
-├────┼──────────┼──────────────┼───────────┤
-│ …  │ …        │ …            │ …         │
-└────┴──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightMinimumShowData(t *testing.T) {
@@ -1097,20 +668,10 @@ func TestTableHeightMinimumShowData(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
 
-	expected := strings.TrimSpace(`
-┌──────────┬─────────┬──────────┐
-│ LANGUAGE │ FORMAL  │ INFORMAL │
-├──────────┼─────────┼──────────┤
-│ Chinese  │ Nǐn hǎo │ Nǐ hǎo   │
-└──────────┴─────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableHeightWithOffset(t *testing.T) {
+func TestTableHeightWithYOffset(t *testing.T) {
 	// This test exists to check for a bug/edge case when the table has an
 	// offset and the height is set.
 
@@ -1124,22 +685,9 @@ func TestTableHeightWithOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestStyleFunc(t *testing.T) {
@@ -1148,7 +696,7 @@ func TestStyleFunc(t *testing.T) {
 		style StyleFunc
 	}{
 		{
-			"right-aligned text with margins",
+			"RightAlignedTextWithMargins",
 			func(row, col int) lipgloss.Style {
 				switch {
 				case row == HeaderRow:
@@ -1159,7 +707,7 @@ func TestStyleFunc(t *testing.T) {
 			},
 		},
 		{
-			"margin and padding set",
+			"MarginAndPaddingSet",
 			// this test case uses background colors to differentiate margins
 			// and padding.
 			func(row, col int) lipgloss.Style {
@@ -1214,6 +762,336 @@ func TestClearRows(t *testing.T) {
 	table.String()
 }
 
+func TestContentWrapping(t *testing.T) {
+	tests := []struct {
+		name      string
+		headers   []string
+		data      [][]string
+		wrap      bool
+		styleFunc StyleFunc
+	}{
+		{
+			"LongRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+			true,
+			TableStyle,
+		},
+		{
+			"LongRowContentNoWrap",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+			false,
+			TableStyle,
+		},
+		{
+			"LongRowContentNoWrapNoMargins",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+			false,
+			func(row, col int) lipgloss.Style {
+				switch {
+				case row == HeaderRow:
+					return lipgloss.NewStyle().Padding(0).Align(lipgloss.Center)
+				default:
+					return lipgloss.NewStyle().Padding(0)
+				}
+			},
+		},
+		{
+			"LongRowContentNoWrapCustomMargins",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+			false,
+			func(row, col int) lipgloss.Style {
+				switch {
+				case row == HeaderRow:
+					return lipgloss.NewStyle().Padding(0, 2).Align(lipgloss.Center)
+				default:
+					return lipgloss.NewStyle().Padding(0, 2)
+				}
+			},
+		},
+		{
+			"MissingRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
+			true,
+			TableStyle,
+		},
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+			},
+			true,
+			TableStyle,
+		},
+		{
+			"LongTextDifferentLanguages",
+			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
+			[][]string{
+				{
+					"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+					`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+					"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+					"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+					"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+				},
+			},
+			true,
+			TableStyle,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				Width(80).
+				StyleFunc(tc.styleFunc).
+				Wrap(tc.wrap)
+
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestContentWrapping_WithPadding(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers []string
+		data    [][]string
+	}{
+		{
+			"LongRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+		},
+		{
+			"MissingRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
+		},
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+			},
+		},
+		{
+			"LongTextDifferentLanguages",
+			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
+			[][]string{
+				{
+					"",
+					`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+					"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+					"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+					"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+				},
+			},
+		},
+	}
+
+	defaultWidth := 80
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(_, col int) lipgloss.Style {
+					return lipgloss.NewStyle().Padding(0, 1)
+				})
+			table.Width(defaultWidth)
+
+			// check total width.
+			if got := lipgloss.Width(table.String()); got != defaultWidth {
+				t.Fatalf("Table is not the correct width. got %d, want %d", got, defaultWidth)
+				t.Log(table.String())
+			}
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestContentWrapping_WithMargins(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers []string
+		data    [][]string
+	}{
+		{
+			"LongRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+		},
+		{
+			"MissingRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
+		},
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+			},
+		},
+		{
+			"LongTextDifferentLanguages",
+			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
+			[][]string{
+				{
+					"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+					`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+					"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+					"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+					"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					return lipgloss.NewStyle().Margin(0, 4)
+				})
+			table.Width(80)
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestContentWrapping_ColumnWidth(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers []string
+		data    [][]string
+	}{
+		{
+			"LongRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "hello", "yep"}},
+		},
+		{
+			"MissingRowContent",
+			[]string{"Name", "Description", "Type", "Required", "Default"},
+			[][]string{{"command", "A command to be executed inside the container to assess its health. Each space delimited token of the command is a separate array element. Commands exiting 0 are considered to be successful probes, whilst all other exit codes are considered failures.", "yes", "", ""}},
+		},
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+			},
+		},
+		{
+			"LongTextDifferentLanguages",
+			[]string{"Hello", "你好", "مرحبًا", "안녕하세요"},
+			[][]string{
+				{
+					"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+					`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+					"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+					"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+					"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+				},
+			},
+		},
+	}
+	defaultWidth := 80
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Headers(tc.headers...).
+				Rows(tc.data...).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					// If we set a specific cell width, it should count for all rows
+					// in that column.
+					if row == 0 && col == 1 {
+						return lipgloss.NewStyle().Width(30)
+					}
+					// Set a column's width directly.
+					if col == 2 {
+						return lipgloss.NewStyle().Width(5)
+					}
+					return lipgloss.NewStyle()
+				})
+			table.Width(defaultWidth)
+			// check total width.
+			if got := lipgloss.Width(table.String()); got != defaultWidth {
+				t.Log(table.String())
+				t.Fatalf("Table is not the correct width. got %d, want %d", got, defaultWidth)
+			}
+
+			// check that width is overridden with a small value.
+			if table.widths[2] != 5 {
+				t.Log(table.String())
+				t.Fatalf("Did not set correct width value at column at index %d.\ngot %d, want %d", 2, table.widths[2], 5)
+			}
+
+			// check that width is overridden with a wide value.
+			if table.widths[1] != 30 {
+				t.Log(table.String())
+				t.Fatalf("Did not set correct width value at column at index %d.\ngot %d, want %d", 1, table.widths[1], 30)
+			}
+
+			t.Log(table.widths[2])
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+// Test truncation for overflow and no wrap when combined.
+func TestTableOverFlowNoWrap(t *testing.T) {
+	// LongTextDifferentLanguages
+	headers := []string{"Hello", "你好", "مرحبًا", "안녕하세요"}
+	data := [][]string{
+		{
+			"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+			`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+			"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+			"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+			"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+		},
+		{"Welcome", "いらっしゃいませ", "مرحباً", "환영", "欢迎"},
+		{"Goodbye", "さようなら", "مع السلامة", "안녕히 가세요", "再见"},
+	}
+	tableHeight := 6
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		StyleFunc(TableStyle).
+		Height(tableHeight).
+		Width(80).
+		Wrap(false)
+	if got := lipgloss.Height(table.String()); got != tableHeight {
+		t.Fatalf("got the wrong height. got %d, want %d", got, tableHeight)
+	}
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestCarriageReturn(t *testing.T) {
 	data := [][]string{
 		{"a0", "b0", "c0", "d0"},
@@ -1222,27 +1100,11 @@ func TestCarriageReturn(t *testing.T) {
 		{"a3", "b3", "c3", "d3"},
 	}
 	table := New().Rows(data...).Border(lipgloss.NormalBorder())
-	got := table.String()
-	want := `┌──┬────┬──┬──┐
-│a0│b0  │c0│d0│
-│a1│b1.0│c1│d1│
-│  │b1.1│  │  │
-│  │b1.2│  │  │
-│  │b1.3│  │  │
-│  │b1.4│  │  │
-│  │b1.5│  │  │
-│  │b1.6│  │  │
-│a2│b2  │c2│d2│
-│a3│b3  │c3│d3│
-└──┴────┴──┴──┘`
 
-	if got != want {
-		t.Logf("detailed view...\ngot:\n%q\nwant:\n%q", got, want)
-		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableShrinkWithOffset(t *testing.T) {
+func TestTableShrinkWithYOffset(t *testing.T) {
 	rows := [][]string{
 		{"1", "Tokyo", "Japan", "37,274,000"},
 		{"2", "Delhi", "India", "32,065,760"},
@@ -1347,53 +1209,187 @@ func TestTableShrinkWithOffset(t *testing.T) {
 	}
 	table := New().
 		Rows(rows...).
-		Offset(80).
+		YOffset(80).
 		Height(45)
 
 	got := lipgloss.Height(table.String())
 	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
+		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, table.String())
 	}
 }
 
-func debug(s string) string {
-	return strings.ReplaceAll(s, " ", ".")
-}
-
-func stripString(str string) string {
-	s := ansi.Strip(str)
-	ss := strings.Split(s, "\n")
-
-	var lines []string
-	for _, l := range ss {
-		trim := strings.TrimRightFunc(l, unicode.IsSpace)
-		lines = append(lines, trim)
+func TestBorderStyles(t *testing.T) {
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	return strings.Join(lines, "\n")
-}
+	tests := []struct {
+		name             string
+		borderFunc       func() lipgloss.Border
+		topBottomBorders bool
+	}{
+		{"NormalBorder", lipgloss.NormalBorder, true},
+		{"RoundedBorder", lipgloss.RoundedBorder, true},
+		{"BlockBorder", lipgloss.BlockBorder, true},
+		{"ThickBorder", lipgloss.ThickBorder, true},
+		{"HiddenBorder", lipgloss.HiddenBorder, true},
+		{"MarkdownBorder", lipgloss.MarkdownBorder, false},
+		{"ASCIIBorder", lipgloss.ASCIIBorder, true},
+	}
 
-// assertEqual verifies the strings are equal, assuming its terminal output.
-func assertEqual(tb testing.TB, want, got string) {
-	tb.Helper()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			table := New().
+				StyleFunc(TableStyle).
+				Border(test.borderFunc()).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Rows(rows...).
+				BorderTop(test.topBottomBorders).
+				BorderBottom(test.topBottomBorders)
 
-	want = trimSpace(want)
-	got = trimSpace(got)
-
-	diff := udiff.Unified("want", "got", want, got)
-	if diff != "" {
-		tb.Fatalf("\nwant:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", want, got, diff)
+			golden.RequireEqual(t, []byte(table.String()))
+		})
 	}
 }
 
-func trimSpace(s string) string {
-	var result []string //nolint: prealloc
-	ss := strings.Split(s, "\n")
-	for i, line := range ss {
-		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
-			continue
-		}
-		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
+// Examples
+
+func ExampleTable_Wrap() {
+	// LongTextDifferentLanguages
+	headers := []string{"Hello", "你好", "مرحبًا", "안녕하세요"}
+	data := [][]string{
+		{
+			"Lorem ipsum dolor sit amet, regione detracto eos an. Has ei quidam hendrerit intellegebat, id tamquam iudicabit necessitatibus ius, at errem officiis hendrerit mei. Exerci noster at has, sit id tota convenire, vel ex rebum inciderint liberavisse. Quaeque delectus corrumpit cu cum.",
+			`耐許ヱヨカハ調出あゆ監件び理別よン國給災レホチ権輝モエフ会割もフ響3現エツ文時しだびほ経機ムイメフ敗文ヨク現義なさド請情ゆじょて憶主管州けでふく。排ゃわつげ美刊ヱミ出見ツ南者オ抜豆ハトロネ論索モネニイ任償スヲ話破リヤヨ秒止口イセソス止央のさ食周健でてつだ官送ト読聴遊容ひるべ。際ぐドらづ市居ネムヤ研校35岩6繹ごわク報拐イ革深52球ゃレスご究東スラ衝3間ラ録占たス。
+禁にンご忘康ざほぎル騰般ねど事超スんいう真表何カモ自浩ヲシミ図客線るふ静王ぱーま写村月掛焼詐面ぞゃ。昇強ごントほ価保キ族85岡モテ恋困ひりこな刊並せご出来ぼぎむう点目ヲウ止環公ニレ事応タス必書タメムノ当84無信升ちひょ。価ーぐ中客テサ告覧ヨトハ極整ラ得95稿はかラせ江利ス宏丸霊ミ考整ス静将ず業巨職ノラホ収嗅ざな。`,
+			"شيء قد للحكومة والكوري الأوروبيّون, بوابة تعديل واعتلاء ضرب بـ. إذ أسر اتّجة اعلان, ٣٠ اكتوبر العصبة استمرار ومن. أفاق للسيطرة التاريخ، مع بحث, كلّ اتّجة القوى مع. فبعد ايطاليا، تم حتى, لكل تم جسيمة الإحتفاظ وباستثناء, عل فرنسا وانتهاءً الإقتصادية عرض. ونتج دأبوا إحكام بال إذ. لغات عملية وتم مع, وصل بداية وبغطاء البرية بل, أي قررت بلاده فكانت حدى",
+			"版応道潟部中幕爆営報門案名見壌府。博健必権次覧編仕断青場内凄新東深簿代供供。守聞書神秀同浜東波恋闘秀。未格打好作器来利阪持西焦朝三女。権幽問季負娘購合旧資健載員式活陸。未倍校朝遺続術吉迎暮広知角亡志不説空住。法省当死年勝絡聞方北投健。室分性山天態意画詳知浅方裁。変激伝阜中野品省載嗅闘額端反。中必台際造事寄民経能前作臓",
+			"각급 선거관리위원회의 조직·직무범위 기타 필요한 사항은 법률로 정한다. 임시회의 회기는 30일을 초과할 수 없다. 국가는 여자의 복지와 권익의 향상을 위하여 노력하여야 한다. 국군의 조직과 편성은 법률로 정한다.",
+		},
 	}
-	return strings.Join(result, "\n")
+
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		StyleFunc(TableStyle).
+		Width(80).
+		Wrap(false)
+	fmt.Println(table.String())
+
+	table.Wrap(true)
+	fmt.Println(table.String())
+
+	// Output:
+	//
+	// 	┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
+	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
+	// │ Lorem ipsum… │ 耐許ヱヨカハ… │ شيء قد للحكو… │ 版応道潟部中… │ 각급 선거관…  │
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
+	// ┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
+	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
+	// │ Lorem ipsum  │ 耐許ヱヨカハ  │ شيء قد        │ 版応道潟部中  │ 각급          │
+	// │ dolor sit    │ 調出あゆ監件  │ للحكومة       │ 幕爆営報門案  │ 선거관리위원  │
+	// │ amet,        │ び理別よン國  │ والكوري       │ 名見壌府。博  │ 회의          │
+	// │ regione      │ 給災レホチ権  │ الأوروبيّون,   │ 健必権次覧編  │ 조직·직무범위 │
+	// │ detracto eos │ 輝モエフ会割  │ بوابة تعديل   │ 仕断青場内凄  │ 기타 필요한   │
+	// │ an. Has ei   │ もフ響3現エツ │ واعتلاء ضرب   │ 新東深簿代供  │ 사항은 법률로 │
+	// │ quidam       │ 文時しだびほ  │ بـ. إذ أسر    │ 供。守聞書神  │ 정한다.       │
+	// │ hendrerit    │ 経機ムイメフ  │ اتّجة اعلان,   │ 秀同浜東波恋  │ 임시회의      │
+	// │ intellegebat │ 敗文ヨク現義  │ ٣٠ اكتوبر     │ 闘秀。未格打  │ 회기는 30일을 │
+	// │ , id tamquam │ なさド請情ゆ  │ العصبة        │ 好作器来利阪  │ 초과할 수     │
+	// │ iudicabit    │ じょて憶主管  │ استمرار ومن.  │ 持西焦朝三女  │ 없다. 국가는  │
+	// │ necessitatib │ 州けでふく。  │ أفاق للسيطرة  │ 。権幽問季負  │ 여자의 복지와 │
+	// │ us ius, at   │ 排ゃわつげ美  │ التاريخ، مع   │ 娘購合旧資健  │ 권익의 향상을 │
+	// │ errem        │ 刊ヱミ出見ツ  │ بحث, كلّ اتّجة  │ 載員式活陸。  │ 위하여        │
+	// │ officiis     │ 南者オ抜豆ハ  │ القوى مع.     │ 未倍校朝遺続  │ 노력하여야    │
+	// │ hendrerit    │ トロネ論索モ  │ فبعد ايطاليا، │ 術吉迎暮広知  │ 한다. 국군의  │
+	// │ mei. Exerci  │ ネニイ任償ス  │ تم حتى, لكل   │ 角亡志不説空  │ 조직과 편성은 │
+	// │ noster at    │ ヲ話破リヤヨ  │ تم جسيمة      │ 住。法省当死  │ 법률로        │
+	// │ has, sit id  │ 秒止口イセソ  │ الإحتفاظ      │ 年勝絡聞方北  │ 정한다.       │
+	// │ tota         │ ス止央のさ食  │ وباستثناء, عل │ 投健。室分性  │               │
+	// │ convenire,   │ 周健でてつだ  │ فرنسا وانتهاءً │ 山天態意画詳  │               │
+	// │ vel ex rebum │ 官送ト読聴遊  │ الإقتصادية    │ 知浅方裁。変  │               │
+	// │ inciderint   │ 容ひるべ。際  │ عرض. ونتج     │ 激伝阜中野品  │               │
+	// │ liberavisse. │ ぐドらづ市居  │ دأبوا إحكام   │ 省載嗅闘額端  │               │
+	// │ Quaeque      │ ネムヤ研校35  │ بال إذ. لغات  │ 反。中必台際  │               │
+	// │ delectus     │ 岩6繹ごわク報 │ عملية وتم مع, │ 造事寄民経能  │               │
+	// │ corrumpit cu │ 拐イ革深52球  │ وصل بداية     │ 前作臓        │               │
+	// │ cum.         │ ゃレスご究東  │ وبغطاء البرية │               │               │
+	// │              │ スラ衝3間ラ録 │ بل, أي قررت   │               │               │
+	// │              │ 占たス。      │ بلاده فكانت   │               │               │
+	// │              │ 禁にンご忘康  │ حدى           │               │               │
+	// │              │ ざほぎル騰般  │               │               │               │
+	// │              │ ねど事超スん  │               │               │               │
+	// │              │ いう真表何カ  │               │               │               │
+	// │              │ モ自浩ヲシミ  │               │               │               │
+	// │              │ 図客線るふ静  │               │               │               │
+	// │              │ 王ぱーま写村  │               │               │               │
+	// │              │ 月掛焼詐面ぞ  │               │               │               │
+	// │              │ ゃ。昇強ごン  │               │               │               │
+	// │              │ トほ価保キ族8 │               │               │               │
+	// │              │ 5岡モテ恋困ひ │               │               │               │
+	// │              │ りこな刊並せ  │               │               │               │
+	// │              │ ご出来ぼぎむ  │               │               │               │
+	// │              │ う点目ヲウ止  │               │               │               │
+	// │              │ 環公ニレ事応  │               │               │               │
+	// │              │ タス必書タメ  │               │               │               │
+	// │              │ ムノ当84無信  │               │               │               │
+	// │              │ 升ちひょ。価  │               │               │               │
+	// │              │ ーぐ中客テサ  │               │               │               │
+	// │              │ 告覧ヨトハ極  │               │               │               │
+	// │              │ 整ラ得95稿は  │               │               │               │
+	// │              │ かラせ江利ス  │               │               │               │
+	// │              │ 宏丸霊ミ考整  │               │               │               │
+	// │              │ ス静将ず業巨  │               │               │               │
+	// │              │ 職ノラホ収嗅  │               │               │               │
+	// │              │ ざな。        │               │               │               │
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
+}
+
+// Check that stylized wrapped content does not go beyond its cell.
+func TestWrapPreStyledContent(t *testing.T) {
+	headers := []string{"Package", "Version", "Link"}
+	data := [][]string{
+		{"sourcegit", "0.19", lipgloss.JoinHorizontal(lipgloss.Left, lipgloss.NewStyle().Foreground(lipgloss.Color("#31BB71")).Render("https://aur.archlinux.org/packages/sourcegit-bin"))},
+		{},
+		{"Welcome", "いらっしゃいませ", "مرحباً", "환영", "欢迎"},
+		{"Goodbye", "さようなら", "مع السلامة", "안녕히 가세요", "再见"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		Width(80).
+		Wrap(true)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+// Check that stylized wrapped content does not go beyond its cell.
+func TestWrapStyleFuncContent(t *testing.T) {
+	headers := []string{"Package", "Version", "Link"}
+	data := [][]string{
+		{"sourcegit", "0.19", "https://aur.archlinux.org/packages/sourcegit-bin"},
+		{"Welcome", "いらっしゃいませ", "مرحباً"},
+		{"Goodbye", "さようなら", "مع السلامة"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(data...).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			if row == HeaderRow {
+				return lipgloss.NewStyle()
+			}
+			if strings.Contains(data[row][col], "https://") {
+				return lipgloss.NewStyle().Foreground(lipgloss.Color("#31BB71"))
+			}
+			return lipgloss.NewStyle()
+		}).
+		Width(60).
+		Wrap(true)
+	golden.RequireEqual(t, []byte(table.String()))
 }
