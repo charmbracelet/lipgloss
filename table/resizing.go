@@ -301,14 +301,13 @@ func (r *resizer) expandRowHeigths(colWidths []int) (rowHeights []int) {
 
 	for i, row := range r.allRows {
 		for j, cell := range row {
-			// NOTE(@andreynering): Headers always have a height of 1, even when wrap is enabled.
+			// NOTE(@andreynering): Headers always have a height of 1 (+ padding), even when wrap is enabled.
 			if hasHeaders && i == 0 {
+				rowHeights[i] = 1 + r.yPaddingForCell(i, j)
 				continue
 			}
-			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.xPaddingForCell(i, j)
-			if height > rowHeights[i] {
-				rowHeights[i] = height
-			}
+			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.yPaddingForCell(i, j)
+			rowHeights[i] = max(rowHeights[i], height)
 		}
 	}
 	return
@@ -321,9 +320,7 @@ func (r *resizer) defaultRowHeights() (rowHeights []int) {
 		if i < len(r.rowHeights) {
 			rowHeights[i] = r.rowHeights[i]
 		}
-		if rowHeights[i] < 1 {
-			rowHeights[i] = 1
-		}
+		rowHeights[i] = max(rowHeights[i], 1)
 	}
 	return
 }
@@ -387,8 +384,8 @@ func (r *resizer) xPaddingForCol(j int) int {
 	return r.columns[j].xPadding
 }
 
-// xPaddingForCell returns the horizontal padding for a cell.
-func (r *resizer) xPaddingForCell(i, j int) int {
+// yPaddingForCell returns the horizontal padding for a cell.
+func (r *resizer) yPaddingForCell(i, j int) int {
 	if i >= len(r.yPaddings) || j >= len(r.yPaddings[i]) {
 		return 0
 	}

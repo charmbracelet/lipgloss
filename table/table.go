@@ -261,7 +261,6 @@ func (t *Table) String() string {
 
 	if hasHeaders {
 		sb.WriteString(t.constructHeaders())
-		sb.WriteString("\n")
 	}
 
 	var bottom string
@@ -352,24 +351,44 @@ func (t *Table) constructBottomBorder() string {
 // header configuration and data.
 func (t *Table) constructHeaders() string {
 	var s strings.Builder
+	cells := make([]string, 0, len(t.headers)*2+1)
+	height := t.heights[0]
+
+	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.Left))
+		cells = append(cells, left)
 	}
-	for i, header := range t.headers {
-		s.WriteString(t.style(HeaderRow, i).
-			MaxHeight(1).
-			Width(t.widths[i]).
-			MaxWidth(t.widths[i]).
-			Render(t.truncateCell(header, -1, i)))
-		if i < len(t.headers)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
+
+	for j, header := range t.headers {
+		cellStyle := t.style(HeaderRow, j)
+
+		// NOTE(@andreynering): We always truncate headers.
+		header = t.truncateCell(header, HeaderRow, j)
+
+		cells = append(cells,
+			cellStyle.
+				Height(height-cellStyle.GetVerticalMargins()).
+				Width(t.widths[j]-cellStyle.GetHorizontalMargins()).
+				Render(header),
+		)
+
+		if j < len(t.headers)-1 && t.borderColumn {
+			cells = append(cells, left)
 		}
 	}
+
+	if t.borderRight {
+		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
+		cells = append(cells, right)
+	}
+
+	for i, cell := range cells {
+		cells[i] = strings.TrimRight(cell, "\n")
+	}
+
+	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
+
 	if t.borderHeader {
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
-		}
-		s.WriteString("\n")
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		}
@@ -382,10 +401,9 @@ func (t *Table) constructHeaders() string {
 		if t.borderRight {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
 		}
+		s.WriteString("\n")
 	}
-	if t.borderRight && !t.borderHeader {
-		s.WriteString(t.borderStyle.Render(t.border.Right))
-	}
+
 	return s.String()
 }
 
@@ -426,6 +444,7 @@ func (t *Table) constructRows(availableLines int) string {
 // rendered as an overflow row (using ellipsis).
 func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
+	cells := make([]string, 0, t.data.Columns()*2+1)
 
 	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
@@ -433,7 +452,6 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		height = 1
 	}
 
-	cells := make([]string, 0, t.data.Columns()*2+1)
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
 		cells = append(cells, left)
@@ -492,6 +510,11 @@ func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
 	height := t.heights[rowIndex+btoi(hasHeaders)]
 	cellWidth := t.widths[colIndex]
 	cellStyle := t.style(rowIndex, colIndex)
+
+	// NOTE(@andreynering): We always truncate headers to 1 line.
+	if rowIndex == HeaderRow {
+		height = 1
+	}
 
 	length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
 	return ansi.Truncate(cell, length, "…")
