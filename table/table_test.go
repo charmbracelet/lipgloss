@@ -1287,6 +1287,41 @@ func TestNoFinalEmptyRowWhenOverflow(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestExtraPaddingHeading(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeadingLong(t *testing.T) {
+	headers := []string{"Looong Name", "Looong Country of Origin", "Looong Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Width(46).
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 // Examples
 
 func ExampleTable_Wrap() {
