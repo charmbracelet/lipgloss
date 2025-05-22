@@ -473,7 +473,7 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && index < t.data.Rows()-1 {
+	if t.borderRow && !isOverflow && index < t.data.Rows()-1 {
 		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		for i := range t.widths {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
