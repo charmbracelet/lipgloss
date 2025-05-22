@@ -275,7 +275,11 @@ func (t *Table) String() string {
 		case t.useManualHeight:
 			// The height of the top border. Subtract 1 for the newline.
 			topHeight := lipgloss.Height(sb.String()) - 1
-			availableLines := min(t.height-(topHeight+lipgloss.Height(bottom)), t.data.Rows())
+			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
+
+			// if the height is larger than the number of rows, use the number
+			// of rows.
+			availableLines = min(availableLines, t.data.Rows())
 			sb.WriteString(t.constructRows(availableLines))
 
 		default:
