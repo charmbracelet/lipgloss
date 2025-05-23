@@ -1211,11 +1211,14 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 		Rows(rows...).
 		YOffset(80).
 		Height(45)
+	content := table.String()
 
-	got := lipgloss.Height(table.String())
+	got := lipgloss.Height(content)
 	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, table.String())
+		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, content)
 	}
+
+	golden.RequireEqual(t, []byte(content))
 }
 
 func TestBorderStyles(t *testing.T) {
