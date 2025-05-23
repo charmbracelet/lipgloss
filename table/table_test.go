@@ -1322,6 +1322,29 @@ func TestExtraPaddingHeadingLong(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestBorderedCells(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.
+			NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderTop(true).
+			BorderBottom(true).
+			BorderLeft(true).
+			BorderRight(true)
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 // Examples
 
 func ExampleTable_Wrap() {

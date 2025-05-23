@@ -80,17 +80,11 @@ func (t *Table) resize() {
 			}
 			style := styleFunc(rowIndex, j)
 
-			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
-			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()
-
-			totalHorizontalPadding := leftMargin + rightMargin + leftPadding + rightPadding
-			column.xPadding = max(column.xPadding, totalHorizontalPadding)
+			column.xPadding = max(column.xPadding, style.GetHorizontalFrameSize())
 			column.fixedWidth = max(column.fixedWidth, style.GetWidth())
 
 			r.rowHeights[i] = max(r.rowHeights[i], style.GetHeight())
-
-			totalVerticalPadding := topMargin + bottomMargin + topPadding + bottomPadding
-			r.yPaddings[i][j] = totalVerticalPadding
+			r.yPaddings[i][j] = style.GetVerticalFrameSize()
 		}
 	}
 
