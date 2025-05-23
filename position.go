@@ -80,9 +80,8 @@ func (r *Renderer) PlaceHorizontal(width int, pos Position, str string, opts ...
 		default: // somewhere in the middle
 			totalGap := gap + short
 
-			split := int(math.Round(float64(totalGap) * pos.value()))
-			left := totalGap - split
-			right := totalGap - left
+			right := int(math.Round(float64(totalGap) * (1.0 - pos.value())))
+			left := totalGap - right
 
 			b.WriteString(ws.render(left))
 			b.WriteString(l)
@@ -137,9 +136,8 @@ func (r *Renderer) PlaceVertical(height int, pos Position, str string, opts ...W
 		b.WriteString(str)
 
 	default: // Somewhere in the middle
-		split := int(math.Round(float64(gap) * pos.value()))
-		top := gap - split
-		bottom := gap - top
+		bottom := int(math.Round(float64(gap) * (1.0 - pos.value())))
+		top := gap - bottom
 
 		b.WriteString(strings.Repeat(emptyLine+"\n", top))
 		b.WriteString(str)
