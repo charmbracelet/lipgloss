@@ -65,11 +65,9 @@ type Table struct {
 	yOffset         int
 	wrap            bool
 
-	// widths tracks the width of each column.
-	widths []int
-
-	// heights tracks the height of each row.
-	heights []int
+	widths           []int
+	heights          []int
+	overflowRowIndex int
 }
 
 // New returns a new Table that can be modified through different
@@ -270,30 +268,20 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		switch {
-		case t.useManualHeight:
-			// The height of the top border. Subtract 1 for the newline.
-			topHeight := lipgloss.Height(sb.String()) - 1
-			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
-
-			// if the height is larger than the number of rows, use the number
-			// of rows.
-			availableLines = min(availableLines, t.data.Rows())
-			sb.WriteString(t.constructRows(availableLines))
-
-		default:
-			for r := t.yOffset; r < t.data.Rows(); r++ {
-				sb.WriteString(t.constructRow(r, false))
+		for r := t.yOffset; r < t.data.Rows(); r++ {
+			if t.overflowRowIndex != -2 && r > t.overflowRowIndex {
+				break
 			}
+			sb.WriteString(t.constructRow(r))
 		}
 	}
 
 	sb.WriteString(bottom)
 
 	return lipgloss.NewStyle().
-		MaxHeight(t.computeHeight()).
+		MaxHeight(min(t.height, t.computeHeight())).
 		MaxWidth(t.width).
-		Render(sb.String())
+		Render(strings.TrimSuffix(sb.String(), "\n"))
 }
 
 // computeHeight computes the height of the table in it's current configuration.
@@ -407,47 +395,16 @@ func (t *Table) constructHeaders() string {
 	return s.String()
 }
 
-func (t *Table) constructRows(availableLines int) string {
-	var sb strings.Builder
-
-	// The number of rows to render after removing the offset.
-	offsetRowCount := t.data.Rows() - t.yOffset
-
-	// The number of rows to render. We always render at least one row.
-	rowsToRender := availableLines
-	rowsToRender = max(rowsToRender, 1)
-
-	// Check if we need to render an overflow row.
-	needsOverflow := rowsToRender < offsetRowCount
-
-	// only use the offset as the starting value if there is overflow.
-	rowIdx := t.yOffset
-	if !needsOverflow {
-		// if there is no overflow, just render to the height of the table
-		// check there's enough content to fill the table
-		rowIdx = t.data.Rows() - rowsToRender
-	}
-	for rowsToRender > 0 && rowIdx < t.data.Rows() {
-		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
-		isOverflow := needsOverflow && rowsToRender == 1
-
-		sb.WriteString(t.constructRow(rowIdx, isOverflow))
-
-		rowIdx++
-		rowsToRender--
-	}
-	return sb.String()
-}
-
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration. If isOverflow is true, the row is
 // rendered as an overflow row (using ellipsis).
-func (t *Table) constructRow(index int, isOverflow bool) string {
+func (t *Table) constructRow(index int) string {
 	var s strings.Builder
 	cells := make([]string, 0, t.data.Columns()*2+1)
 
 	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
+	isOverflow := t.overflowRowIndex == index
 	if isOverflow {
 		height = 1
 	}

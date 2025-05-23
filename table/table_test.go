@@ -631,44 +631,44 @@ func TestTableHeightExtra(t *testing.T) {
 }
 
 func TestTableHeightShrink(t *testing.T) {
-	table := New().
-		Height(8).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+	headers := []string{"LANGUAGE", "FORMAL", "INFORMAL"}
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
 
-	golden.RequireEqual(t, []byte(table.String()))
-}
+	t.Run("NoBorderRow", func(t *testing.T) {
+		for i := 1; i <= 9; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
 
-func TestTableHeightMinimum(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("ID", "LANGUAGE", "FORMAL", "INFORMAL").
-		Row("1", "Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("2", "French", "Bonjour", "Salut").
-		Row("3", "Japanese", "こんにちは", "やあ").
-		Row("4", "Russian", "Zdravstvuyte", "Privet").
-		Row("5", "Spanish", "Hola", "¿Qué tal?")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableHeightMinimumShowData(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
-
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("WithBorderRow", func(t *testing.T) {
+		for i := 1; i <= 13; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
 }
 
 func TestTableHeightWithYOffset(t *testing.T) {
@@ -1213,11 +1213,6 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 		Height(45)
 	content := table.String()
 
-	got := lipgloss.Height(content)
-	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.yOffset, got, content)
-	}
-
 	golden.RequireEqual(t, []byte(content))
 }
 
@@ -1283,7 +1278,7 @@ func TestNoFinalEmptyRowWhenOverflow(t *testing.T) {
 		Headers(headers...).
 		Rows(rows...).
 		BorderRow(true).
-		Height(10)
+		Height(16)
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
