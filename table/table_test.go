@@ -1330,13 +1330,7 @@ func TestBorderedCells(t *testing.T) {
 		{"Hobnobs", "UK", "Yes"},
 	}
 	styleFunc := func(row, col int) lipgloss.Style {
-		return lipgloss.
-			NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderTop(true).
-			BorderBottom(true).
-			BorderLeft(true).
-			BorderRight(true)
+		return lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
 	}
 	table := New().
 		Headers(headers...).
