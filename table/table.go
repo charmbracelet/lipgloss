@@ -65,11 +65,9 @@ type Table struct {
 	yOffset         int
 	wrap            bool
 
-	// widths tracks the width of each column.
-	widths []int
-
-	// heights tracks the height of each row.
-	heights []int
+	widths           []int
+	heights          []int
+	overflowRowIndex int
 }
 
 // New returns a new Table that can be modified through different
@@ -261,7 +259,6 @@ func (t *Table) String() string {
 
 	if hasHeaders {
 		sb.WriteString(t.constructHeaders())
-		sb.WriteString("\n")
 	}
 
 	var bottom string
@@ -271,32 +268,20 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		switch {
-		case t.useManualHeight:
-			// The height of the top border. Subtract 1 for the newline.
-			topHeight := lipgloss.Height(sb.String()) - 1
-			availableLines := t.height - (topHeight + lipgloss.Height(bottom))
-
-			// if the height is larger than the number of rows, use the number
-			// of rows.
-			if availableLines > t.data.Rows() {
-				availableLines = t.data.Rows()
+		for r := t.yOffset; r < t.data.Rows(); r++ {
+			if t.overflowRowIndex != -2 && r > t.overflowRowIndex {
+				break
 			}
-			sb.WriteString(t.constructRows(availableLines))
-
-		default:
-			for r := t.yOffset; r < t.data.Rows(); r++ {
-				sb.WriteString(t.constructRow(r, false))
-			}
+			sb.WriteString(t.constructRow(r))
 		}
 	}
 
 	sb.WriteString(bottom)
 
 	return lipgloss.NewStyle().
-		MaxHeight(t.computeHeight()).
+		MaxHeight(min(t.height, t.computeHeight())).
 		MaxWidth(t.width).
-		Render(sb.String())
+		Render(strings.TrimSuffix(sb.String(), "\n"))
 }
 
 // computeHeight computes the height of the table in it's current configuration.
@@ -319,7 +304,7 @@ func (t *Table) constructTopBorder() string {
 	if t.borderLeft {
 		s.WriteString(t.borderStyle.Render(t.border.TopLeft))
 	}
-	for i := 0; i < len(t.widths); i++ {
+	for i := range t.widths {
 		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
 		if i < len(t.widths)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleTop))
@@ -338,7 +323,7 @@ func (t *Table) constructBottomBorder() string {
 	if t.borderLeft {
 		s.WriteString(t.borderStyle.Render(t.border.BottomLeft))
 	}
-	for i := 0; i < len(t.widths); i++ {
+	for i := range t.widths {
 		s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 		if i < len(t.widths)-1 && t.borderColumn {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleBottom))
@@ -354,28 +339,48 @@ func (t *Table) constructBottomBorder() string {
 // header configuration and data.
 func (t *Table) constructHeaders() string {
 	var s strings.Builder
+	cells := make([]string, 0, len(t.headers)*2+1)
+	height := t.heights[0]
+
+	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
-		s.WriteString(t.borderStyle.Render(t.border.Left))
+		cells = append(cells, left)
 	}
-	for i, header := range t.headers {
-		s.WriteString(t.style(HeaderRow, i).
-			MaxHeight(1).
-			Width(t.widths[i]).
-			MaxWidth(t.widths[i]).
-			Render(t.truncateCell(header, -1, i)))
-		if i < len(t.headers)-1 && t.borderColumn {
-			s.WriteString(t.borderStyle.Render(t.border.Left))
+
+	for j, header := range t.headers {
+		cellStyle := t.style(HeaderRow, j)
+
+		// NOTE(@andreynering): We always truncate headers.
+		header = t.truncateCell(header, HeaderRow, j)
+
+		cells = append(cells,
+			cellStyle.
+				Height(height-cellStyle.GetVerticalMargins()).
+				Width(t.widths[j]-cellStyle.GetHorizontalMargins()).
+				Render(header),
+		)
+
+		if j < len(t.headers)-1 && t.borderColumn {
+			cells = append(cells, left)
 		}
 	}
+
+	if t.borderRight {
+		right := strings.Repeat(t.borderStyle.Render(t.border.Right)+"\n", height)
+		cells = append(cells, right)
+	}
+
+	for i, cell := range cells {
+		cells[i] = strings.TrimRight(cell, "\n")
+	}
+
+	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
+
 	if t.borderHeader {
-		if t.borderRight {
-			s.WriteString(t.borderStyle.Render(t.border.Right))
-		}
-		s.WriteString("\n")
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		}
-		for i := 0; i < len(t.headers); i++ {
+		for i := range t.headers {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Top, t.widths[i])))
 			if i < len(t.headers)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.Middle))
@@ -384,58 +389,26 @@ func (t *Table) constructHeaders() string {
 		if t.borderRight {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
 		}
+		s.WriteString("\n")
 	}
-	if t.borderRight && !t.borderHeader {
-		s.WriteString(t.borderStyle.Render(t.border.Right))
-	}
+
 	return s.String()
-}
-
-func (t *Table) constructRows(availableLines int) string {
-	var sb strings.Builder
-
-	// The number of rows to render after removing the offset.
-	offsetRowCount := t.data.Rows() - t.yOffset
-
-	// The number of rows to render. We always render at least one row.
-	rowsToRender := availableLines
-	rowsToRender = max(rowsToRender, 1)
-
-	// Check if we need to render an overflow row.
-	needsOverflow := rowsToRender < offsetRowCount
-
-	// only use the offset as the starting value if there is overflow.
-	rowIdx := t.yOffset
-	if !needsOverflow {
-		// if there is no overflow, just render to the height of the table
-		// check there's enough content to fill the table
-		rowIdx = t.data.Rows() - rowsToRender
-	}
-	for rowsToRender > 0 && rowIdx < t.data.Rows() {
-		// Whenever the height is too small to render all rows, the bottom row will be an overflow row (ellipsis).
-		isOverflow := needsOverflow && rowsToRender == 1
-
-		sb.WriteString(t.constructRow(rowIdx, isOverflow))
-
-		rowIdx++
-		rowsToRender--
-	}
-	return sb.String()
 }
 
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration. If isOverflow is true, the row is
 // rendered as an overflow row (using ellipsis).
-func (t *Table) constructRow(index int, isOverflow bool) string {
+func (t *Table) constructRow(index int) string {
 	var s strings.Builder
+	cells := make([]string, 0, t.data.Columns()*2+1)
 
 	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
+	isOverflow := t.overflowRowIndex == index
 	if isOverflow {
 		height = 1
 	}
 
-	var cells []string
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
 		cells = append(cells, left)
@@ -475,9 +448,9 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && index < t.data.Rows()-1 {
+	if t.borderRow && !isOverflow && index < t.data.Rows()-1 {
 		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
-		for i := 0; i < len(t.widths); i++ {
+		for i := range t.widths {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 			if i < len(t.widths)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.Middle))
@@ -494,6 +467,11 @@ func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
 	height := t.heights[rowIndex+btoi(hasHeaders)]
 	cellWidth := t.widths[colIndex]
 	cellStyle := t.style(rowIndex, colIndex)
+
+	// NOTE(@andreynering): We always truncate headers to 1 line.
+	if rowIndex == HeaderRow {
+		height = 1
+	}
 
 	length := (cellWidth * height) - cellStyle.GetHorizontalPadding() - cellStyle.GetHorizontalMargins()
 	return ansi.Truncate(cell, length, "…")

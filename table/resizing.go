@@ -52,6 +52,13 @@ func (t *Table) resize() {
 	r.borderColumn = t.borderColumn
 	r.yPaddings = make([][]int, len(r.allRows))
 
+	r.yOffset = t.yOffset
+	r.useManualHeight = t.useManualHeight
+	r.borderTop = t.borderTop
+	r.borderBottom = t.borderBottom
+	r.borderHeader = t.borderHeader
+	r.borderRow = t.borderRow
+
 	var allRows [][]string
 	if hasHeaders {
 		allRows = append([][]string{t.headers}, rows...)
@@ -80,17 +87,11 @@ func (t *Table) resize() {
 			}
 			style := styleFunc(rowIndex, j)
 
-			topMargin, rightMargin, bottomMargin, leftMargin := style.GetMargin()
-			topPadding, rightPadding, bottomPadding, leftPadding := style.GetPadding()
-
-			totalHorizontalPadding := leftMargin + rightMargin + leftPadding + rightPadding
-			column.xPadding = max(column.xPadding, totalHorizontalPadding)
+			column.xPadding = max(column.xPadding, style.GetHorizontalFrameSize())
 			column.fixedWidth = max(column.fixedWidth, style.GetWidth())
 
 			r.rowHeights[i] = max(r.rowHeights[i], style.GetHeight())
-
-			totalVerticalPadding := topMargin + bottomMargin + topPadding + bottomPadding
-			r.yPaddings[i][j] = totalVerticalPadding
+			r.yPaddings[i][j] = style.GetVerticalFrameSize()
 		}
 	}
 
@@ -101,6 +102,7 @@ func (t *Table) resize() {
 	}
 
 	t.widths, t.heights = r.optimizedWidths()
+	t.overflowRowIndex = r.overflowRowIndex()
 }
 
 // resizerColumn is a column in the resizer.
@@ -126,6 +128,13 @@ type resizer struct {
 	wrap         bool
 	borderColumn bool
 	yPaddings    [][]int // vertical paddings
+
+	yOffset         int
+	useManualHeight bool
+	borderTop       bool
+	borderBottom    bool
+	borderHeader    bool
+	borderRow       bool
 }
 
 // newResizer creates a new resizer.
@@ -301,14 +310,13 @@ func (r *resizer) expandRowHeigths(colWidths []int) (rowHeights []int) {
 
 	for i, row := range r.allRows {
 		for j, cell := range row {
-			// NOTE(@andreynering): Headers always have a height of 1, even when wrap is enabled.
+			// NOTE(@andreynering): Headers always have a height of 1 (+ padding), even when wrap is enabled.
 			if hasHeaders && i == 0 {
+				rowHeights[i] = 1 + r.yPaddingForCell(i, j)
 				continue
 			}
-			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.xPaddingForCell(i, j)
-			if height > rowHeights[i] {
-				rowHeights[i] = height
-			}
+			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.yPaddingForCell(i, j)
+			rowHeights[i] = max(rowHeights[i], height)
 		}
 	}
 	return
@@ -321,9 +329,7 @@ func (r *resizer) defaultRowHeights() (rowHeights []int) {
 		if i < len(r.rowHeights) {
 			rowHeights[i] = r.rowHeights[i]
 		}
-		if rowHeights[i] < 1 {
-			rowHeights[i] = 1
-		}
+		rowHeights[i] = max(rowHeights[i], 1)
 	}
 	return
 }
@@ -387,8 +393,8 @@ func (r *resizer) xPaddingForCol(j int) int {
 	return r.columns[j].xPadding
 }
 
-// xPaddingForCell returns the horizontal padding for a cell.
-func (r *resizer) xPaddingForCell(i, j int) int {
+// yPaddingForCell returns the horizontal padding for a cell.
+func (r *resizer) yPaddingForCell(i, j int) int {
 	if i >= len(r.yPaddings) || j >= len(r.yPaddings[i]) {
 		return 0
 	}
@@ -426,4 +432,38 @@ func (r *resizer) detectContentHeight(content string, width int) (height int) {
 		height += strings.Count(ansi.Wrap(line, width, ""), "\n") + 1
 	}
 	return
+}
+
+// overflowRowIndex detects the last visible row, shown as overflow, when a
+// fixed table height was set.
+// If the table height is not fixed or it's enough to show the whole table, it
+// returns -2.
+// Keep in mind that it'll return -1 for the header, and start from 0 for the
+// data rows.
+func (r *resizer) overflowRowIndex() int {
+	if !r.useManualHeight {
+		return -2
+	}
+
+	hasHeaders := len(r.headers) > 0
+	printedRows := btoi(r.borderTop)
+
+	for i := range r.allRows {
+		// NOTE(@andreynering): Skip non-visible rows if yOffset is set.
+		if r.yOffset > 0 && i-btoi(hasHeaders) <= r.yOffset {
+			continue
+		}
+
+		rowHeight := r.rowHeights[i]
+		isHeader := hasHeaders && i == 0
+		isLastRow := i == len(r.allRows)-1
+
+		if printedRows+rowHeight+btoi(isHeader && r.borderHeader)+btoi(r.borderBottom)+btoi(!isHeader && !isLastRow)+btoi(!isLastRow && r.borderRow) > r.tableHeight {
+			return i - btoi(hasHeaders)
+		}
+
+		printedRows += rowHeight + btoi(isHeader && r.borderHeader) + btoi(!isHeader && r.borderRow)
+	}
+
+	return -2
 }
