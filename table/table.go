@@ -406,7 +406,7 @@ func (t *Table) constructRow(index int) string {
 	height := t.heights[index+btoi(hasHeaders)]
 	isOverflow := t.overflowRowIndex == index
 	if isOverflow {
-		height = 1
+		height = max(height, 1)
 	}
 
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)

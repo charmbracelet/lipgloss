@@ -639,6 +639,9 @@ func TestTableHeightShrink(t *testing.T) {
 		{"Russian", "Zdravstvuyte", "Privet"},
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	paddingStyleFunc := func(row, col int) lipgloss.Style {
+		return TableStyle(row, col).Padding(1)
+	}
 
 	t.Run("NoBorderRow", func(t *testing.T) {
 		for i := 1; i <= 9; i++ {
@@ -663,6 +666,36 @@ func TestTableHeightShrink(t *testing.T) {
 					Border(lipgloss.NormalBorder()).
 					BorderRow(true).
 					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("NoBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 21; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 25; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(paddingStyleFunc).
 					Headers(headers...).
 					Rows(rows...)
 				golden.RequireEqual(t, []byte(table.String()))

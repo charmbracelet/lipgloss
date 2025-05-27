@@ -454,11 +454,21 @@ func (r *resizer) overflowRowIndex() int {
 			continue
 		}
 
-		rowHeight := r.rowHeights[i]
 		isHeader := hasHeaders && i == 0
 		isLastRow := i == len(r.allRows)-1
 
-		if printedRows+rowHeight+btoi(isHeader && r.borderHeader)+btoi(r.borderBottom)+btoi(!isHeader && !isLastRow)+btoi(!isLastRow && r.borderRow) > r.tableHeight {
+		rowHeight := r.rowHeights[i] + r.yPaddingForCell(i, 0)
+		nextRowPadding := r.yPaddingForCell(i+1, 0)
+
+		sum := (printedRows +
+			rowHeight +
+			btoi(isHeader && r.borderHeader) +
+			btoi(r.borderBottom) +
+			btoi(!isHeader && !isLastRow) +
+			btoi(!isLastRow && r.borderRow) +
+			nextRowPadding)
+
+		if sum > r.tableHeight {
 			return i - btoi(hasHeaders)
 		}
 
