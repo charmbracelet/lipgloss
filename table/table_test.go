@@ -428,14 +428,45 @@ func TestTableWidthShrink(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		Border(lipgloss.NormalBorder()).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("NoBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			BorderLeft(false).
+			BorderRight(false).
+			Border(lipgloss.NormalBorder()).
+			BorderColumn(false).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("DefaultBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
+
+	t.Run("OutlineBordersOnly", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			BorderTop(true).
+			BorderBottom(true).
+			BorderLeft(true).
+			BorderRight(true).
+			BorderColumn(false).
+			BorderRow(false).
+			BorderHeader(true)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
@@ -496,28 +527,6 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 }
 
 func TestTableWidths(t *testing.T) {
-	rows := [][]string{
-		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
-		{"French", "Bonjour", "Salut"},
-		{"Japanese", "こんにちは", "やあ"},
-		{"Russian", "Zdravstvuyte", "Privet"},
-		{"Spanish", "Hola", "¿Qué tal?"},
-	}
-
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		BorderLeft(false).
-		BorderRight(false).
-		Border(lipgloss.NormalBorder()).
-		BorderColumn(false).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableWidthShrinkNoBorders(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},

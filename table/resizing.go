@@ -56,6 +56,8 @@ func (t *Table) resize() {
 	r.useManualHeight = t.useManualHeight
 	r.borderTop = t.borderTop
 	r.borderBottom = t.borderBottom
+	r.borderLeft = t.borderLeft
+	r.borderRight = t.borderRight
 	r.borderHeader = t.borderHeader
 	r.borderRow = t.borderRow
 
@@ -133,6 +135,8 @@ type resizer struct {
 	useManualHeight bool
 	borderTop       bool
 	borderBottom    bool
+	borderLeft      bool
+	borderRight     bool
 	borderHeader    bool
 	borderRow       bool
 }
@@ -403,23 +407,7 @@ func (r *resizer) yPaddingForCell(i, j int) int {
 
 // totalHorizontalBorder returns the total border.
 func (r *resizer) totalHorizontalBorder() int {
-	return (r.columnCount() * r.borderPerCell()) + r.extraBorder()
-}
-
-// borderPerCell returns number of border chars per cell.
-func (r *resizer) borderPerCell() int {
-	if r.borderColumn {
-		return 1
-	}
-	return 0
-}
-
-// extraBorder returns the number of the extra border char at the end of the table.
-func (r *resizer) extraBorder() int {
-	if r.borderColumn {
-		return 1
-	}
-	return 0
+	return btoi(r.borderLeft) + btoi(r.borderRight) + (r.columnCount()-1)*btoi(r.borderColumn)
 }
 
 // detectContentHeight detects the content height.
