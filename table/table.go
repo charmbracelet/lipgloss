@@ -68,6 +68,7 @@ type Table struct {
 	widths           []int
 	heights          []int
 	overflowRowIndex int
+	calculatedOffset int
 }
 
 // New returns a new Table that can be modified through different
@@ -268,7 +269,7 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		for r := t.yOffset; r < t.data.Rows(); r++ {
+		for r := t.calculatedOffset; r < t.data.Rows(); r++ {
 			if t.overflowRowIndex != -2 && r > t.overflowRowIndex {
 				break
 			}

@@ -119,7 +119,8 @@ func TestTableYOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		YOffset(1)
+		YOffset(1).
+		Height(8)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -1240,13 +1241,36 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 		{"99", "Shijiazhuang", "China", "4,285,135"},
 		{"100", "Montreal", "Canada", "4,276,526"},
 	}
-	table := New().
-		Rows(rows...).
-		YOffset(80).
-		Height(45)
-	content := table.String()
 
-	golden.RequireEqual(t, []byte(content))
+	t.Run("NoHeaders", func(t *testing.T) {
+		table := New().
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithHeaders", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			BorderRow(true).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 }
 
 func TestBorderStyles(t *testing.T) {
