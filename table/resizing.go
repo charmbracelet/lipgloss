@@ -102,7 +102,7 @@ func (t *Table) resize() {
 	}
 
 	t.widths, t.heights = r.optimizedWidths()
-	t.overflowRowIndex = r.overflowRowIndex()
+	t.overflowRowIndex, t.calculatedOffset = r.overflowRowIndex()
 }
 
 // resizerColumn is a column in the resizer.
@@ -440,17 +440,29 @@ func (r *resizer) detectContentHeight(content string, width int) (height int) {
 // returns -2.
 // Keep in mind that it'll return -1 for the header, and start from 0 for the
 // data rows.
-func (r *resizer) overflowRowIndex() int {
+func (r *resizer) overflowRowIndex() (index, offset int) {
 	if !r.useManualHeight {
-		return -2
+		return -2, 0
 	}
 
 	hasHeaders := len(r.headers) > 0
 	printedRows := btoi(r.borderTop)
 
+	// XXX(@andreynering): There are known edge cases where this won't work
+	// 100% correctly, in particular for cells with padding and/or wrapped
+	// content. This will cover the most common scenarios, though.
+	calculatedOffset := r.yOffset
+	bordersHeight := (btoi(r.borderTop) +
+		btoi(r.borderBottom) +
+		btoi(hasHeaders && r.borderHeader) +
+		(btoi(r.borderRow) * (len(r.allRows) - btoi(hasHeaders))))
+	if calculatedOffset > 0 && len(r.allRows)+bordersHeight-calculatedOffset < r.tableHeight {
+		calculatedOffset = len(r.allRows) - r.tableHeight + bordersHeight
+	}
+
 	for i := range r.allRows {
 		// NOTE(@andreynering): Skip non-visible rows if yOffset is set.
-		if r.yOffset > 0 && i-btoi(hasHeaders) <= r.yOffset {
+		if calculatedOffset > 0 && i-btoi(hasHeaders) <= calculatedOffset {
 			continue
 		}
 
@@ -469,11 +481,11 @@ func (r *resizer) overflowRowIndex() int {
 			nextRowPadding)
 
 		if sum > r.tableHeight {
-			return i - btoi(hasHeaders)
+			return i - btoi(hasHeaders), calculatedOffset
 		}
 
 		printedRows += rowHeight + btoi(isHeader && r.borderHeader) + btoi(!isHeader && r.borderRow)
 	}
 
-	return -2
+	return -2, calculatedOffset
 }
