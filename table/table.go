@@ -450,14 +450,19 @@ func (t *Table) constructRow(index int) string {
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
 	if t.borderRow && !isOverflow && index < t.data.Rows()-1 {
-		s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		if t.borderLeft {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		}
 		for i := range t.widths {
 			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
 			if i < len(t.widths)-1 && t.borderColumn {
 				s.WriteString(t.borderStyle.Render(t.border.Middle))
 			}
 		}
-		s.WriteString(t.borderStyle.Render(t.border.MiddleRight) + "\n")
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
+		}
+		s.WriteString("\n")
 	}
 
 	return s.String()

@@ -237,6 +237,26 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestInnerBordersOnly(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?").
+		BorderTop(false).
+		BorderRight(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRow(true).
+		BorderColumn(true)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestBorderColumnsWithExtraRows(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
