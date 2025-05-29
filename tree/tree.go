@@ -174,7 +174,7 @@ func (t *Tree) Child(children ...any) *Tree {
 			}
 			t.children = t.children.(NodeChildren).Append(newItem)
 		case Children:
-			for i := 0; i < item.Length(); i++ {
+			for i := range item.Length() {
 				t.children = t.children.(NodeChildren).Append(item.At(i))
 			}
 		case Node:
@@ -210,7 +210,7 @@ func ensureParent(nodes Children, item *Tree) (*Tree, int) {
 	parent := nodes.At(j)
 	switch parent := parent.(type) {
 	case *Tree:
-		for i := 0; i < item.Children().Length(); i++ {
+		for i := range item.Children().Length() {
 			parent.Child(item.children.At(i))
 		}
 		return parent, j

@@ -54,7 +54,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		strs = append(strs, r.style.root.Render(name))
 	}
 
-	for i := 0; i < children.Length(); i++ {
+	for i := range children.Length() {
 		if i < children.Length()-1 {
 			if child := children.At(i + 1); child.Hidden() {
 				// Don't count the last child if its hidden. This renders the
@@ -69,7 +69,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
-	for i := 0; i < children.Length(); i++ {
+	for i := range children.Length() {
 		child := children.At(i)
 		if child.Hidden() {
 			continue

@@ -448,7 +448,7 @@ func TestStringTransform(t *testing.T) {
 					n++
 				}
 				rune = rune[0:n]
-				for i := 0; i < n/2; i++ {
+				for i := range n / 2 {
 					rune[i], rune[n-1-i] = rune[n-1-i], rune[i]
 				}
 				return string(rune)
@@ -484,7 +484,7 @@ func requireFalse(tb testing.TB, b bool) {
 	requireEqual(tb, false, b)
 }
 
-func requireEqual(tb testing.TB, a, b interface{}) {
+func requireEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if !reflect.DeepEqual(a, b) {
 		tb.Errorf("%v != %v", a, b)
@@ -492,7 +492,7 @@ func requireEqual(tb testing.TB, a, b interface{}) {
 	}
 }
 
-func requireNotEqual(tb testing.TB, a, b interface{}) {
+func requireNotEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if reflect.DeepEqual(a, b) {
 		tb.Errorf("%v == %v", a, b)
