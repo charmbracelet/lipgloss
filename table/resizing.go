@@ -360,7 +360,8 @@ func (r *resizer) maxCharCount() int {
 }
 
 // maxTotal returns the maximum total width.
-func (r *resizer) maxTotal() (maxTotal int) {
+func (r *resizer) maxTotal() int {
+	maxTotal := r.totalHorizontalBorder()
 	for j, column := range r.columns {
 		if column.fixedWidth > 0 {
 			maxTotal += column.fixedWidth
