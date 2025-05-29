@@ -3,7 +3,7 @@ package lipgloss
 import "image/color"
 
 // Set a value on the underlying rules map.
-func (s *Style) set(key propKey, value interface{}) {
+func (s *Style) set(key propKey, value any) {
 	// We don't allow negative integers on any of our other values, so just keep
 	// them at zero or above. We could use uints instead, but the
 	// conversions are a little tedious, so we're sticking with ints for
@@ -153,7 +153,7 @@ func (s *Style) setFrom(key propKey, i Style) {
 	}
 }
 
-func colorOrNil(c interface{}) color.Color {
+func colorOrNil(c any) color.Color {
 	if c, ok := c.(color.Color); ok {
 		return c
 	}
