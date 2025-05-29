@@ -43,11 +43,13 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	if node.Hidden() {
 		return ""
 	}
-	var strs []string
+
 	var maxLen int
 	children := node.Children()
 	enumerator := r.enumerator
 	indenter := r.indenter
+
+	strs := make([]string, 0, children.Length())
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {

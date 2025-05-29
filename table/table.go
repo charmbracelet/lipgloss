@@ -429,7 +429,7 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 		height = 1
 	}
 
-	var cells []string
+	cells := make([]string, 0, t.data.Columns()*2+1)
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
 	if t.borderLeft {
 		cells = append(cells, left)
