@@ -112,8 +112,9 @@ func (m *Filter) Rows() int {
 	return j
 }
 
-// dataToMatrix converts an object that implements the Data interface to a table.
-func dataToMatrix(data Data) (rows [][]string) {
+// DataToMatrix is a helper function that converts an object that implements the
+// Data interface into a table.
+func DataToMatrix(data Data) (rows [][]string) {
 	numRows := data.Rows()
 	numCols := data.Columns()
 	rows = make([][]string, numRows)

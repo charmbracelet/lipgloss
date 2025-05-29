@@ -46,7 +46,7 @@ import (
 // The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 func (t *Table) resize() {
 	hasHeaders := len(t.headers) > 0
-	rows := dataToMatrix(t.data)
+	rows := DataToMatrix(t.data)
 	r := newResizer(t.width, t.height, t.headers, rows)
 	r.wrap = t.wrap
 	r.borderColumn = t.borderColumn
