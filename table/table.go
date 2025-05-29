@@ -124,6 +124,11 @@ func (t *Table) Data(data Data) *Table {
 	return t
 }
 
+// GetData returns the table data.
+func (t *Table) GetData() Data {
+	return t.data
+}
+
 // Rows appends rows to the table data.
 func (t *Table) Rows(rows ...[]string) *Table {
 	for _, row := range rows {
@@ -148,6 +153,11 @@ func (t *Table) Row(row ...string) *Table {
 func (t *Table) Headers(headers ...string) *Table {
 	t.headers = headers
 	return t
+}
+
+// GetHeaders returns the table headers.
+func (t *Table) GetHeaders() []string {
+	return t.headers
 }
 
 // Border sets the table border.
