@@ -265,10 +265,38 @@ func (t *Table) Height(h int) *Table {
 	return t
 }
 
+// GetHeight returns the height of the table.
+func (t *Table) GetHeight() int {
+	return t.height
+}
+
 // YOffset sets the table rendering offset.
 func (t *Table) YOffset(o int) *Table {
 	t.yOffset = o
 	return t
+}
+
+// GetYOffset returns the table rendering offset.
+func (t *Table) GetYOffset() int {
+	return t.yOffset
+}
+
+// FirstVisibleRowIndex returns the index of the first visible row in the table.
+func (t *Table) FirstVisibleRowIndex() int {
+	return t.firstVisibleRowIndex
+}
+
+// LastVisibleRowIndex returns the index of the last visible row in the table.
+func (t *Table) LastVisibleRowIndex() int {
+	return t.lastVisibleRowIndex
+}
+
+// VisibleRows returns the number of visible rows in the table.
+func (t *Table) VisibleRows() int {
+	if t.lastVisibleRowIndex == -2 {
+		return t.data.Rows() - t.firstVisibleRowIndex
+	}
+	return t.lastVisibleRowIndex - t.firstVisibleRowIndex + 1
 }
 
 // Wrap dictates whether or not the table content should wrap.
