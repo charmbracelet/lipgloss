@@ -214,6 +214,41 @@ func (t *Table) BorderStyle(style lipgloss.Style) *Table {
 	return t
 }
 
+// GetBorderTop gets the top border.
+func (t *Table) GetBorderTop() bool {
+	return t.borderTop
+}
+
+// GetBorderBottom gets the bottom border.
+func (t *Table) GetBorderBottom() bool {
+	return t.borderBottom
+}
+
+// GetBorderLeft gets the left border.
+func (t *Table) GetBorderLeft() bool {
+	return t.borderLeft
+}
+
+// GetBorderRight gets the right border.
+func (t *Table) GetBorderRight() bool {
+	return t.borderRight
+}
+
+// GetBorderHeader gets the header separator border.
+func (t *Table) GetBorderHeader() bool {
+	return t.borderHeader
+}
+
+// GetBorderColumn gets the column border separator.
+func (t *Table) GetBorderColumn() bool {
+	return t.borderColumn
+}
+
+// GetBorderRow gets the row border separator.
+func (t *Table) GetBorderRow() bool {
+	return t.borderRow
+}
+
 // Width sets the table width, this auto-sizes the columns to fit the width by
 // either expanding or contracting the widths of each column as a best effort
 // approach.
