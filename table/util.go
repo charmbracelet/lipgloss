@@ -12,6 +12,14 @@ func btoi(b bool) int {
 	return 0
 }
 
+// bton converts a boolean to a specific integer, n if true, 0 if false.
+func bton(b bool, n int) int {
+	if b {
+		return n
+	}
+	return 0
+}
+
 // sum returns the sum of all integers in a slice.
 func sum(n []int) int {
 	var sum int
