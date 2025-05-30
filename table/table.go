@@ -65,10 +65,11 @@ type Table struct {
 	yOffset         int
 	wrap            bool
 
-	widths           []int
-	heights          []int
-	overflowRowIndex int
-	calculatedOffset int
+	widths  []int
+	heights []int
+
+	firstVisibleRowIndex int
+	lastVisibleRowIndex  int
 }
 
 // New returns a new Table that can be modified through different
@@ -314,8 +315,8 @@ func (t *Table) String() string {
 
 	// If there are no data rows render nothing.
 	if t.data.Rows() > 0 {
-		for r := t.calculatedOffset; r < t.data.Rows(); r++ {
-			if t.overflowRowIndex != -2 && r > t.overflowRowIndex {
+		for r := t.firstVisibleRowIndex; r < t.data.Rows(); r++ {
+			if t.lastVisibleRowIndex != -2 && r > t.lastVisibleRowIndex {
 				break
 			}
 			sb.WriteString(t.constructRow(r))
@@ -450,7 +451,8 @@ func (t *Table) constructRow(index int) string {
 
 	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
-	isOverflow := t.overflowRowIndex == index
+	isLastRow := index == t.data.Rows()-1
+	isOverflow := !isLastRow && t.lastVisibleRowIndex == index
 	if isOverflow {
 		height = max(height, 1)
 	}
