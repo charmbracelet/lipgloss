@@ -4,14 +4,14 @@ import (
 	"image"
 	"sort"
 
-	"github.com/charmbracelet/x/cellbuf"
+	"github.com/charmbracelet/uv"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // Canvas is a collection of layers that can be composed together to form a
 // single frame of text.
 type Canvas struct {
 	layers []*Layer
-	buf    *cellbuf.Buffer
 }
 
 // NewCanvas creates a new Canvas with the given layers. This is a convenient
@@ -29,47 +29,6 @@ func (c *Canvas) InBounds(x, y int) bool {
 
 // Bounds returns the bounds of the Canvas.
 func (c *Canvas) Bounds() image.Rectangle {
-	return c.buf.Bounds()
-}
-
-// Hit returns the [Layer.ID] at the given point. If no Layer is found,
-// nil is returned.
-func (c *Canvas) Hit(x, y int) *Layer {
-	for i := len(c.layers) - 1; i >= 0; i-- {
-		if c.layers[i].InBounds(x, y) {
-			return c.layers[i].Hit(x, y)
-		}
-	}
-	return nil
-}
-
-// AddLayers adds the given layers to the Canvas.
-func (c *Canvas) AddLayers(layers ...*Layer) {
-	c.layers = append(c.layers, layers...)
-	sortLayers(c.layers, false)
-}
-
-// Get returns the Layer with the given ID. If the ID is not found, nil is
-// returned.
-func (c *Canvas) Get(id string) *Layer {
-	for _, l := range c.layers {
-		if la := l.Get(id); la != nil {
-			return la
-		}
-	}
-	return nil
-}
-
-// Render renders the Canvas to a string.
-func (c *Canvas) Render() string {
-	c.init()
-	for _, l := range c.layers {
-		l.composite(c.buf)
-	}
-	return cellbuf.Render(c.buf)
-}
-
-func (c *Canvas) init() {
 	// Figure out the size of the canvas
 	x0, y0, x1, y1 := 0, 0, 0, 0
 	for _, l := range c.layers {
@@ -97,9 +56,51 @@ func (c *Canvas) init() {
 		y0 = 0
 	}
 
-	// Create a buffer with the size of the canvas
-	width, height := x1-x0, y1-y0
-	c.buf = cellbuf.NewBuffer(width, height)
+	return image.Rect(x0, y0, x1, y1)
+}
+
+// Hit returns the [Layer.ID] at the given point. If no Layer is found,
+// nil is returned.
+func (c *Canvas) Hit(x, y int) string {
+	for i := len(c.layers) - 1; i >= 0; i-- {
+		if c.layers[i].InBounds(x, y) {
+			return c.layers[i].Hit(x, y).GetID()
+		}
+	}
+	return ""
+}
+
+// AddLayers adds the given layers to the Canvas.
+func (c *Canvas) AddLayers(layers ...*Layer) {
+	c.layers = append(c.layers, layers...)
+	sortLayers(c.layers, false)
+}
+
+// Get returns the Layer with the given ID. If the ID is not found, nil is
+// returned.
+func (c *Canvas) Get(id string) *Layer {
+	for _, l := range c.layers {
+		if la := l.Get(id); la != nil {
+			return la
+		}
+	}
+	return nil
+}
+
+// Draw draws the [Canvas] into the given screen and area.
+func (c *Canvas) Draw(scr uv.Screen, area image.Rectangle) {
+	for _, l := range c.layers {
+		l.Draw(scr, area)
+	}
+}
+
+// Render renders the Canvas to a string.
+func (c *Canvas) Render() string {
+	area := c.Bounds()
+	buf := uv.NewScreenBuffer(area.Dx(), area.Dy())
+	buf.Method = ansi.GraphemeWidth
+	c.Draw(buf, area)
+	return buf.Render()
 }
 
 // Layer represents a window layer that can be composed with other layers.
@@ -240,6 +241,16 @@ func (l *Layer) Content() string {
 	return l.content
 }
 
+// Draw draws the Layer onto the given screen buffer.
+func (l *Layer) Draw(scr uv.Screen, _ image.Rectangle) {
+	ss := uv.NewStyledString(l.content)
+	ss.Draw(scr, l.Bounds())
+	for _, child := range l.children {
+		ss := uv.NewStyledString(child.content)
+		ss.Draw(scr, child.Bounds())
+	}
+}
+
 // Get returns the Layer with the given ID. If the ID is not found, it returns
 // nil.
 func (l *Layer) Get(id string) *Layer {
@@ -252,14 +263,6 @@ func (l *Layer) Get(id string) *Layer {
 		}
 	}
 	return nil
-}
-
-// composite composites the Layer onto the buffer.
-func (l *Layer) composite(buf *cellbuf.Buffer) {
-	cellbuf.SetContentRect(buf, l.content, l.Bounds())
-	for _, child := range l.children {
-		cellbuf.SetContentRect(buf, child.content, child.Bounds())
-	}
 }
 
 // sortLayers sorts the layers by z-index, from lowest to highest.
