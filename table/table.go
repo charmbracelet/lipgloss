@@ -300,6 +300,8 @@ func (t *Table) VisibleRows() int {
 }
 
 // Wrap dictates whether or not the table content should wrap.
+//
+// This only applies to data cells. Headers are never wrapped.
 func (t *Table) Wrap(w bool) *Table {
 	t.wrap = w
 	return t
