@@ -138,10 +138,3 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	}
 	return strings.Join(strs, "\n")
 }
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
