@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/tree"
 )
@@ -15,11 +17,12 @@ func main() {
 			"Claire’s Boutique",
 			tree.Root("Nyx").
 				Child("Lip Gloss", "Foundation").
-				EnumeratorStyle(pink),
+				EnumeratorStyle(pink).
+				IndenterStyle(purple),
 			"Mac",
 			"Milk",
 		).
-		EnumeratorStyle(purple)
-
-	lipgloss.Println(t)
+		EnumeratorStyle(purple).
+		IndenterStyle(purple)
+	fmt.Println(t)
 }

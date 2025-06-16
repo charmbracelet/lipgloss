@@ -25,6 +25,7 @@ func main() {
 		).
 		Enumerator(tree.RoundedEnumerator).
 		EnumeratorStyle(enumeratorStyle).
+		IndenterStyle(enumeratorStyle).
 		RootStyle(rootStyle).
 		ItemStyle(itemStyle)
 
