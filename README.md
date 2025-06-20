@@ -1,7 +1,12 @@
 # Lip Gloss
 
 <p>
-    <a href="https://stuff.charm.sh/lipgloss/lipgloss-mascot-2k.png"><img width="340" alt="Lip Gloss title treatment" src="https://github.com/charmbracelet/lipgloss/assets/25087/147cadb1-4254-43ec-ae6b-8d6ca7b029a1"></a><br>
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340">
+      <source media="(prefers-color-scheme: dark)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-dark-2025-06.png" width="340">
+      <img src="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340" />
+    </picture>
+    <br>
     <a href="https://github.com/charmbracelet/lipgloss/releases"><img src="https://img.shields.io/github/release/charmbracelet/lipgloss.svg" alt="Latest Release"></a>
     <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
