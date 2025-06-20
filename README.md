@@ -15,7 +15,7 @@
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 
-![Lip Gloss example](https://github.com/user-attachments/assets/7950b1c1-e0e3-427e-8e7d-6f7f6ad17ca7)
+![Lip Gloss example](https://github.com/user-attachments/assets/92560e60-d70e-4ce0-b39e-a60bb933356b)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Lip Gloss.
