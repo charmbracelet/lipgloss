@@ -73,29 +73,14 @@ func (c *Canvas) init() {
 	// Figure out the size of the canvas
 	x0, y0, x1, y1 := 0, 0, 0, 0
 	for _, l := range c.layers {
-		if l.GetX() < x0 {
-			x0 = l.GetX()
-		}
-		if l.GetY() < y0 {
-			y0 = l.GetY()
-		}
-		if l.GetX()+l.GetWidth() > x1 {
-			x1 = l.GetX() + l.GetWidth()
-		}
-		if l.GetY()+l.GetHeight() > y1 {
-			y1 = l.GetY() + l.GetHeight()
-		}
+		x0 = min(x0, l.rect.Min.X)
+		y0 = min(y0, l.rect.Min.Y)
+		x1 = max(x1, l.rect.Max.X)
+		y1 = max(y1, l.rect.Max.Y)
 	}
 
 	// Adjust the size of the canvas if it's negative
-	if x0 < 0 {
-		x1 -= x0
-		x0 = 0
-	}
-	if y0 < 0 {
-		y1 -= y0
-		y0 = 0
-	}
+	x0, y0 = max(x0, 0), max(y0, 0)
 
 	// Create a buffer with the size of the canvas
 	width, height := x1-x0, y1-y0
