@@ -8,14 +8,14 @@ replace github.com/charmbracelet/lipgloss/v2 => ../
 
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.2.0.20250211210552-12f6445fb2c4
-	github.com/charmbracelet/colorprofile v0.3.0
+	github.com/charmbracelet/colorprofile v0.3.1
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-alpha.2.0.20250205171250-634dfe44b14e
 	github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917
 	github.com/charmbracelet/wish v1.4.0
+	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250627134340-c144409e381c
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/rivo/uniseg v0.4.7
-	github.com/segmentio/ksuid v1.0.4
 )
 
 require (
@@ -45,7 +45,7 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
