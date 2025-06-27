@@ -63,10 +63,10 @@ type model struct {
 	aborted bool
 }
 
-func (m model) Init() (tea.Model, tea.Cmd) {
+func (m model) Init() tea.Cmd {
 	m.yes = true
 	m.styles = newStyles()
-	return m, nil
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
