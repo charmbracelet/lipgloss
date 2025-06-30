@@ -6,7 +6,7 @@ toolchain go1.24.3
 
 replace github.com/charmbracelet/lipgloss/v2 => ../
 
-replace github.com/charmbracelet/uv => ../../uv
+replace github.com/charmbracelet/ultraviolet => ../../ultraviolet/
 
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.3.0.20250617194119-3f1d09f7d826
@@ -27,7 +27,7 @@ require (
 	github.com/charmbracelet/keygen v0.5.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
-	github.com/charmbracelet/uv v0.0.0-00010101000000-000000000000 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-00010101000000-000000000000 // indirect
 	github.com/charmbracelet/x/ansi v0.9.3 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.14-0.20250505150409-97991a1f17d1 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect

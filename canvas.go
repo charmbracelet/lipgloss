@@ -4,7 +4,7 @@ import (
 	"image"
 	"sort"
 
-	"github.com/charmbracelet/uv"
+	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 )
 
