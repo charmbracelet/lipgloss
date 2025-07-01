@@ -20,6 +20,8 @@ github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917 h1:NZKjJ7d/pzk/A
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917/go.mod h1:8/Ve8iGRRIGFM1kepYfRF2pEOF5Y3TEZYoJaA54228U=
 github.com/charmbracelet/ultraviolet v0.0.0-20250630200803-d5a326545c60 h1:kxShCvcmtZW/nSC7X3ecoyPpAADOSSyRYGww7sPg0dk=
 github.com/charmbracelet/ultraviolet v0.0.0-20250630200803-d5a326545c60/go.mod h1:3PWkL3C0wdaZv4Yi4EcEWzJ7hFIrpgBw5zibRXYr7jM=
+github.com/charmbracelet/ultraviolet v0.0.0-20250701202947-ebe225debf73 h1:P15hfoJSP+CZ19/Azu9/HWi2DRgTTh/MaoBkqi27O8U=
+github.com/charmbracelet/ultraviolet v0.0.0-20250701202947-ebe225debf73/go.mod h1:3PWkL3C0wdaZv4Yi4EcEWzJ7hFIrpgBw5zibRXYr7jM=
 github.com/charmbracelet/wish v1.4.0 h1:pL1uVP/YuYgJheHEj98teZ/n6pMYnmlZq/fcHvomrfc=
 github.com/charmbracelet/wish v1.4.0/go.mod h1:ew4/MjJVfW/akEO9KmrQHQv1F7bQRGscRMrA+KtovTk=
 github.com/charmbracelet/x/ansi v0.9.3 h1:BXt5DHS/MKF+LjuK4huWrC6NCvHtexww7dMayh6GXd0=

@@ -27,7 +27,7 @@ require (
 	github.com/charmbracelet/keygen v0.5.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20250630200803-d5a326545c60 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20250701202947-ebe225debf73 // indirect
 	github.com/charmbracelet/x/ansi v0.9.3 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.14-0.20250505150409-97991a1f17d1 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect
