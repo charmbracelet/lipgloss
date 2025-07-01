@@ -1,12 +1,12 @@
 module examples
 
-go 1.24.2
+go 1.24.3
 
-toolchain go1.24.3
+toolchain go1.24.4
 
 replace github.com/charmbracelet/lipgloss/v2 => ../
 
-replace github.com/charmbracelet/ultraviolet => ../../ultraviolet/
+replace github.com/charmbracelet/bubbletea/v2 => github.com/charmbracelet/bubbletea-internal/v2 v2.0.0-20250701175101-b755bb725824
 
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.3.0.20250617194119-3f1d09f7d826
@@ -27,12 +27,11 @@ require (
 	github.com/charmbracelet/keygen v0.5.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-00010101000000-000000000000 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20250630200803-d5a326545c60 // indirect
 	github.com/charmbracelet/x/ansi v0.9.3 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.14-0.20250505150409-97991a1f17d1 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect
 	github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd // indirect
-	github.com/charmbracelet/x/input v0.3.5-0.20250509021451-13796e822d86 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.1 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
