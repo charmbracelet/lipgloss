@@ -4,12 +4,9 @@ go 1.24.2
 
 toolchain go1.24.3
 
-replace github.com/charmbracelet/ultraviolet => ../ultraviolet
-
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/charmbracelet/colorprofile v0.3.1
-	github.com/charmbracelet/ultraviolet v0.0.0-00010101000000-000000000000
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
@@ -21,6 +18,7 @@ require (
 )
 
 require (
+	github.com/charmbracelet/ultraviolet v0.0.0-20250630200803-d5a326545c60 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
