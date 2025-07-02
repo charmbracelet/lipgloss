@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	github.com/charmbracelet/ultraviolet v0.0.0-20250701202947-ebe225debf73 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20250702164536-3d34e5ecc446 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
