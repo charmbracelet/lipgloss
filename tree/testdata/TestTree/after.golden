@@ -1,8 +1,8 @@
-├── Foo
-├── Bar
-│   ├── Qux
-│   ├── Quux
-│   │   ├── Foo
-│   │   ╰── Bar
-│   ╰── Quuux
-╰── Baz
+├── Foo
+├── Bar
+│   ├── Qux
+│   ├── Quux
+│   │   ├── Foo
+│   │   ╰── Bar
+│   ╰── Quuux
+╰── Baz

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	nbsp            = '\u00A0'
+	nbsp            = ' '
 	tabWidthDefault = 4
 )
 
@@ -394,9 +394,6 @@ func (s Style) Render(strs ...string) string {
 			}
 			str = padLeft(str, leftPadding, st, nbsp)
 		}
-
-		// XXX: We use a non-breaking space to pad so that the padding is
-		// preserved when the string is copied and pasted.
 
 		if rightPadding > 0 {
 			var st *ansi.Style

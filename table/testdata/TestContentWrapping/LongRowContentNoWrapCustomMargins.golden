@@ -1,5 +1,5 @@
 ┌───────────┬───────────────────────────────────────┬───────┬─────────┬────────┐
-│   Name    │              Description              │  Ty…  │  Requ…  │  Def…  │
+│   Name    │              Description              │  Ty…  │  Requ…  │  Def…  │
 ├───────────┼───────────────────────────────────────┼───────┼─────────┼────────┤
-│  command  │  A command to be executed inside th…  │  yes  │  hello  │  yep   │
+│  command  │  A command to be executed inside th…  │  yes  │  hello  │  yep   │
 └───────────┴───────────────────────────────────────┴───────┴─────────┴────────┘
