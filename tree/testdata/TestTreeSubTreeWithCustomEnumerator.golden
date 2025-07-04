@@ -1,5 +1,5 @@
 The Root Node™
-├── Parent
-│   + ├── * child 1
-│   + └── * child 2
-└── Baz
+├── Parent
+│   + ├── * child 1
+│   + └── * child 2
+└── Baz
