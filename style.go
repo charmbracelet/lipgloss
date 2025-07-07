@@ -11,7 +11,7 @@ import (
 
 const (
 	// NBSP is the non-breaking space rune.
-	NBSP            = ' '
+	NBSP            = '\u00A0'
 	tabWidthDefault = 4
 )
 
