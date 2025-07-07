@@ -41,6 +41,8 @@ func (s *Style) set(key propKey, value any) {
 		s.marginLeft = max(0, value.(int))
 	case marginBackgroundKey:
 		s.marginBgColor = colorOrNil(value)
+	case marginCharKey:
+		s.marginChar = value.(rune)
 	case borderStyleKey:
 		s.borderStyle = value.(Border)
 	case borderTopForegroundKey:
@@ -125,6 +127,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(marginLeftKey, i.marginLeft)
 	case marginBackgroundKey:
 		s.set(marginBackgroundKey, i.marginBgColor)
+	case marginCharKey:
+		s.set(marginCharKey, i.marginChar)
 	case borderStyleKey:
 		s.set(borderStyleKey, i.borderStyle)
 	case borderTopForegroundKey:
@@ -324,9 +328,15 @@ func (s Style) PaddingBottom(i int) Style {
 	return s
 }
 
-// PaddingChar sets the character used for padding.
-func (s Style) PaddingChar(c rune) Style {
-	s.set(paddingCharKey, c)
+// PaddingChar sets the character used for padding. This is useful for
+// rendering blocks with a specific character, such as a space or a dot.
+// Example of using [NBSP] as padding to prevent line breaks:
+//
+//	```go
+//	s := lipgloss.NewStyle().PaddingChar(lipgloss.NBSP)
+//	```
+func (s Style) PaddingChar(r rune) Style {
+	s.set(paddingCharKey, r)
 	return s
 }
 
@@ -397,6 +407,13 @@ func (s Style) MarginBottom(i int) Style {
 // the background color on that style will set the margin color on this style.
 func (s Style) MarginBackground(c color.Color) Style {
 	s.set(marginBackgroundKey, c)
+	return s
+}
+
+// MarginChar sets the character used for the margin. This is useful for
+// rendering blocks with a specific character, such as a space or a dot.
+func (s Style) MarginChar(r rune) Style {
+	s.set(marginCharKey, r)
 	return s
 }
 

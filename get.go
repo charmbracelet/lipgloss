@@ -135,10 +135,14 @@ func (s Style) GetPaddingLeft() int {
 	return s.getAsInt(paddingLeftKey)
 }
 
-// GetPaddingChar returns the style's padding character. If no value is set
-// a space (`\u0020`) is returned.
+// GetPaddingChar returns the style's padding character. If no value is set a
+// space (`\u0020`) is returned.
 func (s Style) GetPaddingChar() rune {
-	return s.getAsRune(paddingCharKey)
+	char := s.getAsRune(paddingCharKey)
+	if char == 0 {
+		return ' '
+	}
+	return char
 }
 
 // GetHorizontalPadding returns the style's left and right padding. Unset
@@ -190,6 +194,16 @@ func (s Style) GetMarginBottom() int {
 // returned.
 func (s Style) GetMarginLeft() int {
 	return s.getAsInt(marginLeftKey)
+}
+
+// GetMarginChar returns the style's padding character. If no value is set a
+// space (`\u0020`) is returned.
+func (s Style) GetMarginChar() rune {
+	char := s.getAsRune(marginCharKey)
+	if char == 0 {
+		return ' '
+	}
+	return char
 }
 
 // GetHorizontalMargins returns the style's left and right margins. Unset
@@ -438,6 +452,19 @@ func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)
 }
 
+func (s Style) getAsRune(k propKey) rune {
+	if !s.isSet(k) {
+		return 0
+	}
+	switch k { //nolint:exhaustive
+	case paddingCharKey:
+		return s.paddingChar
+	case marginCharKey:
+		return s.marginChar
+	}
+	return 0
+}
+
 func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	if !s.isSet(k) {
 		return defaultVal
@@ -516,17 +543,6 @@ func (s Style) getAsInt(k propKey) int {
 		return s.tabWidth
 	}
 	return 0
-}
-
-func (s Style) getAsRune(k propKey) rune {
-	if !s.isSet(k) {
-		return ' '
-	}
-	switch k { //nolint:exhaustive
-	case paddingCharKey:
-		return s.paddingChar
-	}
-	return ' '
 }
 
 func (s Style) getAsPosition(k propKey) Position {

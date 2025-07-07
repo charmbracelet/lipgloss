@@ -9,7 +9,11 @@ import (
 	"github.com/charmbracelet/x/cellbuf"
 )
 
-const tabWidthDefault = 4
+const (
+	// NBSP is the non-breaking space rune.
+	NBSP            = ' '
+	tabWidthDefault = 4
+)
 
 // Property for a key.
 type propKey int64
@@ -49,6 +53,7 @@ const (
 	marginBottomKey
 	marginLeftKey
 	marginBackgroundKey
+	marginCharKey
 
 	// Border runes.
 	borderStyleKey
@@ -133,6 +138,7 @@ type Style struct {
 	marginBottom  int
 	marginLeft    int
 	marginBgColor color.Color
+	marginChar    rune
 
 	borderStyle         Border
 	borderTopFgColor    color.Color
@@ -254,7 +260,6 @@ func (s Style) Render(strs ...string) string {
 		rightPadding  = s.getAsInt(paddingRightKey)
 		bottomPadding = s.getAsInt(paddingBottomKey)
 		leftPadding   = s.getAsInt(paddingLeftKey)
-		paddingChar   = s.getAsRune(paddingCharKey)
 
 		horizontalBorderSize = s.GetHorizontalBorderSize()
 		verticalBorderSize   = s.GetVerticalBorderSize()
@@ -387,12 +392,16 @@ func (s Style) Render(strs ...string) string {
 
 	// Padding
 	if !inline { //nolint:nestif
+		padChar := s.paddingChar
+		if padChar == 0 {
+			padChar = ' '
+		}
 		if leftPadding > 0 {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padLeft(str, leftPadding, st, paddingChar)
+			str = padLeft(str, leftPadding, st, padChar)
 		}
 
 		if rightPadding > 0 {
@@ -400,7 +409,7 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padRight(str, rightPadding, st, paddingChar)
+			str = padRight(str, rightPadding, st, padChar)
 		}
 
 		if topPadding > 0 {
@@ -491,8 +500,12 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &style, ' ')
-	str = padRight(str, rightMargin, &style, ' ')
+	marginChar := s.marginChar
+	if marginChar == 0 {
+		marginChar = ' '
+	}
+	str = padLeft(str, leftMargin, &style, marginChar)
+	str = padRight(str, rightMargin, &style, marginChar)
 
 	// Top/bottom margin
 	if !inline {
