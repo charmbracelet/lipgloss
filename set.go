@@ -324,7 +324,7 @@ func (s Style) PaddingBottom(i int) Style {
 	return s
 }
 
-// PaddingBottom adds padding to the bottom of the block.
+// PaddingChar sets the character used for padding.
 func (s Style) PaddingChar(c rune) Style {
 	s.set(paddingCharKey, c)
 	return s
