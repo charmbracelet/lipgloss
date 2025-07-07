@@ -29,6 +29,8 @@ func (s *Style) set(key propKey, value any) {
 		s.paddingBottom = max(0, value.(int))
 	case paddingLeftKey:
 		s.paddingLeft = max(0, value.(int))
+	case paddingCharKey:
+		s.paddingChar = value.(rune)
 	case marginTopKey:
 		s.marginTop = max(0, value.(int))
 	case marginRightKey:
@@ -111,6 +113,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(paddingBottomKey, i.paddingBottom)
 	case paddingLeftKey:
 		s.set(paddingLeftKey, i.paddingLeft)
+	case paddingCharKey:
+		s.set(paddingCharKey, i.paddingChar)
 	case marginTopKey:
 		s.set(marginTopKey, i.marginTop)
 	case marginRightKey:
@@ -317,6 +321,12 @@ func (s Style) PaddingTop(i int) Style {
 // PaddingBottom adds padding to the bottom of the block.
 func (s Style) PaddingBottom(i int) Style {
 	s.set(paddingBottomKey, i)
+	return s
+}
+
+// PaddingBottom adds padding to the bottom of the block.
+func (s Style) PaddingChar(c rune) Style {
+	s.set(paddingCharKey, c)
 	return s
 }
 

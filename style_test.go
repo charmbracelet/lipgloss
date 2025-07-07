@@ -297,7 +297,7 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 0, s.GetMarginLeft())
 
 	// padding
-	s = NewStyle().Padding(1, 2, 3, 4)
+	s = NewStyle().Padding(1, 2, 3, 4).PaddingChar('x')
 	requireEqual(t, 1, s.GetPaddingTop())
 	s = s.UnsetPaddingTop()
 	requireEqual(t, 0, s.GetPaddingTop())
@@ -313,6 +313,10 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 4, s.GetPaddingLeft())
 	s = s.UnsetPaddingLeft()
 	requireEqual(t, 0, s.GetPaddingLeft())
+
+	requireEqual(t, 'x', s.GetPaddingChar())
+	s = s.UnsetPaddingChar()
+	requireEqual(t, ' ', s.GetPaddingChar())
 
 	// border
 	s = NewStyle().Border(normalBorder, true, true, true, true)
@@ -406,6 +410,11 @@ func TestStyleValue(t *testing.T) {
 				res)
 		}
 	}
+}
+
+func TestCustomPaddingChar(t *testing.T) {
+	s := NewStyle().Padding(0, 3).PaddingChar('x')
+	requireEqual(t, "xxxTESTxxx", s.Render("TEST"))
 }
 
 func TestTabConversion(t *testing.T) {

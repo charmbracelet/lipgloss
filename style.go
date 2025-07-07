@@ -9,10 +9,7 @@ import (
 	"github.com/charmbracelet/x/cellbuf"
 )
 
-const (
-	nbsp            = ' '
-	tabWidthDefault = 4
-)
+const tabWidthDefault = 4
 
 // Property for a key.
 type propKey int64
@@ -44,6 +41,7 @@ const (
 	paddingRightKey
 	paddingBottomKey
 	paddingLeftKey
+	paddingCharKey
 
 	// Margins.
 	marginTopKey
@@ -128,6 +126,7 @@ type Style struct {
 	paddingRight  int
 	paddingBottom int
 	paddingLeft   int
+	paddingChar   rune
 
 	marginTop     int
 	marginRight   int
@@ -255,6 +254,7 @@ func (s Style) Render(strs ...string) string {
 		rightPadding  = s.getAsInt(paddingRightKey)
 		bottomPadding = s.getAsInt(paddingBottomKey)
 		leftPadding   = s.getAsInt(paddingLeftKey)
+		paddingChar   = s.getAsRune(paddingCharKey)
 
 		horizontalBorderSize = s.GetHorizontalBorderSize()
 		verticalBorderSize   = s.GetVerticalBorderSize()
@@ -392,7 +392,7 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padLeft(str, leftPadding, st, nbsp)
+			str = padLeft(str, leftPadding, st, paddingChar)
 		}
 
 		if rightPadding > 0 {
@@ -400,7 +400,7 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padRight(str, rightPadding, st, nbsp)
+			str = padRight(str, rightPadding, st, paddingChar)
 		}
 
 		if topPadding > 0 {

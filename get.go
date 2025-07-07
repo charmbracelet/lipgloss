@@ -135,6 +135,12 @@ func (s Style) GetPaddingLeft() int {
 	return s.getAsInt(paddingLeftKey)
 }
 
+// GetPaddingChar returns the style's padding character. If no value is set
+// a space (`\u0020`) is returned.
+func (s Style) GetPaddingChar() rune {
+	return s.getAsRune(paddingCharKey)
+}
+
 // GetHorizontalPadding returns the style's left and right padding. Unset
 // values are measured as 0.
 func (s Style) GetHorizontalPadding() int {
@@ -510,6 +516,17 @@ func (s Style) getAsInt(k propKey) int {
 		return s.tabWidth
 	}
 	return 0
+}
+
+func (s Style) getAsRune(k propKey) rune {
+	if !s.isSet(k) {
+		return ' '
+	}
+	switch k { //nolint:exhaustive
+	case paddingCharKey:
+		return s.paddingChar
+	}
+	return ' '
 }
 
 func (s Style) getAsPosition(k propKey) Position {
