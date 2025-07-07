@@ -1,8 +1,8 @@
 ┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
+│ LANGUAGE │    FORMAL    │ INFORMAL  │
 ├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ …        │ …            │ …         │
+│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
+│ French   │ Bonjour      │ Salut     │
+│ Japanese │ こんにちは   │ やあ      │
+│ …        │ …            │ …         │
 └──────────┴──────────────┴───────────┘
