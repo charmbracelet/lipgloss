@@ -1,12 +1,15 @@
 module github.com/charmbracelet/lipgloss/v2
 
+retract v2.0.0-beta1 // We add a "." after the "beta" in the version number.
+
 go 1.24.2
 
-toolchain go1.24.3
+toolchain go1.24.4
 
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/charmbracelet/colorprofile v0.3.1
+	github.com/charmbracelet/ultraviolet v0.0.0-20250702164536-3d34e5ecc446
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
@@ -18,7 +21,6 @@ require (
 )
 
 require (
-	github.com/charmbracelet/ultraviolet v0.0.0-20250702164536-3d34e5ecc446 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
