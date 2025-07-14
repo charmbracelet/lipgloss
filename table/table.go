@@ -96,13 +96,13 @@ func (t *Table) ClearRows() *Table {
 	return t
 }
 
-// StyleFunc sets the style for a cell based on it's position (row, column).
+// StyleFunc sets the style for a cell based on its position (row, column).
 func (t *Table) StyleFunc(style StyleFunc) *Table {
 	t.styleFunc = style
 	return t
 }
 
-// style returns the style for a cell based on it's position (row, column).
+// style returns the style for a cell based on its position (row, column).
 func (t *Table) style(row, col int) lipgloss.Style {
 	if t.styleFunc == nil {
 		return lipgloss.NewStyle()
@@ -293,7 +293,7 @@ func (t *Table) String() string {
 		Render(sb.String())
 }
 
-// computeHeight computes the height of the table in it's current configuration.
+// computeHeight computes the height of the table in its current configuration.
 func (t *Table) computeHeight() int {
 	hasHeaders := len(t.headers) > 0
 	return sum(t.heights) - 1 + btoi(hasHeaders) +
@@ -306,7 +306,7 @@ func (t *Table) Render() string {
 	return t.String()
 }
 
-// constructTopBorder constructs the top border for the table given it's current
+// constructTopBorder constructs the top border for the table given its current
 // border configuration and data.
 func (t *Table) constructTopBorder() string {
 	var s strings.Builder
@@ -325,7 +325,7 @@ func (t *Table) constructTopBorder() string {
 	return s.String()
 }
 
-// constructBottomBorder constructs the bottom border for the table given it's current
+// constructBottomBorder constructs the bottom border for the table given its current
 // border configuration and data.
 func (t *Table) constructBottomBorder() string {
 	var s strings.Builder
@@ -344,7 +344,7 @@ func (t *Table) constructBottomBorder() string {
 	return s.String()
 }
 
-// constructHeaders constructs the headers for the table given it's current
+// constructHeaders constructs the headers for the table given its current
 // header configuration and data.
 func (t *Table) constructHeaders() string {
 	height := t.heights[HeaderRow+1]
