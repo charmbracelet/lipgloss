@@ -374,7 +374,7 @@ func TestTableHeights(t *testing.T) {
 	rows := [][]string{
 		{"Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`},
 		{"Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`},
-		{"Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`},
+		{"Arroz de festa", `Literally means "party rice." It's used to refer to someone who shows up everywhere.`},
 	}
 
 	table := New().
@@ -404,7 +404,7 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 		BorderRow(true).
 		Row("Chutar o balde", `Literally translates to "kick the bucket." It's used when someone gives up or loses patience.`).
 		Row("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
-		Row("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
+		Row("Arroz de festa", `Literally means "party rice." It's used to refer to someone who shows up everywhere.`)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
