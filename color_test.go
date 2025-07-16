@@ -56,6 +56,10 @@ func TestRGBA(t *testing.T) {
 			"21",
 			0x0000FF,
 		},
+		{
+			"16711680", // #FF0000
+			0xFF0000,
+		},
 	}
 
 	for i, tc := range tt {
