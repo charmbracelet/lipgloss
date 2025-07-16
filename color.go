@@ -81,7 +81,8 @@ func Color(s string) color.Color {
 		return ANSIColor(i) //nolint:gosec
 	}
 
-	return ansi.TrueColor(i) //nolint:gosec
+	r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
+	return color.RGBA{R: r, G: g, B: b, A: 0xff}
 }
 
 // RGBColor is a color specified by red, green, and blue values.
@@ -108,7 +109,7 @@ func (c RGBColor) RGBA() (r, g, b, a uint32) {
 //
 //	colorA := lipgloss.ANSIColor(8)
 //	colorB := lipgloss.ANSIColor(134)
-type ANSIColor = ansi.ExtendedColor
+type ANSIColor = ansi.IndexedColor
 
 // LightDarkFunc is a function that returns a color based on whether the
 // terminal has a light or dark background. You can create one of these with
