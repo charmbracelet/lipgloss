@@ -98,8 +98,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "a":
 			m.angle = (m.angle + 15) % 360
+			m.updateGradient()
 		case "d":
 			m.angle = (m.angle - 15 + 360) % 360
+			m.updateGradient()
 		case "left":
 			m.boxWidth -= 2
 			m.updateGradient()
@@ -114,6 +116,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.updateGradient()
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
 			m.selectedGradient = max(0, min(int(msg.String()[0]-'1'), len(gradients)-1))
+			m.updateGradient()
 		}
 	case tea.MouseClickMsg:
 		switch msg.Mouse().Button {
