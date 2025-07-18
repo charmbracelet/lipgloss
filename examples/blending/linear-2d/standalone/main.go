@@ -97,7 +97,7 @@ func main() {
 
 		// Create the gradient box using individual character styling.
 		var gradientBox strings.Builder
-		for y := range height {
+		for y := range height { // Uses 1D row-major order.
 			for x := range width {
 				index := y*width + x
 				gradientBox.WriteString(

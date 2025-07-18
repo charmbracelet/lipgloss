@@ -79,6 +79,7 @@ type model struct {
 	infoStyle        lipgloss.Style
 	controlsStyle    lipgloss.Style
 	gradientBoxStyle lipgloss.Style
+	gradients        []color.Color
 }
 
 func (m model) Init() tea.Cmd {
@@ -90,7 +91,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.windowWidth = msg.Width
 		m.windowHeight = msg.Height
-		m.calcBoxSize()
+		m.updateGradient()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
@@ -101,16 +102,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.angle = (m.angle - 15 + 360) % 360
 		case "left":
 			m.boxWidth -= 2
-			m.calcBoxSize()
+			m.updateGradient()
 		case "right":
 			m.boxWidth += 2
-			m.calcBoxSize()
+			m.updateGradient()
 		case "up":
 			m.boxHeight--
-			m.calcBoxSize()
+			m.updateGradient()
 		case "down":
 			m.boxHeight++
-			m.calcBoxSize()
+			m.updateGradient()
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
 			m.selectedGradient = max(0, min(int(msg.String()[0]-'1'), len(gradients)-1))
 		}
@@ -119,28 +120,35 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.MouseLeft:
 			m.boxWidth = msg.Mouse().X
 			m.boxHeight = msg.Mouse().Y
-			m.calcBoxSize()
+			m.updateGradient()
 		}
 	}
 	return m, nil
 }
 
-func (m *model) calcBoxSize() {
+func (m *model) updateGradient() {
 	m.boxWidth = clamp(m.boxWidth, 5, m.windowWidth-m.gradientBoxStyle.GetHorizontalFrameSize())
 	m.boxHeight = clamp(m.boxHeight, 3, m.windowHeight-m.gradientBoxStyle.GetVerticalFrameSize()-m.infoStyle.GetVerticalFrameSize()-m.controlsStyle.GetVerticalFrameSize()-2)
+
+	// Since gradients that might be large can take up more memory, only generate gradients when
+	// the box size (potentially) changes. If you have much smaller gradients, this is less of
+	// an issue.
+	m.gradients = colors.BlendLinear2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
 }
 
 func (m model) View() string {
-	gradientColors := colors.BlendLinear2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
+	if len(m.gradients) == 0 || m.windowWidth == 0 || m.windowHeight == 0 {
+		return "" // Wait until we generate the initial gradient/get window size.
+	}
 
 	// Build the gradient content.
 	gradientContent := strings.Builder{}
-	for y := range m.boxHeight {
+	for y := range m.boxHeight { // Uses 1D row-major order.
 		for x := range m.boxWidth {
 			index := y*m.boxWidth + x
 			gradientContent.WriteString(
 				lipgloss.NewStyle().
-					Background(gradientColors[index]).
+					Background(m.gradients[index]).
 					Render(" "),
 			)
 		}
