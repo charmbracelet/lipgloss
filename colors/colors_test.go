@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"image/color"
 	"testing"
-
-	"github.com/lucasb-eyer/go-colorful"
 )
 
-// fromHex converts a color to a hex string. Could use lipgloss.Color() but in the future,
-// this could cause a circular dependency.
-func fromHex(hex string) color.Color {
-	cf, err := colorful.Hex(hex)
+// hex converts a color to a hex string or panics if invalid.
+func hex(hex string) color.Color {
+	cf, err := FromHex(hex)
 	if err != nil {
 		panic(err)
 	}
@@ -116,72 +113,84 @@ func TestComplementary(t *testing.T) {
 		color    color.Color
 		expected color.Color
 	}{
-		{
-			name:     "complementary-red",
-			color:    fromHex("#FF0000"), // Red
-			expected: fromHex("#00FFFF"), // Cyan
-		},
-		{
-			name:     "complementary-green",
-			color:    fromHex("#00FF00"), // Green
-			expected: fromHex("#FF00FF"), // Magenta
-		},
-		{
-			name:     "complementary-blue",
-			color:    fromHex("#0000FF"), // Blue
-			expected: fromHex("#FFFF00"), // Yellow
-		},
-		{
-			name:     "complementary-yellow",
-			color:    fromHex("#FFFF00"), // Yellow
-			expected: fromHex("#0000FF"), // Blue
-		},
-		{
-			name:     "complementary-cyan",
-			color:    fromHex("#00FFFF"), // Cyan
-			expected: fromHex("#FF0000"), // Red
-		},
-		{
-			name:     "complementary-magenta",
-			color:    fromHex("#FF00FF"), // Magenta
-			expected: fromHex("#00FF00"), // Green
-		},
-		{
-			name:     "complementary-black",
-			color:    fromHex("#000000"), // Black
-			expected: fromHex("#000000"), // Black (achromatic, no hue to complement)
-		},
-		{
-			name:     "complementary-white",
-			color:    fromHex("#FFFFFF"), // White
-			expected: fromHex("#FFFFFF"), // White (achromatic, no hue to complement)
-		},
-		{
-			name:     "complementary-gray",
-			color:    fromHex("#808080"), // Gray
-			expected: fromHex("#808080"), // Gray (complementary of gray is gray)
-		},
-		{
-			name:     "complementary-orange",
-			color:    fromHex("#FF8000"), // Orange
-			expected: fromHex("#007FFF"), // Blue-cyan
-		},
-		{
-			name:     "complementary-purple",
-			color:    fromHex("#8000FF"), // Purple
-			expected: fromHex("#7FFF00"), // Lime green
-		},
-		{
-			name:     "complementary-nil-color",
-			color:    nil,
-			expected: nil,
-		},
+		{name: "red", color: hex("#FF0000"), expected: hex("#00FFFF")},
+		{name: "green", color: hex("#00FF00"), expected: hex("#FF00FF")},
+		{name: "blue", color: hex("#0000FF"), expected: hex("#FFFF00")},
+		{name: "yellow", color: hex("#FFFF00"), expected: hex("#0000FF")},
+		{name: "cyan", color: hex("#00FFFF"), expected: hex("#FF0000")},
+		{name: "magenta", color: hex("#FF00FF"), expected: hex("#00FF00")},
+		// Black has no hue to complement
+		{name: "black", color: hex("#000000"), expected: hex("#000000")},
+		// White has no hue to complement
+		{name: "white", color: hex("#FFFFFF"), expected: hex("#FFFFFF")},
+		// Gray has no hue to complement
+		{name: "gray", color: hex("#808080"), expected: hex("#808080")},
+		{name: "orange", color: hex("#FF8000"), expected: hex("#007FFF")},
+		{name: "purple", color: hex("#8000FF"), expected: hex("#7FFF00")},
+		{name: "nil-color", color: nil, expected: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			expectColorMatches(t, Complementary(tt.color), tt.expected)
+		})
+	}
+}
+
+func TestFromHex(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expected    color.Color
+		expectError bool
+	}{
+		{name: "valid-6-red", input: "#FF0000", expected: hex("#FF0000")},
+		{name: "valid-6-green", input: "#00FF00", expected: hex("#00FF00")},
+		{name: "valid-6-blue", input: "#0000FF", expected: hex("#0000FF")},
+		{name: "valid-6-white", input: "#FFFFFF", expected: hex("#FFFFFF")},
+		{name: "valid-6-black", input: "#000000", expected: hex("#000000")},
+		{name: "valid-6-gray", input: "#808080", expected: hex("#808080")},
+		{name: "valid-3-red", input: "#F00", expected: hex("#FF0000")},
+		{name: "valid-3-green", input: "#0F0", expected: hex("#00FF00")},
+		{name: "valid-3-blue", input: "#00F", expected: hex("#0000FF")},
+		{name: "valid-3-white", input: "#FFF", expected: hex("#FFFFFF")},
+		{name: "valid-3-black", input: "#000", expected: hex("#000000")},
+		{name: "valid-6-lowercase", input: "#ff0000", expected: hex("#FF0000")},
+		{name: "valid-6-mixed-case", input: "#Ff0000", expected: hex("#FF0000")},
+		{name: "valid-3-lowercase", input: "#f00", expected: hex("#FF0000")},
+		{name: "missing-hash-prefix", input: "FF0000", expectError: true},
+		{name: "empty-string", input: "", expectError: true},
+		{name: "only-hash", input: "#", expectError: true},
+		{name: "too-short-3", input: "#F0", expectError: true},
+		{name: "too-long-6", input: "#FF00000", expectError: true},
+		{name: "invalid-char", input: "#FG0000", expectError: true},
+		{name: "invalid-char-3", input: "#FG0", expectError: true},
+		{name: "invalid-char-lowercase", input: "#fg0000", expectError: true},
+		{name: "invalid-char-mixed", input: "#Fg0000", expectError: true},
+		{name: "wrong-len-5", input: "#FF000", expectError: true},
+		{name: "wrong-len-8", input: "#FF000000", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := FromHex(tt.input)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("FromHex() expected error but got none for input %q", tt.input)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("FromHex() unexpected error for input %q: %v", tt.input, err)
+				return
+			}
+
+			expectColorMatches(t, result, tt.expected)
 		})
 	}
 }

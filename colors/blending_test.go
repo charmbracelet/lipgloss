@@ -314,11 +314,11 @@ func TestBlendLinear2DEdgeCases(t *testing.T) {
 
 func BenchmarkBlendLinear1D(b *testing.B) {
 	stops := []color.Color{
-		fromHex("#FF0000"), // Red
-		fromHex("#00FF00"), // Green
-		fromHex("#0000FF"), // Blue
-		fromHex("#FFFF00"), // Yellow
-		fromHex("#FF00FF"), // Magenta
+		hex("#FF0000"), // Red
+		hex("#00FF00"), // Green
+		hex("#0000FF"), // Blue
+		hex("#FFFF00"), // Yellow
+		hex("#FF00FF"), // Magenta
 	}
 
 	for b.Loop() {
@@ -328,11 +328,11 @@ func BenchmarkBlendLinear1D(b *testing.B) {
 
 func BenchmarkBlendLinear2D(b *testing.B) {
 	stops := []color.Color{
-		fromHex("#FF0000"), // Red
-		fromHex("#00FF00"), // Green
-		fromHex("#0000FF"), // Blue
-		fromHex("#FFFF00"), // Yellow
-		fromHex("#FF00FF"), // Magenta
+		hex("#FF0000"), // Red
+		hex("#00FF00"), // Green
+		hex("#0000FF"), // Blue
+		hex("#FFFF00"), // Yellow
+		hex("#FF00FF"), // Magenta
 	}
 
 	for b.Loop() {

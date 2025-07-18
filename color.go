@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/colorprofile"
+	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -58,11 +59,11 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	hexColor := lipgloss.Color("#0000ff")
 func Color(s string) color.Color {
 	if strings.HasPrefix(s, "#") {
-		hex, err := colorful.Hex(s)
+		c, err := colors.FromHex(s)
 		if err != nil {
 			return noColor
 		}
-		return hex
+		return c
 	}
 
 	i, err := strconv.Atoi(s)
