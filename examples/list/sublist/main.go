@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/lipgloss/v2/table"
 	"github.com/lucasb-eyer/go-colorful"
@@ -11,7 +12,6 @@ import (
 
 func main() {
 	hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-
 	lightDark := lipgloss.LightDark(hasDarkBG)
 
 	purple := lipgloss.NewStyle().
@@ -64,7 +64,9 @@ func main() {
 		}
 	}
 
-	colors := colorGrid(1, 5)
+	gradientStart, _ := colorful.Hex("#F25D94")
+	gradientEnd, _ := colorful.Hex("#643AFF")
+	gradient := colors.BlendLinear1D(5, gradientStart, gradientEnd)
 
 	titleStyle := lipgloss.NewStyle().
 		Italic(true).
@@ -72,9 +74,9 @@ func main() {
 
 	lipglossStyleFunc := func(items list.Items, index int) lipgloss.Style {
 		if index == items.Length()-1 {
-			return titleStyle.Padding(1, 2).Margin(0, 0, 1, 0).MaxWidth(20).Background(lipgloss.Color(colors[index][0]))
+			return titleStyle.Padding(1, 2).Margin(0, 0, 1, 0).MaxWidth(20).Background(gradient[index])
 		}
-		return titleStyle.Padding(0, 5-index, 0, index+2).MaxWidth(20).Background(lipgloss.Color(colors[index][0]))
+		return titleStyle.Padding(0, 5-index, 0, index+2).MaxWidth(20).Background(gradient[index])
 	}
 
 	history := "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
@@ -123,13 +125,13 @@ func main() {
 								Item("Lip Gloss").
 								Item(
 									list.New().
-										EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(colors[4][0])).MarginRight(1)).
+										EnumeratorStyle(lipgloss.NewStyle().Foreground(gradient[4]).MarginRight(1)).
 										Item("\nStyle Definitions for Nice Terminal Layouts\n─────").
 										Item("From Charm").
 										Item("https://github.com/charmbracelet/lipgloss").
 										Item(
 											list.New().
-												EnumeratorStyle(lipgloss.NewStyle().Foreground(lipgloss.Color(colors[3][0])).MarginRight(1)).
+												EnumeratorStyle(lipgloss.NewStyle().Foreground(gradient[3]).MarginRight(1)).
 												Item("Emperors: Julio-Claudian dynasty").
 												Item(
 													lipgloss.NewStyle().Padding(1).Render(
@@ -215,32 +217,4 @@ func main() {
 		Item("xoxo, Charm_™")
 
 	lipgloss.Println(l)
-}
-
-func colorGrid(xSteps, ySteps int) [][]string {
-	x0y0, _ := colorful.Hex("#F25D94")
-	x1y0, _ := colorful.Hex("#EDFF82")
-	x0y1, _ := colorful.Hex("#643AFF")
-	x1y1, _ := colorful.Hex("#14F9D5")
-
-	x0 := make([]colorful.Color, ySteps)
-	for i := range x0 {
-		x0[i] = x0y0.BlendLuv(x0y1, float64(i)/float64(ySteps))
-	}
-
-	x1 := make([]colorful.Color, ySteps)
-	for i := range x1 {
-		x1[i] = x1y0.BlendLuv(x1y1, float64(i)/float64(ySteps))
-	}
-
-	grid := make([][]string, ySteps)
-	for x := 0; x < ySteps; x++ {
-		y0 := x0[x]
-		grid[x] = make([]string, xSteps)
-		for y := 0; y < xSteps; y++ {
-			grid[x][y] = y0.BlendLuv(x1[x], float64(y)/float64(xSteps)).Hex()
-		}
-	}
-
-	return grid
 }
