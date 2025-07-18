@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/lipgloss/v2/table"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 func main() {
@@ -64,9 +63,7 @@ func main() {
 		}
 	}
 
-	gradientStart, _ := colorful.Hex("#F25D94")
-	gradientEnd, _ := colorful.Hex("#643AFF")
-	gradient := colors.BlendLinear1D(5, gradientStart, gradientEnd)
+	gradient := colors.BlendLinear1D(5, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
 
 	titleStyle := lipgloss.NewStyle().
 		Italic(true).

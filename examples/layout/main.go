@@ -11,7 +11,6 @@ import (
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/x/term"
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/uniseg"
 )
 
@@ -395,13 +394,8 @@ func main() {
 
 // colorGrid blends colors from 4 corner quadrants, into a box region.
 func colorGrid(xSteps, ySteps int) [][]color.Color {
-	x0y0, _ := colorful.Hex("#F25D94")
-	x1y0, _ := colorful.Hex("#EDFF82")
-	x0y1, _ := colorful.Hex("#643AFF")
-	x1y1, _ := colorful.Hex("#14F9D5")
-
-	leftColors := colors.BlendLinear1D(ySteps, x0y0, x0y1)
-	rightColors := colors.BlendLinear1D(ySteps, x1y0, x1y1)
+	leftColors := colors.BlendLinear1D(ySteps, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
+	rightColors := colors.BlendLinear1D(ySteps, lipgloss.Color("#EDFF82"), lipgloss.Color("#14F9D5"))
 
 	grid := make([][]color.Color, ySteps)
 	for y := range ySteps {
