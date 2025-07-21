@@ -9,7 +9,7 @@ toolchain go1.24.4
 require (
 	github.com/aymanbagabas/go-udiff v0.2.0
 	github.com/charmbracelet/colorprofile v0.3.1
-	github.com/charmbracelet/ultraviolet v0.0.0-20250721205239-361d65fb7b4c
+	github.com/charmbracelet/ultraviolet v0.0.0-20250721205647-f6ac6eda5d42
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240806155701-69247e0abc2a
