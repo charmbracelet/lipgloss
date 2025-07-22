@@ -6,22 +6,25 @@ import (
 )
 
 func main() {
-	enumeratorStyle := lipgloss.NewStyle().
-		Background(lipgloss.Color("0")).
+	backgroundColor := lipgloss.Color("#ee6ff8")
+	foregroundColor := lipgloss.Color("#ecfe65")
+
+	darkBg := lipgloss.NewStyle().
+		Background(backgroundColor).
 		Padding(0, 1)
 
 	headerItemStyle := lipgloss.NewStyle().
-		Background(lipgloss.Color("#ee6ff8")).
-		Foreground(lipgloss.Color("#ecfe65")).
+		Foreground(foregroundColor).
 		Bold(true).
 		Padding(0, 1)
 
-	itemStyle := headerItemStyle.Background(lipgloss.Color("0"))
+	itemStyle := headerItemStyle.Background(backgroundColor)
 
 	t := tree.Root("# Table of Contents").
 		RootStyle(itemStyle).
 		ItemStyle(itemStyle).
-		EnumeratorStyle(enumeratorStyle).
+		EnumeratorStyle(darkBg).
+		IndenterStyle(darkBg).
 		Child(
 			tree.Root("## Chapter 1").
 				Child("Chapter 1.1").
