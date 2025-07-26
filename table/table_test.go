@@ -1407,3 +1407,18 @@ func TestWrapStyleFuncContent(t *testing.T) {
 		Wrap(true)
 	golden.RequireEqual(t, []byte(table.String()))
 }
+
+func TestTableFooters(t *testing.T) {
+	tbl := New().
+		Headers("Name", "Age", "City").
+		Row("Alice", "25", "New York").
+		Row("Bob", "30", "Los Angeles").
+		Row("Charlie", "35", "Chicago").
+		Footers("Total", "3", "3 cities").
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle()
+		}).
+		Border(lipgloss.RoundedBorder())
+
+	golden.RequireEqual(t, []byte(tbl.String()))
+}
