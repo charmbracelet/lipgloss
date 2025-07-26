@@ -1,4 +1,4 @@
-package colors
+package lipgloss
 
 import (
 	"image/color"
