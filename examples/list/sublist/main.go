@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/lipgloss/v2/table"
 )
@@ -63,7 +62,7 @@ func main() {
 		}
 	}
 
-	gradient := colors.BlendLinear1D(5, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
+	gradient := lipgloss.BlendLinear1D(5, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
 
 	titleStyle := lipgloss.NewStyle().
 		Italic(true).

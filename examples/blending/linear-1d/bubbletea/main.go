@@ -10,7 +10,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 )
 
 var gradients = []gradientData{
@@ -140,7 +139,7 @@ func (m model) View() (string, *tea.Cursor) {
 		title = m.styles.gradientName.Width(maxTitleWidth).Render(gradient.name)
 		content.WriteString(title)
 
-		blendedColors := colors.BlendLinear1D(m.width-maxTitleWidth, gradient.stops...)
+		blendedColors := lipgloss.BlendLinear1D(m.width-maxTitleWidth, gradient.stops...)
 
 		for _, c := range blendedColors {
 			content.WriteString(lipgloss.NewStyle().Background(c).Foreground(c).Render("█"))

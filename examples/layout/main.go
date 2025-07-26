@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 	"github.com/charmbracelet/x/term"
 	"github.com/rivo/uniseg"
 )
@@ -394,12 +393,12 @@ func main() {
 
 // colorGrid blends colors from 4 corner quadrants, into a box region.
 func colorGrid(xSteps, ySteps int) [][]color.Color {
-	leftColors := colors.BlendLinear1D(ySteps, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
-	rightColors := colors.BlendLinear1D(ySteps, lipgloss.Color("#EDFF82"), lipgloss.Color("#14F9D5"))
+	leftColors := lipgloss.BlendLinear1D(ySteps, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
+	rightColors := lipgloss.BlendLinear1D(ySteps, lipgloss.Color("#EDFF82"), lipgloss.Color("#14F9D5"))
 
 	grid := make([][]color.Color, ySteps)
 	for y := range ySteps {
-		rowColors := colors.BlendLinear1D(xSteps, leftColors[y], rightColors[y])
+		rowColors := lipgloss.BlendLinear1D(xSteps, leftColors[y], rightColors[y])
 		grid[y] = make([]color.Color, xSteps)
 		for x := range xSteps {
 			grid[y][x] = rowColors[x]
@@ -423,7 +422,7 @@ func applyGradient(base lipgloss.Style, input string, from, to color.Color) stri
 		chars = append(chars, g.Str())
 	}
 
-	gradient := colors.BlendLinear1D(len(chars), from, to)
+	gradient := lipgloss.BlendLinear1D(len(chars), from, to)
 	var output strings.Builder
 	for i, char := range chars {
 		output.WriteString(base.Foreground(gradient[i]).Render(char))

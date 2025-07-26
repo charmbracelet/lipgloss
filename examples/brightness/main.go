@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 )
 
 func main() {
@@ -45,7 +44,7 @@ func main() {
 		for i := range steps {
 			lightenedBox.WriteString(
 				lipgloss.NewStyle().
-					Foreground(colors.Lighten(baseColor, percentage*(float64(i)+1))).
+					Foreground(lipgloss.Lighten(baseColor, percentage*(float64(i)+1))).
 					Render("██"),
 			)
 		}
@@ -58,7 +57,7 @@ func main() {
 		for i := range steps {
 			darkenedBox.WriteString(
 				lipgloss.NewStyle().
-					Foreground(colors.Darken(baseColor, percentage*(float64(i)+1))).
+					Foreground(lipgloss.Darken(baseColor, percentage*(float64(i)+1))).
 					Render("██"),
 			)
 		}

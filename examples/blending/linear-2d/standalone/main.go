@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 )
 
 func main() {
@@ -93,7 +92,7 @@ func main() {
 	for _, gradient := range gradients {
 		// Generate the gradient using BlendLinear2D.
 		width, height := 30, 12
-		blendedColors := colors.BlendLinear2D(width, height, gradient.angle, gradient.stops...)
+		blendedColors := lipgloss.BlendLinear2D(width, height, gradient.angle, gradient.stops...)
 
 		// Create the gradient box using individual character styling.
 		var gradientBox strings.Builder

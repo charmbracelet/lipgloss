@@ -12,7 +12,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 )
 
 var gradients = [][]color.Color{
@@ -137,7 +136,7 @@ func (m *model) updateGradient() {
 	// Since gradients that might be large can take up more memory, only generate gradients when
 	// the box size (potentially) changes. If you have much smaller gradients, this is less of
 	// an issue.
-	m.gradients = colors.BlendLinear2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
+	m.gradients = lipgloss.BlendLinear2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
 }
 
 func (m model) View() string {

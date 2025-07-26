@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/colors"
 )
 
 var gradients = [][]color.Color{
@@ -60,7 +59,7 @@ func main() {
 	content.WriteString("\n")
 
 	for _, gradient := range gradients {
-		blendedColors := colors.BlendLinear1D(40, gradient...)
+		blendedColors := lipgloss.BlendLinear1D(40, gradient...)
 
 		var gradientBar strings.Builder
 		for _, c := range blendedColors {
