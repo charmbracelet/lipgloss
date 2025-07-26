@@ -19,7 +19,7 @@ func main() {
 	gradients := []struct {
 		name  string
 		stops []color.Color
-		angle int
+		angle float64
 	}{
 		{
 			name: "Sunset Diagonal",

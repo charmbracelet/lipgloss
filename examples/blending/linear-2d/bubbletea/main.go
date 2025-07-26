@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"fmt"
 	"image/color"
+	"math"
 	"os"
 	"strings"
 
@@ -72,7 +73,7 @@ type model struct {
 	windowHeight     int
 	boxWidth         int
 	boxHeight        int
-	angle            int
+	angle            float64
 	selectedGradient int
 
 	// UI styles.
@@ -97,10 +98,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c", "esc":
 			return m, tea.Quit
 		case "a":
-			m.angle = (m.angle + 15) % 360
+			m.angle = math.Mod(m.angle+15, 360)
 			m.updateGradient()
 		case "d":
-			m.angle = (m.angle - 15 + 360) % 360
+			m.angle = math.Mod(m.angle-15+360, 360)
 			m.updateGradient()
 		case "left":
 			m.boxWidth -= 2
@@ -163,7 +164,7 @@ func (m model) View() string {
 	gradient := m.gradientBoxStyle.Render(gradientContent.String())
 
 	info := m.infoStyle.Width(m.windowWidth).Render(fmt.Sprintf(
-		"Size: %dx%d | Angle: %d° | Colors: %d",
+		"Size: %dx%d | Angle: %.1f° | Colors: %d",
 		m.boxWidth,
 		m.boxHeight,
 		m.angle,

@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// Percentage to lighten/darken by.
-	percentage := 5 // 5%
+	percentage := 0.05 // 5%
 
 	// Number of steps to generate.
 	steps := 20
@@ -45,7 +45,7 @@ func main() {
 		for i := range steps {
 			lightenedBox.WriteString(
 				lipgloss.NewStyle().
-					Foreground(colors.Lighten(baseColor, percentage*(i+1))).
+					Foreground(colors.Lighten(baseColor, percentage*(float64(i)+1))).
 					Render("██"),
 			)
 		}
@@ -58,7 +58,7 @@ func main() {
 		for i := range steps {
 			darkenedBox.WriteString(
 				lipgloss.NewStyle().
-					Foreground(colors.Darken(baseColor, percentage*(i+1))).
+					Foreground(colors.Darken(baseColor, percentage*(float64(i)+1))).
 					Render("██"),
 			)
 		}

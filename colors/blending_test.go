@@ -141,7 +141,7 @@ func TestBlendLinear2D(t *testing.T) {
 	tests := []struct {
 		name           string
 		width, height  int
-		angle          int
+		angle          float64
 		stops          []color.Color
 		expectedLength int
 	}{

@@ -109,7 +109,7 @@ func BlendLinear1D(steps int, stops ...color.Color) []color.Color {
 // assume that the alpha value was lost in conversion from RGB -> RGBA, and we
 // will set the alpha to opaque, as it's not possible to blend something completely
 // transparent.
-func BlendLinear2D(width, height, angle int, stops ...color.Color) []color.Color {
+func BlendLinear2D(width, height int, angle float64, stops ...color.Color) []color.Color {
 	if width < 1 {
 		width = 1
 	}
@@ -118,7 +118,7 @@ func BlendLinear2D(width, height, angle int, stops ...color.Color) []color.Color
 	}
 
 	// Normalize angle to 0-360.
-	angle = angle % 360
+	angle = math.Mod(angle, 360)
 	if angle < 0 {
 		angle += 360
 	}
@@ -154,7 +154,7 @@ func BlendLinear2D(width, height, angle int, stops ...color.Color) []color.Color
 	centerX := float64(width-1) / 2.0
 	centerY := float64(height-1) / 2.0
 
-	angleRad := float64(angle) * math.Pi / 180.0 // -> radians.
+	angleRad := angle * math.Pi / 180.0 // -> radians.
 
 	// Pre-calculate sin and cos.
 	cosAngle := math.Cos(angleRad)

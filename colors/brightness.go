@@ -4,13 +4,13 @@ import (
 	"image/color"
 )
 
-// Darken takes a color and makes it darker by a specific percentage (0-100, clamped).
-func Darken(c color.Color, percent int) color.Color {
+// Darken takes a color and makes it darker by a specific percentage (0-1, clamped).
+func Darken(c color.Color, percent float64) color.Color {
 	if c == nil {
 		return nil
 	}
 
-	mult := 1.0 - clamp(float64(percent), 0, 100)/100.0
+	mult := 1.0 - clamp(percent, 0, 1)
 
 	r, g, b, a := c.RGBA()
 	return color.RGBA{
@@ -21,13 +21,13 @@ func Darken(c color.Color, percent int) color.Color {
 	}
 }
 
-// Lighten makes a color lighter by a specific percentage (0-100, clamped).
-func Lighten(c color.Color, percent int) color.Color {
+// Lighten makes a color lighter by a specific percentage (0-1, clamped).
+func Lighten(c color.Color, percent float64) color.Color {
 	if c == nil {
 		return nil
 	}
 
-	add := 255 * (clamp(float64(percent), 0, 100) / 100.0)
+	add := 255 * (clamp(percent, 0, 1))
 
 	r, g, b, a := c.RGBA()
 	return color.RGBA{
