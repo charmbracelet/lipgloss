@@ -12,6 +12,10 @@ import (
 // this value when looking to customize header styles in StyleFunc.
 const HeaderRow int = -1
 
+// FooterRow denotes the footer's row index used when rendering footers. Use
+// this value when looking to customize footer styles in StyleFunc.
+const FooterRow int = -2
+
 // StyleFunc is the style function that determines the style of a Cell.
 //
 // It takes the row and column of the cell as an input and determines the
@@ -51,11 +55,13 @@ type Table struct {
 	borderLeft   bool
 	borderRight  bool
 	borderHeader bool
+	borderFooter bool
 	borderColumn bool
 	borderRow    bool
 
 	borderStyle lipgloss.Style
 	headers     []string
+	footers     []string
 	data        Data
 
 	width           int
@@ -82,6 +88,7 @@ func New() *Table {
 		borderBottom: true,
 		borderColumn: true,
 		borderHeader: true,
+		borderFooter: true,
 		borderLeft:   true,
 		borderRight:  true,
 		borderTop:    true,
@@ -142,6 +149,12 @@ func (t *Table) Headers(headers ...string) *Table {
 	return t
 }
 
+// Footers sets the table footers.
+func (t *Table) Footers(footers ...string) *Table {
+	t.footers = footers
+	return t
+}
+
 // Border sets the table border.
 func (t *Table) Border(border lipgloss.Border) *Table {
 	t.border = border
@@ -175,6 +188,12 @@ func (t *Table) BorderRight(v bool) *Table {
 // BorderHeader sets the header separator border.
 func (t *Table) BorderHeader(v bool) *Table {
 	t.borderHeader = v
+	return t
+}
+
+// BorderFooter sets the footer separator border.
+func (t *Table) BorderFooter(v bool) *Table {
+	t.borderFooter = v
 	return t
 }
 
@@ -229,9 +248,10 @@ func (t *Table) Wrap(w bool) *Table {
 // String returns the table as a string.
 func (t *Table) String() string {
 	hasHeaders := len(t.headers) > 0
+	hasFooters := len(t.footers) > 0
 	hasRows := t.data != nil && t.data.Rows() > 0
 
-	if !hasHeaders && !hasRows {
+	if !hasHeaders && !hasFooters && !hasRows {
 		return ""
 	}
 
@@ -240,6 +260,14 @@ func (t *Table) String() string {
 	if hasHeaders {
 		for i := len(t.headers); i < t.data.Columns(); i++ {
 			t.headers = append(t.headers, "")
+		}
+	}
+
+	// Add empty cells to the footers, until it's the same length as the longest
+	// row (only if there are footers in the first place).
+	if hasFooters {
+		for i := len(t.footers); i < t.data.Columns(); i++ {
+			t.footers = append(t.footers, "")
 		}
 	}
 
@@ -285,6 +313,11 @@ func (t *Table) String() string {
 		}
 	}
 
+	if hasFooters {
+		sb.WriteString(t.constructFooters())
+		sb.WriteString("\n")
+	}
+
 	sb.WriteString(bottom)
 
 	return lipgloss.NewStyle().
@@ -296,9 +329,10 @@ func (t *Table) String() string {
 // computeHeight computes the height of the table in it's current configuration.
 func (t *Table) computeHeight() int {
 	hasHeaders := len(t.headers) > 0
-	return sum(t.heights) - 1 + btoi(hasHeaders) +
+	hasFooters := len(t.footers) > 0
+	return sum(t.heights) - 1 + btoi(hasHeaders) + btoi(hasFooters) +
 		btoi(t.borderTop) + btoi(t.borderBottom) +
-		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
+		btoi(t.borderHeader) + btoi(hasFooters && t.borderFooter) + t.data.Rows()*btoi(t.borderRow)
 }
 
 // Render returns the table as a string.
@@ -389,6 +423,55 @@ func (t *Table) constructHeaders() string {
 		}
 	}
 	if t.borderRight && !t.borderHeader {
+		s.WriteString(t.borderStyle.Render(t.border.Right))
+	}
+	return s.String()
+}
+
+// constructFooters constructs the footers for the table given it's current
+// footer configuration and data.
+func (t *Table) constructFooters() string {
+	// Footer row is at the end of the heights array
+	footerRowIndex := len(t.heights) - 1
+	height := t.heights[footerRowIndex]
+
+	var s strings.Builder
+	if t.borderFooter {
+		if t.borderLeft {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
+		}
+		for i := 0; i < len(t.footers); i++ {
+			s.WriteString(t.borderStyle.Render(strings.Repeat(t.border.Bottom, t.widths[i])))
+			if i < len(t.footers)-1 && t.borderColumn {
+				s.WriteString(t.borderStyle.Render(t.border.Middle))
+			}
+		}
+		if t.borderRight {
+			s.WriteString(t.borderStyle.Render(t.border.MiddleRight))
+		}
+		s.WriteString("\n")
+	}
+	if t.borderLeft {
+		s.WriteString(t.borderStyle.Render(t.border.Left))
+	}
+	for i, footer := range t.footers {
+		cellStyle := t.style(FooterRow, i)
+
+		if !t.wrap {
+			footer = t.truncateCell(footer, FooterRow, i)
+		}
+
+		s.WriteString(cellStyle.
+			Height(height - cellStyle.GetVerticalMargins()).
+			MaxHeight(height).
+			Width(t.widths[i] - cellStyle.GetHorizontalMargins()).
+			MaxWidth(t.widths[i]).
+			Render(t.truncateCell(footer, FooterRow, i)))
+		if i < len(t.footers)-1 && t.borderColumn {
+			s.WriteString(t.borderStyle.Render(t.border.Left))
+		}
+	}
+	if t.borderRight {
 		s.WriteString(t.borderStyle.Render(t.border.Right))
 	}
 	return s.String()
@@ -494,7 +577,15 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 func (t *Table) truncateCell(cell string, rowIndex, colIndex int) string {
 	hasHeaders := len(t.headers) > 0
-	height := t.heights[rowIndex+btoi(hasHeaders)]
+
+	var height int
+	if rowIndex == FooterRow {
+		// Footer row is at the end of the heights array
+		height = t.heights[len(t.heights)-1]
+	} else {
+		height = t.heights[rowIndex+btoi(hasHeaders)]
+	}
+
 	cellWidth := t.widths[colIndex]
 	cellStyle := t.style(rowIndex, colIndex)
 
