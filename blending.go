@@ -8,14 +8,14 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-// BlendLinear1D blends a series of colors together in one linear dimension using multiple
+// Blend1D blends a series of colors together in one linear dimension using multiple
 // stops, into the provided number of steps. Uses the "CIE L*, a*, b*" (CIELAB) color-space.
 //
 // Note that if any of the provided colors are completely transparent, we will
 // assume that the alpha value was lost in conversion from RGB -> RGBA, and we
 // will set the alpha to opaque, as it's not possible to blend something completely
 // transparent.
-func BlendLinear1D(steps int, stops ...color.Color) []color.Color {
+func Blend1D(steps int, stops ...color.Color) []color.Color {
 	// Bound to a minimum of 2 steps. If they only provided one, it's actually invalid,
 	// but will ensure that we don't panic.
 	if steps < 2 {
@@ -81,7 +81,7 @@ func BlendLinear1D(steps int, stops ...color.Color) []color.Color {
 	return blended
 }
 
-// BlendLinear2D blends a series of colors together in two linear dimensions using
+// Blend2D blends a series of colors together in two linear dimensions using
 // multiple stops, into the provided width/height. Uses the "CIE L*, a*, b*" (CIELAB)
 // color-space. The angle parameter controls the rotation of the gradient (0-360°),
 // where 0° is left-to-right, 45° is bottom-left to top-right (diagonal). The function
@@ -89,7 +89,7 @@ func BlendLinear1D(steps int, stops ...color.Color) []color.Color {
 //
 // Example of how to iterate over the result:
 //
-//	gradient := colors.BlendLinear2D(width, height, 180, color1, color2, color3, ...)
+//	gradient := colors.Blend2D(width, height, 180, color1, color2, color3, ...)
 //	gradientContent := strings.Builder{}
 //	for y := range height {
 //		for x := range width {
@@ -109,7 +109,7 @@ func BlendLinear1D(steps int, stops ...color.Color) []color.Color {
 // assume that the alpha value was lost in conversion from RGB -> RGBA, and we
 // will set the alpha to opaque, as it's not possible to blend something completely
 // transparent.
-func BlendLinear2D(width, height int, angle float64, stops ...color.Color) []color.Color {
+func Blend2D(width, height int, angle float64, stops ...color.Color) []color.Color {
 	if width < 1 {
 		width = 1
 	}
@@ -146,7 +146,7 @@ func BlendLinear2D(width, height int, angle float64, stops ...color.Color) []col
 	// For 2D blending, we'll create a gradient along the diagonal and then sample
 	// from it based on the angle. We'll use the maximum dimension to ensure we have
 	// enough resolution for the gradient.
-	diagonalGradient := BlendLinear1D(max(width, height), stops...)
+	diagonalGradient := Blend1D(max(width, height), stops...)
 
 	result := make([]color.Color, width*height)
 

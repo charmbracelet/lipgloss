@@ -1,4 +1,4 @@
-// This example demonstrates how to use the colors.BlendLinear2D function to create
+// This example demonstrates how to use the colors.Blend2D function to create
 // beautiful 2D color gradients in a Bubble Tea application.
 package main
 
@@ -136,7 +136,7 @@ func (m *model) updateGradient() {
 	// Since gradients that might be large can take up more memory, only generate gradients when
 	// the box size (potentially) changes. If you have much smaller gradients, this is less of
 	// an issue.
-	m.gradients = lipgloss.BlendLinear2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
+	m.gradients = lipgloss.Blend2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
 }
 
 func (m model) View() string {

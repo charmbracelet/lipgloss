@@ -1,4 +1,4 @@
-// This example demonstrates how to use the colors.BlendLinear2D function to create
+// This example demonstrates how to use the colors.Blend2D function to create
 // beautiful 2D color gradients in a standalone Lip Gloss application.
 package main
 
@@ -86,13 +86,13 @@ func main() {
 
 	var content strings.Builder
 
-	content.WriteString(titleStyle.Render("2D Color Gradient Examples with BlendLinear2D"))
+	content.WriteString(titleStyle.Render("2D Color Gradient Examples with Blend2D"))
 	content.WriteString("\n\n")
 
 	for _, gradient := range gradients {
-		// Generate the gradient using BlendLinear2D.
+		// Generate the gradient using Blend2D.
 		width, height := 30, 12
-		blendedColors := lipgloss.BlendLinear2D(width, height, gradient.angle, gradient.stops...)
+		blendedColors := lipgloss.Blend2D(width, height, gradient.angle, gradient.stops...)
 
 		// Create the gradient box using individual character styling.
 		var gradientBox strings.Builder

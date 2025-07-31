@@ -62,7 +62,7 @@ func main() {
 		}
 	}
 
-	gradient := lipgloss.BlendLinear1D(5, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
+	gradient := lipgloss.Blend1D(5, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
 
 	titleStyle := lipgloss.NewStyle().
 		Italic(true).

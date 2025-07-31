@@ -1,4 +1,4 @@
-// This example demonstrates how to use the colors.BlendLinear1D function to create
+// This example demonstrates how to use the colors.Blend1D function to create
 // beautiful color gradients in a Bubble Tea application.
 package main
 
@@ -130,7 +130,7 @@ func (m model) View() (string, *tea.Cursor) {
 
 	var content strings.Builder
 
-	content.WriteString(m.styles.title.Render("Color Gradient Examples with BlendLinear1D"))
+	content.WriteString(m.styles.title.Render("Color Gradient Examples with Blend1D"))
 	content.WriteString("\n\n")
 
 	var title string
@@ -139,7 +139,7 @@ func (m model) View() (string, *tea.Cursor) {
 		title = m.styles.gradientName.Width(maxTitleWidth).Render(gradient.name)
 		content.WriteString(title)
 
-		blendedColors := lipgloss.BlendLinear1D(m.width-maxTitleWidth, gradient.stops...)
+		blendedColors := lipgloss.Blend1D(m.width-maxTitleWidth, gradient.stops...)
 
 		for _, c := range blendedColors {
 			content.WriteString(lipgloss.NewStyle().Background(c).Foreground(c).Render("█"))

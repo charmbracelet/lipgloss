@@ -1,4 +1,4 @@
-// This example demonstrates how to use the colors.BlendLinear1D function to create
+// This example demonstrates how to use the colors.Blend1D function to create
 // beautiful color gradients in a standalone Lip Gloss application.
 package main
 
@@ -55,11 +55,11 @@ func main() {
 
 	var content strings.Builder
 
-	content.WriteString(titleStyle.Render("Color Gradient Examples with BlendLinear1D"))
+	content.WriteString(titleStyle.Render("Color Gradient Examples with Blend1D"))
 	content.WriteString("\n")
 
 	for _, gradient := range gradients {
-		blendedColors := lipgloss.BlendLinear1D(40, gradient...)
+		blendedColors := lipgloss.Blend1D(40, gradient...)
 
 		var gradientBar strings.Builder
 		for _, c := range blendedColors {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestBlend(t *testing.T) {
+func TestBlend1D(t *testing.T) {
 	tests := []struct {
 		name     string
 		steps    int
@@ -124,7 +124,7 @@ func TestBlend(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := BlendLinear1D(tt.steps, tt.stops...)
+			got := Blend1D(tt.steps, tt.stops...)
 
 			if len(got) != len(tt.expected) {
 				t.Errorf("Blend() = %v length, want %v length", len(got), len(tt.expected))
@@ -137,7 +137,7 @@ func TestBlend(t *testing.T) {
 	}
 }
 
-func TestBlendLinear2D(t *testing.T) {
+func TestBlend2D(t *testing.T) {
 	tests := []struct {
 		name           string
 		width, height  int
@@ -248,24 +248,24 @@ func TestBlendLinear2D(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := BlendLinear2D(tt.width, tt.height, tt.angle, tt.stops...)
+			got := Blend2D(tt.width, tt.height, tt.angle, tt.stops...)
 
 			if len(got) != tt.expectedLength {
-				t.Errorf("BlendLinear2D() = %v length, want %v length", len(got), tt.expectedLength)
+				t.Errorf("Blend2D() = %v length, want %v length", len(got), tt.expectedLength)
 			}
 
 			// Verify row-major order by checking that the width matches.
 			if tt.width > 0 && tt.height > 0 {
 				expectedTotal := max(tt.width, 1) * max(tt.height, 1)
 				if len(got) != expectedTotal {
-					t.Errorf("BlendLinear2D() total pixels = %v, want %v", len(got), expectedTotal)
+					t.Errorf("Blend2D() total pixels = %v, want %v", len(got), expectedTotal)
 				}
 			}
 
 			// Verify that we have valid colors (not nil).
 			for i, color := range got {
 				if color == nil {
-					t.Errorf("BlendLinear2D() color at index %d is nil", i)
+					t.Errorf("Blend2D() color at index %d is nil", i)
 				}
 			}
 
@@ -280,39 +280,39 @@ func TestBlendLinear2D(t *testing.T) {
 	}
 }
 
-func TestBlendLinear2DEdgeCases(t *testing.T) {
+func TestBlend2DEdgeCases(t *testing.T) {
 	t.Run("nil-stops", func(t *testing.T) {
 		t.Parallel()
-		got := BlendLinear2D(2, 2, 0, nil, nil)
+		got := Blend2D(2, 2, 0, nil, nil)
 		if got != nil {
-			t.Errorf("BlendLinear2D() with nil stops = %v, want nil", got)
+			t.Errorf("Blend2D() with nil stops = %v, want nil", got)
 		}
 	})
 
 	t.Run("empty-stops", func(t *testing.T) {
 		t.Parallel()
-		got := BlendLinear2D(2, 2, 0)
+		got := Blend2D(2, 2, 0)
 		if got != nil {
-			t.Errorf("BlendLinear2D() with empty stops = %v, want nil", got)
+			t.Errorf("Blend2D() with empty stops = %v, want nil", got)
 		}
 	})
 
 	t.Run("nil-color-in-stops", func(t *testing.T) {
 		t.Parallel()
-		got := BlendLinear2D(2, 2, 0, color.RGBA{R: 255, G: 0, B: 0, A: 255}, nil, color.RGBA{R: 0, G: 0, B: 255, A: 255})
+		got := Blend2D(2, 2, 0, color.RGBA{R: 255, G: 0, B: 0, A: 255}, nil, color.RGBA{R: 0, G: 0, B: 255, A: 255})
 		if len(got) != 4 {
-			t.Errorf("BlendLinear2D() with nil color in stops = %v length, want 4", len(got))
+			t.Errorf("Blend2D() with nil color in stops = %v length, want 4", len(got))
 		}
 		// Should still work with the non-nil colors and produce valid colors
 		for i, color := range got {
 			if color == nil {
-				t.Errorf("BlendLinear2D() color at index %d is nil", i)
+				t.Errorf("Blend2D() color at index %d is nil", i)
 			}
 		}
 	})
 }
 
-func BenchmarkBlendLinear1D(b *testing.B) {
+func BenchmarkBlend1D(b *testing.B) {
 	stops := []color.Color{
 		hex("#FF0000"), // Red
 		hex("#00FF00"), // Green
@@ -322,11 +322,11 @@ func BenchmarkBlendLinear1D(b *testing.B) {
 	}
 
 	for b.Loop() {
-		BlendLinear1D(100, stops...)
+		Blend1D(100, stops...)
 	}
 }
 
-func BenchmarkBlendLinear2D(b *testing.B) {
+func BenchmarkBlend2D(b *testing.B) {
 	stops := []color.Color{
 		hex("#FF0000"), // Red
 		hex("#00FF00"), // Green
@@ -336,6 +336,6 @@ func BenchmarkBlendLinear2D(b *testing.B) {
 	}
 
 	for b.Loop() {
-		BlendLinear2D(100, 50, 45, stops...)
+		Blend2D(100, 50, 45, stops...)
 	}
 }
