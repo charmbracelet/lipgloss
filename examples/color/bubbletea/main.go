@@ -70,10 +70,10 @@ type model struct {
 	aborted bool
 }
 
-func (m model) Init() (tea.Model, tea.Cmd) {
+func (m model) Init() tea.Cmd {
 	// Query for the background color on start.
 	m.yes = true
-	return m, tea.RequestBackgroundColor
+	return tea.RequestBackgroundColor
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

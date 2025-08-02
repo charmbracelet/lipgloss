@@ -1,5 +1,7 @@
 package tree
 
+import "slices"
+
 // Children is the interface that wraps the basic methods of a tree model.
 type Children interface {
 	// At returns the content item of the given index.
@@ -23,7 +25,7 @@ func (n NodeChildren) Remove(index int) NodeChildren {
 	if index < 0 || len(n) < index+1 {
 		return n
 	}
-	n = append(n[:index], n[index+1:]...)
+	n = slices.Delete(n, index, index+1)
 	return n
 }
 
@@ -68,7 +70,7 @@ func NewFilter(data Children) *Filter {
 // The index is relative to the filtered results.
 func (m *Filter) At(index int) Node {
 	j := 0
-	for i := 0; i < m.data.Length(); i++ {
+	for i := range m.data.Length() {
 		if m.filter(i) {
 			if j == index {
 				return m.data.At(i)
@@ -89,7 +91,7 @@ func (m *Filter) Filter(f func(index int) bool) *Filter {
 // Length returns the number of children in the tree.
 func (m *Filter) Length() int {
 	j := 0
-	for i := 0; i < m.data.Length(); i++ {
+	for i := range m.data.Length() {
 		if m.filter(i) {
 			j++
 		}

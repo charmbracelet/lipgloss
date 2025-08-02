@@ -105,7 +105,7 @@ func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOptio
 	case Top:
 		b.WriteString(str)
 		b.WriteRune('\n')
-		for i := 0; i < gap; i++ {
+		for i := range gap {
 			b.WriteString(emptyLine)
 			if i < gap-1 {
 				b.WriteRune('\n')
@@ -124,7 +124,7 @@ func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOptio
 		b.WriteString(strings.Repeat(emptyLine+"\n", top))
 		b.WriteString(str)
 
-		for i := 0; i < bottom; i++ {
+		for range bottom {
 			b.WriteRune('\n')
 			b.WriteString(emptyLine)
 		}

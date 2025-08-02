@@ -442,7 +442,7 @@ fmt.Println(t)
 ![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
 
 > [!WARNING]
-> Table `Rows` need to be declared before `Offset` otherwise it does nothing.
+> Table `Rows` need to be declared before `YOffset` otherwise it does nothing.
 
 ### Table Borders
 

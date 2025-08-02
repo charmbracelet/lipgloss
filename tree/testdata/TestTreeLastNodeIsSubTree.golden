@@ -1,7 +1,7 @@
-├── Foo
-└── Bar
-    ├── Qux
-    ├── Quux
-    │   ├── Foo
-    │   └── Bar
-    └── Quuux
+├── Foo
+└── Bar
+    ├── Qux
+    ├── Quux
+    │   ├── Foo
+    │   └── Bar
+    └── Quuux

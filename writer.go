@@ -23,7 +23,7 @@ var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
 //	    Render("breakfast")
 //
 //	Println("Time for a", str, "sandwich!")
-func Println(v ...interface{}) (int, error) {
+func Println(v ...any) (int, error) {
 	return fmt.Fprintln(Writer, v...) //nolint:wrapcheck
 }
 
@@ -37,7 +37,7 @@ func Println(v ...interface{}) (int, error) {
 //	  Render("knuckle")
 //
 //	Printf("Time for a %s sandwich!\n", str)
-func Printf(format string, v ...interface{}) (int, error) {
+func Printf(format string, v ...any) (int, error) {
 	return fmt.Fprintf(Writer, format, v...) //nolint:wrapcheck
 }
 
@@ -50,7 +50,7 @@ func Printf(format string, v ...interface{}) (int, error) {
 //	    Render("Who wants marmalade?\n")
 //
 //	Print(str)
-func Print(v ...interface{}) (int, error) {
+func Print(v ...any) (int, error) {
 	return fmt.Fprint(Writer, v...) //nolint:wrapcheck
 }
 
@@ -64,7 +64,7 @@ func Print(v ...interface{}) (int, error) {
 //	    Render("guzzle")
 //
 //	Fprint(os.Stderr, "I %s horchata pretty much all the time.\n", str)
-func Fprint(w io.Writer, v ...interface{}) (int, error) {
+func Fprint(w io.Writer, v ...any) (int, error) {
 	return fmt.Fprint(colorprofile.NewWriter(w, os.Environ()), v...) //nolint:wrapcheck
 }
 
@@ -78,7 +78,7 @@ func Fprint(w io.Writer, v ...interface{}) (int, error) {
 //	    Render("Sandwich time!")
 //
 //	Fprintln(os.Stderr, str)
-func Fprintln(w io.Writer, v ...interface{}) (int, error) {
+func Fprintln(w io.Writer, v ...any) (int, error) {
 	return fmt.Fprintln(colorprofile.NewWriter(w, os.Environ()), v...) //nolint:wrapcheck
 }
 
@@ -92,7 +92,7 @@ func Fprintln(w io.Writer, v ...interface{}) (int, error) {
 //	    Render("artichokes")
 //
 //	Fprintf(os.Stderr, "I really love %s!\n", food)
-func Fprintf(w io.Writer, format string, v ...interface{}) (int, error) {
+func Fprintf(w io.Writer, format string, v ...any) (int, error) {
 	return fmt.Fprintf(colorprofile.NewWriter(w, os.Environ()), format, v...) //nolint:wrapcheck
 }
 
@@ -107,7 +107,7 @@ func Fprintf(w io.Writer, format string, v ...interface{}) (int, error) {
 //	    Render("I love to eat")
 //
 //	str = Sprint(str)
-func Sprint(v ...interface{}) string {
+func Sprint(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
@@ -128,7 +128,7 @@ func Sprint(v ...interface{}) string {
 //		Render("Yummy!")
 //
 //	str = Sprintln(str)
-func Sprintln(v ...interface{}) string {
+func Sprintln(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
@@ -149,7 +149,7 @@ func Sprintln(v ...interface{}) string {
 //		Render("Cantaloupe")
 //
 //	str = Sprintf("I really love %s!", str)
-func Sprintf(format string, v ...interface{}) string {
+func Sprintf(format string, v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
