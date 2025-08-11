@@ -8,7 +8,7 @@ go 1.23.0
 
 require (
 	github.com/aymanbagabas/go-udiff v0.3.1
-	github.com/charmbracelet/x/ansi v0.9.3
+	github.com/charmbracelet/x/ansi v0.10.1
 	github.com/charmbracelet/x/cellbuf v0.0.13
 	github.com/charmbracelet/x/exp/golden v0.0.0-20250609102027-b60490452b30
 	github.com/muesli/termenv v0.16.0
