@@ -810,7 +810,7 @@ We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
 Part of [Charm](https://charm.sh).
 
-<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge.jpg" width="400"></a>
+<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-banner-next.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
 
