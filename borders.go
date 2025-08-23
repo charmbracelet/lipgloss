@@ -320,8 +320,11 @@ func (s Style) applyBorder(str string) string {
 		width += maxRuneWidth(border.Left)
 	}
 
-	if hasRight && border.Right == "" {
-		border.Right = " "
+	if hasRight {
+		if border.Right == "" {
+			border.Right = " "
+		}
+		width += maxRuneWidth(border.Right)
 	}
 
 	// If corners should be rendered but are set with the empty string, fill them
@@ -435,14 +438,19 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i < width+rightWidth; {
-		out.WriteRune(runes[j])
+	
+	// Fill the middle section
+	middleWidth := width - leftWidth - rightWidth
+	for i := 0; i < middleWidth; {
+		r := runes[j]
+		out.WriteRune(r)
+		i += ansi.StringWidth(string(r))
 		j++
 		if j >= len(runes) {
 			j = 0
 		}
-		i += ansi.StringWidth(string(runes[j]))
 	}
+	
 	out.WriteString(right)
 
 	return out.String()
