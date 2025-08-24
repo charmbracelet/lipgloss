@@ -14,7 +14,6 @@ require (
 	github.com/charmbracelet/wish v1.4.0
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250627134340-c144409e381c
 	github.com/charmbracelet/x/term v0.2.1
-	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/rivo/uniseg v0.4.7
 )
 
@@ -25,7 +24,7 @@ require (
 	github.com/charmbracelet/keygen v0.5.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.1-0.20240822211938-b89f1a3db2a4 // indirect
 	github.com/charmbracelet/log v0.4.0 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20250716141307-2fae2b322afb // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20250721205647-f6ac6eda5d42 // indirect
 	github.com/charmbracelet/x/ansi v0.9.3 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.14-0.20250505150409-97991a1f17d1 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect
@@ -36,6 +35,7 @@ require (
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/creack/pty v1.1.21 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect

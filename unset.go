@@ -244,6 +244,20 @@ func (s Style) UnsetBorderLeftForeground() Style {
 	return s
 }
 
+// UnsetBorderForegroundBlend removes the border blend foreground color rules,
+// if set.
+func (s Style) UnsetBorderForegroundBlend() Style {
+	s.unset(borderForegroundBlendKey)
+	return s
+}
+
+// UnsetBorderForegroundBlendOffset removes the border blend offset style rule,
+// if set.
+func (s Style) UnsetBorderForegroundBlendOffset() Style {
+	s.unset(borderForegroundBlendOffsetKey)
+	return s
+}
+
 // UnsetBorderBackground removes all border background color styles, if
 // set.
 func (s Style) UnsetBorderBackground() Style {

@@ -30,7 +30,13 @@ func newCard(darkMode bool, text string) string {
 
 	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(charmtone.Charple).
+		BorderForegroundBlend(
+			charmtone.Cherry,
+			charmtone.Charple,
+			charmtone.Guac,
+			charmtone.Charple,
+			charmtone.Sriracha,
+		).
 		Foreground(lightDark(charmtone.Iron, charmtone.Butter)).
 		Height(9).
 		Width(16).

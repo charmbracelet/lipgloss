@@ -69,6 +69,8 @@ const (
 	borderRightForegroundKey
 	borderBottomForegroundKey
 	borderLeftForegroundKey
+	borderForegroundBlendKey
+	borderForegroundBlendOffsetKey
 
 	// Border background colors.
 	borderTopBackgroundKey
@@ -140,15 +142,17 @@ type Style struct {
 	marginBgColor color.Color
 	marginChar    rune
 
-	borderStyle         Border
-	borderTopFgColor    color.Color
-	borderRightFgColor  color.Color
-	borderBottomFgColor color.Color
-	borderLeftFgColor   color.Color
-	borderTopBgColor    color.Color
-	borderRightBgColor  color.Color
-	borderBottomBgColor color.Color
-	borderLeftBgColor   color.Color
+	borderStyle                 Border
+	borderTopFgColor            color.Color
+	borderRightFgColor          color.Color
+	borderBottomFgColor         color.Color
+	borderLeftFgColor           color.Color
+	borderBlendFgColor          []color.Color
+	borderForegroundBlendOffset int
+	borderTopBgColor            color.Color
+	borderRightBgColor          color.Color
+	borderBottomBgColor         color.Color
+	borderLeftBgColor           color.Color
 
 	maxWidth  int
 	maxHeight int
@@ -368,11 +372,16 @@ func (s Style) Render(strs ...string) string {
 	{
 		var b strings.Builder
 
-		l := strings.Split(str, "\n")
-		for i := range l {
+		isFirst := true
+		for line := range strings.SplitSeq(str, "\n") {
+			if isFirst {
+				isFirst = false
+			} else {
+				b.WriteRune('\n')
+			}
 			if useSpaceStyler {
 				// Look for spaces and apply a different styler
-				for _, r := range l[i] {
+				for _, r := range line {
 					if unicode.IsSpace(r) {
 						b.WriteString(teSpace.Styled(string(r)))
 						continue
@@ -380,10 +389,7 @@ func (s Style) Render(strs ...string) string {
 					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(te.Styled(l[i]))
-			}
-			if i != len(l)-1 {
-				b.WriteRune('\n')
+				b.WriteString(te.Styled(line))
 			}
 		}
 
@@ -550,22 +556,22 @@ func pad(str string, n int, style *ansi.Style, r rune) string {
 	}
 
 	b := strings.Builder{}
-	l := strings.Split(str, "\n")
-
-	for i := range l {
+	isFirst := true
+	for line := range strings.SplitSeq(str, "\n") {
+		if isFirst {
+			isFirst = false
+		} else {
+			b.WriteRune('\n')
+		}
 		switch {
 		// pad right
 		case n > 0:
-			b.WriteString(l[i])
+			b.WriteString(line)
 			b.WriteString(sp)
 		// pad left
 		default:
 			b.WriteString(sp)
-			b.WriteString(l[i])
-		}
-
-		if i != len(l)-1 {
-			b.WriteRune('\n')
+			b.WriteString(line)
 		}
 	}
 
