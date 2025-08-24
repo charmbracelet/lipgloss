@@ -284,6 +284,18 @@ func (s Style) GetBorderLeftForeground() color.Color {
 	return s.getAsColor(borderLeftForegroundKey)
 }
 
+// GetBorderBlendForeground returns the style's border blend foreground colors.
+// If no value is set, nil is returned.
+func (s Style) GetBorderBlendForeground() []color.Color {
+	return s.getAsColors(borderBlendForegroundKey)
+}
+
+// GetBorderBlendWrap returns the style's border blend wrap setting. If no value
+// is set, false is returned.
+func (s Style) GetBorderBlendWrap() bool {
+	return s.getAsBool(borderBlendWrapKey, false)
+}
+
 // GetBorderTopBackground returns the style's border top background color. If
 // no value is set NoColor{} is returned.
 func (s Style) GetBorderTopBackground() color.Color {
@@ -470,6 +482,19 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 		return defaultVal
 	}
 	return s.attrs&int(k) != 0
+}
+
+func (s Style) getAsColors(k propKey) (colors []color.Color) {
+	if !s.isSet(k) {
+		return nil
+	}
+
+	switch k { //nolint:exhaustive
+	case borderBlendForegroundKey:
+		return s.borderBlendFgColor
+	}
+
+	return nil
 }
 
 func (s Style) getAsColor(k propKey) color.Color {

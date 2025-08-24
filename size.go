@@ -13,7 +13,7 @@ import (
 // You should use this instead of len(string) or len([]rune(string) as neither
 // will give you accurate results.
 func Width(str string) (width int) {
-	for _, l := range strings.Split(str, "\n") {
+	for l := range strings.SplitSeq(str, "\n") {
 		w := ansi.StringWidth(l)
 		if w > width {
 			width = w
