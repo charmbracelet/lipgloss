@@ -69,6 +69,8 @@ const (
 	borderRightForegroundKey
 	borderBottomForegroundKey
 	borderLeftForegroundKey
+	borderBlendForegroundKey
+	borderBlendWrapKey
 
 	// Border background colors.
 	borderTopBackgroundKey
@@ -145,6 +147,7 @@ type Style struct {
 	borderRightFgColor  color.Color
 	borderBottomFgColor color.Color
 	borderLeftFgColor   color.Color
+	borderBlendFgColor  []color.Color
 	borderTopBgColor    color.Color
 	borderRightBgColor  color.Color
 	borderBottomBgColor color.Color

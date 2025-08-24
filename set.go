@@ -53,6 +53,8 @@ func (s *Style) set(key propKey, value any) {
 		s.borderBottomFgColor = colorOrNil(value)
 	case borderLeftForegroundKey:
 		s.borderLeftFgColor = colorOrNil(value)
+	case borderBlendForegroundKey:
+		s.borderBlendFgColor = value.([]color.Color)
 	case borderTopBackgroundKey:
 		s.borderTopBgColor = colorOrNil(value)
 	case borderRightBackgroundKey:
@@ -139,6 +141,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(borderBottomForegroundKey, i.borderBottomFgColor)
 	case borderLeftForegroundKey:
 		s.set(borderLeftForegroundKey, i.borderLeftFgColor)
+	case borderBlendForegroundKey:
+		s.set(borderBlendForegroundKey, i.borderBlendFgColor)
 	case borderTopBackgroundKey:
 		s.set(borderTopBackgroundKey, i.borderTopBgColor)
 	case borderRightBackgroundKey:
@@ -559,6 +563,34 @@ func (s Style) BorderBottomForeground(c color.Color) Style {
 // border.
 func (s Style) BorderLeftForeground(c color.Color) Style {
 	s.set(borderLeftForegroundKey, c)
+	return s
+}
+
+// BorderBlendForeground sets the foreground colors for the border blend. At least
+// 2 colors are required to use blending, otherwise this will no-op with 0 colors,
+// and pass to BorderForeground with 1 color. This will override all other border
+// foreground colors when used.
+func (s Style) BorderBlendForeground(c ...color.Color) Style {
+	if len(c) == 0 {
+		return s
+	}
+
+	// Insufficient colors to use blending, pass to BorderForeground.
+	if len(c) == 1 {
+		return s.BorderForeground(c...)
+	}
+
+	s.set(borderBlendForegroundKey, c)
+	return s
+}
+
+// BorderBlendWrap sets the border blend wrap setting. If true, we will take the
+// blending provided to [Style.BorderBlendForeground], use it for half of of the
+// border, then invert the gradient for the other half. Use this to create a
+// seamless blend that can wrap around the edges of the border, so the start and
+// end of the blend are the same color.
+func (s Style) BorderBlendWrap(v bool) Style {
+	s.set(borderBlendWrapKey, v)
 	return s
 }
 
