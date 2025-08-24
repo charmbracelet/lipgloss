@@ -473,16 +473,6 @@ func TestStringTransform(t *testing.T) {
 	}
 }
 
-func BenchmarkStyleRender(b *testing.B) {
-	s := NewStyle().
-		Bold(true).
-		Foreground(Color("#ffffff"))
-
-	for i := 0; i < b.N; i++ {
-		s.Render("Hello world")
-	}
-}
-
 func requireTrue(tb testing.TB, b bool) {
 	tb.Helper()
 	requireEqual(tb, true, b)
@@ -569,5 +559,103 @@ func TestHeight(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func BenchmarkPad(b *testing.B) {
+	tests := []struct {
+		name string
+		str  string
+		n    int
+	}{
+		{name: "pad-10", str: "foo bar", n: 10},
+		{name: "pad-100", str: "foo bar", n: 100},
+		{name: "pad-negative-10", str: "foo bar", n: -10},
+		{name: "pad-negative-100", str: "foo bar", n: -100},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				pad(tt.str, tt.n, nil, ' ')
+			}
+		})
+	}
+}
+
+func BenchmarkStyleRender(b *testing.B) {
+	tests := []struct {
+		name  string
+		style Style
+		input string
+	}{
+		{
+			name: "simple-1-line",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: "Hello world",
+		},
+		{
+			name: "simple-5-lines",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-5-lines-inline",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Inline(true),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-10-lines-5-height-40-width",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Height(5).
+				Width(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders-padding-margins",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true).
+				Padding(1, 1).
+				Margin(1, 1),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				tt.style.Render(tt.input)
+			}
+		})
 	}
 }
