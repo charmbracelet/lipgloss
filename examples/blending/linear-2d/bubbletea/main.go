@@ -57,7 +57,12 @@ func main() {
 			MarginTop(1),
 		gradientBoxStyle: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#666666")),
+			BorderBlendForeground(
+				lipgloss.Color("#00FA68"),
+				lipgloss.Color("#9900FF"),
+				lipgloss.Color("#ED5353"),
+			).
+			BorderBlendWrap(true),
 	}
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := p.Run(); err != nil {
