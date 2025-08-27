@@ -386,12 +386,36 @@ func (s Style) GetStrikethroughSpaces() bool {
 	return s.getAsBool(strikethroughSpacesKey, false)
 }
 
+// GetTopFrameSize returns the sum of the style's top margins, padding
+// and border widths.
+func (s Style) GetTopFrameSize() int {
+	return s.GetMarginTop() + s.GetPaddingTop() + s.GetBorderTopSize()
+}
+
+// GetRightFrameSize returns the sum of the style's right margins, padding
+// and border widths.
+func (s Style) GetRightFrameSize() int {
+	return s.GetMarginRight() + s.GetPaddingRight() + s.GetBorderRightSize()
+}
+
+// GetBottomFrameSize returns the sum of the style's bottom margins, padding
+// and border widths.
+func (s Style) GetBottomFrameSize() int {
+	return s.GetMarginBottom() + s.GetPaddingBottom() + s.GetBorderBottomSize()
+}
+
+// GetLeftFrameSize returns the sum of the style's left margins, padding
+// and border widths.
+func (s Style) GetLeftFrameSize() int {
+	return s.GetMarginLeft() + s.GetPaddingLeft() + s.GetBorderLeftSize()
+}
+
 // GetHorizontalFrameSize returns the sum of the style's horizontal margins, padding
 // and border widths.
 //
 // Provisional: this method may be renamed.
 func (s Style) GetHorizontalFrameSize() int {
-	return s.GetHorizontalMargins() + s.GetHorizontalPadding() + s.GetHorizontalBorderSize()
+	return s.GetRightFrameSize() + s.GetLeftFrameSize()
 }
 
 // GetVerticalFrameSize returns the sum of the style's vertical margins, padding
@@ -399,7 +423,7 @@ func (s Style) GetHorizontalFrameSize() int {
 //
 // Provisional: this method may be renamed.
 func (s Style) GetVerticalFrameSize() int {
-	return s.GetVerticalMargins() + s.GetVerticalPadding() + s.GetVerticalBorderSize()
+	return s.GetTopFrameSize() + s.GetBottomFrameSize()
 }
 
 // GetFrameSize returns the sum of the margins, padding and border width for
