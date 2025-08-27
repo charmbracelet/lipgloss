@@ -166,6 +166,12 @@ func joinString(strs ...string) string {
 	return strings.Join(strs, " ")
 }
 
+// joinString joins a list of strings into a single string separated with a
+// space.
+func joinStringWithSeparator(separator string, strs ...string) string {
+	return strings.Join(strs, separator)
+}
+
 // SetString sets the underlying string value for this style. To render once
 // the underlying string is set, use the Style.String. This method is
 // a convenience for cases when having a stringer implementation is handy, such
@@ -232,6 +238,11 @@ func (s Style) Inherit(i Style) Style {
 
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(strs ...string) string {
+	return s.RenderWithSeparator(" ", strs...)
+}
+
+// Render applies the defined style formatting to a given string.
+func (s Style) RenderWithSeparator(separator string, strs ...string) string {
 	if s.r == nil {
 		s.r = renderer
 	}
@@ -240,7 +251,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	var (
-		str = joinString(strs...)
+		str = joinStringWithSeparator(separator, strs...)
 
 		p            = s.r.ColorProfile()
 		te           = p.String()
