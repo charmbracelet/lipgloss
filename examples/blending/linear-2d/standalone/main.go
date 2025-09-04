@@ -110,7 +110,7 @@ func main() {
 			}
 		}
 
-		content.WriteString(gradientNameStyle.Render(fmt.Sprintf("%s (Angle: %d°)", gradient.name, gradient.angle)))
+		content.WriteString(gradientNameStyle.Render(fmt.Sprintf("%s (Angle: %.0f°)", gradient.name, gradient.angle)))
 		content.WriteString("\n")
 		content.WriteString(gradientStyle.Render(gradientBox.String()))
 		content.WriteString("\n")

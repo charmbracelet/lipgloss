@@ -284,6 +284,18 @@ func (s Style) GetBorderLeftForeground() color.Color {
 	return s.getAsColor(borderLeftForegroundKey)
 }
 
+// GetBorderForegroundBlend returns the style's border blend foreground
+// colors. If no value is set, nil is returned.
+func (s Style) GetBorderForegroundBlend() []color.Color {
+	return s.getAsColors(borderForegroundBlendKey)
+}
+
+// GetBorderForegroundBlendOffset returns the style's border blend offset. If no
+// value is set, 0 is returned.
+func (s Style) GetBorderForegroundBlendOffset() int {
+	return s.getAsInt(borderForegroundBlendOffsetKey)
+}
+
 // GetBorderTopBackground returns the style's border top background color. If
 // no value is set NoColor{} is returned.
 func (s Style) GetBorderTopBackground() color.Color {
@@ -472,6 +484,19 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	return s.attrs&int(k) != 0
 }
 
+func (s Style) getAsColors(k propKey) (colors []color.Color) {
+	if !s.isSet(k) {
+		return nil
+	}
+
+	switch k { //nolint:exhaustive
+	case borderForegroundBlendKey:
+		return s.borderBlendFgColor
+	}
+
+	return nil
+}
+
 func (s Style) getAsColor(k propKey) color.Color {
 	if !s.isSet(k) {
 		return noColor
@@ -535,6 +560,8 @@ func (s Style) getAsInt(k propKey) int {
 		return s.marginBottom
 	case marginLeftKey:
 		return s.marginLeft
+	case borderForegroundBlendOffsetKey:
+		return s.borderForegroundBlendOffset
 	case maxWidthKey:
 		return s.maxWidth
 	case maxHeightKey:

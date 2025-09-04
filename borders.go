@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"image/color"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -278,6 +279,52 @@ func ASCIIBorder() Border {
 	return asciiBorder
 }
 
+type borderBlend struct {
+	topGradient    []color.Color
+	rightGradient  []color.Color
+	bottomGradient []color.Color
+	leftGradient   []color.Color
+}
+
+func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlend {
+	gradient := Blend1D(
+		(height+width+2)*2,
+		colors...,
+	)
+
+	// Rotate array forward or reverse based on the offset if provided.
+	if r := -s.getAsInt(borderForegroundBlendOffsetKey); r != 0 {
+		n := len(gradient)
+		r %= n
+		if r < 0 {
+			r += n
+		}
+		slices.Reverse(gradient[:r])
+		slices.Reverse(gradient[r:])
+		slices.Reverse(gradient)
+	}
+
+	offset := 0
+	getFromOffset := func(size int) (s []color.Color) {
+		s = gradient[offset : offset+size]
+		offset += size
+		return s
+	}
+
+	blend := &borderBlend{
+		topGradient:    getFromOffset(width + 2),
+		rightGradient:  getFromOffset(height),
+		bottomGradient: getFromOffset(width + 2),
+		leftGradient:   getFromOffset(height),
+	}
+
+	// bottom and left gradients are reversed because they are drawn in reverse order.
+	slices.Reverse(blend.bottomGradient)
+	slices.Reverse(blend.leftGradient)
+
+	return blend
+}
+
 func (s Style) applyBorder(str string) string {
 	var (
 		border    = s.getBorderStyle()
@@ -285,16 +332,6 @@ func (s Style) applyBorder(str string) string {
 		hasRight  = s.getAsBool(borderRightKey, false)
 		hasBottom = s.getAsBool(borderBottomKey, false)
 		hasLeft   = s.getAsBool(borderLeftKey, false)
-
-		topFG    = s.getAsColor(borderTopForegroundKey)
-		rightFG  = s.getAsColor(borderRightForegroundKey)
-		bottomFG = s.getAsColor(borderBottomForegroundKey)
-		leftFG   = s.getAsColor(borderLeftForegroundKey)
-
-		topBG    = s.getAsColor(borderTopBackgroundKey)
-		rightBG  = s.getAsColor(borderRightBackgroundKey)
-		bottomBG = s.getAsColor(borderBottomBackgroundKey)
-		leftBG   = s.getAsColor(borderLeftBackgroundKey)
 	)
 
 	// If a border is set and no sides have been specifically turned on or off
@@ -320,8 +357,11 @@ func (s Style) applyBorder(str string) string {
 		width += maxRuneWidth(border.Left)
 	}
 
-	if hasRight && border.Right == "" {
-		border.Right = " "
+	if hasRight {
+		if border.Right == "" {
+			border.Right = " "
+		}
+		width += maxRuneWidth(border.Right)
 	}
 
 	// If corners should be rendered but are set with the empty string, fill them
@@ -370,13 +410,35 @@ func (s Style) applyBorder(str string) string {
 	border.BottomRight = getFirstRuneAsString(border.BottomRight)
 	border.BottomLeft = getFirstRuneAsString(border.BottomLeft)
 
+	var topFG, rightFG, bottomFG, leftFG color.Color
+	var (
+		blendFG  = s.getAsColors(borderForegroundBlendKey)
+		topBG    = s.getAsColor(borderTopBackgroundKey)
+		rightBG  = s.getAsColor(borderRightBackgroundKey)
+		bottomBG = s.getAsColor(borderBottomBackgroundKey)
+		leftBG   = s.getAsColor(borderLeftBackgroundKey)
+	)
+
+	var blend *borderBlend
+	if len(blendFG) > 0 {
+		blend = s.borderBlend(width, len(lines), blendFG...)
+	} else {
+		topFG = s.getAsColor(borderTopForegroundKey)
+		rightFG = s.getAsColor(borderRightForegroundKey)
+		bottomFG = s.getAsColor(borderBottomForegroundKey)
+		leftFG = s.getAsColor(borderLeftForegroundKey)
+	}
+
 	var out strings.Builder
 
 	// Render top
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
-		top = s.styleBorder(top, topFG, topBG)
-		out.WriteString(top)
+		if blend != nil {
+			out.WriteString(s.styleBorderBlend(top, blend.topGradient, topBG))
+		} else {
+			out.WriteString(s.styleBorder(top, topFG, topBG))
+		}
 		out.WriteRune('\n')
 	}
 
@@ -387,23 +449,32 @@ func (s Style) applyBorder(str string) string {
 	rightIndex := 0
 
 	// Render sides
+	var r string
 	for i, l := range lines {
 		if hasLeft {
-			r := string(leftRunes[leftIndex])
+			r = string(leftRunes[leftIndex])
 			leftIndex++
 			if leftIndex >= len(leftRunes) {
 				leftIndex = 0
 			}
-			out.WriteString(s.styleBorder(r, leftFG, leftBG))
+			if blend != nil {
+				out.WriteString(s.styleBorder(r, blend.leftGradient[i], leftBG))
+			} else {
+				out.WriteString(s.styleBorder(r, leftFG, leftBG))
+			}
 		}
 		out.WriteString(l)
 		if hasRight {
-			r := string(rightRunes[rightIndex])
+			r = string(rightRunes[rightIndex])
 			rightIndex++
 			if rightIndex >= len(rightRunes) {
 				rightIndex = 0
 			}
-			out.WriteString(s.styleBorder(r, rightFG, rightBG))
+			if blend != nil {
+				out.WriteString(s.styleBorder(r, blend.rightGradient[i], rightBG))
+			} else {
+				out.WriteString(s.styleBorder(r, rightFG, rightBG))
+			}
 		}
 		if i < len(lines)-1 {
 			out.WriteRune('\n')
@@ -413,9 +484,12 @@ func (s Style) applyBorder(str string) string {
 	// Render bottom
 	if hasBottom {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
-		bottom = s.styleBorder(bottom, bottomFG, bottomBG)
 		out.WriteRune('\n')
-		out.WriteString(bottom)
+		if blend != nil {
+			out.WriteString(s.styleBorderBlend(bottom, blend.bottomGradient, bottomBG))
+		} else {
+			out.WriteString(s.styleBorder(bottom, bottomFG, bottomBG))
+		}
 	}
 
 	return out.String()
@@ -435,25 +509,26 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 
 	out := strings.Builder{}
 	out.WriteString(left)
-	for i := leftWidth + rightWidth; i < width+rightWidth; {
-		out.WriteRune(runes[j])
+
+	for i := 0; i < width-leftWidth-rightWidth; {
+		r := runes[j]
+		out.WriteRune(r)
+		i += ansi.StringWidth(string(r))
 		j++
 		if j >= len(runes) {
 			j = 0
 		}
-		i += ansi.StringWidth(string(runes[j]))
 	}
-	out.WriteString(right)
 
+	out.WriteString(right)
 	return out.String()
 }
 
-// Apply foreground and background styling to a border.
+// styleBorder applies foreground and background styling to a border.
 func (s Style) styleBorder(border string, fg, bg color.Color) string {
 	if fg == noColor && bg == noColor {
 		return border
 	}
-
 	var style ansi.Style
 	if fg != noColor {
 		style = style.ForegroundColor(fg)
@@ -461,8 +536,30 @@ func (s Style) styleBorder(border string, fg, bg color.Color) string {
 	if bg != noColor {
 		style = style.BackgroundColor(bg)
 	}
-
 	return style.Styled(border)
+}
+
+// styleBorderBlend applies foreground and background styling to a border, using blending.
+func (s Style) styleBorderBlend(border string, fg []color.Color, bg color.Color) string {
+	var out strings.Builder
+	var style ansi.Style
+	var i int
+
+	gr := uniseg.NewGraphemes(border)
+	for gr.Next() {
+		style = style[:0]
+		if fg[i] != noColor {
+			style = style.ForegroundColor(fg[i])
+		}
+		if bg != noColor {
+			style = style.BackgroundColor(bg)
+		}
+		_, _ = out.WriteString(style.String())
+		_, _ = out.Write(gr.Bytes())
+		i++
+	}
+	_, _ = out.WriteString(ansi.ResetStyle)
+	return out.String()
 }
 
 func maxRuneWidth(str string) int {

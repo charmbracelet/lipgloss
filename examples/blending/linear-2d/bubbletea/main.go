@@ -12,6 +12,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/x/exp/charmtone"
 )
 
 var gradients = [][]color.Color{
@@ -57,7 +58,13 @@ func main() {
 			MarginTop(1),
 		gradientBoxStyle: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#666666")),
+			BorderForegroundBlend(
+				charmtone.Cherry,
+				charmtone.Charple,
+				charmtone.Guac,
+				charmtone.Charple,
+				charmtone.Sriracha,
+			),
 	}
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := p.Run(); err != nil {
