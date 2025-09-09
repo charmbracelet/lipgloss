@@ -16,10 +16,12 @@ import (
 // will set the alpha to opaque, as it's not possible to blend something completely
 // transparent.
 func Blend1D(steps int, stops ...color.Color) []color.Color {
-	// Bound to a minimum of 2 steps. If they only provided one, it's actually invalid,
-	// but will ensure that we don't panic.
-	if steps < 2 {
-		steps = 2
+	if steps < 0 {
+		steps = 0
+	}
+
+	if steps <= len(stops) {
+		return stops[:steps]
 	}
 
 	// Ensure they didn't provide any nil colors.
