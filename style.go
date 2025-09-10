@@ -364,7 +364,9 @@ func (s Style) Render(strs ...string) string {
 
 	// Word wrap
 	if !inline && width > 0 {
-		wrapAt := width - leftPadding - rightPadding
+		// Include border widths in available inner width so that the
+		// overall rendered width (including borders) matches the set width.
+		wrapAt := width - leftPadding - rightPadding - s.GetHorizontalBorderSize()
 		str = cellbuf.Wrap(str, wrapAt, "")
 	}
 
