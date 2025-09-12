@@ -96,7 +96,7 @@ func TestBlend1D(t *testing.T) {
 			},
 		},
 		{
-			name:  "insufficient-stops",
+			name:  "3-steps-1-stop",
 			steps: 3,
 			stops: []color.Color{
 				color.RGBA{R: 255, G: 0, B: 0, A: 255},
@@ -108,7 +108,7 @@ func TestBlend1D(t *testing.T) {
 			},
 		},
 		{
-			name:  "insufficient-steps",
+			name:  "1-step-2-stops",
 			steps: 1,
 			stops: []color.Color{
 				color.RGBA{R: 255, G: 0, B: 0, A: 255},
@@ -116,8 +116,21 @@ func TestBlend1D(t *testing.T) {
 			},
 			expected: []color.Color{
 				&color.RGBA{R: 255, G: 0, B: 0, A: 255},
-				&color.RGBA{R: 0, G: 0, B: 255, A: 255},
 			},
+		},
+		{
+			name:     "0-steps-0-stops",
+			steps:    0,
+			stops:    []color.Color{},
+			expected: []color.Color{},
+		},
+		{
+			name:  "0-steps-1-stop",
+			steps: 0,
+			stops: []color.Color{
+				color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			},
+			expected: []color.Color{},
 		},
 	}
 	for _, tt := range tests {
