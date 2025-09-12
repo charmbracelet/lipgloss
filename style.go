@@ -23,7 +23,6 @@ const (
 	// Boolean props come first.
 	boldKey propKey = 1 << iota
 	italicKey
-	underlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -33,8 +32,10 @@ const (
 	colorWhitespaceKey
 
 	// Non-boolean props.
+	underlineKey
 	foregroundKey
 	backgroundKey
+	underlineColorKey
 	widthKey
 	heightKey
 	alignHorizontalKey
@@ -104,6 +105,24 @@ func (p props) has(k propKey) bool {
 	return p&props(k) != 0
 }
 
+// Underline is the style of the underline.
+type Underline uint8
+
+const (
+	// NoUnderline is no underline.
+	NoUnderline = Underline(ansi.NoUnderlineStyle)
+	// SingleUnderline is a single underline. This is the default when underline is enabled.
+	SingleUnderline = Underline(ansi.SingleUnderlineStyle)
+	// DoubleUnderline is a double underline.
+	DoubleUnderline = Underline(ansi.DoubleUnderlineStyle)
+	// CurlyUnderline is a curly underline.
+	CurlyUnderline = Underline(ansi.CurlyUnderlineStyle)
+	// DottedUnderline is a dotted underline.
+	DottedUnderline = Underline(ansi.DottedUnderlineStyle)
+	// DashedUnderline is a dashed underline.
+	DashedUnderline = Underline(ansi.DashedUnderlineStyle)
+)
+
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // [Style]{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes.
@@ -122,6 +141,9 @@ type Style struct {
 	// props that have values
 	fgColor color.Color
 	bgColor color.Color
+	ulColor color.Color
+
+	ul Underline
 
 	width  int
 	height int
@@ -246,7 +268,6 @@ func (s Style) Render(strs ...string) string {
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
 		strikethrough = s.getAsBool(strikethroughKey, false)
 		reverse       = s.getAsBool(reverseKey, false)
 		blink         = s.getAsBool(blinkKey, false)
@@ -254,7 +275,9 @@ func (s Style) Render(strs ...string) string {
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
+		ul = s.getAsColor(underlineColorKey)
 
+		underline       = s.ul != NoUnderline
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
 		horizontalAlign = s.getAsPosition(alignHorizontalKey)
@@ -334,8 +357,18 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
+	if ul != noColor {
+		te = te.UnderlineColor(ul)
+		if colorWhitespace {
+			teWhitespace = teWhitespace.UnderlineColor(ul)
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.UnderlineColor(ul)
+		}
+	}
+
 	if underline {
-		te = te.Underline()
+		te = te.UnderlineStyle(ansi.UnderlineStyle(s.ul))
 	}
 	if strikethrough {
 		te = te.Strikethrough()
