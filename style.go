@@ -98,21 +98,26 @@ func (p props) has(k propKey) bool {
 }
 
 // Underline is the style of the underline.
+//
+// Caveats:
+// - Not all terminals support all underline styles.
+// - Some terminals may render unsupported styles as standard underlines.
+// - Terminal themes may affect the visibility of different underline styles.
 type Underline uint8
 
 const (
-	// NoUnderline is no underline.
-	NoUnderline = Underline(ansi.NoUnderlineStyle)
-	// SingleUnderline is a single underline. This is the default when underline is enabled.
-	SingleUnderline = Underline(ansi.SingleUnderlineStyle)
-	// DoubleUnderline is a double underline.
-	DoubleUnderline = Underline(ansi.DoubleUnderlineStyle)
-	// CurlyUnderline is a curly underline.
-	CurlyUnderline = Underline(ansi.CurlyUnderlineStyle)
-	// DottedUnderline is a dotted underline.
-	DottedUnderline = Underline(ansi.DottedUnderlineStyle)
-	// DashedUnderline is a dashed underline.
-	DashedUnderline = Underline(ansi.DashedUnderlineStyle)
+	// UnderlineNone is no underline.
+	UnderlineNone = Underline(ansi.NoUnderlineStyle)
+	// UnderlineSingle is a single underline. This is the default when underline is enabled.
+	UnderlineSingle = Underline(ansi.SingleUnderlineStyle)
+	// UnderlineDouble is a double underline.
+	UnderlineDouble = Underline(ansi.DoubleUnderlineStyle)
+	// UnderlineCurly is a curly underline.
+	UnderlineCurly = Underline(ansi.CurlyUnderlineStyle)
+	// UnderlineDotted is a dotted underline.
+	UnderlineDotted = Underline(ansi.DottedUnderlineStyle)
+	// UnderlineDashed is a dashed underline.
+	UnderlineDashed = Underline(ansi.DashedUnderlineStyle)
 )
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
@@ -265,7 +270,7 @@ func (s Style) Render(strs ...string) string {
 		bg = s.getAsColor(backgroundKey)
 		ul = s.getAsColor(underlineColorKey)
 
-		underline       = s.ul != NoUnderline
+		underline       = s.ul != UnderlineNone
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
 		horizontalAlign = s.getAsPosition(alignHorizontalKey)

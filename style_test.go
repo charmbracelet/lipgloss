@@ -31,7 +31,7 @@ func TestUnderline(t *testing.T) {
 			"ab\x1b[4m \x1b[mc",
 		},
 		{
-			NewStyle().UnderlineStyle(CurlyUnderline),
+			NewStyle().UnderlineStyle(UnderlineCurly),
 			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
 		},
 	}

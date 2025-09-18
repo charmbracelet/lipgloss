@@ -21,11 +21,11 @@ func (s Style) GetItalic() bool {
 // GetUnderline returns the style's underline value. If no value is set false is
 // returned.
 func (s Style) GetUnderline() bool {
-	return s.ul != NoUnderline
+	return s.ul != UnderlineNone
 }
 
 // GetUnderlineStyle returns the style's underline style. If no value is set
-// NoUnderline is returned.
+// UnderlineNone is returned.
 func (s Style) GetUnderlineStyle() Underline {
 	return s.ul
 }

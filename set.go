@@ -186,9 +186,9 @@ func (s Style) Italic(v bool) Style {
 // [Style.UnderlineSpaces].
 func (s Style) Underline(v bool) Style {
 	if v {
-		return s.UnderlineStyle(SingleUnderline)
+		return s.UnderlineStyle(UnderlineSingle)
 	}
-	return s.UnderlineStyle(NoUnderline)
+	return s.UnderlineStyle(UnderlineNone)
 }
 
 // UnderlineStyle sets the underline style. This can be used to set the underline
