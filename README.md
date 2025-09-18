@@ -319,29 +319,6 @@ var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 fmt.Println(style) // 你好，猫咪。
 ```
 
-### Custom Renderers
-
-Custom renderers allow you to render to a specific outputs. This is
-particularly important when you want to render to different outputs and
-correctly detect the color profile and dark background status for each, such as
-in a server-client situation.
-
-```go
-func myLittleHandler(sess ssh.Session) {
-    // Create a renderer for the client.
-    renderer := lipgloss.NewRenderer(sess)
-
-    // Create a new style on the renderer.
-    style := renderer.NewStyle().Background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
-
-    // Render. The color profile and dark background state will be correctly detected.
-    io.WriteString(sess, style.Render("Heyyyyyyy"))
-}
-```
-
-For an example on using a custom renderer over SSH with [Wish][wish] see the
-[SSH example][ssh-example].
-
 ## Utilities
 
 In addition to pure styling, Lip Gloss also ships with some utilities to help
@@ -465,7 +442,7 @@ fmt.Println(t)
 ![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
 
 > [!WARNING]
-> Table `Rows` need to be declared before `Offset` otherwise it does nothing.
+> Table `Rows` need to be declared before `YOffset` otherwise it does nothing.
 
 ### Table Borders
 

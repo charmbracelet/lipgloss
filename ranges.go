@@ -6,9 +6,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// StyleRanges allows to, given a string, style ranges of it differently.
-// The function will take into account existing styles.
-// Ranges should not overlap.
+// StyleRanges applying styling to ranges in a string. Existing styles will be
+// taken into account. Ranges should not overlap.
 func StyleRanges(s string, ranges ...Range) string {
 	if len(ranges) == 0 {
 		return s
@@ -36,12 +35,13 @@ func StyleRanges(s string, ranges ...Range) string {
 	return buf.String()
 }
 
-// NewRange returns a range that can be used with [StyleRanges].
+// NewRange returns a range and style that can be used with [StyleRanges].
 func NewRange(start, end int, style Style) Range {
 	return Range{start, end, style}
 }
 
-// Range to be used with [StyleRanges].
+// Range is a range of text and associated styling to be used with
+// [StyleRanges].
 type Range struct {
 	Start, End int
 	Style      Style

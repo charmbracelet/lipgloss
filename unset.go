@@ -95,6 +95,13 @@ func (s Style) UnsetPadding() Style {
 	s.unset(paddingRightKey)
 	s.unset(paddingTopKey)
 	s.unset(paddingBottomKey)
+	s.unset(paddingCharKey)
+	return s
+}
+
+// UnsetPaddingChar removes the padding character style rule, if set.
+func (s Style) UnsetPaddingChar() Style {
+	s.unset(paddingCharKey)
 	return s
 }
 
@@ -233,6 +240,20 @@ func (s Style) UnsetBorderBottomForeground() Style {
 // if set.
 func (s Style) UnsetBorderLeftForeground() Style {
 	s.unset(borderLeftForegroundKey)
+	return s
+}
+
+// UnsetBorderForegroundBlend removes the border blend foreground color rules,
+// if set.
+func (s Style) UnsetBorderForegroundBlend() Style {
+	s.unset(borderForegroundBlendKey)
+	return s
+}
+
+// UnsetBorderForegroundBlendOffset removes the border blend offset style rule,
+// if set.
+func (s Style) UnsetBorderForegroundBlendOffset() Style {
+	s.unset(borderForegroundBlendOffsetKey)
 	return s
 }
 

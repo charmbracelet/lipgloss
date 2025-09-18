@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
-	"github.com/muesli/cancelreader"
 )
 
 // queryBackgroundColor queries the terminal for the background color.
@@ -67,7 +67,10 @@ func queryTerminal(
 	filter queryTerminalFilter,
 	query string,
 ) error {
-	rd, err := cancelreader.NewReader(in)
+	// We use [uv.NewCancelReader] because it uses a different Windows
+	// implementation than the on in the [cancelreader] library, which uses
+	// the Cancel IO API to cancel reads instead of using Overlapped IO.
+	rd, err := uv.NewCancelReader(in)
 	if err != nil {
 		return fmt.Errorf("could not create cancel reader: %w", err)
 	}

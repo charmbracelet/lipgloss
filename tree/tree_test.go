@@ -1,11 +1,8 @@
 package tree_test
 
 import (
-	"strings"
 	"testing"
-	"unicode"
 
-	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/lipgloss/v2/table"
@@ -31,31 +28,15 @@ func TestTree(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-├── Foo
-├── Bar
-│   ├── Qux
-│   ├── Quux
-│   │   ├── Foo
-│   │   └── Bar
-│   └── Quuux
-└── Baz
-	`
-	assertEqual(t, want, tr.String())
+	t.Run("before", func(t *testing.T) {
+		golden.RequireEqual(t, []byte(tr.String()))
+	})
 
 	tr.Enumerator(tree.RoundedEnumerator)
 
-	want = `
-├── Foo
-├── Bar
-│   ├── Qux
-│   ├── Quux
-│   │   ├── Foo
-│   │   ╰── Bar
-│   ╰── Quuux
-╰── Baz
-`
-	assertEqual(t, want, tr.String())
+	t.Run("after", func(t *testing.T) {
+		golden.RequireEqual(t, []byte(tr.String()))
+	})
 }
 
 func TestTreeHidden(t *testing.T) {
@@ -73,14 +54,7 @@ func TestTreeHidden(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-├── Foo
-├── Bar
-│   ├── Qux
-│   └── Quuux
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeAllHidden(t *testing.T) {
@@ -100,9 +74,7 @@ func TestTreeAllHidden(t *testing.T) {
 			"Baz",
 		).Hide(true)
 
-	want := ``
-
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeRoot(t *testing.T) {
@@ -114,15 +86,8 @@ func TestTreeRoot(t *testing.T) {
 				Child("Qux", "Quuux"),
 			"Baz",
 		)
-	want := `
-Root
-├── Foo
-├── Bar
-│   ├── Qux
-│   └── Quuux
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeStartsWithSubtree(t *testing.T) {
@@ -134,13 +99,7 @@ func TestTreeStartsWithSubtree(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-├── Bar
-│   ├── Qux
-│   └── Quuux
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
@@ -167,22 +126,7 @@ func TestTreeAddTwoSubTreesWithoutName(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-├── Bar
-├── Foo
-│   ├── Qux
-│   ├── Qux
-│   ├── Qux
-│   ├── Qux
-│   ├── Qux
-│   ├── Quux
-│   ├── Quux
-│   ├── Quux
-│   ├── Quux
-│   └── Quux
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeLastNodeIsSubTree(t *testing.T) {
@@ -196,16 +140,7 @@ func TestTreeLastNodeIsSubTree(t *testing.T) {
 				),
 		)
 
-	want := `
-├── Foo
-└── Bar
-    ├── Qux
-    ├── Quux
-    │   ├── Foo
-    │   └── Bar
-    └── Quuux
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeNil(t *testing.T) {
@@ -222,15 +157,7 @@ func TestTreeNil(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-├── Bar
-│   ├── Qux
-│   ├── Quux
-│   │   └── Bar
-│   └── Quuux
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeCustom(t *testing.T) {
@@ -262,17 +189,7 @@ func TestTreeCustom(t *testing.T) {
 			return "->"
 		})
 
-	want := `
--> Foo
--> Bar
--> -> Qux
--> -> Quux
--> -> -> Foo
--> -> -> Bar
--> -> Quuux
--> Baz
-	`
-	assertEqual(t, want, ansi.Strip(tree.String()))
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeMultilineNode(t *testing.T) {
@@ -295,24 +212,7 @@ func TestTreeMultilineNode(t *testing.T) {
 			"Baz\nLine 2",
 		)
 
-	want := `
-Big
-Root
-Node
-├── Foo
-├── Bar
-│   ├── Line 1
-│   │   Line 2
-│   │   Line 3
-│   │   Line 4
-│   ├── Quux
-│   │   ├── Foo
-│   │   └── Bar
-│   └── Quuux
-└── Baz
-    Line 2
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeSubTreeWithCustomEnumerator(t *testing.T) {
@@ -334,14 +234,7 @@ func TestTreeSubTreeWithCustomEnumerator(t *testing.T) {
 			"Baz",
 		)
 
-	want := `
-The Root Node™
-├── Parent
-│   + ├── * child 1
-│   + └── * child 2
-└── Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeMixedEnumeratorSize(t *testing.T) {
@@ -365,15 +258,7 @@ func TestTreeMixedEnumeratorSize(t *testing.T) {
 		return romans[i+1]
 	})
 
-	want := `
-The Root Node™
-  I Foo
- II Foo
-III Foo
- IV Foo
-  V Foo
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeStyleNilFuncs(t *testing.T) {
@@ -383,12 +268,7 @@ func TestTreeStyleNilFuncs(t *testing.T) {
 		ItemStyleFunc(nil).
 		EnumeratorStyleFunc(nil)
 
-	want := `
-Silly
-├──Willy
-└──Nilly
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTreeStyleAt(t *testing.T) {
@@ -404,12 +284,7 @@ func TestTreeStyleAt(t *testing.T) {
 		return "-"
 	})
 
-	want := `
-Root
-> Foo
-- Baz
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestRootStyle(t *testing.T) {
@@ -456,14 +331,7 @@ func TestFilter(t *testing.T) {
 		Root("Root").
 		Child(data)
 
-	want := `
-Root
-├── Foo
-├── Bar
-└── Baz
-	`
-
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 	if got := data.At(1); got.Value() != "Bar" {
 		t.Errorf("want Bar, got %v", got)
 	}
@@ -500,50 +368,34 @@ func TestTreeTable(t *testing.T) {
 				),
 			"Qux",
 		)
-	want := `
-├── Foo
-├── Bar
-│   ├── Baz
-│   ├── Baz
-│   ├── ╭─────────┬────────╮
-│   │   │ Foo     │ Bar    │
-│   │   ├─────────┼────────┤
-│   │   │ Qux     │ Baz    │
-│   │   │ Qux     │ Baz    │
-│   │   ╰─────────┴────────╯
-│   └── Baz
-└── Qux
-	`
-	assertEqual(t, want, tree.String())
+
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestAddItemWithAndWithoutRoot(t *testing.T) {
-	t1 := tree.New().
-		Child(
-			"Foo",
-			"Bar",
-			tree.New().
-				Child("Baz"),
-			"Qux",
-		)
+	t.Run("with root", func(t *testing.T) {
+		t1 := tree.New().
+			Child(
+				"Foo",
+				"Bar",
+				tree.New().
+					Child("Baz"),
+				"Qux",
+			)
+		golden.RequireEqual(t, []byte(t1.String()))
+	})
 
-	t2 := tree.New().
-		Child(
-			"Foo",
-			tree.New().
-				Root("Bar").
-				Child("Baz"),
-			"Qux",
-		)
-
-	want := `
-├── Foo
-├── Bar
-│   └── Baz
-└── Qux
-	`
-	assertEqual(t, want, t1.String())
-	assertEqual(t, want, t2.String())
+	t.Run("without root", func(t *testing.T) {
+		t2 := tree.New().
+			Child(
+				"Foo",
+				tree.New().
+					Root("Bar").
+					Child("Baz"),
+				"Qux",
+			)
+		golden.RequireEqual(t, []byte(t2.String()))
+	})
 }
 
 func TestEmbedListWithinTree(t *testing.T) {
@@ -553,15 +405,7 @@ func TestEmbedListWithinTree(t *testing.T) {
 		Child(list.New("1", "2", "3").
 			Enumerator(list.Alphabet))
 
-	want := `
-├── 1. A
-│   2. B
-│   3. C
-└── A. 1
-    B. 2
-    C. 3
-	`
-	assertEqual(t, want, t1.String())
+	golden.RequireEqual(t, []byte(t1.String()))
 }
 
 func TestMultilinePrefix(t *testing.T) {
@@ -580,17 +424,8 @@ func TestMultilinePrefix(t *testing.T) {
 		Child("Foo Document\nThe Foo Files").
 		Child("Bar Document\nThe Bar Files").
 		Child("Baz Document\nThe Baz Files")
-	want := `
-   Foo Document
-   The Foo Files
 
-│  Bar Document
-│  The Bar Files
-
-   Baz Document
-   The Baz Files
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestMultilinePrefixSubtree(t *testing.T) {
@@ -618,22 +453,8 @@ func TestMultilinePrefixSubtree(t *testing.T) {
 				Child("Baz Document\nThe Baz Files"),
 		).
 		Child("Qux")
-	want := `
-├── Foo
-├── Bar
-├── Baz
-│      Foo Document
-│      The Foo Files
-│
-│   │  Bar Document
-│   │  The Bar Files
-│
-│      Baz Document
-│      The Baz Files
-│
-└── Qux
-	`
-	assertEqual(t, want, tree.String())
+
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestMultilinePrefixInception(t *testing.T) {
@@ -663,26 +484,8 @@ func TestMultilinePrefixInception(t *testing.T) {
 				Child("Quuux Document\nThe Quuux Files"),
 		).
 		Child("Baz Document\nThe Baz Files")
-	want := `
-    Foo Document
-    The Foo Files
 
-│   Bar Document
-│   The Bar Files
-
-       Qux Document
-       The Qux Files
-
-   │   Quux Document
-   │   The Quux Files
-
-       Quuux Document
-       The Quuux Files
-
-    Baz Document
-    The Baz Files
-	`
-	assertEqual(t, want, tree.String())
+	golden.RequireEqual(t, []byte(tree.String()))
 }
 
 func TestTypes(t *testing.T) {
@@ -692,39 +495,5 @@ func TestTypes(t *testing.T) {
 		Child([]any{"Foo", "Bar"}).
 		Child([]string{"Qux", "Quux", "Quuux"})
 
-	want := `
-├── 0
-├── true
-├── Foo
-├── Bar
-├── Qux
-├── Quux
-└── Quuux
-	`
-	assertEqual(t, want, tree.String())
-}
-
-// assertEqual verifies the strings are equal, assuming its terminal output.
-func assertEqual(tb testing.TB, want, got string) {
-	tb.Helper()
-
-	want = trimSpace(want)
-	got = trimSpace(got)
-
-	diff := udiff.Unified("want", "got", want, got)
-	if diff != "" {
-		tb.Fatalf("\nwant:\n\n%s\n\ngot:\n\n%s\n\ndiff:\n\n%s\n\n", want, got, diff)
-	}
-}
-
-func trimSpace(s string) string {
-	var result []string //nolint: prealloc
-	ss := strings.Split(s, "\n")
-	for i, line := range ss {
-		if strings.TrimSpace(line) == "" && (i == 0 || i == len(ss)-1) {
-			continue
-		}
-		result = append(result, strings.TrimRightFunc(line, unicode.IsSpace))
-	}
-	return strings.Join(result, "\n")
+	golden.RequireEqual(t, []byte(tree.String()))
 }

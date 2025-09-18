@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"unicode"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
 )
 
@@ -33,21 +31,25 @@ func TestTable(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
+	golden.RequireEqual(t, []byte(table.String()))
+}
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+func TestTableWithBackground(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BaseStyle(lipgloss.NewStyle().Background(lipgloss.Color("18"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("15"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
+		}).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableExample(t *testing.T) {
@@ -81,21 +83,7 @@ func TestTableExample(t *testing.T) {
 	// You can also add tables row-by-row
 	table.Row("English", "You look absolutely fabulous.", "How's it going?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬───────────────────────────────┬─────────────────┐
-│ LANGUAGE │            FORMAL             │    INFORMAL     │
-├──────────┼───────────────────────────────┼─────────────────┤
-│ Chinese  │ 您好                          │ 你好            │
-│ Japanese │ こんにちは                    │ やあ            │
-│ Russian  │ Здравствуйте                  │ Привет          │
-│ Spanish  │ Hola                          │ ¿Qué tal?       │
-│ English  │ You look absolutely fabulous. │ How's it going? │
-└──────────┴───────────────────────────────┴─────────────────┘
-`)
-
-	if got := ansi.Strip(table.String()); got != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, got)
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableEmpty(t *testing.T) {
@@ -104,19 +92,24 @@ func TestTableEmpty(t *testing.T) {
 		StyleFunc(TableStyle).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL")
 
-	expected := strings.TrimSpace(`
-┌──────────┬────────┬──────────┐
-│ LANGUAGE │ FORMAL │ INFORMAL │
-├──────────┼────────┼──────────┤
-└──────────┴────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableOffset(t *testing.T) {
+func TestTableNoStyleFunc(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(nil).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestTableYOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
@@ -126,22 +119,10 @@ func TestTableOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1).
+		Height(8)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableBorder(t *testing.T) {
@@ -159,21 +140,7 @@ func TestTableBorder(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-╔══════════╦══════════════╦═══════════╗
-║ LANGUAGE ║    FORMAL    ║ INFORMAL  ║
-╠══════════╬══════════════╬═══════════╣
-║ Chinese  ║ Nǐn hǎo      ║ Nǐ hǎo    ║
-║ French   ║ Bonjour      ║ Salut     ║
-║ Japanese ║ こんにちは   ║ やあ      ║
-║ Russian  ║ Zdravstvuyte ║ Privet    ║
-║ Spanish  ║ Hola         ║ ¿Qué tal? ║
-╚══════════╩══════════════╩═══════════╝
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableSetRows(t *testing.T) {
@@ -190,21 +157,7 @@ func TestTableSetRows(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestMoreCellsThanHeaders(t *testing.T) {
@@ -221,21 +174,7 @@ func TestMoreCellsThanHeaders(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │           │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestMoreCellsThanHeadersExtra(t *testing.T) {
@@ -253,21 +192,7 @@ func TestMoreCellsThanHeadersExtra(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┬────────┬────────┐
-│ LANGUAGE │    FORMAL    │           │        │        │
-├──────────┼──────────────┼───────────┼────────┼────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │        │        │
-│ French   │ Bonjour      │ Salut     │ Salut  │        │
-│ Japanese │ こんにちは   │ やあ      │        │        │
-│ Russian  │ Zdravstvuyte │ Privet    │ Privet │ Privet │
-│ Spanish  │ Hola         │ ¿Qué tal? │        │        │
-└──────────┴──────────────┴───────────┴────────┴────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoHeaders(t *testing.T) {
@@ -280,19 +205,7 @@ func TestTableNoHeaders(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoColumnSeparators(t *testing.T) {
@@ -306,19 +219,7 @@ func TestTableNoColumnSeparators(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────┐
-│ Chinese   Nǐn hǎo       Nǐ hǎo    │
-│ French    Bonjour       Salut     │
-│ Japanese  こんにちは    やあ      │
-│ Russian   Zdravstvuyte  Privet    │
-│ Spanish   Hola          ¿Qué tal? │
-└───────────────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
@@ -333,21 +234,27 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────┐
-│ LANGUAGE     FORMAL     INFORMAL  │
-├───────────────────────────────────┤
-│ Chinese   Nǐn hǎo       Nǐ hǎo    │
-│ French    Bonjour       Salut     │
-│ Japanese  こんにちは    やあ      │
-│ Russian   Zdravstvuyte  Privet    │
-│ Spanish   Hola          ¿Qué tal? │
-└───────────────────────────────────┘
-`)
+	golden.RequireEqual(t, []byte(table.String()))
+}
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+func TestInnerBordersOnly(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?").
+		BorderTop(false).
+		BorderRight(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRow(true).
+		BorderColumn(true)
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestBorderColumnsWithExtraRows(t *testing.T) {
@@ -366,21 +273,7 @@ func TestBorderColumnsWithExtraRows(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌───────────────────────────────────────────────────┐
-│ LANGUAGE     FORMAL                               │
-├───────────────────────────────────────────────────┤
-│ Chinese   Nǐn hǎo       Nǐ hǎo                    │
-│ French    Bonjour       Salut      Salut          │
-│ Japanese  こんにちは    やあ                      │
-│ Russian   Zdravstvuyte  Privet     Privet  Privet │
-│ Spanish   Hola          ¿Qué tal?                 │
-└───────────────────────────────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestNew(t *testing.T) {
@@ -410,18 +303,7 @@ func TestTableUnsetBorders(t *testing.T) {
 		BorderLeft(false).
 		BorderRight(false)
 
-	expected := strings.TrimPrefix(`
- LANGUAGE │    FORMAL    │ INFORMAL  
-──────────┼──────────────┼───────────
- Chinese  │ Nǐn hǎo      │ Nǐ hǎo    
- French   │ Bonjour      │ Salut     
- Japanese │ こんにちは   │ やあ      
- Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? `, "\n")
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableUnsetHeaderSeparator(t *testing.T) {
@@ -444,17 +326,7 @@ func TestTableUnsetHeaderSeparator(t *testing.T) {
 		BorderLeft(false).
 		BorderRight(false)
 
-	expected := strings.TrimPrefix(`
- LANGUAGE │    FORMAL    │ INFORMAL  
- Chinese  │ Nǐn hǎo      │ Nǐ hǎo    
- French   │ Bonjour      │ Salut     
- Japanese │ こんにちは   │ やあ      
- Russian  │ Zdravstvuyte │ Privet    
- Spanish  │ Hola         │ ¿Qué tal? `, "\n")
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", debug(expected), debug(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
@@ -473,20 +345,7 @@ func TestTableUnsetHeaderSeparatorWithBorder(t *testing.T) {
 		Rows(rows...).
 		BorderHeader(false)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableRowSeparators(t *testing.T) {
@@ -505,25 +364,7 @@ func TestTableRowSeparators(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-├──────────┼──────────────┼───────────┤
-│ Japanese │ こんにちは   │ やあ      │
-├──────────┼──────────────┼───────────┤
-│ Russian  │ Zdravstvuyte │ Privet    │
-├──────────┼──────────────┼───────────┤
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeights(t *testing.T) {
@@ -549,39 +390,7 @@ func TestTableHeights(t *testing.T) {
 		Headers("EXPRESSION", "MEANING").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────────────┬─────────────────────────┐
-│ EXPRESSION       │ MEANING                 │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Chutar o balde   │  Literally translates   │
-│                  │  to "kick the bucket."  │
-│                  │  It's used when         │
-│                  │  someone gives up or    │
-│                  │  loses patience.        │
-│                  │                         │
-│                  │                         │
-│ Engolir sapos    │  Literally means "to    │
-│                  │  swallow frogs." It's   │
-│                  │  used to describe       │
-│                  │  someone who has to     │
-│                  │  tolerate or endure     │
-│                  │  unpleasant             │
-│                  │  situations.            │
-│                  │                         │
-│                  │                         │
-│ Arroz de festa   │  Literally means        │
-│                  │  "party rice." It´s     │
-│                  │  used to refer to       │
-│                  │  someone who shows up   │
-│                  │  everywhere.            │
-│                  │                         │
-└──────────────────┴─────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableMultiLineRowSeparator(t *testing.T) {
@@ -604,41 +413,7 @@ func TestTableMultiLineRowSeparator(t *testing.T) {
 		Row("Engolir sapos", `Literally means "to swallow frogs." It's used to describe someone who has to tolerate or endure unpleasant situations.`).
 		Row("Arroz de festa", `Literally means "party rice." It´s used to refer to someone who shows up everywhere.`)
 
-	expected := strings.TrimSpace(`
-┌──────────────────┬─────────────────────────┐
-│ EXPRESSION       │ MEANING                 │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Chutar o balde   │  Literally translates   │
-│                  │  to "kick the bucket."  │
-│                  │  It's used when         │
-│                  │  someone gives up or    │
-│                  │  loses patience.        │
-│                  │                         │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Engolir sapos    │  Literally means "to    │
-│                  │  swallow frogs." It's   │
-│                  │  used to describe       │
-│                  │  someone who has to     │
-│                  │  tolerate or endure     │
-│                  │  unpleasant             │
-│                  │  situations.            │
-│                  │                         │
-├──────────────────┼─────────────────────────┤
-│                  │                         │
-│ Arroz de festa   │  Literally means        │
-│                  │  "party rice." It´s     │
-│                  │  used to refer to       │
-│                  │  someone who shows up   │
-│                  │  everywhere.            │
-│                  │                         │
-└──────────────────┴─────────────────────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthExpand(t *testing.T) {
@@ -657,25 +432,11 @@ func TestTableWidthExpand(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────────────────────────┬─────────────────────────┬─────────────────────────┐
-│         LANGUAGE         │         FORMAL          │        INFORMAL         │
-├──────────────────────────┼─────────────────────────┼─────────────────────────┤
-│ Chinese                  │ Nǐn hǎo                 │ Nǐ hǎo                  │
-│ French                   │ Bonjour                 │ Salut                   │
-│ Japanese                 │ こんにちは              │ やあ                    │
-│ Russian                  │ Zdravstvuyte            │ Privet                  │
-│ Spanish                  │ Hola                    │ ¿Qué tal?               │
-└──────────────────────────┴─────────────────────────┴─────────────────────────┘
-`)
-
 	if lipgloss.Width(table.String()) != 80 {
 		t.Fatalf("expected table width to be 80, got %d", lipgloss.Width(table.String()))
 	}
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthShrink(t *testing.T) {
@@ -687,32 +448,45 @@ func TestTableWidthShrink(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		Border(lipgloss.NormalBorder()).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("NoBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			BorderLeft(false).
+			BorderRight(false).
+			Border(lipgloss.NormalBorder()).
+			BorderColumn(false).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 
-	expected := strings.TrimSpace(`
-┌────────┬─────────┬─────────┐
-│ LANGUA │ FORMAL  │ INFORMA │
-├────────┼─────────┼─────────┤
-│ Chines │ Nǐn hǎo │ Nǐ hǎo  │
-│ e      │         │         │
-│ French │ Bonjour │ Salut   │
-│ Japane │ こんに  │ やあ    │
-│ se     │ ちは    │         │
-│ Russia │ Zdravst │ Privet  │
-│ n      │ vuyte   │         │
-│ Spanis │ Hola    │ ¿Qué    │
-│ h      │         │ tal?    │
-└────────┴─────────┴─────────┘
-`)
+	t.Run("DefaultBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	t.Run("OutlineBordersOnly", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			BorderTop(true).
+			BorderBottom(true).
+			BorderLeft(true).
+			BorderRight(true).
+			BorderColumn(false).
+			BorderRow(false).
+			BorderHeader(true)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
@@ -729,19 +503,7 @@ func TestTableWidthSmartCrop(t *testing.T) {
 		Headers("Name", "Age of Person", "Location").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌──────┬─────┬──────────┐
-│ Name │ Age │ Location │
-├──────┼─────┼──────────┤
-│ Kini │ 40  │ New York │
-│ Eli  │ 30  │ London   │
-│ Iris │ 20  │ Paris    │
-└──────┴─────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthSmartCropExtensive(t *testing.T) {
@@ -762,22 +524,7 @@ func TestTableWidthSmartCropExtensive(t *testing.T) {
 		Wrap(false).
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┏━━━━┳━━━━━┳━━━━━┓
-┃ LA ┃ FOR ┃ INF ┃
-┣━━━━╋━━━━━╋━━━━━┫
-┃ C… ┃ 您… ┃ 你… ┃
-┃ J… ┃ こ… ┃ や… ┃
-┃ A… ┃ أه… ┃ أه… ┃
-┃ R… ┃ Зд… ┃ Пр… ┃
-┃ S… ┃ Ho… ┃ ¿Q… ┃
-┃ E… ┃ Yo… ┃ Ho… ┃
-┗━━━━┻━━━━━┻━━━━━┛
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidthSmartCropTiny(t *testing.T) {
@@ -796,21 +543,7 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌
-│
-├
-│
-│
-│
-│
-│
-└
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableWidths(t *testing.T) {
@@ -832,63 +565,7 @@ func TestTableWidths(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-──────────────────────────────
- LANGUAGE   FORMAL   INFORMAL 
-──────────────────────────────
- Chinese   Nǐn hǎo   Nǐ hǎo   
- French    Bonjour   Salut    
- Japanese  こんにち  やあ     
-           は                 
- Russian   Zdravstv  Privet   
-           uyte               
- Spanish   Hola      ¿Qué     
-                     tal?     
-──────────────────────────────
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
-}
-
-func TestTableWidthShrinkNoBorders(t *testing.T) {
-	rows := [][]string{
-		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
-		{"French", "Bonjour", "Salut"},
-		{"Japanese", "こんにちは", "やあ"},
-		{"Russian", "Zdravstvuyte", "Privet"},
-		{"Spanish", "Hola", "¿Qué tal?"},
-	}
-
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		BorderLeft(false).
-		BorderRight(false).
-		Border(lipgloss.NormalBorder()).
-		BorderColumn(false).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
-
-	expected := strings.TrimSpace(`
-──────────────────────────────
- LANGUAGE   FORMAL   INFORMAL 
-──────────────────────────────
- Chinese   Nǐn hǎo   Nǐ hǎo   
- French    Bonjour   Salut    
- Japanese  こんにち  やあ     
-           は                 
- Russian   Zdravstv  Privet   
-           uyte               
- Spanish   Hola      ¿Qué     
-                     tal?     
-──────────────────────────────
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestFilter(t *testing.T) {
@@ -909,20 +586,7 @@ func TestFilter(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Data(filter)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestFilterInverse(t *testing.T) {
@@ -943,17 +607,7 @@ func TestFilterInverse(t *testing.T) {
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Data(filter)
 
-	expected := strings.TrimSpace(`
-┌──────────┬─────────┬──────────┐
-│ LANGUAGE │ FORMAL  │ INFORMAL │
-├──────────┼─────────┼──────────┤
-│ French   │ Bonjour │ Salut    │
-└──────────┴─────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableANSI(t *testing.T) {
@@ -973,20 +627,7 @@ func TestTableANSI(t *testing.T) {
 		Headers("Fruit", "Color", code).
 		Rows(rows...)
 
-	expected := strings.TrimSpace(`
-┌───────────┬────────┬──────┐
-│   Fruit   │ Color  │ Code │
-├───────────┼────────┼──────┤
-│ Apple     │ Red    │ 31   │
-│ Lime      │ Green  │ 32   │
-│ Banana    │ Yellow │ 33   │
-│ Blueberry │ Blue   │ 34   │
-└───────────┴────────┴──────┘
-`)
-
-	if stripString(table.String()) != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, stripString(table.String()))
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightExact(t *testing.T) {
@@ -1001,21 +642,7 @@ func TestTableHeightExact(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightExtra(t *testing.T) {
@@ -1030,98 +657,84 @@ func TestTableHeightExtra(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeightShrink(t *testing.T) {
-	table := New().
-		Height(8).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
-
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ Chinese  │ Nǐn hǎo      │ Nǐ hǎo    │
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ …        │ …            │ …         │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
+	headers := []string{"LANGUAGE", "FORMAL", "INFORMAL"}
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
 	}
+	paddingStyleFunc := func(row, col int) lipgloss.Style {
+		return TableStyle(row, col).Padding(1)
+	}
+
+	t.Run("NoBorderRow", func(t *testing.T) {
+		for i := 1; i <= 9; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		for i := 1; i <= 13; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("NoBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 21; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 25; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
 }
 
-func TestTableHeightMinimum(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("ID", "LANGUAGE", "FORMAL", "INFORMAL").
-		Row("1", "Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("2", "French", "Bonjour", "Salut").
-		Row("3", "Japanese", "こんにちは", "やあ").
-		Row("4", "Russian", "Zdravstvuyte", "Privet").
-		Row("5", "Spanish", "Hola", "¿Qué tal?")
-
-	expected := strings.TrimSpace(`
-┌────┬──────────┬──────────────┬───────────┐
-│ ID │ LANGUAGE │    FORMAL    │ INFORMAL  │
-├────┼──────────┼──────────────┼───────────┤
-│ …  │ …        │ …            │ …         │
-└────┴──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
-}
-
-func TestTableHeightMinimumShowData(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
-
-	expected := strings.TrimSpace(`
-┌──────────┬─────────┬──────────┐
-│ LANGUAGE │ FORMAL  │ INFORMAL │
-├──────────┼─────────┼──────────┤
-│ Chinese  │ Nǐn hǎo │ Nǐ hǎo   │
-└──────────┴─────────┴──────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
-}
-
-func TestTableHeightWithOffset(t *testing.T) {
+func TestTableHeightWithYOffset(t *testing.T) {
 	// This test exists to check for a bug/edge case when the table has an
 	// offset and the height is set.
 
@@ -1135,22 +748,9 @@ func TestTableHeightWithOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
-	expected := strings.TrimSpace(`
-┌──────────┬──────────────┬───────────┐
-│ LANGUAGE │    FORMAL    │ INFORMAL  │
-├──────────┼──────────────┼───────────┤
-│ French   │ Bonjour      │ Salut     │
-│ Japanese │ こんにちは   │ やあ      │
-│ Russian  │ Zdravstvuyte │ Privet    │
-│ Spanish  │ Hola         │ ¿Qué tal? │
-└──────────┴──────────────┴───────────┘
-`)
-
-	if table.String() != expected {
-		t.Fatalf("expected:\n\n%s\n\ngot:\n\n%s", expected, table.String())
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestStyleFunc(t *testing.T) {
@@ -1563,27 +1163,11 @@ func TestCarriageReturn(t *testing.T) {
 		{"a3", "b3", "c3", "d3"},
 	}
 	table := New().Rows(data...).Border(lipgloss.NormalBorder())
-	got := table.String()
-	want := `┌──┬────┬──┬──┐
-│a0│b0  │c0│d0│
-│a1│b1.0│c1│d1│
-│  │b1.1│  │  │
-│  │b1.2│  │  │
-│  │b1.3│  │  │
-│  │b1.4│  │  │
-│  │b1.5│  │  │
-│  │b1.6│  │  │
-│a2│b2  │c2│d2│
-│a3│b3  │c3│d3│
-└──┴────┴──┴──┘`
 
-	if got != want {
-		t.Logf("detailed view...\ngot:\n%q\nwant:\n%q", got, want)
-		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
-	}
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableShrinkWithOffset(t *testing.T) {
+func TestTableShrinkWithYOffset(t *testing.T) {
 	rows := [][]string{
 		{"1", "Tokyo", "Japan", "37,274,000"},
 		{"2", "Delhi", "India", "32,065,760"},
@@ -1686,32 +1270,36 @@ func TestTableShrinkWithOffset(t *testing.T) {
 		{"99", "Shijiazhuang", "China", "4,285,135"},
 		{"100", "Montreal", "Canada", "4,276,526"},
 	}
-	table := New().
-		Rows(rows...).
-		Offset(80).
-		Height(45)
 
-	got := lipgloss.Height(table.String())
-	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
-	}
-}
+	t.Run("NoHeaders", func(t *testing.T) {
+		table := New().
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 
-func debug(s string) string {
-	return strings.ReplaceAll(s, " ", ".")
-}
+	t.Run("WithHeaders", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 
-func stripString(str string) string {
-	s := ansi.Strip(str)
-	ss := strings.Split(s, "\n")
-
-	var lines []string
-	for _, l := range ss {
-		trim := strings.TrimRightFunc(l, unicode.IsSpace)
-		lines = append(lines, trim)
-	}
-
-	return strings.Join(lines, "\n")
+	t.Run("WithBorderRow", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			BorderRow(true).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 }
 
 func TestBorderStyles(t *testing.T) {
@@ -1752,6 +1340,86 @@ func TestBorderStyles(t *testing.T) {
 	}
 }
 
+func TestNoFinalEmptyRowWhenOverflow(t *testing.T) {
+	headers := []string{"Rank", "City", "Country", "Population"}
+	rows := [][]string{
+		{"1", "Tokyo", "Japan", "37,274,000"},
+		{"2", "Delhi", "India", "32,065,760"},
+		{"3", "Shanghai", "China", "28,516,904"},
+		{"4", "Dhaka", "Bangladesh", "22,478,116"},
+		{"5", "São Paulo", "Brazil", "22,429,800"},
+		{"6", "Mexico City", "Mexico", "22,085,140"},
+		{"7", "Cairo", "Egypt", "21,750,020"},
+		{"8", "Beijing", "China", "21,333,332"},
+		{"9", "Mumbai", "India", "20,961,472"},
+		{"10", "Osaka", "Japan", "19,059,856"},
+		{"11", "Chongqing", "China", "16,874,740"},
+		{"12", "Karachi", "Pakistan", "16,839,950"},
+		{"13", "Istanbul", "Turkey", "15,636,243"},
+		{"14", "Kinshasa", "DR Congo", "15,628,085"},
+		{"15", "Lagos", "Nigeria", "15,387,639"},
+		{"16", "Buenos Aires", "Argentina", "15,369,919"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		BorderRow(true).
+		Height(16)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeading(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeadingLong(t *testing.T) {
+	headers := []string{"Looong Name", "Looong Country of Origin", "Looong Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Width(46).
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestBorderedCells(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 // Examples
 
 func ExampleTable_Wrap() {
@@ -1780,12 +1448,13 @@ func ExampleTable_Wrap() {
 	fmt.Println(table.String())
 
 	// Output:
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
+	//
+	// 	┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
 	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
 	// │ Lorem ipsum… │ 耐許ヱヨカハ… │ شيء قد للحكو… │ 版応道潟部中… │ 각급 선거관…  │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
+	// ┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
 	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
 	// │ Lorem ipsum  │ 耐許ヱヨカハ  │ شيء قد        │ 版応道潟部中  │ 각급          │
@@ -1844,7 +1513,7 @@ func ExampleTable_Wrap() {
 	// │              │ ス静将ず業巨  │               │               │               │
 	// │              │ 職ノラホ収嗅  │               │               │               │
 	// │              │ ざな。        │               │               │               │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
 }
 
 // Check that stylized wrapped content does not go beyond its cell.
