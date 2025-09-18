@@ -193,6 +193,10 @@ func (s Style) Underline(v bool) Style {
 
 // UnderlineStyle sets the underline style. This can be used to set the underline
 // to be a single, double, curly, dotted, or dashed line.
+//
+// Note that not all terminal emulators support underline styles. If a style is
+// not supported, it will typically fall back to a single underline but this is
+// not guaranteed. This depends on the terminal emulator being used.
 func (s Style) UnderlineStyle(u Underline) Style {
 	s.set(underlineKey, u)
 	return s
@@ -200,6 +204,10 @@ func (s Style) UnderlineStyle(u Underline) Style {
 
 // UnderlineColor sets the color of the underline. By default, the underline
 // will be the same color as the foreground.
+//
+// Note that not all terminal emulators support colored underlines. If color is
+// not supported, it might produce unexpected results. This depends on the
+// terminal emulator being used.
 func (s Style) UnderlineColor(c color.Color) Style {
 	s.set(underlineColorKey, c)
 	return s
