@@ -21,7 +21,19 @@ func (s Style) GetItalic() bool {
 // GetUnderline returns the style's underline value. If no value is set false is
 // returned.
 func (s Style) GetUnderline() bool {
-	return s.getAsBool(underlineKey, false)
+	return s.ul != UnderlineNone
+}
+
+// GetUnderlineStyle returns the style's underline style. If no value is set
+// UnderlineNone is returned.
+func (s Style) GetUnderlineStyle() Underline {
+	return s.ul
+}
+
+// GetUnderlineColor returns the style's underline color. If no value is set
+// NoColor{} is returned.
+func (s Style) GetUnderlineColor() color.Color {
+	return s.getAsColor(underlineColorKey)
 }
 
 // GetStrikethrough returns the style's strikethrough value. If no value is set false
