@@ -589,4 +589,13 @@ func TestCarriageReturnInRender(t *testing.T) {
 		t.Logf("got(detailed):\n%q\nwant(detailed):\n%q", got, want)
 		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
 	}
+
+	got = testStyle.Inline(true).Render("\nHello\nworld\n")
+	want = testStyle.Inline(true).Render("Hello world")
+
+	if got != want {
+		t.Logf("got(detailed):\n%q\nwant(detailed):\n%q", got, want)
+		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
+	}
+
 }
