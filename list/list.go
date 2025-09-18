@@ -1,6 +1,6 @@
 // Package list allows you to build lists, as simple or complicated as you need.
 //
-// Simply, define a list with some items and set it's rendering properties, like
+// Simply, define a list with some items and set its rendering properties, like
 // enumerator and styling:
 //
 //	groceries := list.New(
