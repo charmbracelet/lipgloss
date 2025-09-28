@@ -1155,6 +1155,56 @@ func TestTableOverFlowNoWrap(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+// When overflow rows are hidden, the next data line is rendered instead of
+// an ellipsis row. This test uses no headers and no borders to keep line
+// counting simple and asserts the second data row appears when overflow is
+// disabled at a fixed height of 2.
+func TestTableOverflowHiddenShowsNextLine(t *testing.T) {
+	data := [][]string{
+		{"row1A", "row1B"},
+		{"row2A", "row2B"},
+		{"row3A", "row3B"},
+	}
+
+	// With overflow shown (default), Height(2) should render first row +
+	// an overflow indicator row, not the second row content.
+	withOverflow := New().
+		Rows(data...).
+		Wrap(false).
+		BorderTop(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRight(false).
+		BorderHeader(false).
+		BorderRow(false).
+		BorderColumn(false).
+		Height(2)
+
+	outOverflow := withOverflow.String()
+	if strings.Contains(outOverflow, "row2A") {
+		t.Fatalf("expected overflow row, but found second row content: %q", outOverflow)
+	}
+
+	// With overflow hidden, the second line should be real data.
+	withoutOverflow := New().
+		Rows(data...).
+		Wrap(false).
+		BorderTop(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRight(false).
+		BorderHeader(false).
+		BorderRow(false).
+		BorderColumn(false).
+		Height(2).
+		WithOverflowRow(false)
+
+	outNoOverflow := withoutOverflow.String()
+	if !strings.Contains(outNoOverflow, "row2A") {
+		t.Fatalf("expected second row content to be visible when overflow is hidden, got: %q", outNoOverflow)
+	}
+}
+
 func TestCarriageReturn(t *testing.T) {
 	data := [][]string{
 		{"a0", "b0", "c0", "d0"},
