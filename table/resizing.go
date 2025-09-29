@@ -60,6 +60,7 @@ func (t *Table) resize() {
 	r.borderRight = t.borderRight
 	r.borderHeader = t.borderHeader
 	r.borderRow = t.borderRow
+	r.showOverflowRow = t.showOverflowRow
 
 	var allRows [][]string
 	if hasHeaders {
@@ -139,14 +140,16 @@ type resizer struct {
 	borderRight     bool
 	borderHeader    bool
 	borderRow       bool
+	showOverflowRow bool
 }
 
 // newResizer creates a new resizer.
 func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) *resizer {
 	r := &resizer{
-		tableWidth:  tableWidth,
-		tableHeight: tableHeight,
-		headers:     headers,
+		tableWidth:      tableWidth,
+		tableHeight:     tableHeight,
+		headers:         headers,
+		showOverflowRow: true,
 	}
 
 	if len(headers) > 0 {
@@ -461,6 +464,9 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 
 		rowHeight := r.rowHeights[i] + r.yPaddingForCell(i, 0)
 		nextRowPadding := r.yPaddingForCell(i+1, 0)
+		if r.showOverflowRow {
+			nextRowPadding = 0
+		}
 
 		sum := (printedRows +
 			rowHeight +
