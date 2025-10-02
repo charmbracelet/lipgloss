@@ -1,6 +1,7 @@
 {
   "name": "@charmland/lipgloss",
   "version": "0.0.1",
+  "private": false,
   "main": "./src/index.js",
   "description": "Style definitions for nice terminal layouts 👄",
   "scripts": {
