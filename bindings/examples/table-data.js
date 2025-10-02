@@ -8,7 +8,6 @@ const {
 } = require("@charmland/lipgloss");
 
 // Example 1: Basic TableData usage
-console.log("=== Basic TableData Example ===");
 
 const data = new TableData()
   .append(["Name", "Age", "City"])
@@ -16,22 +15,18 @@ const data = new TableData()
   .append(["Bob", "30", "San Francisco"])
   .append(["Charlie", "35", "Chicago"]);
 
-const basicTable = new Table()
-  .data(data)
-  .border(normalBorder())
-  .render();
+const basicTable = new Table().data(data).border(normalBorder()).render();
 
 console.log(basicTable);
 
 // Example 2: TableData with multiple rows at once
-console.log("\n=== TableData with Multiple Rows ===");
 
 const employeeData = new TableData(
   ["Employee ID", "Name", "Department", "Salary"],
   ["001", "John Doe", "Engineering", "$75,000"],
   ["002", "Jane Smith", "Marketing", "$65,000"],
   ["003", "Mike Johnson", "Sales", "$70,000"],
-  ["004", "Sarah Wilson", "HR", "$60,000"]
+  ["004", "Sarah Wilson", "HR", "$60,000"],
 );
 
 const purple = Color("99");
@@ -60,28 +55,27 @@ const styledTable = new Table()
 console.log(styledTable);
 
 // Example 3: Accessing individual cells
-console.log("\n=== Accessing TableData Cells ===");
 
-console.log(`Data has ${employeeData.rowCount()} rows and ${employeeData.columnCount()} columns`);
+console.log(
+  `Data has ${employeeData.rowCount()} rows and ${employeeData.columnCount()} columns`,
+);
 console.log(`Cell at (1, 1): "${employeeData.at(1, 1)}"`);
 console.log(`Cell at (2, 2): "${employeeData.at(2, 2)}"`);
 console.log(`Cell at (3, 3): "${employeeData.at(3, 3)}"`);
 
 // Example 4: Building data dynamically
-console.log("\n=== Dynamic TableData Building ===");
 
-const dynamicData = new TableData()
-  .append(["Product", "Price", "Stock"]);
+const dynamicData = new TableData().append(["Product", "Price", "Stock"]);
 
 // Simulate adding products dynamically
 const products = [
   ["Laptop", "$999", "15"],
   ["Mouse", "$25", "50"],
   ["Keyboard", "$75", "30"],
-  ["Monitor", "$299", "8"]
+  ["Monitor", "$299", "8"],
 ];
 
-products.forEach(product => {
+products.forEach((product) => {
   dynamicData.append(product);
 });
 
@@ -93,10 +87,12 @@ const productTable = new Table()
     if (row === -1) {
       return new Style().foreground(Color("cyan")).bold(true).align(Center);
     }
-    if (col === 1) { // Price column
+    if (col === 1) {
+      // Price column
       return new Style().foreground(Color("green")).align(Center);
     }
-    if (col === 2) { // Stock column
+    if (col === 2) {
+      // Stock column
       const stock = parseInt(dynamicData.at(row, col));
       if (stock < 10) {
         return new Style().foreground(Color("red")).align(Center);

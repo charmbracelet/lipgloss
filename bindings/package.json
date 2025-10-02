@@ -1,11 +1,11 @@
 {
   "name": "@charmland/lipgloss",
-  "version": "0.0.1",
+  "version": "v2.0.0-beta.3-9b68be5",
   "main": "./src/index.js",
   "description": "Style definitions for nice terminal layouts 👄",
   "scripts": {
     "build": "task build",
-    "dev": "task dev", 
+    "dev": "task dev",
     "test": "cd examples && npm test",
     "test:simple": "cd examples && npm run test:simple",
     "test:style": "cd examples && npm run test:style",

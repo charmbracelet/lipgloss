@@ -3,9 +3,6 @@ const {
   Style,
   Color,
   normalBorder,
-  joinHorizontal,
-  joinVertical,
-  Right,
   Center,
 } = require("@charmland/lipgloss");
 

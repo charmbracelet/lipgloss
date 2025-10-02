@@ -1,13 +1,6 @@
 # Lipgloss
 
-> The lipgloss that you love, but now on JavaScript.
-
-- [x] Use exports from own source code.
-- [x] Fix color profile.
-- [ ] Support TS types.
-- [ ] Add some javascript tests (just to guarantee funcionality, as smoke test).
-- [ ] Documentation.
-- [ ] npm publish.
+The lipgloss that you love, but now on JavaScript.
 
 ## Installation
 
@@ -132,14 +125,13 @@ See `examples/table-data.js` for more comprehensive examples.
 
 You can control debug output using environment variables:
 
-- `LIPGLOSS_DEBUG_MEMORY=true` - Show WASM memory growth messages
 - `LIPGLOSS_DEBUG=true` - Enable all lipgloss debug output
 - `DEBUG=lipgloss` - Enable lipgloss debug output (standard debug pattern)
 - `DEBUG=*` - Enable all debug output
 
 Example:
 ```bash
-LIPGLOSS_DEBUG_MEMORY=true node your-script.js
+node your-script.js
 ```
 
 ## Compability
@@ -352,7 +344,7 @@ The JavaScript bindings include a comprehensive test suite:
 ```bash
 # From bindings directory
 npm test                      # Run all tests
-npm run test:simple           # Basic table functionality  
+npm run test:simple           # Basic table functionality
 npm run test:comprehensive    # Complete TableData tests
 npm run examples              # Showcase functionality
 
@@ -362,11 +354,9 @@ cd examples && npm test
 
 Tests are located in `examples/tests/` and cover:
 - Basic table functionality
-- TableData operations  
+- TableData operations
 - Style functions
 - Unicode handling (with known limitations)
-
-See [TESTING.md](TESTING.md) for complete testing documentation and [examples/tests/README.md](examples/tests/README.md) for detailed test information.
 
 See [contributing][contribute].
 
