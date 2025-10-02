@@ -21,6 +21,9 @@
     "url": "git+https://github.com/charmbracelet/lipgloss.git"
   },
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "./src/index.js",
     "./src/core.js",
