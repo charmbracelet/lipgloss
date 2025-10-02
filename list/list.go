@@ -47,6 +47,8 @@ type List struct{ tree *tree.Tree }
 //
 // Items can be other lists, trees, tables, rendered markdown;
 // anything you want, really.
+//
+//go:export ListNew
 func New(items ...any) *List {
 	l := &List{tree: tree.New()}
 	return l.Items(items...).
@@ -81,12 +83,16 @@ type Items tree.Children
 type StyleFunc func(items Items, index int) lipgloss.Style
 
 // Hidden returns whether this list is hidden.
+//
+//go:export ListHidden
 func (l *List) Hidden() bool {
 	return l.tree.Hidden()
 }
 
 // Hide hides this list.
 // If this list is hidden, it will not be shown when rendered.
+//
+//go:export ListHide
 func (l *List) Hide(hide bool) *List {
 	l.tree.Hide(hide)
 	return l

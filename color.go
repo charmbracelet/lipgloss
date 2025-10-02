@@ -60,6 +60,19 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 	return 0x0, 0x0, 0x0, 0xFFFF //nolint:mnd
 }
 
+//go:export NoColor
+func wasmNoColor() *color.Color {
+	// Empty color str returns NoColor type.
+	ptr := Color("")
+	return &ptr
+}
+
+//go:export Color
+func wasmColor(str string) *color.Color {
+	ptr := Color(str)
+	return &ptr
+}
+
 // Color specifies a color by hex or ANSI256 value. For example:
 //
 //	ansiColor := lipgloss.Color("1") // The same as lipgloss.Red

@@ -3,6 +3,7 @@ package table
 
 import (
 	"strings"
+	"unsafe"
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -76,6 +77,8 @@ type Table struct {
 // attributes.
 //
 // By default, a table has normal border, no styling, and no rows.
+//
+//go:export TableNew
 func New() *Table {
 	return &Table{
 		styleFunc:    DefaultStyles,
@@ -92,6 +95,8 @@ func New() *Table {
 }
 
 // ClearRows clears the table rows.
+//
+//go:export TableClearRows
 func (t *Table) ClearRows() *Table {
 	t.data = NewStringData()
 	return t
@@ -150,9 +155,57 @@ func (t *Table) Row(row ...string) *Table {
 	return t
 }
 
+//go:export TableRow
+func (t *Table) wasmAddRow(ptrArray *uint32, count int) *Table {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	rows := []string{}
+
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		rows = append(rows, str)
+	}
+
+	if len(rows) > 0 {
+		t.Rows(rows)
+	}
+
+	return t
+}
+
 // Headers sets the table headers.
 func (t *Table) Headers(headers ...string) *Table {
 	t.headers = headers
+	return t
+}
+
+//go:export TableHeaders
+func (t *Table) wasmAddHeaders(ptrArray *uint32, count int) *Table {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	headers := []string{}
+
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		headers = append(headers, str)
+	}
+
+	if len(headers) > 0 {
+		t.headers = headers
+	}
+
 	return t
 }
 
@@ -167,43 +220,64 @@ func (t *Table) Border(border lipgloss.Border) *Table {
 	return t
 }
 
+//go:export TableBorder
+func (t *Table) wasmBorder(borderPtr *lipgloss.Border) *Table {
+	border := *borderPtr
+	t.border = border
+	return t
+}
+
 // BorderTop sets the top border.
+//
+//go:export TableBorderTop
 func (t *Table) BorderTop(v bool) *Table {
 	t.borderTop = v
 	return t
 }
 
 // BorderBottom sets the bottom border.
+//
+//go:export BorderBottom
 func (t *Table) BorderBottom(v bool) *Table {
 	t.borderBottom = v
 	return t
 }
 
 // BorderLeft sets the left border.
+//
+//go:export TableBorderLeft
 func (t *Table) BorderLeft(v bool) *Table {
 	t.borderLeft = v
 	return t
 }
 
 // BorderRight sets the right border.
+//
+//go:export TableBorderRight
 func (t *Table) BorderRight(v bool) *Table {
 	t.borderRight = v
 	return t
 }
 
 // BorderHeader sets the header separator border.
+//
+//go:export TableBorderHeader
 func (t *Table) BorderHeader(v bool) *Table {
 	t.borderHeader = v
 	return t
 }
 
 // BorderColumn sets the column border separator.
+//
+//go:export TableBorderColumn
 func (t *Table) BorderColumn(v bool) *Table {
 	t.borderColumn = v
 	return t
 }
 
 // BorderRow sets the row border separator.
+//
+//go:export TableBorderRow
 func (t *Table) BorderRow(v bool) *Table {
 	t.borderRow = v
 	return t
@@ -250,15 +324,26 @@ func (t *Table) GetBorderRow() bool {
 	return t.borderRow
 }
 
+//go:export TableBorderStyle
+func (t *Table) wasmBorderStyle(stylePtr *lipgloss.Style) *Table {
+	style := *stylePtr
+	t.borderStyle = style
+	return t
+}
+
 // Width sets the table width, this auto-sizes the columns to fit the width by
 // either expanding or contracting the widths of each column as a best effort
 // approach.
+//
+//go:export TableWidth
 func (t *Table) Width(w int) *Table {
 	t.width = w
 	return t
 }
 
 // Height sets the table height.
+//
+//go:export TableHeight
 func (t *Table) Height(h int) *Table {
 	t.height = h
 	t.useManualHeight = true
@@ -271,6 +356,8 @@ func (t *Table) GetHeight() int {
 }
 
 // YOffset sets the table rendering offset.
+//
+//go:export TableOffset
 func (t *Table) YOffset(o int) *Table {
 	t.yOffset = o
 	return t
@@ -302,6 +389,8 @@ func (t *Table) VisibleRows() int {
 // Wrap dictates whether or not the table content should wrap.
 //
 // This only applies to data cells. Headers are never wrapped.
+//
+//go:export TableWrap
 func (t *Table) Wrap(w bool) *Table {
 	t.wrap = w
 	return t
@@ -372,6 +461,18 @@ func (t *Table) computeHeight() int {
 // Render returns the table as a string.
 func (t *Table) Render() string {
 	return t.String()
+}
+
+//go:export TableRenderPtr
+func (t *Table) wasmRenderPtr() *byte {
+	// Return a pointer to the first byte of the string
+	return &([]byte(t.String())[0])
+}
+
+//go:export TableRenderLength
+func (t *Table) wasmRenderLenght() int {
+	// Return the length of the string
+	return len(t.String())
 }
 
 // constructTopBorder constructs the top border for the table given it's current

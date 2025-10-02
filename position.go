@@ -31,10 +31,43 @@ const (
 	Right  Position = 1.0
 )
 
+//go:export PositionBottom
+func wasmGetPositionBottom() float64 {
+	return float64(Bottom)
+}
+
+//go:export PositionCenter
+func wasmGetPositionCenter() float64 {
+	return float64(Center)
+}
+
+//go:export PositionLeft
+func wasmGetPositionLeft() float64 {
+	return float64(Left)
+}
+
+//go:export PositionRight
+func wasmGetPositionRight() float64 {
+	return float64(Right)
+}
+
+//go:export PositionTop
+func GetPositionTop() float64 {
+	return float64(Top)
+}
+
 // Place places a string or text block vertically in an unstyled box of a given
 // width or height.
 func Place(width, height int, hPos, vPos Position, str string, opts ...WhitespaceOption) string {
 	return PlaceVertical(height, vPos, PlaceHorizontal(width, hPos, str, opts...), opts...)
+}
+
+//go:export PositionPlace
+func wasmPlace(width, height int32, hPos, vPos Position, str string, opts ...WhitespaceOption) *string {
+	opts = append(opts, WithWhitespaceChars("猫咪"))
+	opts = append(opts, WithWhitespaceStyle(NewStyle().Foreground(Color("#383838"))))
+	result := PlaceVertical(int(height), vPos, PlaceHorizontal(int(width), hPos, str, opts...), opts...)
+	return &result
 }
 
 // PlaceHorizontal places a string or text block horizontally in an unstyled

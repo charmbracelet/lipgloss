@@ -1,0 +1,28 @@
+{
+  "name": "wasm-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node size.js && node table.js && node color.js",
+    "examples": "node size.js && node color.js && node list.js && node table-data.js",
+    "size": "node size.js",
+    "table": "node table.js",
+    "color": "node color.js",
+    "test": "node test-runner.js",
+    "test:simple": "node tests/test-simple-table.js",
+    "test:style": "node tests/test-style-function.js",
+    "test:ascii": "node tests/test-ascii-table.js",
+    "test:comprehensive": "node tests/test-comprehensive.js",
+    "test:table-data": "node table-data.js",
+    "test:all": "npm run test && npm run test:ascii",
+    "bench": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@charmland/lipgloss": "file:../"
+  }
+}

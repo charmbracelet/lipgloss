@@ -225,9 +225,19 @@ func NormalBorder() Border {
 	return normalBorder
 }
 
+//go:export BorderNormalBorder
+func wasmNormalBorder() *Border {
+	return &normalBorder
+}
+
 // RoundedBorder returns a border with rounded corners.
 func RoundedBorder() Border {
 	return roundedBorder
+}
+
+//go:export BorderRoundedBorder
+func wasmRoundedBorder() *Border {
+	return &roundedBorder
 }
 
 // BlockBorder returns a border that takes the whole block.
@@ -235,14 +245,29 @@ func BlockBorder() Border {
 	return blockBorder
 }
 
+//go:export BorderBlockBorder
+func wasmBlockBorder() *Border {
+	return &blockBorder
+}
+
 // OuterHalfBlockBorder returns a half-block border that sits outside the frame.
 func OuterHalfBlockBorder() Border {
 	return outerHalfBlockBorder
 }
 
+//go:export BorderOuterHalfBlockBorder
+func wasmOuterHalfBlockBorder() *Border {
+	return &outerHalfBlockBorder
+}
+
 // InnerHalfBlockBorder returns a half-block border that sits inside the frame.
 func InnerHalfBlockBorder() Border {
 	return innerHalfBlockBorder
+}
+
+//go:export BorderInnerHalfBlockBorder
+func wasmInnerHalfBlockBorder() *Border {
+	return &innerHalfBlockBorder
 }
 
 // ThickBorder returns a border that's thicker than the one returned by
@@ -251,9 +276,19 @@ func ThickBorder() Border {
 	return thickBorder
 }
 
+//go:export BorderThickBorder
+func wasmThickBorder() *Border {
+	return &thickBorder
+}
+
 // DoubleBorder returns a border comprised of two thin strokes.
 func DoubleBorder() Border {
 	return doubleBorder
+}
+
+//go:export BorderDoubleBorder
+func wasmDoubleBorder() *Border {
+	return &doubleBorder
 }
 
 // HiddenBorder returns a border that renders as a series of single-cell
@@ -264,6 +299,11 @@ func HiddenBorder() Border {
 	return hiddenBorder
 }
 
+//go:export BorderHiddenBorder
+func wasmHiddenBorder() *Border {
+	return &hiddenBorder
+}
+
 // MarkdownBorder return a table border in markdown style.
 //
 // Make sure to disable top and bottom border for the best result. This will
@@ -272,6 +312,11 @@ func HiddenBorder() Border {
 //	table.New().Border(lipgloss.MarkdownBorder()).BorderTop(false).BorderBottom(false)
 func MarkdownBorder() Border {
 	return markdownBorder
+}
+
+//go:export BorderMarkdownBorder
+func wasmMarkdownBorder() *Border {
+	return &markdownBorder
 }
 
 // ASCIIBorder returns a table border with ASCII characters.
@@ -323,6 +368,11 @@ func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlen
 	slices.Reverse(blend.leftGradient)
 
 	return blend
+}
+
+//go:export BorderASCIIBorder
+func wasmASCIIBorder() *Border {
+	return &asciiBorder
 }
 
 func (s Style) applyBorder(str string) string {
