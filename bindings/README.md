@@ -1,6 +1,9 @@
-# Lipgloss
+# LipGloss.js
 
-The lipgloss that you love, but now on JavaScript.
+The lipgloss that you know and love, now in JavaScript.
+
+> [!WARNING]
+> LipGloss.js is stll experimental.
 
 ## Installation
 
@@ -376,9 +379,9 @@ We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
 ---
 
-Part of [Charm](https://charm.sh).
+Part of [Charm](https://charm.land).
 
-<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-badge.jpg" width="400"></a>
+<a href="https://charm.land/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-banner-next.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
 
