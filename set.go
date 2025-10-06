@@ -1,6 +1,8 @@
 package lipgloss
 
-import "image/color"
+import (
+	"image/color"
+)
 
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value any) {
@@ -182,9 +184,21 @@ func (s Style) Bold(v bool) Style {
 	return s
 }
 
+//go:export StyleBold
+func (s *Style) wasmBold(v bool) *Style {
+	s.set(boldKey, v)
+	return s
+}
+
 // Italic sets an italic formatting rule. In some terminal emulators this will
 // render with "reverse" coloring if not italic font variant is available.
 func (s Style) Italic(v bool) Style {
+	s.set(italicKey, v)
+	return s
+}
+
+//go:export StyleItalic
+func (s *Style) wasmItalic(v bool) *Style {
 	s.set(italicKey, v)
 	return s
 }
@@ -197,10 +211,22 @@ func (s Style) Underline(v bool) Style {
 	return s
 }
 
+//go:export StyleUnderline
+func (s *Style) wasmUnderline(v bool) *Style {
+	s.set(underlineKey, v)
+	return s
+}
+
 // Strikethrough sets a strikethrough rule. By default, strikes will not be
 // drawn on whitespace like margins and padding. To change this behavior set
 // StrikethroughSpaces.
 func (s Style) Strikethrough(v bool) Style {
+	s.set(strikethroughKey, v)
+	return s
+}
+
+//go:export StyleStrikethrough
+func (s *Style) wasmStrikethrough(v bool) *Style {
 	s.set(strikethroughKey, v)
 	return s
 }
@@ -211,8 +237,20 @@ func (s Style) Reverse(v bool) Style {
 	return s
 }
 
+//go:export StyleReverse
+func (s *Style) wasmReverse(v bool) *Style {
+	s.set(reverseKey, v)
+	return s
+}
+
 // Blink sets a rule for blinking foreground text.
 func (s Style) Blink(v bool) Style {
+	s.set(blinkKey, v)
+	return s
+}
+
+//go:export StyleBlink
+func (s *Style) wasmBlink(v bool) *Style {
 	s.set(blinkKey, v)
 	return s
 }
@@ -223,21 +261,54 @@ func (s Style) Faint(v bool) Style {
 	return s
 }
 
+//go:export StyleFaint
+func (s *Style) wasmFaint(v bool) *Style {
+	s.set(faintKey, v)
+	return s
+}
+
 // Foreground sets a foreground color.
 //
 //	// Sets the foreground to blue
 //	s := lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff"))
 //
 //	// Removes the foreground color
-//	s.Foreground(lipgloss.NoColor)
+//	s.Foreground(lipgloss.NoColor)//
 func (s Style) Foreground(c color.Color) Style {
 	s.set(foregroundKey, c)
+	return s
+}
+
+//go:export StyleForeground
+func (s *Style) wasmForeground(c *color.Color) *Style {
+	switch v := (*c).(type) {
+	case color.RGBA:
+		s.set(foregroundKey, v)
+	case color.Color:
+		s.set(foregroundKey, v)
+	default:
+		// noop
+	}
+
 	return s
 }
 
 // Background sets a background color.
 func (s Style) Background(c color.Color) Style {
 	s.set(backgroundKey, c)
+	return s
+}
+
+//go:export StyleBackground
+func (s *Style) wasmBackground(c *color.Color) *Style {
+	switch v := (*c).(type) {
+	case color.RGBA:
+		s.set(backgroundKey, v)
+	case color.Color:
+		s.set(backgroundKey, v)
+	default:
+		// noop
+	}
 	return s
 }
 
@@ -249,11 +320,23 @@ func (s Style) Width(i int) Style {
 	return s
 }
 
+//go:export StyleWidth
+func (s *Style) wasmWidth(i int32) *Style {
+	s.set(widthKey, int(i))
+	return s
+}
+
 // Height sets the height of the block before applying margins. If the height of
 // the text block is less than this value after applying padding (or not), the
 // block will be set to this height.
 func (s Style) Height(i int) Style {
 	s.set(heightKey, i)
+	return s
+}
+
+//go:export StyleHeight
+func (s *Style) wasmHeight(i int32) *Style {
+	s.set(heightKey, int(i))
 	return s
 }
 
@@ -279,9 +362,21 @@ func (s Style) AlignHorizontal(p Position) Style {
 	return s
 }
 
+//go:export StyleAlignHorizontal
+func (s *Style) wasmAlignHorizontal(pos Position) *Style {
+	s.set(alignHorizontalKey, pos)
+	return s
+}
+
 // AlignVertical sets a vertical text alignment rule.
 func (s Style) AlignVertical(p Position) Style {
 	s.set(alignVerticalKey, p)
+	return s
+}
+
+//go:export StyleAlignVertical
+func (s *Style) wasmAlignVertical(pos Position) *Style {
+	s.set(alignVerticalKey, pos)
 	return s
 }
 
@@ -318,9 +413,21 @@ func (s Style) PaddingLeft(i int) Style {
 	return s
 }
 
+//go:export StylePaddingLeft
+func (s *Style) wasmPaddingLeft(i int32) *Style {
+	s.set(paddingLeftKey, int(i))
+	return s
+}
+
 // PaddingRight adds padding on the right.
 func (s Style) PaddingRight(i int) Style {
 	s.set(paddingRightKey, i)
+	return s
+}
+
+//go:export StylePaddingRight
+func (s *Style) wasmPaddingRight(i int32) *Style {
+	s.set(paddingRightKey, int(i))
 	return s
 }
 
@@ -330,9 +437,21 @@ func (s Style) PaddingTop(i int) Style {
 	return s
 }
 
+//go:export StylePaddingTop
+func (s *Style) wasmPaddingTop(i int32) *Style {
+	s.set(paddingTopKey, int(i))
+	return s
+}
+
 // PaddingBottom adds padding to the bottom of the block.
 func (s Style) PaddingBottom(i int) Style {
 	s.set(paddingBottomKey, i)
+	return s
+}
+
+//go:export StylePaddingBottom
+func (s *Style) wasmPaddingBottom(i int32) *Style {
+	s.set(paddingBottomKey, int(i))
 	return s
 }
 
@@ -354,6 +473,8 @@ func (s Style) PaddingChar(r rune) Style {
 // effects.
 //
 // Deprecated: Just use margins and padding.
+//
+//go:export StyleColorWhitespace
 func (s Style) ColorWhitespace(v bool) Style {
 	s.set(colorWhitespaceKey, v)
 	return s
@@ -392,9 +513,21 @@ func (s Style) MarginLeft(i int) Style {
 	return s
 }
 
+//go:export StyleMarginLeft
+func (s *Style) wasmMarginLeft(i int32) *Style {
+	s.set(marginLeftKey, int(i))
+	return s
+}
+
 // MarginRight sets the value of the right margin.
 func (s Style) MarginRight(i int) Style {
 	s.set(marginRightKey, i)
+	return s
+}
+
+//go:export StyleMarginRight
+func (s *Style) wasmMarginRight(i int) *Style {
+	s.set(marginRightKey, int(i))
 	return s
 }
 
@@ -404,15 +537,29 @@ func (s Style) MarginTop(i int) Style {
 	return s
 }
 
+//go:export StyleMarginTop
+func (s *Style) wasmMarginTop(i int) *Style {
+	s.set(marginTopKey, int(i))
+	return s
+}
+
 // MarginBottom sets the value of the bottom margin.
 func (s Style) MarginBottom(i int) Style {
 	s.set(marginBottomKey, i)
 	return s
 }
 
+//go:export StyleMarginBottom
+func (s *Style) wasmMarginBottom(i int32) *Style {
+	s.set(marginBottomKey, int(i))
+	return s
+}
+
 // MarginBackground sets the background color of the margin. Note that this is
 // also set when inheriting from a style with a background color. In that case
 // the background color on that style will set the margin color on this style.
+//
+//go:export StyleMarginBackground
 func (s Style) MarginBackground(c color.Color) Style {
 	s.set(marginBackgroundKey, c)
 	return s
@@ -467,6 +614,13 @@ func (s Style) Border(b Border, sides ...bool) Style {
 	return s
 }
 
+//go:export StyleBorder
+func (s *Style) wasmBorder(b *Border) *Style {
+	border := *b
+	s.set(borderStyleKey, border)
+	return s
+}
+
 // BorderStyle defines the Border on a style. A Border contains a series of
 // definitions for the sides and corners of a border.
 //
@@ -492,8 +646,20 @@ func (s Style) BorderTop(v bool) Style {
 	return s
 }
 
+//go:export SetBorderTop
+func (s *Style) wasmBorderTop(v bool) *Style {
+	s.set(borderTopKey, v)
+	return s
+}
+
 // BorderRight determines whether or not to draw a right border.
 func (s Style) BorderRight(v bool) Style {
+	s.set(borderRightKey, v)
+	return s
+}
+
+//go:export SetBorderRight
+func (s *Style) wasmBorderRight(v bool) *Style {
 	s.set(borderRightKey, v)
 	return s
 }
@@ -504,8 +670,20 @@ func (s Style) BorderBottom(v bool) Style {
 	return s
 }
 
+//go:export SetBorderBottom
+func (s *Style) wasmBorderBottom(v bool) *Style {
+	s.set(borderBottomKey, v)
+	return s
+}
+
 // BorderLeft determines whether or not to draw a left border.
 func (s Style) BorderLeft(v bool) Style {
+	s.set(borderLeftKey, v)
+	return s
+}
+
+//go:export SetBorderLeft
+func (s *Style) wasmBorderLeft(v bool) *Style {
 	s.set(borderLeftKey, v)
 	return s
 }
@@ -549,6 +727,13 @@ func (s Style) BorderTopForeground(c color.Color) Style {
 	return s
 }
 
+//go:export StyleBorderTopForeground
+func (s *Style) wasmBorderTopForeground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderTopForegroundKey, color)
+	return s
+}
+
 // BorderRightForeground sets the foreground color for the right side of the
 // border.
 func (s Style) BorderRightForeground(c color.Color) Style {
@@ -556,10 +741,24 @@ func (s Style) BorderRightForeground(c color.Color) Style {
 	return s
 }
 
+//go:export StyleBorderRightForeground
+func (s *Style) wasmBorderRightForeground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderRightForegroundKey, color)
+	return s
+}
+
 // BorderBottomForeground sets the foreground color for the bottom of the
 // border.
 func (s Style) BorderBottomForeground(c color.Color) Style {
 	s.set(borderBottomForegroundKey, c)
+	return s
+}
+
+//go:export StyleBorderBottomForeground
+func (s *Style) wasmBorderBottomForeground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderBottomForegroundKey, color)
 	return s
 }
 
@@ -618,6 +817,13 @@ func (s Style) BorderForegroundBlendOffset(v int) Style {
 	return s
 }
 
+//go:export StyleBorderLeftForeground
+func (s *Style) wasmBorderLeftForeground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderLeftForegroundKey, color)
+	return s
+}
+
 // BorderBackground is a shorthand function for setting all of the
 // background colors of the borders at once. The arguments work as follows:
 //
@@ -657,9 +863,23 @@ func (s Style) BorderTopBackground(c color.Color) Style {
 	return s
 }
 
+//go:export StyleBorderTopBackground
+func (s *Style) wasmBorderTopBackground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderTopBackgroundKey, color)
+	return s
+}
+
 // BorderRightBackground sets the background color of right side the border.
 func (s Style) BorderRightBackground(c color.Color) Style {
 	s.set(borderRightBackgroundKey, c)
+	return s
+}
+
+//go:export StyleBorderRightBackground
+func (s *Style) wasmBorderRightBackground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderRightBackgroundKey, color)
 	return s
 }
 
@@ -670,10 +890,24 @@ func (s Style) BorderBottomBackground(c color.Color) Style {
 	return s
 }
 
+//go:export StyleBorderBottomBackground
+func (s *Style) wasmBorderBottomBackground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderBottomBackgroundKey, color)
+	return s
+}
+
 // BorderLeftBackground set the background color of the left side of the
 // border.
 func (s Style) BorderLeftBackground(c color.Color) Style {
 	s.set(borderLeftBackgroundKey, c)
+	return s
+}
+
+//go:export StyleBorderLeftBackground
+func (s *Style) wasmBorderLeftBackground(c *color.Color) *Style {
+	color := (*c).(color.Color)
+	s.set(borderLeftBackgroundKey, color)
 	return s
 }
 
@@ -690,6 +924,8 @@ func (s Style) BorderLeftBackground(c color.Color) Style {
 //	var userInput string = "..."
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.Inline(true).Render(userInput))
+//
+//go:export StyleInline
 func (s Style) Inline(v bool) Style {
 	o := s // copy
 	o.set(inlineKey, v)
@@ -714,6 +950,12 @@ func (s Style) MaxWidth(n int) Style {
 	return o
 }
 
+//go:export StyleMaxWidth
+func (s *Style) wasmMaxWidth(n int32) *Style {
+	m := s.MaxWidth(int(n))
+	return &m
+}
+
 // MaxHeight applies a max height to a given style. This is useful in enforcing
 // a certain height at render time, particularly with arbitrary strings and
 // styles.
@@ -724,6 +966,12 @@ func (s Style) MaxHeight(n int) Style {
 	o := s // copy
 	o.set(maxHeightKey, n)
 	return o
+}
+
+//go:export StyleMaxHeight
+func (s *Style) wasmMaxHeight(n int32) *Style {
+	m := s.MaxHeight(int(n))
+	return &m
 }
 
 // NoTabConversion can be passed to [Style.TabWidth] to disable the replacement
@@ -743,9 +991,17 @@ func (s Style) TabWidth(n int) Style {
 	return s
 }
 
+//go:export StyleTabWidth
+func (s *Style) wasmTabWidth(n int32) *Style {
+	m := s.TabWidth(int(n))
+	return &m
+}
+
 // UnderlineSpaces determines whether to underline spaces between words. By
 // default, this is true. Spaces can also be underlined without underlining the
 // text itself.
+//
+//go:export StyleUnderlineSpaces
 func (s Style) UnderlineSpaces(v bool) Style {
 	s.set(underlineSpacesKey, v)
 	return s
@@ -754,6 +1010,8 @@ func (s Style) UnderlineSpaces(v bool) Style {
 // StrikethroughSpaces determines whether to apply strikethroughs to spaces
 // between words. By default, this is true. Spaces can also be struck without
 // underlining the text itself.
+//
+//go:export StyleStrikethroughSpaces
 func (s Style) StrikethroughSpaces(v bool) Style {
 	s.set(strikethroughSpacesKey, v)
 	return s

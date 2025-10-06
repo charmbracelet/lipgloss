@@ -1,2 +1,12 @@
 ssh_example_ed25519*
 /tmp
+
+# MacOs Invisible file
+.DS_Store
+
+# WebAssembly files
+*.wasm
+!bindings/*.wasm
+
+# JavaScript modules
+node_modules

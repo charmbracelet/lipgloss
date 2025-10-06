@@ -1,0 +1,18 @@
+# https://taskfile.dev
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - GOOS=js tinygo build -target wasm -tags wasm -buildmode c-shared -no-debug -opt=s -o ./src/lipgloss.wasm ./main.go
+      - cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ./src/wasmExec.js
+      - wasm-opt ./src/lipgloss.wasm -o ./src/lipgloss.wasm -O3 --intrinsic-lowering
+
+  dev:
+    cmds:
+      - GOOS=js tinygo build -target wasm -tags wasm -buildmode c-shared -o ./src/lipgloss.wasm ./main.go
+      - cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js ./src/wasmExec.js
+
+  test:
+    cmds:
+      - cd ./examples && npm i && npm test

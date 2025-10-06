@@ -1,9 +1,11 @@
 package lipgloss
 
 import (
+	"fmt"
 	"image/color"
 	"strings"
 	"unicode"
+	"unsafe"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/cellbuf"
@@ -115,6 +117,8 @@ func NewStyle() Style {
 type Style struct {
 	props props
 	value string
+	// solely used by wasm
+	wasmValue string
 
 	// we store bool props values here
 	attrs int
@@ -231,7 +235,143 @@ func (s Style) Inherit(i Style) Style {
 	return s
 }
 
+// Note: haven't figured out yet why
+//
+//go:export StyleInherit
+func (s *Style) wasmInherit(i *Style) *Style {
+	for k := boldKey; k <= transformKey; k <<= 1 {
+		if !i.isSet(k) {
+			continue
+		}
+
+		switch k { //nolint:exhaustive
+		case marginTopKey, marginRightKey, marginBottomKey, marginLeftKey:
+			// Margins are not inherited
+			continue
+		case paddingTopKey, paddingRightKey, paddingBottomKey, paddingLeftKey:
+			// Padding is not inherited
+			continue
+		case backgroundKey:
+			// The margins also inherit the background color
+			if !s.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
+				s.set(marginBackgroundKey, i.bgColor)
+			}
+		}
+
+		if s.isSet(k) {
+			continue
+		}
+
+		s.setFrom(k, *i)
+	}
+	return s
+}
+
+//go:export StyleRender
+func (s *Style) wasmRender() *string {
+	// Return a pointer to the first byte of the string
+	result := s.Render()
+	return &result
+}
+
+//go:export StyleClearValue
+func (s *Style) wasmClearValue() *Style {
+	s.wasmValue = ""
+	return s
+}
+
+//go:export StyleSetString
+func (s *Style) wasmSetString(ptrArray *uint32, count int) *Style {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	values := []string{}
+
+	// Process each string
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		values = append(values, str)
+	}
+
+	if len(values) > 0 {
+		s.value = joinString(values...)
+	}
+
+	return s
+}
+
+//go:export StyleJoinString
+func (s *Style) wasmJoinString(ptrArray *uint32, count int) *Style {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	values := []string{}
+
+	// Process each string
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		values = append(values, str)
+	}
+
+	if len(values) > 0 {
+		s.value = strings.Join(values, "")
+	}
+
+	return s
+}
+
+//go:export StyleJoinStyled
+func wasmJoinStyled(ptrArray *uint32, count int, bgColor, fgColor uint32) *string {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	values := []string{}
+
+	// Process each string
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		// Strip ANSI codes to get plain text
+		plainText := ansi.Strip(str)
+		values = append(values, plainText)
+	}
+
+	if len(values) == 0 {
+		empty := ""
+		return &empty
+	}
+
+	// Create a style with the specified background and foreground
+	style := NewStyle()
+	if bgColor != 0 {
+		style = style.Background(Color(fmt.Sprintf("%d", bgColor)))
+	}
+	if fgColor != 0 {
+		style = style.Foreground(Color(fmt.Sprintf("%d", fgColor)))
+	}
+
+	// Join all the strings and apply the style
+	joined := strings.Join(values, "")
+	result := style.Render(joined)
+	return &result
+}
+
 // Render applies the defined style formatting to a given string.
+
 func (s Style) Render(strs ...string) string {
 	if s.value != "" {
 		strs = append([]string{s.value}, strs...)

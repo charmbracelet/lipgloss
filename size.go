@@ -12,6 +12,8 @@ import (
 //
 // You should use this instead of len(string) or len([]rune(string) as neither
 // will give you accurate results.
+//
+//go:export Width
 func Width(str string) (width int) {
 	for l := range strings.SplitSeq(str, "\n") {
 		w := ansi.StringWidth(l)
@@ -26,6 +28,8 @@ func Width(str string) (width int) {
 // Height returns height of a string in cells. This is done simply by
 // counting \n characters. If your output has \r\n, that sequence will be
 // replaced with a \n in [Style.Render].
+//
+//go:export Height
 func Height(str string) int {
 	return strings.Count(str, "\n") + 1
 }
