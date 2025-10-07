@@ -50,6 +50,8 @@ func (t *Table) resize() {
 	r := newResizer(t.width, t.height, t.headers, rows)
 	r.wrap = t.wrap
 	r.borderColumn = t.borderColumn
+	r.borderLeft = t.borderLeft
+	r.borderRight = t.borderRight
 	r.yPaddings = make([][]int, len(r.allRows))
 
 	var allRows [][]string
@@ -125,6 +127,8 @@ type resizer struct {
 
 	wrap         bool
 	borderColumn bool
+	borderLeft   bool
+	borderRight  bool
 	yPaddings    [][]int // vertical paddings
 }
 
@@ -367,6 +371,15 @@ func (r *resizer) maxTotal() (maxTotal int) {
 		} else {
 			maxTotal += column.max + r.xPaddingForCol(j)
 		}
+	}
+	if r.borderLeft {
+		maxTotal += 1
+	}
+	if r.borderColumn {
+		maxTotal += r.columnCount() - 1
+	}
+	if r.borderRight {
+		maxTotal += 1
 	}
 	return
 }
