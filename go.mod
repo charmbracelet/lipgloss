@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/x/ansi v0.1.1
 	github.com/charmbracelet/x/term v0.1.1
 	github.com/lucasb-eyer/go-colorful v1.2.0
+	github.com/mattn/go-runewidth v0.0.17
 	github.com/rivo/uniseg v0.4.7
 	golang.org/x/sys v0.20.0
 )
