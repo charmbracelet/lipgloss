@@ -66,14 +66,14 @@ func TestComplexUnicodeDetection(t *testing.T) {
 	}{
 		{"Hello", false, "ASCII only"},
 		{"⏰ Time", true, "Has emoji"},
-		{"中文", true, "Chinese characters"},
+		{"中文", false, "Chinese characters - handled by ansi.StringWidth"},
 		{"Hello World", false, "ASCII with space"},
-		{"测试 Test", true, "Mixed Chinese and ASCII"},
-		{"안녕하세요", true, "Korean Hangul"},
-		{"こんにちは", true, "Japanese Hiragana"},
-		{"カタカナ", true, "Japanese Katakana"},
-		{"한글 Test", true, "Mixed Korean and ASCII"},
-		{"ひらがな Test", true, "Mixed Japanese Hiragana and ASCII"},
+		{"测试 Test", false, "Mixed Chinese and ASCII"},
+		{"안녕하세요", false, "Korean Hangul - handled by ansi.StringWidth"},
+		{"こんにちは", false, "Japanese Hiragana - handled by ansi.StringWidth"},
+		{"カタカナ", false, "Japanese Katakana - handled by ansi.StringWidth"},
+		{"한글 Test", false, "Mixed Korean and ASCII"},
+		{"ひらがな Test", false, "Mixed Japanese Hiragana and ASCII"},
 	}
 
 	for _, tt := range tests {

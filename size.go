@@ -47,16 +47,12 @@ func stringWidth(s string) int {
 	// Try ansi.StringWidth first for ANSI sequence handling
 	ansiWidth := ansi.StringWidth(s)
 	
-	// For strings with potential emoji/Unicode issues, use fallback calculation
+	// For strings with potential emoji/Unicode issues, always use fallback calculation
+	// as runewidth handles CJK and emoji more accurately
 	if containsComplexUnicode(s) {
-		fallbackWidth := calculateFallbackWidth(s)
-		
-		// If there's a significant discrepancy, use the fallback
-		if absInt(ansiWidth-fallbackWidth) > 1 {
-			return fallbackWidth
-		}
+		return calculateFallbackWidth(s)
 	}
-	
+
 	return ansiWidth
 }
 
@@ -77,15 +73,14 @@ func checkAsianCharacter(r rune) bool {
 // containsComplexUnicode checks if string contains emoji or complex Unicode
 func containsComplexUnicode(s string) bool {
 	for _, r := range s {
-		// Check for emoji ranges
+		// Check for emoji ranges (not CJK - ansi.StringWidth handles those correctly)
 		if (r >= 0x1F600 && r <= 0x1F64F) || // Emoticons
 		   (r >= 0x1F300 && r <= 0x1F5FF) || // Misc Symbols and Pictographs
 		   (r >= 0x1F680 && r <= 0x1F6FF) || // Transport and Map Symbols
 		   (r >= 0x1F700 && r <= 0x1F77F) || // Alchemical Symbols
 		   (r >= 0x2300 && r <= 0x23FF) ||   // Miscellaneous Technical (clocks, etc.)
 		   (r >= 0x2600 && r <= 0x26FF) ||   // Miscellaneous Symbols
-		   (r >= 0x2700 && r <= 0x27BF) ||   // Dingbats
-		   checkAsianCharacter(r) {          // Asian characters (CJK, Korean, Japanese)
+		   (r >= 0x2700 && r <= 0x27BF) {    // Dingbats
 			return true
 		}
 	}
