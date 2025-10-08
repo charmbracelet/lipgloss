@@ -69,6 +69,11 @@ func TestComplexUnicodeDetection(t *testing.T) {
 		{"中文", true, "Chinese characters"},
 		{"Hello World", false, "ASCII with space"},
 		{"测试 Test", true, "Mixed Chinese and ASCII"},
+		{"안녕하세요", true, "Korean Hangul"},
+		{"こんにちは", true, "Japanese Hiragana"},
+		{"カタカナ", true, "Japanese Katakana"},
+		{"한글 Test", true, "Mixed Korean and ASCII"},
+		{"ひらがな Test", true, "Mixed Japanese Hiragana and ASCII"},
 	}
 
 	for _, tt := range tests {
@@ -76,6 +81,32 @@ func TestComplexUnicodeDetection(t *testing.T) {
 			got := containsComplexUnicode(tt.input)
 			if got != tt.expected {
 				t.Errorf("containsComplexUnicode(%q) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCheckAsianCharacter(t *testing.T) {
+	tests := []struct {
+		input    rune
+		expected bool
+		name     string
+	}{
+		{'A', false, "ASCII letter"},
+		{'中', true, "Chinese character"},
+		{'한', true, "Korean Hangul"},
+		{'ㄱ', true, "Korean Jamo"},
+		{'あ', true, "Japanese Hiragana"},
+		{'カ', true, "Japanese Katakana"},
+		{'1', false, "ASCII digit"},
+		{' ', false, "Space"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := checkAsianCharacter(tt.input)
+			if got != tt.expected {
+				t.Errorf("checkAsianCharacter(%q) = %v, want %v", tt.input, got, tt.expected)
 			}
 		})
 	}

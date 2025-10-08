@@ -60,6 +60,20 @@ func stringWidth(s string) int {
 	return ansiWidth
 }
 
+// checkAsianCharacter checks if the character is an Asian character (character of 2 width)
+func checkAsianCharacter(r rune) bool {
+	if unicode.Is(unicode.Han, r) || // CJK characters
+		unicode.Is(unicode.Hangul, r) || // Korean Hangul characters
+		(r >= 0x3130 && r <= 0x318F) || // Hangul Compatibility Jamo (ㄱ-ㅎ, ㅏ-ㅣ)
+		(r >= 0x1100 && r <= 0x11FF) || // Korean Hangul Jamo (ㄱ-ㅎ, ㅏ-ㅣ)
+		(r >= 0x3200 && r <= 0x32FF) || // Enclosed CJK Letters and Months
+		unicode.Is(unicode.Hiragana, r) || // Japanese Hiragana characters
+		unicode.Is(unicode.Katakana, r) { // Japanese Katakana characters
+		return true
+	}
+	return false
+}
+
 // containsComplexUnicode checks if string contains emoji or complex Unicode
 func containsComplexUnicode(s string) bool {
 	for _, r := range s {
@@ -68,10 +82,10 @@ func containsComplexUnicode(s string) bool {
 		   (r >= 0x1F300 && r <= 0x1F5FF) || // Misc Symbols and Pictographs
 		   (r >= 0x1F680 && r <= 0x1F6FF) || // Transport and Map Symbols
 		   (r >= 0x1F700 && r <= 0x1F77F) || // Alchemical Symbols
+		   (r >= 0x2300 && r <= 0x23FF) ||   // Miscellaneous Technical (clocks, etc.)
 		   (r >= 0x2600 && r <= 0x26FF) ||   // Miscellaneous Symbols
 		   (r >= 0x2700 && r <= 0x27BF) ||   // Dingbats
-		   unicode.Is(unicode.Han, r) ||      // CJK characters
-		   r > 0x3000 {                       // Other wide characters
+		   checkAsianCharacter(r) {          // Asian characters (CJK, Korean, Japanese)
 			return true
 		}
 	}
