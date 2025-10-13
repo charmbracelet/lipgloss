@@ -432,6 +432,30 @@ func TestTableWidthExpand(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableWidthExpandNoColumn(t *testing.T) {
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	table := New().
+		Width(80).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	if lipgloss.Width(table.String()) != 80 {
+		t.Fatalf("expected table width to be 80, got %d", lipgloss.Width(table.String()))
+	}
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableWidthShrink(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
