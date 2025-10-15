@@ -46,8 +46,9 @@ import (
 // The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 func (t *Table) resize() {
 	hasHeaders := len(t.headers) > 0
+	hasFooters := len(t.footers) > 0
 	rows := dataToMatrix(t.data)
-	r := newResizer(t.width, t.height, t.headers, rows)
+	r := newResizer(t.width, t.height, t.headers, rows, t.footers)
 	r.wrap = t.wrap
 	r.borderColumn = t.borderColumn
 	r.yPaddings = make([][]int, len(r.allRows))
@@ -57,6 +58,9 @@ func (t *Table) resize() {
 		allRows = append([][]string{t.headers}, rows...)
 	} else {
 		allRows = rows
+	}
+	if hasFooters {
+		allRows = append(allRows, t.footers)
 	}
 
 	styleFunc := t.styleFunc
@@ -72,11 +76,14 @@ func (t *Table) resize() {
 		for j := range row {
 			column := &r.columns[j]
 
-			// Making sure we're passing the right index to `styleFunc`. The header row should be `-1` and
-			// the others should start from `0`.
+			// Making sure we're passing the right index to `styleFunc`. The header row should be `-1`,
+			// footer row should be `-2`, and the others should start from `0`.
 			rowIndex := i
 			if hasHeaders {
 				rowIndex--
+			}
+			if hasFooters && i >= len(rows)+btoi(hasHeaders) {
+				rowIndex = FooterRow
 			}
 			style := styleFunc(rowIndex, j)
 
@@ -129,7 +136,7 @@ type resizer struct {
 }
 
 // newResizer creates a new resizer.
-func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) *resizer {
+func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string, footers []string) *resizer {
 	r := &resizer{
 		tableWidth:  tableWidth,
 		tableHeight: tableHeight,
@@ -140,6 +147,9 @@ func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) 
 		r.allRows = append([][]string{headers}, rows...)
 	} else {
 		r.allRows = rows
+	}
+	if len(footers) > 0 {
+		r.allRows = append(r.allRows, footers)
 	}
 
 	for _, row := range r.allRows {
