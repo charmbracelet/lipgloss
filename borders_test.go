@@ -155,7 +155,7 @@ func BenchmarkGetFirstRuneAsString(b *testing.B) {
 		for _, tc := range testCases {
 			b.Run(tc.name, func(b *testing.B) {
 				b.ReportAllocs()
-				for b.Loop() {
+				for i := 0; i < b.N; i++ {
 					_ = getFirstRuneAsStringOld(tc.str)
 				}
 			})
@@ -166,7 +166,7 @@ func BenchmarkGetFirstRuneAsString(b *testing.B) {
 		for _, tc := range testCases {
 			b.Run(tc.name, func(b *testing.B) {
 				b.ReportAllocs()
-				for b.Loop() {
+				for i := 0; i < b.N; i++ {
 					_ = getFirstRuneAsString(tc.str)
 				}
 			})
