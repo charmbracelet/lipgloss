@@ -1,6 +1,8 @@
 package lipgloss
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestStyle_GetBorderSizes(t *testing.T) {
 	tests := []struct {
@@ -93,4 +95,47 @@ func TestStyle_GetBorderSizes(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Old implementation using rune slice conversion
+func getFirstRuneAsStringOld(str string) string {
+	if str == "" {
+		return str
+	}
+	r := []rune(str)
+	return string(r[0])
+}
+
+func BenchmarkGetFirstRuneAsString(b *testing.B) {
+	testCases := []struct {
+		name string
+		str  string
+	}{
+		{"ASCII", "Hello, World!"},
+		{"Unicode", "你好世界"},
+		{"Single", "A"},
+		{"Empty", ""},
+	}
+
+	b.Run("Old", func(b *testing.B) {
+		for _, tc := range testCases {
+			b.Run(tc.name, func(b *testing.B) {
+				b.ReportAllocs()
+				for b.Loop() {
+					_ = getFirstRuneAsStringOld(tc.str)
+				}
+			})
+		}
+	})
+
+	b.Run("New", func(b *testing.B) {
+		for _, tc := range testCases {
+			b.Run(tc.name, func(b *testing.B) {
+				b.ReportAllocs()
+				for b.Loop() {
+					_ = getFirstRuneAsString(tc.str)
+				}
+			})
+		}
+	})
 }
