@@ -68,16 +68,16 @@ func (s *Style) set(key propKey, value interface{}) {
 	default:
 		if v, ok := value.(bool); ok { //nolint:nestif
 			if v {
-				s.attrs |= int(key)
+				s.attrs |= int64(key)
 			} else {
-				s.attrs &^= int(key)
+				s.attrs &^= int64(key)
 			}
-		} else if attrs, ok := value.(int); ok {
+		} else if attrs, ok := value.(int64); ok {
 			// bool attrs
-			if attrs&int(key) != 0 {
-				s.attrs |= int(key)
+			if attrs&int64(key) != 0 {
+				s.attrs |= int64(key)
 			} else {
-				s.attrs &^= int(key)
+				s.attrs &^= int64(key)
 			}
 		}
 	}
