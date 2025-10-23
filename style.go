@@ -6,9 +6,14 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
+	"github.com/charmbracelet/x/cellbuf"
 )
 
-const tabWidthDefault = 4
+const (
+	// NBSP is the non-breaking space rune.
+	NBSP            = '\u00A0'
+	tabWidthDefault = 4
+)
 
 // Property for a key.
 type propKey int64
@@ -40,6 +45,7 @@ const (
 	paddingRightKey
 	paddingBottomKey
 	paddingLeftKey
+	paddingCharKey
 
 	// Margins.
 	marginTopKey
@@ -47,6 +53,7 @@ const (
 	marginBottomKey
 	marginLeftKey
 	marginBackgroundKey
+	marginCharKey
 
 	// Border runes.
 	borderStyleKey
@@ -62,6 +69,8 @@ const (
 	borderRightForegroundKey
 	borderBottomForegroundKey
 	borderLeftForegroundKey
+	borderForegroundBlendKey
+	borderForegroundBlendOffsetKey
 
 	// Border background colors.
 	borderTopBackgroundKey
@@ -131,22 +140,26 @@ type Style struct {
 	paddingRight  int
 	paddingBottom int
 	paddingLeft   int
+	paddingChar   rune
 
 	marginTop     int
 	marginRight   int
 	marginBottom  int
 	marginLeft    int
 	marginBgColor color.Color
+	marginChar    rune
 
-	borderStyle         Border
-	borderTopFgColor    color.Color
-	borderRightFgColor  color.Color
-	borderBottomFgColor color.Color
-	borderLeftFgColor   color.Color
-	borderTopBgColor    color.Color
-	borderRightBgColor  color.Color
-	borderBottomBgColor color.Color
-	borderLeftBgColor   color.Color
+	borderStyle                 Border
+	borderTopFgColor            color.Color
+	borderRightFgColor          color.Color
+	borderBottomFgColor         color.Color
+	borderLeftFgColor           color.Color
+	borderBlendFgColor          []color.Color
+	borderForegroundBlendOffset int
+	borderTopBgColor            color.Color
+	borderRightBgColor          color.Color
+	borderBottomBgColor         color.Color
+	borderLeftBgColor           color.Color
 
 	maxWidth  int
 	maxHeight int
@@ -361,18 +374,23 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = ansi.Wrap(str, wrapAt, "")
+		str = cellbuf.Wrap(str, wrapAt, "")
 	}
 
 	// Render core text
 	{
 		var b strings.Builder
 
-		l := strings.Split(str, "\n")
-		for i := range l {
+		isFirst := true
+		for line := range strings.SplitSeq(str, "\n") {
+			if isFirst {
+				isFirst = false
+			} else {
+				b.WriteRune('\n')
+			}
 			if useSpaceStyler {
 				// Look for spaces and apply a different styler
-				for _, r := range l[i] {
+				for _, r := range line {
 					if unicode.IsSpace(r) {
 						b.WriteString(teSpace.Styled(string(r)))
 						continue
@@ -380,10 +398,7 @@ func (s Style) Render(strs ...string) string {
 					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(te.Styled(l[i]))
-			}
-			if i != len(l)-1 {
-				b.WriteRune('\n')
+				b.WriteString(te.Styled(line))
 			}
 		}
 
@@ -396,12 +411,16 @@ func (s Style) Render(strs ...string) string {
 
 	// Padding
 	if !inline { //nolint:nestif
+		padChar := s.paddingChar
+		if padChar == 0 {
+			padChar = ' '
+		}
 		if leftPadding > 0 {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padLeft(str, leftPadding, st)
+			str = padLeft(str, leftPadding, st, padChar)
 		}
 
 		if rightPadding > 0 {
@@ -409,7 +428,7 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padRight(str, rightPadding, st)
+			str = padRight(str, rightPadding, st, padChar)
 		}
 
 		if topPadding > 0 {
@@ -500,8 +519,12 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &style)
-	str = padRight(str, rightMargin, &style)
+	marginChar := s.marginChar
+	if marginChar == 0 {
+		marginChar = ' '
+	}
+	str = padLeft(str, leftMargin, &style, marginChar)
+	str = padRight(str, rightMargin, &style, marginChar)
 
 	// Top/bottom margin
 	if !inline {
@@ -520,63 +543,52 @@ func (s Style) applyMargins(str string, inline bool) string {
 }
 
 // Apply left padding.
-func padLeft(str string, n int, style *ansi.Style) string {
-	return pad(str, -n, style)
+func padLeft(str string, n int, style *ansi.Style, r rune) string {
+	return pad(str, -n, style, r)
 }
 
 // Apply right padding.
-func padRight(str string, n int, style *ansi.Style) string {
-	return pad(str, n, style)
+func padRight(str string, n int, style *ansi.Style, r rune) string {
+	return pad(str, n, style, r)
 }
 
 // pad adds padding to either the left or right side of a string.
 // Positive values add to the right side while negative values
 // add to the left side.
-func pad(str string, n int, style *ansi.Style) string {
+// r is the rune to use for padding. We use " " for margins and
+// "\u00A0" for padding so that the padding is preserved when the
+// string is copied and pasted.
+func pad(str string, n int, style *ansi.Style, r rune) string {
 	if n == 0 {
 		return str
 	}
 
-	sp := strings.Repeat(" ", abs(n))
+	sp := strings.Repeat(string(r), abs(n))
 	if style != nil {
 		sp = style.Styled(sp)
 	}
 
 	b := strings.Builder{}
-	l := strings.Split(str, "\n")
-
-	for i := range l {
+	isFirst := true
+	for line := range strings.SplitSeq(str, "\n") {
+		if isFirst {
+			isFirst = false
+		} else {
+			b.WriteRune('\n')
+		}
 		switch {
 		// pad right
 		case n > 0:
-			b.WriteString(l[i])
+			b.WriteString(line)
 			b.WriteString(sp)
 		// pad left
 		default:
 			b.WriteString(sp)
-			b.WriteString(l[i])
-		}
-
-		if i != len(l)-1 {
-			b.WriteRune('\n')
+			b.WriteString(line)
 		}
 	}
 
 	return b.String()
-}
-
-func max(a, b int) int { //nolint:unparam,predeclared
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int { //nolint:predeclared
-	if a < b {
-		return a
-	}
-	return b
 }
 
 func abs(a int) int {

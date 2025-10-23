@@ -82,7 +82,7 @@ func (m *Filter) Filter(f func(row int) bool) *Filter {
 // At returns the row at the given index.
 func (m *Filter) At(row, cell int) string {
 	j := 0
-	for i := 0; i < m.data.Rows(); i++ {
+	for i := range m.data.Rows() {
 		if m.filter(i) {
 			if j == row {
 				return m.data.At(i, cell)
@@ -103,11 +103,28 @@ func (m *Filter) Columns() int {
 // Rows returns the number of rows in the table.
 func (m *Filter) Rows() int {
 	j := 0
-	for i := 0; i < m.data.Rows(); i++ {
+	for i := range m.data.Rows() {
 		if m.filter(i) {
 			j++
 		}
 	}
 
 	return j
+}
+
+// DataToMatrix is a helper function that converts an object that implements the
+// Data interface into a table.
+func DataToMatrix(data Data) (rows [][]string) {
+	numRows := data.Rows()
+	numCols := data.Columns()
+	rows = make([][]string, numRows)
+
+	for i := range numRows {
+		rows[i] = make([]string, numCols)
+
+		for j := range numCols {
+			rows[i][j] = data.At(i, j)
+		}
+	}
+	return
 }

@@ -43,18 +43,20 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	if node.Hidden() {
 		return ""
 	}
-	var strs []string
+
 	var maxLen int
 	children := node.Children()
 	enumerator := r.enumerator
 	indenter := r.indenter
+
+	strs := make([]string, 0, children.Length())
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {
 		strs = append(strs, r.style.root.Render(name))
 	}
 
-	for i := 0; i < children.Length(); i++ {
+	for i := range children.Length() {
 		if i < children.Length()-1 {
 			if child := children.At(i + 1); child.Hidden() {
 				// Don't count the last child if its hidden. This renders the
@@ -69,7 +71,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
-	for i := 0; i < children.Length(); i++ {
+	for i := range children.Length() {
 		child := children.At(i)
 		if child.Hidden() {
 			continue
@@ -137,11 +139,4 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		}
 	}
 	return strings.Join(strs, "\n")
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

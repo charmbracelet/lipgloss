@@ -10,7 +10,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/term"
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/uniseg"
 )
 
@@ -26,24 +25,22 @@ const (
 )
 
 var (
-	// Whether the detected background color is dark. We detect this in init().
+	// Whether the detected background color is dark. We detect this at app start.
 	hasDarkBG bool
 
 	// A helper function for choosing either a light or dark color based on the
-	// detected background color. We create this in init().
+	// detected background color. We create this at app start.
 	lightDark lipgloss.LightDarkFunc
 )
 
-func init() {
+func main() {
 	// Detect the background color.
 	hasDarkBG = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
 
 	// Create a new helper function for choosing either a light or dark color
 	// based on the detected background color.
 	lightDark = lipgloss.LightDark(hasDarkBG)
-}
 
-func main() {
 	// Style definitions.
 	var (
 
@@ -203,6 +200,15 @@ func main() {
 
 		fishCakeStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
 
+		// Floating thing.
+
+		floatingStyle = lipgloss.NewStyle().
+				Italic(true).
+				Foreground(lipgloss.Color("#FFF7DB")).
+				Background(lipgloss.Color("#F25D94")).
+				Padding(1, 6).
+				Align(lipgloss.Center)
+
 		// Page.
 
 		docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
@@ -235,8 +241,7 @@ func main() {
 
 		for i, v := range colors {
 			const offset = 2
-			c := lipgloss.Color(v[0])
-			fmt.Fprint(&title, titleStyle.MarginLeft(i*offset).Background(c))
+			fmt.Fprint(&title, titleStyle.MarginLeft(i*offset).Background(v[0]))
 			if i < len(colors)-1 {
 				title.WriteRune('\n')
 			}
@@ -288,7 +293,7 @@ func main() {
 		b := strings.Builder{}
 		for _, x := range colors {
 			for _, y := range x {
-				s := lipgloss.NewStyle().SetString("  ").Background(lipgloss.Color(y))
+				s := lipgloss.NewStyle().SetString("  ").Background(y)
 				b.WriteString(s.String())
 			}
 			b.WriteRune('\n')
@@ -370,48 +375,39 @@ func main() {
 		docStyle = docStyle.MaxWidth(physicalWidth)
 	}
 
+	// Render the document.
+	document := docStyle.Render(doc.String())
+
+	// Surprise! Composite some bonus content on top of the document.
+	modal := floatingStyle.Render("Now with Compositing!")
+	canvas := lipgloss.NewCanvas(
+		lipgloss.NewLayer(document),
+		lipgloss.NewLayer(modal).X(58).Y(44),
+	)
+
 	// Okay, let's print it. We use a special Lipgloss writer to downsample
 	// colors to the terminal's color palette. And, if output's not a TTY, we
 	// will remove color entirely.
-	lipgloss.Println(docStyle.Render(doc.String()))
+	lipgloss.Println(canvas.Render())
 }
 
-func colorGrid(xSteps, ySteps int) [][]string {
-	x0y0, _ := colorful.Hex("#F25D94")
-	x1y0, _ := colorful.Hex("#EDFF82")
-	x0y1, _ := colorful.Hex("#643AFF")
-	x1y1, _ := colorful.Hex("#14F9D5")
+// colorGrid blends colors from 4 corner quadrants, into a box region.
+func colorGrid(xSteps, ySteps int) [][]color.Color {
+	leftColors := lipgloss.Blend1D(ySteps, lipgloss.Color("#F25D94"), lipgloss.Color("#643AFF"))
+	rightColors := lipgloss.Blend1D(ySteps, lipgloss.Color("#EDFF82"), lipgloss.Color("#14F9D5"))
 
-	x0 := make([]colorful.Color, ySteps)
-	for i := range x0 {
-		x0[i] = x0y0.BlendLuv(x0y1, float64(i)/float64(ySteps))
-	}
-
-	x1 := make([]colorful.Color, ySteps)
-	for i := range x1 {
-		x1[i] = x1y0.BlendLuv(x1y1, float64(i)/float64(ySteps))
-	}
-
-	grid := make([][]string, ySteps)
-	for x := 0; x < ySteps; x++ {
-		y0 := x0[x]
-		grid[x] = make([]string, xSteps)
-		for y := 0; y < xSteps; y++ {
-			grid[x][y] = y0.BlendLuv(x1[x], float64(y)/float64(xSteps)).Hex()
+	grid := make([][]color.Color, ySteps)
+	for y := range ySteps {
+		rowColors := lipgloss.Blend1D(xSteps, leftColors[y], rightColors[y])
+		grid[y] = make([]color.Color, xSteps)
+		for x := range xSteps {
+			grid[y][x] = rowColors[x]
 		}
 	}
-
 	return grid
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// applyGradient applies a gradient to the given string string.
+// applyGradient applies a gradient to the given string.
 func applyGradient(base lipgloss.Style, input string, from, to color.Color) string {
 	// We want to get the graphemes of the input string, which is the number of
 	// characters as a human would see them.
@@ -426,15 +422,10 @@ func applyGradient(base lipgloss.Style, input string, from, to color.Color) stri
 		chars = append(chars, g.Str())
 	}
 
-	// Genrate the blend.
-	a, _ := colorful.MakeColor(to)
-	b, _ := colorful.MakeColor(from)
+	gradient := lipgloss.Blend1D(len(chars), from, to)
 	var output strings.Builder
-	var hex string
-	for i := 0; i < len(chars); i++ {
-		hex = a.BlendLuv(b, float64(i)/float64(len(chars)-1)).Hex()
-		output.WriteString(base.Foreground(lipgloss.Color(hex)).Render(chars[i]))
+	for i, char := range chars {
+		output.WriteString(base.Foreground(gradient[i]).Render(char))
 	}
-
 	return output.String()
 }

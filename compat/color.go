@@ -48,7 +48,7 @@ type CompleteColor struct {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface.
 func (c CompleteColor) RGBA() (uint32, uint32, uint32, uint32) {
-	switch Profile {
+	switch Profile { //nolint:exhaustive
 	case colorprofile.TrueColor:
 		return c.TrueColor.RGBA()
 	case colorprofile.ANSI256:

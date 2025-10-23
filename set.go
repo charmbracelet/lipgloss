@@ -6,7 +6,7 @@ import (
 )
 
 // Set a value on the underlying rules map.
-func (s *Style) set(key propKey, value interface{}) {
+func (s *Style) set(key propKey, value any) {
 	// We don't allow negative integers on any of our other values, so just keep
 	// them at zero or above. We could use uints instead, but the
 	// conversions are a little tedious, so we're sticking with ints for
@@ -32,6 +32,8 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.paddingBottom = max(0, value.(int))
 	case paddingLeftKey:
 		s.paddingLeft = max(0, value.(int))
+	case paddingCharKey:
+		s.paddingChar = value.(rune)
 	case marginTopKey:
 		s.marginTop = max(0, value.(int))
 	case marginRightKey:
@@ -42,6 +44,8 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.marginLeft = max(0, value.(int))
 	case marginBackgroundKey:
 		s.marginBgColor = colorOrNil(value)
+	case marginCharKey:
+		s.marginChar = value.(rune)
 	case borderStyleKey:
 		s.borderStyle = value.(Border)
 	case borderTopForegroundKey:
@@ -52,6 +56,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.borderBottomFgColor = colorOrNil(value)
 	case borderLeftForegroundKey:
 		s.borderLeftFgColor = colorOrNil(value)
+	case borderForegroundBlendKey:
+		s.borderBlendFgColor = value.([]color.Color)
+	case borderForegroundBlendOffsetKey:
+		s.borderForegroundBlendOffset = value.(int)
 	case borderTopBackgroundKey:
 		s.borderTopBgColor = colorOrNil(value)
 	case borderRightBackgroundKey:
@@ -118,6 +126,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(paddingBottomKey, i.paddingBottom)
 	case paddingLeftKey:
 		s.set(paddingLeftKey, i.paddingLeft)
+	case paddingCharKey:
+		s.set(paddingCharKey, i.paddingChar)
 	case marginTopKey:
 		s.set(marginTopKey, i.marginTop)
 	case marginRightKey:
@@ -128,6 +138,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(marginLeftKey, i.marginLeft)
 	case marginBackgroundKey:
 		s.set(marginBackgroundKey, i.marginBgColor)
+	case marginCharKey:
+		s.set(marginCharKey, i.marginChar)
 	case borderStyleKey:
 		s.set(borderStyleKey, i.borderStyle)
 	case borderTopForegroundKey:
@@ -138,6 +150,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(borderBottomForegroundKey, i.borderBottomFgColor)
 	case borderLeftForegroundKey:
 		s.set(borderLeftForegroundKey, i.borderLeftFgColor)
+	case borderForegroundBlendKey:
+		s.set(borderForegroundBlendKey, i.borderBlendFgColor)
+	case borderForegroundBlendOffsetKey:
+		s.set(borderForegroundBlendOffsetKey, i.borderForegroundBlendOffset)
 	case borderTopBackgroundKey:
 		s.set(borderTopBackgroundKey, i.borderTopBgColor)
 	case borderRightBackgroundKey:
@@ -160,7 +176,7 @@ func (s *Style) setFrom(key propKey, i Style) {
 	}
 }
 
-func colorOrNil(c interface{}) color.Color {
+func colorOrNil(c any) color.Color {
 	if c, ok := c.(color.Color); ok {
 		return c
 	}
@@ -327,6 +343,18 @@ func (s Style) PaddingBottom(i int) Style {
 	return s
 }
 
+// PaddingChar sets the character used for padding. This is useful for
+// rendering blocks with a specific character, such as a space or a dot.
+// Example of using [NBSP] as padding to prevent line breaks:
+//
+//	```go
+//	s := lipgloss.NewStyle().PaddingChar(lipgloss.NBSP)
+//	```
+func (s Style) PaddingChar(r rune) Style {
+	s.set(paddingCharKey, r)
+	return s
+}
+
 // ColorWhitespace determines whether or not the background color should be
 // applied to the padding. This is true by default as it's more than likely the
 // desired and expected behavior, but it can be disabled for certain graphic
@@ -394,6 +422,13 @@ func (s Style) MarginBottom(i int) Style {
 // the background color on that style will set the margin color on this style.
 func (s Style) MarginBackground(c color.Color) Style {
 	s.set(marginBackgroundKey, c)
+	return s
+}
+
+// MarginChar sets the character used for the margin. This is useful for
+// rendering blocks with a specific character, such as a space or a dot.
+func (s Style) MarginChar(r rune) Style {
+	s.set(marginCharKey, r)
 	return s
 }
 
@@ -539,6 +574,54 @@ func (s Style) BorderBottomForeground(c color.Color) Style {
 // border.
 func (s Style) BorderLeftForeground(c color.Color) Style {
 	s.set(borderLeftForegroundKey, c)
+	return s
+}
+
+// BorderForegroundBlend sets the foreground colors for the border blend. At least
+// 2 colors are required to use blending, otherwise this will no-op with 0 colors,
+// and pass to BorderForeground with 1 color. This will override all other border
+// foreground colors when used.
+//
+// When providing colors, in most cases (e.g. when all border sides are enabled),
+// you will want to provide a wrapping-set of colors, so the start and end color
+// are either the same, or very similar. For example:
+//
+//	lipgloss.NewStyle().BorderForegroundBlend(
+//		lipgloss.Color("#00FA68"),
+//		lipgloss.Color("#9900FF"),
+//		lipgloss.Color("#ED5353"),
+//		lipgloss.Color("#9900FF"),
+//		lipgloss.Color("#00FA68"),
+//	)
+func (s Style) BorderForegroundBlend(c ...color.Color) Style {
+	if len(c) == 0 {
+		return s
+	}
+
+	// Insufficient colors to use blending, pass to BorderForeground.
+	if len(c) == 1 {
+		return s.BorderForeground(c...)
+	}
+
+	s.set(borderForegroundBlendKey, c)
+	return s
+}
+
+// BorderForegroundBlendOffset sets the border blend offset cells, starting from
+// the top left corner. Value can be positive or negative, and does not need to
+// equal the dimensions of the border region. Direction (when positive) is as
+// follows ("o" is starting point):
+//
+//	  o -------->
+//	  ┌──────────┐
+//	^ │          │ |
+//	| │          │ |
+//	| │          │ |
+//	| │          │ v
+//	  └──────────┘
+//	   <---------
+func (s Style) BorderForegroundBlendOffset(v int) Style {
+	s.set(borderForegroundBlendOffsetKey, v)
 	return s
 }
 
