@@ -459,6 +459,18 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
+// GetHyperlink returns the hyperlink along with its parameters. If no
+// hyperlink is set, empty strings are returned.
+func (s Style) GetHyperlink() (link, params string) {
+	if s.isSet(linkKey) {
+		link = s.link
+	}
+	if s.isSet(linkParamsKey) {
+		params = s.linkParams
+	}
+	return
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)
