@@ -1,6 +1,10 @@
 package lipgloss
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/charmbracelet/x/ansi"
+)
 
 func TestStyle_GetBorderSizes(t *testing.T) {
 	tests := []struct {
@@ -90,6 +94,54 @@ func TestStyle_GetBorderSizes(t *testing.T) {
 			gotX, gotY = tt.style.GetFrameSize()
 			if gotX != tt.wantX || gotY != tt.wantY {
 				t.Errorf("Style.GetFrameSize() got (%d, %d), want (%d, %d)", gotX, gotY, tt.wantX, tt.wantY)
+			}
+		})
+	}
+}
+
+func TestRenderHorizontalEdgeFix(t *testing.T) {
+	tests := []struct {
+		name     string
+		left     string
+		middle   string
+		right    string
+		width    int
+		expected int // expected display width
+	}{
+		{
+			name:     "standard border 20 width",
+			left:     "┌",
+			middle:   "─",
+			right:    "┐",
+			width:    20,
+			expected: 20,
+		},
+		{
+			name:     "standard border 45 width",
+			left:     "╭",
+			middle:   "─",
+			right:    "╮",
+			width:    45,
+			expected: 45,
+		},
+		{
+			name:     "ascii border 30 width",
+			left:     "+",
+			middle:   "-",
+			right:    "+",
+			width:    30,
+			expected: 30,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := renderHorizontalEdge(tt.left, tt.middle, tt.right, tt.width)
+			actual := ansi.StringWidth(result)
+			
+			if actual != tt.expected {
+				t.Errorf("renderHorizontalEdge() width = %d, expected %d", actual, tt.expected)
+				t.Errorf("Result: %q", result)
 			}
 		})
 	}
