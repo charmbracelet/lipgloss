@@ -6,7 +6,6 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/charmbracelet/x/cellbuf"
 )
 
 const (
@@ -365,7 +364,7 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = cellbuf.Wrap(str, wrapAt, "")
+		str = Wrap(str, wrapAt, "")
 	}
 
 	// Render core text
