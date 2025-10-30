@@ -2,6 +2,7 @@ package lipgloss
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
@@ -485,6 +486,6 @@ func getFirstRuneAsString(str string) string {
 	if str == "" {
 		return str
 	}
-	r := []rune(str)
-	return string(r[0])
+	_, size := utf8.DecodeRuneInString(str)
+	return str[:size]
 }
