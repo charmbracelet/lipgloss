@@ -49,7 +49,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	enumerator := r.enumerator
 	indenter := r.indenter
 
-	// print the root node name if its not empty.
+	// print the root node name if it's not empty.
 	if name := node.Value(); name != "" && root {
 		strs = append(strs, r.style.root.Render(name))
 	}
@@ -57,7 +57,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	for i := 0; i < children.Length(); i++ {
 		if i < children.Length()-1 {
 			if child := children.At(i + 1); child.Hidden() {
-				// Don't count the last child if its hidden. This renders the
+				// Don't count the last child if it's hidden. This renders the
 				// last visible element with the right prefix
 				//
 				// The only type of Children is NodeChildren.
