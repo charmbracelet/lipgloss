@@ -414,6 +414,14 @@ func (s Style) GetTransform() func(string) string {
 	return s.getAsTransform(transformKey)
 }
 
+func (s Style) GetBorderInfoStyle() Style {
+	return s.getAsStyle(borderInfoStyleKey)
+}
+
+func (s Style) GetBorderInfoTitle() string {
+	return s.getAsString(borderInfoKey)
+}
+
 // Returns whether or not the given property is set.
 func (s Style) isSet(k propKey) bool {
 	return s.props.has(k)
@@ -538,6 +546,24 @@ func (s Style) getAsTransform(propKey) func(string) string {
 		return nil
 	}
 	return s.transform
+}
+
+func (s Style) getAsString(k propKey) string {
+	if v, ok := s.rules[k]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+func (s Style) getAsStyle(k propKey) Style {
+	if v, ok := s.rules[k]; ok {
+		if s, ok := v.(Style); ok {
+			return s
+		}
+	}
+	return NewStyle()
 }
 
 // Split a string into lines, additionally returning the size of the widest

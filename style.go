@@ -70,6 +70,9 @@ const (
 	borderBottomBackgroundKey
 	borderLeftBackgroundKey
 
+	borderInfoStyleKey
+	borderInfoKey
+
 	inlineKey
 	maxWidthKey
 	maxHeightKey
