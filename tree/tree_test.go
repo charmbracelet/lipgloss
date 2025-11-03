@@ -302,6 +302,38 @@ func TestRootStyle(t *testing.T) {
 	golden.RequireEqual(t, []byte(tree.String()))
 }
 
+func TestInheritedStyles(t *testing.T) {
+	enumeratorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("63")).MarginRight(1)
+	rootStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("35"))
+	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
+
+	tr := tree.
+		Root("⁜ Makeup").
+		Child(
+			"Glossier",
+			"Fenty Beauty",
+			tree.New().Child(
+				"Gloss Bomb Universal Lip Luminizer",
+				"Hot Cheeks Velour Blushlighter",
+			),
+			"Nyx",
+			"Mac",
+			"Milk",
+		).
+		Enumerator(tree.RoundedEnumerator).
+		EnumeratorStyle(enumeratorStyle).
+		RootStyle(rootStyle).
+		ItemStyle(itemStyle)
+	// Add a Tree as a Child of "Glossier"
+	tr.Replace(0, tr.Children().At(0).Child(
+		tree.Root("Apparel").Child("Pink Hoodie", "Baseball Cap"),
+	))
+
+	// Add a Leaf as a Child of "Glossier"
+	tr.Children().At(0).Child("Makeup")
+	golden.RequireEqual(t, []byte(tr.String()))
+}
+
 func TestAt(t *testing.T) {
 	data := tree.NewStringData("Foo", "Bar")
 
