@@ -590,3 +590,22 @@ func TestCarriageReturnInRender(t *testing.T) {
 		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
 	}
 }
+
+func TestWidthIncludesBorders(t *testing.T) {
+	s := NewStyle().BorderStyle(NormalBorder()).Width(10)
+	out := s.Render("12345678901234567890")
+	if w := Width(out); w != 10 {
+		t.Fatalf("expected total width 10, got %d. Output: %s", w, out)
+	}
+}
+
+func TestWidthIncludesBordersWithPadding(t *testing.T) {
+	s := NewStyle().
+		BorderStyle(NormalBorder()).
+		Padding(1, 2, 1, 3).
+		Width(10)
+	out := s.Render("12345678901234567890")
+	if w := Width(out); w != 10 {
+		t.Fatalf("expected total width 10, got %d. Output: %s", w, out)
+	}
+}
