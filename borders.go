@@ -280,14 +280,18 @@ func ASCIIBorder() Border {
 	return asciiBorder
 }
 
-type borderBlend struct {
-	topGradient    []color.Color
-	rightGradient  []color.Color
-	bottomGradient []color.Color
-	leftGradient   []color.Color
+// BorderBlender is a function that generates a [BorderBlend] for a [Border].
+type BorderBlender func(width, height int) BorderBlend
+
+// BorderBlend contains the color gradients for each side of a border.
+type BorderBlend struct {
+	TopGradient    []color.Color
+	RightGradient  []color.Color
+	BottomGradient []color.Color
+	LeftGradient   []color.Color
 }
 
-func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlend {
+func (s Style) borderBlend(width, height int, colors ...color.Color) *BorderBlend {
 	gradient := Blend1D(
 		(height+width+2)*2,
 		colors...,
@@ -312,16 +316,16 @@ func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlen
 		return s
 	}
 
-	blend := &borderBlend{
-		topGradient:    getFromOffset(width + 2),
-		rightGradient:  getFromOffset(height),
-		bottomGradient: getFromOffset(width + 2),
-		leftGradient:   getFromOffset(height),
+	blend := &BorderBlend{
+		TopGradient:    getFromOffset(width + 2),
+		RightGradient:  getFromOffset(height),
+		BottomGradient: getFromOffset(width + 2),
+		LeftGradient:   getFromOffset(height),
 	}
 
 	// bottom and left gradients are reversed because they are drawn in reverse order.
-	slices.Reverse(blend.bottomGradient)
-	slices.Reverse(blend.leftGradient)
+	slices.Reverse(blend.BottomGradient)
+	slices.Reverse(blend.LeftGradient)
 
 	return blend
 }
@@ -420,7 +424,7 @@ func (s Style) applyBorder(str string) string {
 		leftBG   = s.getAsColor(borderLeftBackgroundKey)
 	)
 
-	var blend *borderBlend
+	var blend *BorderBlend
 	if len(blendFG) > 0 {
 		blend = s.borderBlend(width, len(lines), blendFG...)
 	} else {
@@ -436,7 +440,7 @@ func (s Style) applyBorder(str string) string {
 	if hasTop {
 		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
 		if blend != nil {
-			out.WriteString(s.styleBorderBlend(top, blend.topGradient, topBG))
+			out.WriteString(s.styleBorderBlend(top, blend.TopGradient, topBG))
 		} else {
 			out.WriteString(s.styleBorder(top, topFG, topBG))
 		}
@@ -459,7 +463,7 @@ func (s Style) applyBorder(str string) string {
 				leftIndex = 0
 			}
 			if blend != nil {
-				out.WriteString(s.styleBorder(r, blend.leftGradient[i], leftBG))
+				out.WriteString(s.styleBorder(r, blend.LeftGradient[i], leftBG))
 			} else {
 				out.WriteString(s.styleBorder(r, leftFG, leftBG))
 			}
@@ -472,7 +476,7 @@ func (s Style) applyBorder(str string) string {
 				rightIndex = 0
 			}
 			if blend != nil {
-				out.WriteString(s.styleBorder(r, blend.rightGradient[i], rightBG))
+				out.WriteString(s.styleBorder(r, blend.RightGradient[i], rightBG))
 			} else {
 				out.WriteString(s.styleBorder(r, rightFG, rightBG))
 			}
@@ -487,7 +491,7 @@ func (s Style) applyBorder(str string) string {
 		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
 		out.WriteRune('\n')
 		if blend != nil {
-			out.WriteString(s.styleBorderBlend(bottom, blend.bottomGradient, bottomBG))
+			out.WriteString(s.styleBorderBlend(bottom, blend.BottomGradient, bottomBG))
 		} else {
 			out.WriteString(s.styleBorder(bottom, bottomFG, bottomBG))
 		}

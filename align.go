@@ -3,6 +3,7 @@ package lipgloss
 import (
 	"strings"
 
+	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -10,11 +11,15 @@ import (
 // the same width by padding them with spaces. If a style is passed, use that
 // to style the spaces added.
 func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style) string {
+	return alignTextHorizontalWithMethod(str, pos, width, style, ansi.GraphemeWidth)
+}
+
+func alignTextHorizontalWithMethod(str string, pos Position, width int, style *ansi.Style, method uv.WidthMethod) string {
 	lines, widestLine := getLines(str)
 	var b strings.Builder
 
 	for i, l := range lines {
-		lineWidth := ansi.StringWidth(l)
+		lineWidth := method.StringWidth(l)
 
 		shortAmount := widestLine - lineWidth                // difference from the widest line
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set

@@ -3,6 +3,7 @@ package lipgloss
 import (
 	"strings"
 
+	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -12,9 +13,13 @@ import (
 //
 // You should use this instead of len(string) or len([]rune(string) as neither
 // will give you accurate results.
-func Width(str string) (width int) {
+func Width(str string) int {
+	return getWidth(ansi.GraphemeWidth, str)
+}
+
+func getWidth(wm uv.WidthMethod, str string) (width int) {
 	for l := range strings.SplitSeq(str, "\n") {
-		w := ansi.StringWidth(l)
+		w := wm.StringWidth(l)
 		if w > width {
 			width = w
 		}
