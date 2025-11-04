@@ -18,8 +18,13 @@ github.com/charmbracelet/log v0.4.1-0.20241010222913-47ce960d4847 h1:3uto8OPDase
 github.com/charmbracelet/log v0.4.1-0.20241010222913-47ce960d4847/go.mod h1:3UCs04fasl8pA1HoNNJ8HCYCaKoeMBZrNXo9iy5F0vY=
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917 h1:NZKjJ7d/pzk/AfcJYEzmF8M48JlIrrY00RR5JdDc3io=
 github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917/go.mod h1:8/Ve8iGRRIGFM1kepYfRF2pEOF5Y3TEZYoJaA54228U=
+<<<<<<< Updated upstream
 github.com/charmbracelet/ultraviolet v0.0.0-20251104185819-20e68c88fe84 h1:v0Lpf/xY3wsJ3WQw0hrX4tbR5T2v79U177XublKL2sU=
 github.com/charmbracelet/ultraviolet v0.0.0-20251104185819-20e68c88fe84/go.mod h1:v1E3tTRQE3uaU0K1BrF/kgjAMGEPhkIYebanPBZ6Sdo=
+=======
+github.com/charmbracelet/ultraviolet v0.0.0-20251103104523-426d0f30df4f h1:is6YhvC8rUtW5r50v2PIrB5uDt/DUvVD97Mg7bcztxI=
+github.com/charmbracelet/ultraviolet v0.0.0-20251103104523-426d0f30df4f/go.mod h1:D+RWyoXrpbUAsFkfuMuBkMRR45Jf3GfFcxrKZmkDOiE=
+>>>>>>> Stashed changes
 github.com/charmbracelet/wish v1.4.0 h1:pL1uVP/YuYgJheHEj98teZ/n6pMYnmlZq/fcHvomrfc=
 github.com/charmbracelet/wish v1.4.0/go.mod h1:ew4/MjJVfW/akEO9KmrQHQv1F7bQRGscRMrA+KtovTk=
 github.com/charmbracelet/x/ansi v0.10.3 h1:3WoV9XN8uMEnFRZZ+vBPRy59TaIWa+gJodS4Vg5Fut0=
