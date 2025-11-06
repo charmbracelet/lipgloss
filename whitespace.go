@@ -9,9 +9,10 @@ import (
 
 // whitespace is a whitespace renderer.
 type whitespace struct {
-	re    *Renderer
-	style termenv.Style
-	chars string
+	re       *Renderer
+	style    termenv.Style
+	chars    string
+	tabWidth int
 }
 
 // newWhitespace creates a new whitespace renderer. The order of the options
@@ -19,8 +20,9 @@ type whitespace struct {
 // other options might depend on it.
 func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 	w := &whitespace{
-		re:    r,
-		style: r.ColorProfile().String(),
+		re:       r,
+		style:    r.ColorProfile().String(),
+		tabWidth: 4, // default tab width
 	}
 	for _, opt := range opts {
 		opt(w)
@@ -32,6 +34,11 @@ func newWhitespace(r *Renderer, opts ...WhitespaceOption) *whitespace {
 func (w whitespace) render(width int) string {
 	if w.chars == "" {
 		w.chars = " "
+	}
+
+	// replaces tabs with spaces matching tabWidth
+	if strings.Contains(w.chars, "\t") {
+		w.chars = strings.ReplaceAll(w.chars, "\t", strings.Repeat(" ", w.tabWidth))
 	}
 
 	r := []rune(w.chars)
@@ -79,5 +86,12 @@ func WithWhitespaceBackground(c TerminalColor) WhitespaceOption {
 func WithWhitespaceChars(s string) WhitespaceOption {
 	return func(w *whitespace) {
 		w.chars = s
+	}
+}
+
+// WithWhitespaceTabWidth sets the tab width, which has a default of 4
+func WithWhitespaceTabWidth(width int) WhitespaceOption {
+	return func(w *whitespace) {
+		w.tabWidth = max(-1, width)
 	}
 }
