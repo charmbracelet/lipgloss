@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 )
 
@@ -109,15 +109,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
+	var v tea.View
 	if m.styles == nil {
 		// We haven't received tea.BackgroundColorMsg yet. Don't worry, it'll
 		// be here in a flash.
-		return ""
+		return v
 	}
 	if m.chosen || m.aborted {
 		// We're about to exit, so wipe the UI.
-		return ""
+		return v
 	}
 
 	var (
@@ -134,7 +135,7 @@ func (m model) View() string {
 		n = s.activeButton.Render(n)
 	}
 
-	return s.frame.Render(
+	content := s.frame.Render(
 		lipgloss.JoinVertical(lipgloss.Center,
 			s.paragraph.Render(
 				s.text.Render("Are you sure you want to eat that ")+
@@ -144,6 +145,8 @@ func (m model) View() string {
 			y+"  "+n,
 		),
 	)
+	v.SetContent(content)
+	return v
 }
 
 func main() {

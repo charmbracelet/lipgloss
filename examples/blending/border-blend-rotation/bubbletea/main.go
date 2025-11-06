@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 )
 
@@ -47,8 +47,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
-	return lipgloss.NewStyle().
+func (m model) View() tea.View {
+	v := tea.NewView(lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForegroundBlend(
 			lipgloss.Color("#00FA68"),
@@ -60,11 +60,13 @@ func (m model) View() string {
 		BorderForegroundBlendOffset(m.borderRotation).
 		Width(60).
 		Height(15).
-		Render("Hello, world!")
+		Render("Hello, world!"))
+	v.AltScreen = true
+	return v
 }
 
 func main() {
-	_, err := tea.NewProgram(model{}, tea.WithAltScreen()).Run()
+	_, err := tea.NewProgram(model{}).Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Uh oh: %v", err)
 		os.Exit(1)
