@@ -81,7 +81,7 @@ func (w *WrapWriter) Write(p []byte) (int, error) {
 				_, _ = w.w.Write([]byte(ansi.SetHyperlink(w.link.URL, w.link.Params)))
 			}
 			if !w.style.IsZero() {
-				_, _ = w.w.Write([]byte(w.style.Sequence()))
+				_, _ = w.w.Write([]byte(w.style.String()))
 			}
 		}
 	}

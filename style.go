@@ -297,17 +297,17 @@ func (s Style) Render(strs ...string) string {
 		te = te.Bold()
 	}
 	if italic {
-		te = te.Italic()
+		te = te.Italic(true)
 	}
 	if underline {
-		te = te.Underline()
+		te = te.Underline(true)
 	}
 	if reverse {
-		teWhitespace = teWhitespace.Reverse()
-		te = te.Reverse()
+		teWhitespace = teWhitespace.Reverse(true)
+		te = te.Reverse(true)
 	}
 	if blink {
-		te = te.SlowBlink()
+		te = te.Blink(true)
 	}
 	if faint {
 		te = te.Faint()
@@ -334,17 +334,17 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if underline {
-		te = te.Underline()
+		te = te.Underline(true)
 	}
 	if strikethrough {
-		te = te.Strikethrough()
+		te = te.Strikethrough(true)
 	}
 
 	if underlineSpaces {
-		teSpace = teSpace.Underline()
+		teSpace = teSpace.Underline(true)
 	}
 	if strikethroughSpaces {
-		teSpace = teSpace.Strikethrough()
+		teSpace = teSpace.Strikethrough(true)
 	}
 
 	// Potentially convert tabs to spaces
