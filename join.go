@@ -3,9 +3,52 @@ package lipgloss
 import (
 	"math"
 	"strings"
+	"unsafe"
 
 	"github.com/charmbracelet/x/ansi"
 )
+
+//go:export JoinVertical
+func wasmJoinVertical(pos Position, ptrArray *uint32, count int) *string {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	strs := []string{}
+
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		strs = append(strs, str)
+	}
+
+	str := JoinVertical(pos, strs...)
+	return &str
+}
+
+//go:export JoinHorizontal
+func wasmJoinHorizontal(pos Position, ptrArray *uint32, count int) *string {
+	// Convert to a slice of pointers
+	pointerArray := unsafe.Slice(ptrArray, count*2)
+	strs := []string{}
+
+	for i := range count {
+		strPtr := uintptr(pointerArray[i*2])
+		strLen := int(pointerArray[i*2+1])
+
+		// Create a byte slice and convert to string
+		bytes := unsafe.Slice((*byte)(unsafe.Pointer(strPtr)), strLen)
+		str := string(bytes)
+
+		strs = append(strs, str)
+	}
+
+	str := JoinHorizontal(pos, strs...)
+	return &str
+}
 
 // JoinHorizontal is a utility function for horizontally joining two
 // potentially multi-lined strings along a vertical axis. The first argument is

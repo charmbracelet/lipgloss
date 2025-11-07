@@ -765,6 +765,51 @@ the stylesheet-based Markdown renderer.
 
 [glamour]: https://github.com/charmbracelet/glamour
 
+## JavaScript/WASM Bindings
+
+Lip Gloss is also available for JavaScript through WebAssembly bindings. This allows you to use Lip Gloss styling in Node.js applications and web browsers.
+
+### Installation
+
+```bash
+npm install @charmland/lipgloss
+```
+
+### Usage
+
+```javascript
+const { Table, TableData, Style, Color, normalBorder } = require("@charmland/lipgloss");
+
+// Create styled tables
+const data = new TableData(
+  ["Name", "Age", "City"],
+  ["Alice", "25", "New York"],
+  ["Bob", "30", "San Francisco"]
+);
+
+const table = new Table()
+  .data(data)
+  .border(normalBorder())
+  .styleFunc((row, col) => {
+    if (row === -1) {
+      return new Style().bold(true).foreground(Color("99"));
+    }
+    return new Style().padding(0, 1);
+  })
+  .render();
+
+console.log(table);
+```
+
+The JavaScript bindings support most Lip Gloss features including:
+- **Tables** with `TableData` for structured data management
+- **Lists** with various enumerators
+- **Trees** with nested structures
+- **Styles** with colors, borders, padding, and more
+- **Layout** functions like `joinHorizontal` and `joinVertical`
+
+For complete documentation and examples, see the [bindings directory](./bindings/).
+
 ## Contributing
 
 See [contributing][contribute].

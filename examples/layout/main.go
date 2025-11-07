@@ -60,27 +60,9 @@ func main() {
 
 		// Tabs.
 
-		activeTabBorder = lipgloss.Border{
-			Top:         "─",
-			Bottom:      " ",
-			Left:        "│",
-			Right:       "│",
-			TopLeft:     "╭",
-			TopRight:    "╮",
-			BottomLeft:  "┘",
-			BottomRight: "└",
-		}
+		activeTabBorder = lipgloss.NormalBorder()
 
-		tabBorder = lipgloss.Border{
-			Top:         "─",
-			Bottom:      "─",
-			Left:        "│",
-			Right:       "│",
-			TopLeft:     "╭",
-			TopRight:    "╮",
-			BottomLeft:  "┴",
-			BottomRight: "┴",
-		}
+		tabBorder = lipgloss.NormalBorder()
 
 		tab = lipgloss.NewStyle().
 			Border(tabBorder, true).
@@ -215,6 +197,7 @@ func main() {
 	)
 
 	physicalWidth, _, _ := term.GetSize(os.Stdout.Fd())
+	fmt.Println(physicalWidth)
 	doc := strings.Builder{}
 
 	// Tabs.
@@ -227,6 +210,12 @@ func main() {
 			tab.Render("Mascara"),
 			tab.Render("Foundation"),
 		)
+		// out, err := json.Marshal(row)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// fmt.Println(string(out))
+		fmt.Print(max(0, width-lipgloss.Width(row)-2))
 		gap := tabGap.Render(strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
 		row = lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap)
 		doc.WriteString(row + "\n\n")
