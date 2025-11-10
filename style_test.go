@@ -30,6 +30,10 @@ func TestUnderline(t *testing.T) {
 			NewStyle().UnderlineSpaces(true),
 			"ab\x1b[4m \x1b[mc",
 		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly),
+			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
+		},
 	}
 
 	for i, tc := range tt {

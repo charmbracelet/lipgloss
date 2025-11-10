@@ -16,6 +16,10 @@ func (s *Style) set(key propKey, value any) {
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
 		s.bgColor = colorOrNil(value)
+	case underlineColorKey:
+		s.ulColor = colorOrNil(value)
+	case underlineKey:
+		s.ul = value.(Underline)
 	case widthKey:
 		s.width = max(0, value.(int))
 	case heightKey:
@@ -110,6 +114,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(foregroundKey, i.fgColor)
 	case backgroundKey:
 		s.set(backgroundKey, i.bgColor)
+	case underlineColorKey:
+		s.set(underlineColorKey, i.ulColor)
+	case underlineKey:
+		s.set(underlineKey, i.ul)
 	case widthKey:
 		s.set(widthKey, i.width)
 	case heightKey:
@@ -200,7 +208,31 @@ func (s Style) Italic(v bool) Style {
 // whitespace like margins and padding. To change this behavior set
 // [Style.UnderlineSpaces].
 func (s Style) Underline(v bool) Style {
-	s.set(underlineKey, v)
+	if v {
+		return s.UnderlineStyle(UnderlineSingle)
+	}
+	return s.UnderlineStyle(UnderlineNone)
+}
+
+// UnderlineStyle sets the underline style. This can be used to set the underline
+// to be a single, double, curly, dotted, or dashed line.
+//
+// Note that not all terminal emulators support underline styles. If a style is
+// not supported, it will typically fall back to a single underline but this is
+// not guaranteed. This depends on the terminal emulator being used.
+func (s Style) UnderlineStyle(u Underline) Style {
+	s.set(underlineKey, u)
+	return s
+}
+
+// UnderlineColor sets the color of the underline. By default, the underline
+// will be the same color as the foreground.
+//
+// Note that not all terminal emulators support colored underlines. If color is
+// not supported, it might produce unexpected results. This depends on the
+// terminal emulator being used.
+func (s Style) UnderlineColor(c color.Color) Style {
+	s.set(underlineColorKey, c)
 	return s
 }
 
