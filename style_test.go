@@ -562,6 +562,70 @@ func TestHeight(t *testing.T) {
 	}
 }
 
+func TestHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com"),
+			expected: "\x1b]8;;https://example.com\x07https://example.com\x1b]8;;\x07",
+		},
+		{
+			name:     "hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example"),
+			expected: "\x1b]8;id=123;https://example.com\x07example\x1b]8;;\x07",
+		},
+		{
+			name: "hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")),
+			expected: "\x1b]8;id=123;https://example.com\x07\x1b[1;38;5;234mexample\x1b[m\x1b]8;;\x07",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
+func TestUnsetHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "unset hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com").UnsetHyperlink(),
+			expected: "https://example.com",
+		},
+		{
+			name:     "unset hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").UnsetHyperlink(),
+			expected: "example",
+		},
+		{
+			name: "unset hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")).UnsetHyperlink(),
+			expected: "\x1b[1;38;5;234mexample\x1b[m",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
 func BenchmarkPad(b *testing.B) {
 	tests := []struct {
 		name string
