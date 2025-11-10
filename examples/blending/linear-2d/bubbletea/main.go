@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/charmbracelet/lipgloss/v2"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/charmtone"
 )
 
@@ -66,7 +66,7 @@ func main() {
 				charmtone.Sriracha,
 			),
 	}
-	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
@@ -146,9 +146,13 @@ func (m *model) updateGradient() {
 	m.gradients = lipgloss.Blend2D(m.boxWidth, m.boxHeight, m.angle, gradients[m.selectedGradient]...)
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
+	var v tea.View
+	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
+
 	if len(m.gradients) == 0 || m.windowWidth == 0 || m.windowHeight == 0 {
-		return "" // Wait until we generate the initial gradient/get window size.
+		return v // Wait until we generate the initial gradient/get window size.
 	}
 
 	// Build the gradient content.
@@ -182,7 +186,7 @@ func (m model) View() string {
 		len(gradients),
 	))
 
-	return lipgloss.NewStyle().
+	content := lipgloss.NewStyle().
 		Width(m.windowWidth).
 		Height(m.windowHeight).
 		Render(lipgloss.JoinVertical(
@@ -194,6 +198,8 @@ func (m model) View() string {
 			info,
 			controls,
 		))
+	v.SetContent(content)
+	return v
 }
 
 func clamp[T cmp.Ordered](v, low, high T) T {

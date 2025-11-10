@@ -344,6 +344,14 @@ func (s Style) UnsetTransform() Style {
 	return s
 }
 
+// UnsetHyperlink removes the value set by Hyperlink.
+func (s Style) UnsetHyperlink() Style {
+	s.unset(linkKey)
+	s.unset(linkParamsKey)
+	s.link, s.linkParams = "", "" // save memory
+	return s
+}
+
 // UnsetString sets the underlying string value to the empty string.
 func (s Style) UnsetString() Style {
 	s.value = ""

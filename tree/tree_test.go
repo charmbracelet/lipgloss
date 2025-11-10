@@ -3,10 +3,10 @@ package tree_test
 import (
 	"testing"
 
-	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/list"
-	"github.com/charmbracelet/lipgloss/v2/table"
-	"github.com/charmbracelet/lipgloss/v2/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/list"
+	"charm.land/lipgloss/v2/table"
+	"charm.land/lipgloss/v2/tree"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/golden"
 )

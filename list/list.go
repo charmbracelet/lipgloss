@@ -23,8 +23,8 @@
 package list
 
 import (
-	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 // List represents a list of items that can be displayed. Lists can contain

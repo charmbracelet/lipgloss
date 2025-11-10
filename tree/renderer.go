@@ -3,7 +3,7 @@ package tree
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
 )
 
 // StyleFunc allows the tree to be styled per item.

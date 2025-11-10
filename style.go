@@ -6,7 +6,6 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/charmbracelet/x/cellbuf"
 )
 
 const (
@@ -85,6 +84,10 @@ const (
 	tabWidthKey
 
 	transformKey
+
+	// Hyperlink.
+	linkKey
+	linkParamsKey
 )
 
 // props is a set of properties.
@@ -115,17 +118,17 @@ type Underline uint8
 
 const (
 	// UnderlineNone is no underline.
-	UnderlineNone = Underline(ansi.NoUnderlineStyle)
+	UnderlineNone = Underline(ansi.UnderlineStyleNone)
 	// UnderlineSingle is a single underline. This is the default when underline is enabled.
-	UnderlineSingle = Underline(ansi.SingleUnderlineStyle)
+	UnderlineSingle = Underline(ansi.UnderlineStyleSingle)
 	// UnderlineDouble is a double underline.
-	UnderlineDouble = Underline(ansi.DoubleUnderlineStyle)
+	UnderlineDouble = Underline(ansi.UnderlineStyleDouble)
 	// UnderlineCurly is a curly underline.
-	UnderlineCurly = Underline(ansi.CurlyUnderlineStyle)
+	UnderlineCurly = Underline(ansi.UnderlineStyleCurly)
 	// UnderlineDotted is a dotted underline.
-	UnderlineDotted = Underline(ansi.DottedUnderlineStyle)
+	UnderlineDotted = Underline(ansi.UnderlineStyleDotted)
 	// UnderlineDashed is a dashed underline.
-	UnderlineDashed = Underline(ansi.DashedUnderlineStyle)
+	UnderlineDashed = Underline(ansi.UnderlineStyleDashed)
 )
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
@@ -139,6 +142,9 @@ func NewStyle() Style {
 type Style struct {
 	props props
 	value string
+
+	// hyperlink
+	link, linkParams string
 
 	// we store bool props values here
 	attrs int
@@ -312,6 +318,8 @@ func (s Style) Render(strs ...string) string {
 		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
+
+		link, linkParams = s.GetHyperlink()
 	)
 
 	if transform != nil {
@@ -326,17 +334,17 @@ func (s Style) Render(strs ...string) string {
 		te = te.Bold()
 	}
 	if italic {
-		te = te.Italic()
+		te = te.Italic(true)
 	}
 	if underline {
-		te = te.Underline()
+		te = te.Underline(true)
 	}
 	if reverse {
-		teWhitespace = teWhitespace.Reverse()
-		te = te.Reverse()
+		teWhitespace = teWhitespace.Reverse(true)
+		te = te.Reverse(true)
 	}
 	if blink {
-		te = te.SlowBlink()
+		te = te.Blink(true)
 	}
 	if faint {
 		te = te.Faint()
@@ -376,14 +384,14 @@ func (s Style) Render(strs ...string) string {
 		te = te.UnderlineStyle(ansi.UnderlineStyle(s.ul))
 	}
 	if strikethrough {
-		te = te.Strikethrough()
+		te = te.Strikethrough(true)
 	}
 
 	if underlineSpaces {
-		teSpace = teSpace.Underline()
+		teSpace = teSpace.Underline(true)
 	}
 	if strikethroughSpaces {
-		teSpace = teSpace.Strikethrough()
+		teSpace = teSpace.Strikethrough(true)
 	}
 
 	// Potentially convert tabs to spaces
@@ -403,7 +411,7 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = cellbuf.Wrap(str, wrapAt, "")
+		str = Wrap(str, wrapAt, "")
 	}
 
 	// Render core text
@@ -432,6 +440,10 @@ func (s Style) Render(strs ...string) string {
 		}
 
 		str = b.String()
+
+		if len(link) > 0 {
+			str = ansi.SetHyperlink(link, linkParams) + str + ansi.ResetHyperlink()
+		}
 	}
 
 	// Padding

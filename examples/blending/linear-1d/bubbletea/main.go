@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/charmbracelet/lipgloss/v2"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 var gradients = []gradientData{
@@ -121,7 +121,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() (string, *tea.Cursor) {
+func (m model) View() tea.View {
 	var maxTitleWidth int
 
 	for _, gradient := range gradients {
@@ -155,11 +155,15 @@ func (m model) View() (string, *tea.Cursor) {
 	cursor.X = 0
 	cursor.Y = 0
 
-	return content.String(), cursor
+	v := tea.NewView(content.String())
+	v.Cursor = cursor
+	v.AltScreen = true
+
+	return v
 }
 
 func main() {
-	_, err := tea.NewProgram(model{styles: newStyles(true)}, tea.WithAltScreen()).Run()
+	_, err := tea.NewProgram(model{styles: newStyles(true)}).Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Uh oh: %v", err)
 		os.Exit(1)

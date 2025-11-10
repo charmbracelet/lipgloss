@@ -3,7 +3,7 @@ package tree_test
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss/v2/tree"
+	"charm.land/lipgloss/v2/tree"
 	"github.com/charmbracelet/x/ansi"
 )
 

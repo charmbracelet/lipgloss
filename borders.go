@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/rivo/uniseg"
@@ -581,6 +582,6 @@ func getFirstRuneAsString(str string) string {
 	if str == "" {
 		return str
 	}
-	r := []rune(str)
-	return string(r[0])
+	_, size := utf8.DecodeRuneInString(str)
+	return str[:size]
 }
