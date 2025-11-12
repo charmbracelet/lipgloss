@@ -45,12 +45,12 @@ func (c *Canvas) Bounds() image.Rectangle {
 	return image.Rect(x0, y0, x1, y1)
 }
 
-// Hit returns the [Layer.ID] at the given point. If no Layer is found,
-// nil is returned.
+// Hit returns the [Layer] ID at the given point. If no Layer is found, nil is
+// returned.
 func (c *Canvas) Hit(x, y int) string {
 	for i := len(c.layers) - 1; i >= 0; i-- {
 		if c.layers[i].InBounds(x, y) {
-			return c.layers[i].Hit(x, y).GetID()
+			return c.layers[i].Hit(x, y)
 		}
 	}
 	return ""
@@ -116,9 +116,9 @@ func (l *Layer) Bounds() image.Rectangle {
 	return l.rect
 }
 
-// Hit returns the [Layer.ID] at the given point. If no Layer is found,
-// returns nil is returned.
-func (l *Layer) Hit(x, y int) *Layer {
+// Hit returns the [Layer] ID at the given point. If no Layer is found, nil is
+// returned.
+func (l *Layer) Hit(x, y int) string {
 	// Reverse the order of the layers so that the top-most layer is checked
 	// first.
 	for i := len(l.children) - 1; i >= 0; i-- {
@@ -128,10 +128,10 @@ func (l *Layer) Hit(x, y int) *Layer {
 	}
 
 	if image.Pt(x, y).In(l.Bounds()) {
-		return l
+		return l.id
 	}
 
-	return nil
+	return ""
 }
 
 // ID sets the ID of the Layer. The ID can be used to identify the Layer when
