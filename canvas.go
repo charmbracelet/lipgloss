@@ -58,6 +58,11 @@ func (c *Canvas) Hit(x, y int) string {
 
 // AddLayers adds the given layers to the Canvas.
 func (c *Canvas) AddLayers(layers ...*Layer) {
+	for i, layer := range layers {
+		if layer == nil {
+			panic(fmt.Sprintf("layer at index %d is nil", i))
+		}
+	}
 	c.layers = append(c.layers, layers...)
 	sortLayers(c.layers, false)
 }
@@ -204,7 +209,10 @@ func (l *Layer) GetHeight() int {
 // AddLayers adds child layers to the Layer.
 func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 	// Make children relative to the parent
-	for _, child := range layers {
+	for i, child := range layers {
+		if child == nil {
+			panic(fmt.Sprintf("layer at index %d is nil", i))
+		}
 		child.rect = child.rect.Add(l.rect.Min)
 		child.zIndex += l.zIndex
 	}
@@ -215,6 +223,12 @@ func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 
 // SetContent sets the content of the Layer.
 func (l *Layer) SetContent(content any) *Layer {
+	if content == nil {
+		l.content = nil
+		l.rect = image.Rectangle{}
+		return l
+	}
+
 	var drawable uv.Drawable
 	var rect image.Rectangle
 	switch c := content.(type) {
@@ -255,10 +269,9 @@ func (l *Layer) Content() any {
 
 // Draw draws the Layer onto the given screen buffer.
 func (l *Layer) Draw(scr uv.Screen, area image.Rectangle) {
-	if l.content == nil {
-		return
+	if l.content != nil {
+		l.content.Draw(scr, area.Intersect(l.Bounds()))
 	}
-	l.content.Draw(scr, area.Intersect(l.Bounds()))
 	for _, child := range l.children {
 		if child.content == nil {
 			continue
