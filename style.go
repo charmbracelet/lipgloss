@@ -114,21 +114,21 @@ func (p props) has(k propKey) bool {
 // - Not all terminals support all underline styles.
 // - Some terminals may render unsupported styles as standard underlines.
 // - Terminal themes may affect the visibility of different underline styles.
-type Underline uint8
+type Underline = ansi.Underline
 
 const (
 	// UnderlineNone is no underline.
-	UnderlineNone = Underline(ansi.UnderlineStyleNone)
+	UnderlineNone = ansi.UnderlineNone
 	// UnderlineSingle is a single underline. This is the default when underline is enabled.
-	UnderlineSingle = Underline(ansi.UnderlineStyleSingle)
+	UnderlineSingle = ansi.UnderlineSingle
 	// UnderlineDouble is a double underline.
-	UnderlineDouble = Underline(ansi.UnderlineStyleDouble)
+	UnderlineDouble = ansi.UnderlineDouble
 	// UnderlineCurly is a curly underline.
-	UnderlineCurly = Underline(ansi.UnderlineStyleCurly)
+	UnderlineCurly = ansi.UnderlineCurly
 	// UnderlineDotted is a dotted underline.
-	UnderlineDotted = Underline(ansi.UnderlineStyleDotted)
+	UnderlineDotted = ansi.UnderlineDotted
 	// UnderlineDashed is a dashed underline.
-	UnderlineDashed = Underline(ansi.UnderlineStyleDashed)
+	UnderlineDashed = ansi.UnderlineDashed
 )
 
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
@@ -381,7 +381,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if underline {
-		te = te.UnderlineStyle(ansi.UnderlineStyle(s.ul))
+		te = te.UnderlineStyle(s.ul)
 	}
 	if strikethrough {
 		te = te.Strikethrough(true)
