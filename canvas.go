@@ -273,10 +273,7 @@ func (l *Layer) Draw(scr uv.Screen, area image.Rectangle) {
 		l.content.Draw(scr, area.Intersect(l.Bounds()))
 	}
 	for _, child := range l.children {
-		if child.content == nil {
-			continue
-		}
-		child.content.Draw(scr, area.Intersect(child.Bounds()))
+		child.Draw(scr, area.Intersect(child.Bounds()))
 	}
 }
 
