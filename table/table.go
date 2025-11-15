@@ -70,6 +70,8 @@ type Table struct {
 
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
+
+	showOverflowRow bool // controls overflow row rendering
 }
 
 // New returns a new Table that can be modified through different
@@ -78,17 +80,25 @@ type Table struct {
 // By default, a table has normal border, no styling, and no rows.
 func New() *Table {
 	return &Table{
-		styleFunc:    DefaultStyles,
-		border:       lipgloss.NormalBorder(),
-		borderBottom: true,
-		borderColumn: true,
-		borderHeader: true,
-		borderLeft:   true,
-		borderRight:  true,
-		borderTop:    true,
-		wrap:         true,
-		data:         NewStringData(),
+		styleFunc:       DefaultStyles,
+		border:          lipgloss.NormalBorder(),
+		borderBottom:    true,
+		borderColumn:    true,
+		borderHeader:    true,
+		borderLeft:      true,
+		borderRight:     true,
+		borderTop:       true,
+		wrap:            true,
+		data:            NewStringData(),
+		showOverflowRow: true, // default is true (preserves old behavior)
 	}
+}
+
+// WithOverflowRow controls whether the ellipsis overflow row is shown.
+// If set to false, the overflow row is not rendered.
+func (t *Table) WithOverflowRow(show bool) *Table {
+	t.showOverflowRow = show
+	return t
 }
 
 // ClearRows clears the table rows.
@@ -296,7 +306,16 @@ func (t *Table) VisibleRows() int {
 	if t.lastVisibleRowIndex == -2 {
 		return t.data.Rows() - t.firstVisibleRowIndex
 	}
-	return t.lastVisibleRowIndex - t.firstVisibleRowIndex + 1
+	if t.showOverflowRow {
+		return t.lastVisibleRowIndex - t.firstVisibleRowIndex + 1
+	}
+	// When overflow row is hidden, we do not render the partial overflow row.
+	// So the visible count excludes the last (partial) row.
+	n := t.lastVisibleRowIndex - t.firstVisibleRowIndex
+	if n < 0 {
+		return 0
+	}
+	return n
 }
 
 // Wrap dictates whether or not the table content should wrap.
@@ -343,10 +362,16 @@ func (t *Table) String() string {
 		bottom = t.constructBottomBorder()
 	}
 
-	// If there are no data rows render nothing.
+	// If there are data rows, render the visible window. When overflow rows
+	// are disabled, render subsequent rows normally and rely on clipping to
+	// fill the space with actual data instead of an ellipsis row.
 	if t.data.Rows() > 0 {
+		lastToRender := t.lastVisibleRowIndex
+		if !t.showOverflowRow {
+			lastToRender = -2 // render until end; MaxHeight will clip
+		}
 		for r := t.firstVisibleRowIndex; r < t.data.Rows(); r++ {
-			if t.lastVisibleRowIndex != -2 && r > t.lastVisibleRowIndex {
+			if lastToRender != -2 && r > lastToRender {
 				break
 			}
 			sb.WriteString(t.constructRow(r))
@@ -482,7 +507,8 @@ func (t *Table) constructRow(index int) string {
 	hasHeaders := len(t.headers) > 0
 	height := t.heights[index+btoi(hasHeaders)]
 	isLastRow := index == t.data.Rows()-1
-	isOverflow := !isLastRow && t.lastVisibleRowIndex == index
+	isOverflow := !isLastRow && t.lastVisibleRowIndex == index && t.showOverflowRow
+
 	if isOverflow {
 		height = max(height, 1)
 	}
