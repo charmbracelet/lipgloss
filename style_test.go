@@ -30,6 +30,10 @@ func TestUnderline(t *testing.T) {
 			NewStyle().UnderlineSpaces(true),
 			"ab\x1b[4m \x1b[mc",
 		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly),
+			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
+		},
 	}
 
 	for i, tc := range tt {
@@ -297,7 +301,7 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 0, s.GetMarginLeft())
 
 	// padding
-	s = NewStyle().Padding(1, 2, 3, 4)
+	s = NewStyle().Padding(1, 2, 3, 4).PaddingChar('x')
 	requireEqual(t, 1, s.GetPaddingTop())
 	s = s.UnsetPaddingTop()
 	requireEqual(t, 0, s.GetPaddingTop())
@@ -313,6 +317,10 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 4, s.GetPaddingLeft())
 	s = s.UnsetPaddingLeft()
 	requireEqual(t, 0, s.GetPaddingLeft())
+
+	requireEqual(t, 'x', s.GetPaddingChar())
+	s = s.UnsetPaddingChar()
+	requireEqual(t, ' ', s.GetPaddingChar())
 
 	// border
 	s = NewStyle().Border(normalBorder, true, true, true, true)
@@ -408,6 +416,11 @@ func TestStyleValue(t *testing.T) {
 	}
 }
 
+func TestCustomPaddingChar(t *testing.T) {
+	s := NewStyle().Padding(0, 3).PaddingChar('x')
+	requireEqual(t, "xxxTESTxxx", s.Render("TEST"))
+}
+
 func TestTabConversion(t *testing.T) {
 	s := NewStyle()
 	requireEqual(t, "[    ]", s.Render("[\t]"))
@@ -448,7 +461,7 @@ func TestStringTransform(t *testing.T) {
 					n++
 				}
 				rune = rune[0:n]
-				for i := 0; i < n/2; i++ {
+				for i := range n / 2 {
 					rune[i], rune[n-1-i] = rune[n-1-i], rune[i]
 				}
 				return string(rune)
@@ -464,16 +477,6 @@ func TestStringTransform(t *testing.T) {
 	}
 }
 
-func BenchmarkStyleRender(b *testing.B) {
-	s := NewStyle().
-		Bold(true).
-		Foreground(Color("#ffffff"))
-
-	for i := 0; i < b.N; i++ {
-		s.Render("Hello world")
-	}
-}
-
 func requireTrue(tb testing.TB, b bool) {
 	tb.Helper()
 	requireEqual(tb, true, b)
@@ -484,7 +487,7 @@ func requireFalse(tb testing.TB, b bool) {
 	requireEqual(tb, false, b)
 }
 
-func requireEqual(tb testing.TB, a, b interface{}) {
+func requireEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if !reflect.DeepEqual(a, b) {
 		tb.Errorf("%v != %v", a, b)
@@ -492,7 +495,7 @@ func requireEqual(tb testing.TB, a, b interface{}) {
 	}
 }
 
-func requireNotEqual(tb testing.TB, a, b interface{}) {
+func requireNotEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if reflect.DeepEqual(a, b) {
 		tb.Errorf("%v == %v", a, b)
@@ -560,5 +563,167 @@ func TestHeight(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func TestHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com"),
+			expected: "\x1b]8;;https://example.com\x07https://example.com\x1b]8;;\x07",
+		},
+		{
+			name:     "hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example"),
+			expected: "\x1b]8;id=123;https://example.com\x07example\x1b]8;;\x07",
+		},
+		{
+			name: "hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")),
+			expected: "\x1b]8;id=123;https://example.com\x07\x1b[1;38;5;234mexample\x1b[m\x1b]8;;\x07",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
+func TestUnsetHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "unset hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com").UnsetHyperlink(),
+			expected: "https://example.com",
+		},
+		{
+			name:     "unset hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").UnsetHyperlink(),
+			expected: "example",
+		},
+		{
+			name: "unset hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")).UnsetHyperlink(),
+			expected: "\x1b[1;38;5;234mexample\x1b[m",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
+func BenchmarkPad(b *testing.B) {
+	tests := []struct {
+		name string
+		str  string
+		n    int
+	}{
+		{name: "pad-10", str: "foo bar", n: 10},
+		{name: "pad-100", str: "foo bar", n: 100},
+		{name: "pad-negative-10", str: "foo bar", n: -10},
+		{name: "pad-negative-100", str: "foo bar", n: -100},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				pad(tt.str, tt.n, nil, ' ')
+			}
+		})
+	}
+}
+
+func BenchmarkStyleRender(b *testing.B) {
+	tests := []struct {
+		name  string
+		style Style
+		input string
+	}{
+		{
+			name: "simple-1-line",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: "Hello world",
+		},
+		{
+			name: "simple-5-lines",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-5-lines-inline",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Inline(true),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-10-lines-5-height-40-width",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Height(5).
+				Width(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders-padding-margins",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true).
+				Padding(1, 1).
+				Margin(1, 1),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				tt.style.Render(tt.input)
+			}
+		})
 	}
 }

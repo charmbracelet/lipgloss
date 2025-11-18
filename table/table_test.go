@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/golden"
 )
 
@@ -24,6 +24,24 @@ func TestTable(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestTableWithBackground(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BaseStyle(lipgloss.NewStyle().Background(lipgloss.Color("18"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("15"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
+		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
 		Row("French", "Bonjour", "Salut").
@@ -91,7 +109,7 @@ func TestTableNoStyleFunc(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableOffset(t *testing.T) {
+func TestTableYOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
@@ -101,7 +119,8 @@ func TestTableOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1).
+		Height(8)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -215,6 +234,26 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?")
 
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestInnerBordersOnly(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?").
+		BorderTop(false).
+		BorderRight(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRow(true).
+		BorderColumn(true)
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
@@ -409,14 +448,45 @@ func TestTableWidthShrink(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		Border(lipgloss.NormalBorder()).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("NoBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			BorderLeft(false).
+			BorderRight(false).
+			Border(lipgloss.NormalBorder()).
+			BorderColumn(false).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("DefaultBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
+
+	t.Run("OutlineBordersOnly", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			BorderTop(true).
+			BorderBottom(true).
+			BorderLeft(true).
+			BorderRight(true).
+			BorderColumn(false).
+			BorderRow(false).
+			BorderHeader(true)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
@@ -477,28 +547,6 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 }
 
 func TestTableWidths(t *testing.T) {
-	rows := [][]string{
-		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
-		{"French", "Bonjour", "Salut"},
-		{"Japanese", "こんにちは", "やあ"},
-		{"Russian", "Zdravstvuyte", "Privet"},
-		{"Spanish", "Hola", "¿Qué tal?"},
-	}
-
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		BorderLeft(false).
-		BorderRight(false).
-		Border(lipgloss.NormalBorder()).
-		BorderColumn(false).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableWidthShrinkNoBorders(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
@@ -613,47 +661,80 @@ func TestTableHeightExtra(t *testing.T) {
 }
 
 func TestTableHeightShrink(t *testing.T) {
-	table := New().
-		Height(8).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+	headers := []string{"LANGUAGE", "FORMAL", "INFORMAL"}
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+	paddingStyleFunc := func(row, col int) lipgloss.Style {
+		return TableStyle(row, col).Padding(1)
+	}
 
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("NoBorderRow", func(t *testing.T) {
+		for i := 1; i <= 9; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		for i := 1; i <= 13; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("NoBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 21; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 25; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
 }
 
-func TestTableHeightMinimum(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("ID", "LANGUAGE", "FORMAL", "INFORMAL").
-		Row("1", "Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("2", "French", "Bonjour", "Salut").
-		Row("3", "Japanese", "こんにちは", "やあ").
-		Row("4", "Russian", "Zdravstvuyte", "Privet").
-		Row("5", "Spanish", "Hola", "¿Qué tal?")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableHeightMinimumShowData(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableHeightWithOffset(t *testing.T) {
+func TestTableHeightWithYOffset(t *testing.T) {
 	// This test exists to check for a bug/edge case when the table has an
 	// offset and the height is set.
 
@@ -667,7 +748,7 @@ func TestTableHeightWithOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -1086,7 +1167,7 @@ func TestCarriageReturn(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableShrinkWithOffset(t *testing.T) {
+func TestTableShrinkWithYOffset(t *testing.T) {
 	rows := [][]string{
 		{"1", "Tokyo", "Japan", "37,274,000"},
 		{"2", "Delhi", "India", "32,065,760"},
@@ -1189,15 +1270,36 @@ func TestTableShrinkWithOffset(t *testing.T) {
 		{"99", "Shijiazhuang", "China", "4,285,135"},
 		{"100", "Montreal", "Canada", "4,276,526"},
 	}
-	table := New().
-		Rows(rows...).
-		Offset(80).
-		Height(45)
 
-	got := lipgloss.Height(table.String())
-	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
-	}
+	t.Run("NoHeaders", func(t *testing.T) {
+		table := New().
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithHeaders", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			BorderRow(true).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 }
 
 func TestBorderStyles(t *testing.T) {
@@ -1238,6 +1340,86 @@ func TestBorderStyles(t *testing.T) {
 	}
 }
 
+func TestNoFinalEmptyRowWhenOverflow(t *testing.T) {
+	headers := []string{"Rank", "City", "Country", "Population"}
+	rows := [][]string{
+		{"1", "Tokyo", "Japan", "37,274,000"},
+		{"2", "Delhi", "India", "32,065,760"},
+		{"3", "Shanghai", "China", "28,516,904"},
+		{"4", "Dhaka", "Bangladesh", "22,478,116"},
+		{"5", "São Paulo", "Brazil", "22,429,800"},
+		{"6", "Mexico City", "Mexico", "22,085,140"},
+		{"7", "Cairo", "Egypt", "21,750,020"},
+		{"8", "Beijing", "China", "21,333,332"},
+		{"9", "Mumbai", "India", "20,961,472"},
+		{"10", "Osaka", "Japan", "19,059,856"},
+		{"11", "Chongqing", "China", "16,874,740"},
+		{"12", "Karachi", "Pakistan", "16,839,950"},
+		{"13", "Istanbul", "Turkey", "15,636,243"},
+		{"14", "Kinshasa", "DR Congo", "15,628,085"},
+		{"15", "Lagos", "Nigeria", "15,387,639"},
+		{"16", "Buenos Aires", "Argentina", "15,369,919"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		BorderRow(true).
+		Height(16)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeading(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeadingLong(t *testing.T) {
+	headers := []string{"Looong Name", "Looong Country of Origin", "Looong Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Width(46).
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestBorderedCells(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 // Examples
 
 func ExampleTable_Wrap() {
@@ -1267,71 +1449,71 @@ func ExampleTable_Wrap() {
 
 	// Output:
 	//
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
-	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
+	// 	┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
-	// │ Lorem ipsum… │ 耐許ヱヨカハ… │ شيء قد للحكو… │ 版応道潟部中… │ 각급 선거관…  │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
-	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
+	// │ Lorem ipsum… │ 耐許ヱヨカハ… │ شيء قد للحكو… │ 版応道潟部中… │ 각급 선거관…  │
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
+	// ┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
-	// │ Lorem ipsum  │ 耐許ヱヨカハ  │ شيء قد        │ 版応道潟部中  │ 각급          │
-	// │ dolor sit    │ 調出あゆ監件  │ للحكومة       │ 幕爆営報門案  │ 선거관리위원  │
-	// │ amet,        │ び理別よン國  │ والكوري       │ 名見壌府。博  │ 회의          │
-	// │ regione      │ 給災レホチ権  │ الأوروبيّون,   │ 健必権次覧編  │ 조직·직무범위 │
-	// │ detracto eos │ 輝モエフ会割  │ بوابة تعديل   │ 仕断青場内凄  │ 기타 필요한   │
-	// │ an. Has ei   │ もフ響3現エツ │ واعتلاء ضرب   │ 新東深簿代供  │ 사항은 법률로 │
-	// │ quidam       │ 文時しだびほ  │ بـ. إذ أسر    │ 供。守聞書神  │ 정한다.       │
-	// │ hendrerit    │ 経機ムイメフ  │ اتّجة اعلان,   │ 秀同浜東波恋  │ 임시회의      │
-	// │ intellegebat │ 敗文ヨク現義  │ ٣٠ اكتوبر     │ 闘秀。未格打  │ 회기는 30일을 │
-	// │ , id tamquam │ なさド請情ゆ  │ العصبة        │ 好作器来利阪  │ 초과할 수     │
-	// │ iudicabit    │ じょて憶主管  │ استمرار ومن.  │ 持西焦朝三女  │ 없다. 국가는  │
-	// │ necessitatib │ 州けでふく。  │ أفاق للسيطرة  │ 。権幽問季負  │ 여자의 복지와 │
-	// │ us ius, at   │ 排ゃわつげ美  │ التاريخ، مع   │ 娘購合旧資健  │ 권익의 향상을 │
-	// │ errem        │ 刊ヱミ出見ツ  │ بحث, كلّ اتّجة  │ 載員式活陸。  │ 위하여        │
-	// │ officiis     │ 南者オ抜豆ハ  │ القوى مع.     │ 未倍校朝遺続  │ 노력하여야    │
-	// │ hendrerit    │ トロネ論索モ  │ فبعد ايطاليا، │ 術吉迎暮広知  │ 한다. 국군의  │
-	// │ mei. Exerci  │ ネニイ任償ス  │ تم حتى, لكل   │ 角亡志不説空  │ 조직과 편성은 │
-	// │ noster at    │ ヲ話破リヤヨ  │ تم جسيمة      │ 住。法省当死  │ 법률로        │
-	// │ has, sit id  │ 秒止口イセソ  │ الإحتفاظ      │ 年勝絡聞方北  │ 정한다.       │
-	// │ tota         │ ス止央のさ食  │ وباستثناء, عل │ 投健。室分性  │               │
-	// │ convenire,   │ 周健でてつだ  │ فرنسا وانتهاءً │ 山天態意画詳  │               │
-	// │ vel ex rebum │ 官送ト読聴遊  │ الإقتصادية    │ 知浅方裁。変  │               │
-	// │ inciderint   │ 容ひるべ。際  │ عرض. ونتج     │ 激伝阜中野品  │               │
-	// │ liberavisse. │ ぐドらづ市居  │ دأبوا إحكام   │ 省載嗅闘額端  │               │
-	// │ Quaeque      │ ネムヤ研校35  │ بال إذ. لغات  │ 反。中必台際  │               │
-	// │ delectus     │ 岩6繹ごわク報 │ عملية وتم مع, │ 造事寄民経能  │               │
-	// │ corrumpit cu │ 拐イ革深52球  │ وصل بداية     │ 前作臓        │               │
-	// │ cum.         │ ゃレスご究東  │ وبغطاء البرية │               │               │
-	// │              │ スラ衝3間ラ録 │ بل, أي قررت   │               │               │
-	// │              │ 占たス。      │ بلاده فكانت   │               │               │
-	// │              │ 禁にンご忘康  │ حدى           │               │               │
-	// │              │ ざほぎル騰般  │               │               │               │
-	// │              │ ねど事超スん  │               │               │               │
-	// │              │ いう真表何カ  │               │               │               │
-	// │              │ モ自浩ヲシミ  │               │               │               │
-	// │              │ 図客線るふ静  │               │               │               │
-	// │              │ 王ぱーま写村  │               │               │               │
-	// │              │ 月掛焼詐面ぞ  │               │               │               │
-	// │              │ ゃ。昇強ごン  │               │               │               │
-	// │              │ トほ価保キ族8 │               │               │               │
-	// │              │ 5岡モテ恋困ひ │               │               │               │
-	// │              │ りこな刊並せ  │               │               │               │
-	// │              │ ご出来ぼぎむ  │               │               │               │
-	// │              │ う点目ヲウ止  │               │               │               │
-	// │              │ 環公ニレ事応  │               │               │               │
-	// │              │ タス必書タメ  │               │               │               │
-	// │              │ ムノ当84無信  │               │               │               │
-	// │              │ 升ちひょ。価  │               │               │               │
-	// │              │ ーぐ中客テサ  │               │               │               │
-	// │              │ 告覧ヨトハ極  │               │               │               │
-	// │              │ 整ラ得95稿は  │               │               │               │
-	// │              │ かラせ江利ス  │               │               │               │
-	// │              │ 宏丸霊ミ考整  │               │               │               │
-	// │              │ ス静将ず業巨  │               │               │               │
-	// │              │ 職ノラホ収嗅  │               │               │               │
-	// │              │ ざな。        │               │               │               │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
+	// │ Lorem ipsum  │ 耐許ヱヨカハ  │ شيء قد        │ 版応道潟部中  │ 각급          │
+	// │ dolor sit    │ 調出あゆ監件  │ للحكومة       │ 幕爆営報門案  │ 선거관리위원  │
+	// │ amet,        │ び理別よン國  │ والكوري       │ 名見壌府。博  │ 회의          │
+	// │ regione      │ 給災レホチ権  │ الأوروبيّون,   │ 健必権次覧編  │ 조직·직무범위 │
+	// │ detracto eos │ 輝モエフ会割  │ بوابة تعديل   │ 仕断青場内凄  │ 기타 필요한   │
+	// │ an. Has ei   │ もフ響3現エツ │ واعتلاء ضرب   │ 新東深簿代供  │ 사항은 법률로 │
+	// │ quidam       │ 文時しだびほ  │ بـ. إذ أسر    │ 供。守聞書神  │ 정한다.       │
+	// │ hendrerit    │ 経機ムイメフ  │ اتّجة اعلان,   │ 秀同浜東波恋  │ 임시회의      │
+	// │ intellegebat │ 敗文ヨク現義  │ ٣٠ اكتوبر     │ 闘秀。未格打  │ 회기는 30일을 │
+	// │ , id tamquam │ なさド請情ゆ  │ العصبة        │ 好作器来利阪  │ 초과할 수     │
+	// │ iudicabit    │ じょて憶主管  │ استمرار ومن.  │ 持西焦朝三女  │ 없다. 국가는  │
+	// │ necessitatib │ 州けでふく。  │ أفاق للسيطرة  │ 。権幽問季負  │ 여자의 복지와 │
+	// │ us ius, at   │ 排ゃわつげ美  │ التاريخ، مع   │ 娘購合旧資健  │ 권익의 향상을 │
+	// │ errem        │ 刊ヱミ出見ツ  │ بحث, كلّ اتّجة  │ 載員式活陸。  │ 위하여        │
+	// │ officiis     │ 南者オ抜豆ハ  │ القوى مع.     │ 未倍校朝遺続  │ 노력하여야    │
+	// │ hendrerit    │ トロネ論索モ  │ فبعد ايطاليا، │ 術吉迎暮広知  │ 한다. 국군의  │
+	// │ mei. Exerci  │ ネニイ任償ス  │ تم حتى, لكل   │ 角亡志不説空  │ 조직과 편성은 │
+	// │ noster at    │ ヲ話破リヤヨ  │ تم جسيمة      │ 住。法省当死  │ 법률로        │
+	// │ has, sit id  │ 秒止口イセソ  │ الإحتفاظ      │ 年勝絡聞方北  │ 정한다.       │
+	// │ tota         │ ス止央のさ食  │ وباستثناء, عل │ 投健。室分性  │               │
+	// │ convenire,   │ 周健でてつだ  │ فرنسا وانتهاءً │ 山天態意画詳  │               │
+	// │ vel ex rebum │ 官送ト読聴遊  │ الإقتصادية    │ 知浅方裁。変  │               │
+	// │ inciderint   │ 容ひるべ。際  │ عرض. ونتج     │ 激伝阜中野品  │               │
+	// │ liberavisse. │ ぐドらづ市居  │ دأبوا إحكام   │ 省載嗅闘額端  │               │
+	// │ Quaeque      │ ネムヤ研校35  │ بال إذ. لغات  │ 反。中必台際  │               │
+	// │ delectus     │ 岩6繹ごわク報 │ عملية وتم مع, │ 造事寄民経能  │               │
+	// │ corrumpit cu │ 拐イ革深52球  │ وصل بداية     │ 前作臓        │               │
+	// │ cum.         │ ゃレスご究東  │ وبغطاء البرية │               │               │
+	// │              │ スラ衝3間ラ録 │ بل, أي قررت   │               │               │
+	// │              │ 占たス。      │ بلاده فكانت   │               │               │
+	// │              │ 禁にンご忘康  │ حدى           │               │               │
+	// │              │ ざほぎル騰般  │               │               │               │
+	// │              │ ねど事超スん  │               │               │               │
+	// │              │ いう真表何カ  │               │               │               │
+	// │              │ モ自浩ヲシミ  │               │               │               │
+	// │              │ 図客線るふ静  │               │               │               │
+	// │              │ 王ぱーま写村  │               │               │               │
+	// │              │ 月掛焼詐面ぞ  │               │               │               │
+	// │              │ ゃ。昇強ごン  │               │               │               │
+	// │              │ トほ価保キ族8 │               │               │               │
+	// │              │ 5岡モテ恋困ひ │               │               │               │
+	// │              │ りこな刊並せ  │               │               │               │
+	// │              │ ご出来ぼぎむ  │               │               │               │
+	// │              │ う点目ヲウ止  │               │               │               │
+	// │              │ 環公ニレ事応  │               │               │               │
+	// │              │ タス必書タメ  │               │               │               │
+	// │              │ ムノ当84無信  │               │               │               │
+	// │              │ 升ちひょ。価  │               │               │               │
+	// │              │ ーぐ中客テサ  │               │               │               │
+	// │              │ 告覧ヨトハ極  │               │               │               │
+	// │              │ 整ラ得95稿は  │               │               │               │
+	// │              │ かラせ江利ス  │               │               │               │
+	// │              │ 宏丸霊ミ考整  │               │               │               │
+	// │              │ ス静将ず業巨  │               │               │               │
+	// │              │ 職ノラホ収嗅  │               │               │               │
+	// │              │ ざな。        │               │               │               │
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
 }
 
 // Check that stylized wrapped content does not go beyond its cell.

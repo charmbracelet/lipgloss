@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/compat"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/compat"
 )
 
 var (
@@ -63,10 +63,8 @@ type model struct {
 	aborted bool
 }
 
-func (m model) Init() (tea.Model, tea.Cmd) {
-	m.yes = true
-	m.styles = newStyles()
-	return m, nil
+func (m model) Init() tea.Cmd {
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -95,10 +93,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
+	var v tea.View
 	if m.chosen || m.aborted {
 		// We're about to exit, so wipe the UI.
-		return ""
+		return v
 	}
 
 	var (
@@ -115,7 +114,7 @@ func (m model) View() string {
 		n = s.activeButton.Render(n)
 	}
 
-	return s.frame.Render(
+	content := s.frame.Render(
 		lipgloss.JoinVertical(lipgloss.Center,
 			s.paragraph.Render(
 				s.text.Render("Are you sure you want to eat that ")+
@@ -125,10 +124,16 @@ func (m model) View() string {
 			y+"  "+n,
 		),
 	)
+	v.SetContent(content)
+	return v
 }
 
 func main() {
-	m, err := tea.NewProgram(model{}).Run()
+	initialModel := model{
+		yes:    true,
+		styles: newStyles(),
+	}
+	m, err := tea.NewProgram(initialModel).Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Uh oh: %v", err)
 		os.Exit(1)

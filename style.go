@@ -6,11 +6,11 @@ import (
 	"unicode"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/charmbracelet/x/cellbuf"
 )
 
 const (
-	nbsp            = '\u00A0'
+	// NBSP is the non-breaking space rune.
+	NBSP            = '\u00A0'
 	tabWidthDefault = 4
 )
 
@@ -22,7 +22,6 @@ const (
 	// Boolean props come first.
 	boldKey propKey = 1 << iota
 	italicKey
-	underlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -32,8 +31,10 @@ const (
 	colorWhitespaceKey
 
 	// Non-boolean props.
+	underlineKey
 	foregroundKey
 	backgroundKey
+	underlineColorKey
 	widthKey
 	heightKey
 	alignHorizontalKey
@@ -44,6 +45,7 @@ const (
 	paddingRightKey
 	paddingBottomKey
 	paddingLeftKey
+	paddingCharKey
 
 	// Margins.
 	marginTopKey
@@ -51,6 +53,7 @@ const (
 	marginBottomKey
 	marginLeftKey
 	marginBackgroundKey
+	marginCharKey
 
 	// Border runes.
 	borderStyleKey
@@ -66,6 +69,8 @@ const (
 	borderRightForegroundKey
 	borderBottomForegroundKey
 	borderLeftForegroundKey
+	borderForegroundBlendKey
+	borderForegroundBlendOffsetKey
 
 	// Border background colors.
 	borderTopBackgroundKey
@@ -79,6 +84,10 @@ const (
 	tabWidthKey
 
 	transformKey
+
+	// Hyperlink.
+	linkKey
+	linkParamsKey
 )
 
 // props is a set of properties.
@@ -99,6 +108,29 @@ func (p props) has(k propKey) bool {
 	return p&props(k) != 0
 }
 
+// Underline is the style of the underline.
+//
+// Caveats:
+// - Not all terminals support all underline styles.
+// - Some terminals may render unsupported styles as standard underlines.
+// - Terminal themes may affect the visibility of different underline styles.
+type Underline = ansi.Underline
+
+const (
+	// UnderlineNone is no underline.
+	UnderlineNone = ansi.UnderlineNone
+	// UnderlineSingle is a single underline. This is the default when underline is enabled.
+	UnderlineSingle = ansi.UnderlineSingle
+	// UnderlineDouble is a double underline.
+	UnderlineDouble = ansi.UnderlineDouble
+	// UnderlineCurly is a curly underline.
+	UnderlineCurly = ansi.UnderlineCurly
+	// UnderlineDotted is a dotted underline.
+	UnderlineDotted = ansi.UnderlineDotted
+	// UnderlineDashed is a dashed underline.
+	UnderlineDashed = ansi.UnderlineDashed
+)
+
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // [Style]{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes.
@@ -111,12 +143,18 @@ type Style struct {
 	props props
 	value string
 
+	// hyperlink
+	link, linkParams string
+
 	// we store bool props values here
 	attrs int
 
 	// props that have values
 	fgColor color.Color
 	bgColor color.Color
+	ulColor color.Color
+
+	ul Underline
 
 	width  int
 	height int
@@ -128,22 +166,26 @@ type Style struct {
 	paddingRight  int
 	paddingBottom int
 	paddingLeft   int
+	paddingChar   rune
 
 	marginTop     int
 	marginRight   int
 	marginBottom  int
 	marginLeft    int
 	marginBgColor color.Color
+	marginChar    rune
 
-	borderStyle         Border
-	borderTopFgColor    color.Color
-	borderRightFgColor  color.Color
-	borderBottomFgColor color.Color
-	borderLeftFgColor   color.Color
-	borderTopBgColor    color.Color
-	borderRightBgColor  color.Color
-	borderBottomBgColor color.Color
-	borderLeftBgColor   color.Color
+	borderStyle                 Border
+	borderTopFgColor            color.Color
+	borderRightFgColor          color.Color
+	borderBottomFgColor         color.Color
+	borderLeftFgColor           color.Color
+	borderBlendFgColor          []color.Color
+	borderForegroundBlendOffset int
+	borderTopBgColor            color.Color
+	borderRightBgColor          color.Color
+	borderBottomBgColor         color.Color
+	borderLeftBgColor           color.Color
 
 	maxWidth  int
 	maxHeight int
@@ -237,7 +279,6 @@ func (s Style) Render(strs ...string) string {
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
 		strikethrough = s.getAsBool(strikethroughKey, false)
 		reverse       = s.getAsBool(reverseKey, false)
 		blink         = s.getAsBool(blinkKey, false)
@@ -245,7 +286,9 @@ func (s Style) Render(strs ...string) string {
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
+		ul = s.getAsColor(underlineColorKey)
 
+		underline       = s.ul != UnderlineNone
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
 		horizontalAlign = s.getAsPosition(alignHorizontalKey)
@@ -275,6 +318,8 @@ func (s Style) Render(strs ...string) string {
 		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
+
+		link, linkParams = s.GetHyperlink()
 	)
 
 	if transform != nil {
@@ -289,17 +334,17 @@ func (s Style) Render(strs ...string) string {
 		te = te.Bold()
 	}
 	if italic {
-		te = te.Italic()
+		te = te.Italic(true)
 	}
 	if underline {
-		te = te.Underline()
+		te = te.Underline(true)
 	}
 	if reverse {
-		teWhitespace = teWhitespace.Reverse()
-		te = te.Reverse()
+		teWhitespace = teWhitespace.Reverse(true)
+		te = te.Reverse(true)
 	}
 	if blink {
-		te = te.SlowBlink()
+		te = te.Blink(true)
 	}
 	if faint {
 		te = te.Faint()
@@ -325,18 +370,28 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
+	if ul != noColor {
+		te = te.UnderlineColor(ul)
+		if colorWhitespace {
+			teWhitespace = teWhitespace.UnderlineColor(ul)
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.UnderlineColor(ul)
+		}
+	}
+
 	if underline {
-		te = te.Underline()
+		te = te.UnderlineStyle(s.ul)
 	}
 	if strikethrough {
-		te = te.Strikethrough()
+		te = te.Strikethrough(true)
 	}
 
 	if underlineSpaces {
-		teSpace = teSpace.Underline()
+		teSpace = teSpace.Underline(true)
 	}
 	if strikethroughSpaces {
-		teSpace = teSpace.Strikethrough()
+		teSpace = teSpace.Strikethrough(true)
 	}
 
 	// Potentially convert tabs to spaces
@@ -356,18 +411,23 @@ func (s Style) Render(strs ...string) string {
 	// Word wrap
 	if !inline && width > 0 {
 		wrapAt := width - leftPadding - rightPadding
-		str = cellbuf.Wrap(str, wrapAt, "")
+		str = Wrap(str, wrapAt, "")
 	}
 
 	// Render core text
 	{
 		var b strings.Builder
 
-		l := strings.Split(str, "\n")
-		for i := range l {
+		isFirst := true
+		for line := range strings.SplitSeq(str, "\n") {
+			if isFirst {
+				isFirst = false
+			} else {
+				b.WriteRune('\n')
+			}
 			if useSpaceStyler {
 				// Look for spaces and apply a different styler
-				for _, r := range l[i] {
+				for _, r := range line {
 					if unicode.IsSpace(r) {
 						b.WriteString(teSpace.Styled(string(r)))
 						continue
@@ -375,35 +435,37 @@ func (s Style) Render(strs ...string) string {
 					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(te.Styled(l[i]))
-			}
-			if i != len(l)-1 {
-				b.WriteRune('\n')
+				b.WriteString(te.Styled(line))
 			}
 		}
 
 		str = b.String()
+
+		if len(link) > 0 {
+			str = ansi.SetHyperlink(link, linkParams) + str + ansi.ResetHyperlink()
+		}
 	}
 
 	// Padding
 	if !inline { //nolint:nestif
+		padChar := s.paddingChar
+		if padChar == 0 {
+			padChar = ' '
+		}
 		if leftPadding > 0 {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padLeft(str, leftPadding, st, nbsp)
+			str = padLeft(str, leftPadding, st, padChar)
 		}
-
-		// XXX: We use a non-breaking space to pad so that the padding is
-		// preserved when the string is copied and pasted.
 
 		if rightPadding > 0 {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = padRight(str, rightPadding, st, nbsp)
+			str = padRight(str, rightPadding, st, padChar)
 		}
 
 		if topPadding > 0 {
@@ -494,8 +556,12 @@ func (s Style) applyMargins(str string, inline bool) string {
 	}
 
 	// Add left and right margin
-	str = padLeft(str, leftMargin, &style, ' ')
-	str = padRight(str, rightMargin, &style, ' ')
+	marginChar := s.marginChar
+	if marginChar == 0 {
+		marginChar = ' '
+	}
+	str = padLeft(str, leftMargin, &style, marginChar)
+	str = padRight(str, rightMargin, &style, marginChar)
 
 	// Top/bottom margin
 	if !inline {
@@ -540,22 +606,22 @@ func pad(str string, n int, style *ansi.Style, r rune) string {
 	}
 
 	b := strings.Builder{}
-	l := strings.Split(str, "\n")
-
-	for i := range l {
+	isFirst := true
+	for line := range strings.SplitSeq(str, "\n") {
+		if isFirst {
+			isFirst = false
+		} else {
+			b.WriteRune('\n')
+		}
 		switch {
 		// pad right
 		case n > 0:
-			b.WriteString(l[i])
+			b.WriteString(line)
 			b.WriteString(sp)
 		// pad left
 		default:
 			b.WriteString(sp)
-			b.WriteString(l[i])
-		}
-
-		if i != len(l)-1 {
-			b.WriteRune('\n')
+			b.WriteString(line)
 		}
 	}
 
