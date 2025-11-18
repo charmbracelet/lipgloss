@@ -58,7 +58,12 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {
-		strs = append(strs, r.style.root.Render(name))
+		line := r.style.root.Render(name)
+		// If the line is shorter than the desired width, we pad it with spaces.
+		if pad := r.width - lipgloss.Width(line); pad > 0 {
+			line = name + r.style.root.Render(strings.Repeat(" ", pad))
+		}
+		strs = append(strs, r.style.root.Render(line))
 	}
 
 	for i := range children.Length() {
