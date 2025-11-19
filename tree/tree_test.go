@@ -182,6 +182,9 @@ func TestTreeCustom(t *testing.T) {
 		EnumeratorStyle(lipgloss.NewStyle().
 			Foreground(lipgloss.Color("12")).
 			PaddingRight(1)).
+		IndenterStyle(lipgloss.NewStyle().
+			Foreground(lipgloss.Color("12")).
+			PaddingRight(1)).
 		Enumerator(func(tree.Children, int) string {
 			return "->"
 		}).

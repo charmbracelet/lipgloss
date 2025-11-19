@@ -5,10 +5,10 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/aymanbagabas/go-udiff"
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/list"
 	"charm.land/lipgloss/v2/tree"
+	"github.com/aymanbagabas/go-udiff"
 	"github.com/charmbracelet/x/exp/golden"
 )
 
@@ -79,11 +79,13 @@ func TestComplexSublist(t *testing.T) {
 		Item(
 			list.New().
 				EnumeratorStyle(style2).
+				IndenterStyle(style2).
 				Enumerator(list.Alphabet).
 				Item("foo").
 				Item("Deeper").
 				Item(
 					list.New().
+						IndenterStyle(style1).
 						EnumeratorStyle(style1).
 						Enumerator(list.Arabic).
 						Item("a").
@@ -92,6 +94,7 @@ func TestComplexSublist(t *testing.T) {
 						Item(
 							list.New().
 								Enumerator(list.Asterisk).
+								IndenterStyle(style2).
 								EnumeratorStyle(style2).
 								Item("sus").
 								Item("d minor").
@@ -99,6 +102,7 @@ func TestComplexSublist(t *testing.T) {
 								Item("One ore level, with another renderer").
 								Item(
 									list.New().
+										IndenterStyle(style1).
 										EnumeratorStyle(style1).
 										Enumerator(list.Dash).
 										Item("a\nmultine\nstring").
@@ -108,12 +112,14 @@ func TestComplexSublist(t *testing.T) {
 										Item(
 
 											tree.New().
+												IndenterStyle(style2).
 												EnumeratorStyle(style2).
 												Child("another\nmultine\nstring").
 												Child("something").
 												Child("a subtree").
 												Child(
 													tree.New().
+														IndenterStyle(style2).
 														EnumeratorStyle(style2).
 														Child("yup").
 														Child("many itens").
