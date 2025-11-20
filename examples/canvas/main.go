@@ -54,23 +54,30 @@ func main() {
 	darkerField := newField(17, 43, lightDark(charmtone.Squid, charmtone.Pepper))
 
 	// A few layers. Layers are created from strings (or blocks of text).
-	pickles := lipgloss.NewLayer(newCard(darkMode, "Pickles"))
-	melon := lipgloss.NewLayer(newCard(darkMode, "Bitter Melon"))
-	sriracha := lipgloss.NewLayer(newCard(darkMode, "Sriracha"))
+	pickles := lipgloss.NewLayer("pickles", newCard(darkMode, "Pickles"))
+	melon := lipgloss.NewLayer("melon", newCard(darkMode, "Bitter Melon"))
+	sriracha := lipgloss.NewLayer("sriracha", newCard(darkMode, "Sriracha"))
 
-	// A canvas is simply a collection of layers.
-	canvas := lipgloss.NewCanvas(
+	// Let's create our layers.
+	layers := lipgloss.NewLayer("main", "",
 		// Layers can have X, Y, and Z offsets. By default, X, Y, and
 		// Z are all 0.
-		lipgloss.NewLayer(lighterField).X(5).Y(2),
+		lipgloss.NewLayer("lighter", lighterField).X(5).Y(2),
 
 		// Layers can be nested.
-		lipgloss.NewLayer(darkerField).AddLayers(
+		lipgloss.NewLayer("darker", darkerField).AddLayers(
 			pickles.X(4).Y(2).Z(1), // the Z index places this layer above the others
 			melon.X(22).Y(1),
 			sriracha.X(11).Y(7),
 		),
 	)
+
+	// A canvas is simply a cell-buffer that can be used to composite
+	// multiple drawables together.
+	bounds := layers.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	canvas := lipgloss.NewCanvas(width, height)
+	canvas.Compose(layers)
 
 	lipgloss.Println(canvas.Render())
 }

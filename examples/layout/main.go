@@ -380,10 +380,14 @@ func main() {
 
 	// Surprise! Composite some bonus content on top of the document.
 	modal := floatingStyle.Render("Now with Compositing!")
-	canvas := lipgloss.NewCanvas(
-		lipgloss.NewLayer(document),
-		lipgloss.NewLayer(modal).X(58).Y(44),
+	layers := lipgloss.NewLayer("base", "abc",
+		lipgloss.NewLayer("doc", document),
+		lipgloss.NewLayer("modal", modal).X(58).Y(44),
 	)
+
+	width, height := layers.Bounds().Dx(), layers.Bounds().Dy()
+	canvas := lipgloss.NewCanvas(width, height)
+	canvas.Compose(layers)
 
 	// Okay, let's print it. We use a special Lipgloss writer to downsample
 	// colors to the terminal's color palette. And, if output's not a TTY, we
