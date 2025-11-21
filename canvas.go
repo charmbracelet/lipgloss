@@ -1,6 +1,8 @@
 package lipgloss
 
 import (
+	"strings"
+
 	uv "github.com/charmbracelet/ultraviolet"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -71,5 +73,11 @@ func (c *Canvas) Draw(scr uv.Screen, area uv.Rectangle) {
 
 // Render renders the canvas into a styled string.
 func (c *Canvas) Render() string {
-	return c.scr.Render()
+	// Trim trailing spaces from each line for cleaner output.
+	str := strings.ReplaceAll(c.scr.Render(), "\r\n", "\n")
+	lines := strings.Split(str, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimRight(line, " ")
+	}
+	return strings.Join(lines, "\n")
 }
