@@ -16,6 +16,15 @@ type Layer struct {
 	layers  []*Layer
 }
 
+// flatLayer holds a layer with its calculated absolute position and bounds.
+type flatLayer struct {
+	layer  *Layer
+	absX   int
+	absY   int
+	absZ   int
+	bounds image.Rectangle
+}
+
 // NewLayer creates a new [Layer] with the given id and styled content.
 func NewLayer(id string, content string, layers ...*Layer) *Layer {
 	l := &Layer{
@@ -176,38 +185,45 @@ func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 }
 
 // Draw draws the [Layer] and its children onto the given [uv.Screen]. This can
-// be a [Canvas].
+// be a [Canvas]. All layers are drawn in global z-index order (lowest to highest),
+// regardless of hierarchy depth.
 func (l *Layer) Draw(scr uv.Screen, area image.Rectangle) {
-	l.drawWithOffset(scr, area, 0, 0, 0)
+	var allLayers []flatLayer
+	l.flattenLayers(&allLayers, 0, 0, 0)
+
+	// Sort by absolute z-index (lowest to highest)
+	slices.SortFunc(allLayers, func(a, b flatLayer) int {
+		return a.absZ - b.absZ
+	})
+
+	// Draw all layers in z-order
+	for _, fl := range allLayers {
+		if fl.bounds.Overlaps(area) {
+			content := uv.NewStyledString(fl.layer.content)
+			content.Draw(scr, fl.bounds)
+		}
+	}
 }
 
-// drawWithOffset recursively draws the layer and its children with parent offset applied.
-func (l *Layer) drawWithOffset(scr uv.Screen, area image.Rectangle, parentX, parentY, parentZ int) {
+// flattenLayers recursively collects all layers with their absolute positions.
+func (l *Layer) flattenLayers(result *[]flatLayer, parentX, parentY, parentZ int) {
 	absX, absY, absZ := l.absolutePosition(parentX, parentY, parentZ)
 
-	// Draw this layer's content at absolute position
 	width, height := Width(l.content), Height(l.content)
-	layerBounds := image.Rectangle{
+	bounds := image.Rectangle{
 		Min: image.Pt(absX, absY),
 		Max: image.Pt(absX+width, absY+height),
 	}
 
-	// Only draw if the layer intersects with the area
-	if layerBounds.Overlaps(area) {
-		content := uv.NewStyledString(l.content)
-		content.Draw(scr, layerBounds)
-	}
-
-	// Sort and draw children by z-index (lowest to highest)
-	sortedChildren := make([]*Layer, len(l.layers))
-	copy(sortedChildren, l.layers)
-	slices.SortFunc(sortedChildren, func(a, b *Layer) int {
-		aZ := a.z + absZ
-		bZ := b.z + absZ
-		return aZ - bZ
+	*result = append(*result, flatLayer{
+		layer:  l,
+		absX:   absX,
+		absY:   absY,
+		absZ:   absZ,
+		bounds: bounds,
 	})
 
-	for _, child := range sortedChildren {
-		child.drawWithOffset(scr, area, absX, absY, absZ)
+	for _, child := range l.layers {
+		child.flattenLayers(result, absX, absY, absZ)
 	}
 }
