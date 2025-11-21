@@ -31,48 +31,42 @@ func (l *Layer) GetID() string {
 	return l.id
 }
 
-// X sets the x-coordinate of the Layer.
+// X sets the x-coordinate of the Layer relative to its parent.
 func (l *Layer) X(x int) *Layer {
 	l.x = x
-	for _, layer := range l.layers {
-		layer.x += x
-	}
 	return l
 }
 
-// Y sets the y-coordinate of the Layer.
+// Y sets the y-coordinate of the Layer relative to its parent.
 func (l *Layer) Y(y int) *Layer {
 	l.y = y
-	for _, layer := range l.layers {
-		layer.y += y
-	}
 	return l
 }
 
-// Z sets the z-index of the Layer.
+// Z sets the z-index of the Layer relative to its parent.
 func (l *Layer) Z(z int) *Layer {
 	l.z = z
-	for _, layer := range l.layers {
-		layer.z += z
-	}
-	// Re-sort layers based on new z-index
-	sort(l.layers)
 	return l
 }
 
-// GetX returns the x-coordinate of the Layer.
+// GetX returns the x-coordinate of the Layer relative to its parent.
 func (l *Layer) GetX() int {
 	return l.x
 }
 
-// GetY returns the y-coordinate of the Layer.
+// GetY returns the y-coordinate of the Layer relative to its parent.
 func (l *Layer) GetY() int {
 	return l.y
 }
 
-// GetZ returns the z-index of the Layer.
+// GetZ returns the z-index of the Layer relative to its parent.
 func (l *Layer) GetZ() int {
 	return l.z
+}
+
+// absolutePosition calculates the absolute position by adding parent offsets.
+func (l *Layer) absolutePosition(parentX, parentY, parentZ int) (x, y, z int) {
+	return l.x + parentX, l.y + parentY, l.z + parentZ
 }
 
 // GetLayer returns a child [Layer] by its ID, or nil if not found.
@@ -81,8 +75,23 @@ func (l *Layer) GetLayer(id string) *Layer {
 		return l
 	}
 	for _, layer := range l.layers {
-		if layer.id == id {
-			return layer
+		found := layer.getLayerRecursive(id)
+		if found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+// getLayerRecursive recursively searches for a layer by ID.
+func (l *Layer) getLayerRecursive(id string) *Layer {
+	if l.id == id {
+		return l
+	}
+	for _, layer := range l.layers {
+		found := layer.getLayerRecursive(id)
+		if found != nil {
+			return found
 		}
 	}
 	return nil
@@ -90,23 +99,22 @@ func (l *Layer) GetLayer(id string) *Layer {
 
 // Bounds returns the bounds of the Layer as a [image.Rectangle].
 func (l *Layer) Bounds() image.Rectangle {
-	// Calculate bounds based on child layers
+	return l.boundsWithOffset(0, 0, 0)
+}
+
+// boundsWithOffset calculates bounds with parent offset applied.
+func (l *Layer) boundsWithOffset(parentX, parentY, parentZ int) image.Rectangle {
+	absX, absY, _ := l.absolutePosition(parentX, parentY, parentZ)
+
 	width, height := Width(l.content), Height(l.content)
 	this := image.Rectangle{
-		Min: image.Pt(l.x, l.y),
-		Max: image.Pt(l.x+width, l.y+height),
-	}
-	for _, layer := range l.layers {
-		area := layer.Bounds()
-		this = this.Union(area)
+		Min: image.Pt(absX, absY),
+		Max: image.Pt(absX+width, absY+height),
 	}
 
-	// Adjust the size of the layer if it's negative
-	if this.Min.X < 0 {
-		this = this.Add(image.Pt(-this.Min.X, 0))
-	}
-	if this.Min.Y < 0 {
-		this = this.Add(image.Pt(0, -this.Min.Y))
+	for _, layer := range l.layers {
+		area := layer.boundsWithOffset(absX, absY, 0)
+		this = this.Union(area)
 	}
 
 	return this
@@ -121,15 +129,35 @@ func (l *Layer) InBounds(x, y int) bool {
 // a hit is detected, it returns the ID of the top-most Layer that was hit. If
 // no hit is detected, it returns an empty string.
 func (l *Layer) Hit(x, y int) string {
-	// Reverse the order of the layers so that the top-most layer is checked
-	// first.
-	for i := len(l.layers) - 1; i >= 0; i-- {
-		if l.layers[i].InBounds(x, y) {
-			return l.layers[i].Hit(x, y)
+	return l.hitWithOffset(x, y, 0, 0, 0)
+}
+
+// hitWithOffset recursively checks for hits with parent offset applied.
+func (l *Layer) hitWithOffset(x, y, parentX, parentY, parentZ int) string {
+	absX, absY, absZ := l.absolutePosition(parentX, parentY, parentZ)
+
+	// Sort children by z-index for hit testing (highest z first)
+	sortedChildren := make([]*Layer, len(l.layers))
+	copy(sortedChildren, l.layers)
+	slices.SortFunc(sortedChildren, func(a, b *Layer) int {
+		aZ := a.z + absZ
+		bZ := b.z + absZ
+		return bZ - aZ
+	})
+
+	// Check children first (top-most first)
+	for _, child := range sortedChildren {
+		if hit := child.hitWithOffset(x, y, absX, absY, absZ); hit != "" {
+			return hit
 		}
 	}
 
-	if image.Pt(x, y).In(l.Bounds()) {
+	// Check this layer
+	bounds := image.Rectangle{
+		Min: image.Pt(absX, absY),
+		Max: image.Pt(absX+Width(l.content), absY+Height(l.content)),
+	}
+	if image.Pt(x, y).In(bounds) {
 		return l.id
 	}
 
@@ -138,33 +166,48 @@ func (l *Layer) Hit(x, y int) string {
 
 // AddLayers adds child layers to the Layer.
 func (l *Layer) AddLayers(layers ...*Layer) *Layer {
-	// Make children layers relative to parent
 	for i, layer := range layers {
 		if layer == nil {
 			panic(fmt.Sprintf("layer at index %d is nil", i))
 		}
-		layer.x += l.x
-		layer.y += l.y
-		layer.z += l.z
 		l.layers = append(l.layers, layer)
 	}
-	sort(l.layers)
 	return l
 }
 
 // Draw draws the [Layer] and its children onto the given [uv.Screen]. This can
 // be a [Canvas].
 func (l *Layer) Draw(scr uv.Screen, area image.Rectangle) {
-	content := uv.NewStyledString(l.content)
-	content.Draw(scr, area.Intersect(l.Bounds()))
-	for _, child := range l.layers {
-		child.Draw(scr, area.Intersect(child.Bounds()))
-	}
+	l.drawWithOffset(scr, area, 0, 0, 0)
 }
 
-// sort sorts layers by their z-index.
-func sort(layers []*Layer) {
-	slices.SortFunc(layers, func(a, b *Layer) int {
-		return a.z - b.z
+// drawWithOffset recursively draws the layer and its children with parent offset applied.
+func (l *Layer) drawWithOffset(scr uv.Screen, area image.Rectangle, parentX, parentY, parentZ int) {
+	absX, absY, absZ := l.absolutePosition(parentX, parentY, parentZ)
+
+	// Draw this layer's content at absolute position
+	width, height := Width(l.content), Height(l.content)
+	layerBounds := image.Rectangle{
+		Min: image.Pt(absX, absY),
+		Max: image.Pt(absX+width, absY+height),
+	}
+
+	// Only draw if the layer intersects with the area
+	if layerBounds.Overlaps(area) {
+		content := uv.NewStyledString(l.content)
+		content.Draw(scr, layerBounds)
+	}
+
+	// Sort and draw children by z-index (lowest to highest)
+	sortedChildren := make([]*Layer, len(l.layers))
+	copy(sortedChildren, l.layers)
+	slices.SortFunc(sortedChildren, func(a, b *Layer) int {
+		aZ := a.z + absZ
+		bZ := b.z + absZ
+		return aZ - bZ
 	})
+
+	for _, child := range sortedChildren {
+		child.drawWithOffset(scr, area, absX, absY, absZ)
+	}
 }
