@@ -2,6 +2,8 @@ package lipgloss
 
 import (
 	"testing"
+
+	"github.com/rivo/uniseg"
 )
 
 func TestStyle_GetBorderSizes(t *testing.T) {
@@ -172,4 +174,50 @@ func BenchmarkGetFirstRuneAsString(b *testing.B) {
 			})
 		}
 	})
+}
+
+func BenchmarkMaxRuneWidth(b *testing.B) {
+	testCases := []struct {
+		name string
+		str  string
+	}{
+		{"Blank", " "},
+		{"ASCII", "+"},
+		{"Markdown", "|"},
+		{"Normal", "├"},
+		{"Rounded", "╭"},
+		{"Block", "█"},
+		{"Emoji", "😀"},
+	}
+	for _, tc := range testCases {
+		b.Run(tc.name, func(b *testing.B) {
+			b.Run("Before", func(b *testing.B) {
+				b.ReportAllocs()
+				for b.Loop() {
+					_ = maxRuneWidthOld(tc.str)
+				}
+			})
+			b.Run("After", func(b *testing.B) {
+				b.ReportAllocs()
+				for b.Loop() {
+					_ = maxRuneWidth(tc.str)
+				}
+			})
+		})
+	}
+}
+
+func maxRuneWidthOld(str string) int {
+	var width int
+
+	state := -1
+	for len(str) > 0 {
+		var w int
+		_, str, w, state = uniseg.FirstGraphemeClusterInString(str, state)
+		if w > width {
+			width = w
+		}
+	}
+
+	return width
 }
