@@ -154,7 +154,7 @@ func (t *Tree) String() string {
 
 // Child adds a child to this Tree.
 //
-// If a Child Tree is passed without a root, it will be parented to it's sibling
+// If a Child Tree is passed without a root, it will be parented to its sibling
 // child (auto-nesting).
 //
 //	tree.Root("Foo").Child("Bar", tree.New().Child("Baz"), "Qux")
