@@ -414,6 +414,21 @@ Lip Gloss ships with a table rendering sub-package.
 import "github.com/charmbracelet/lipgloss/table"
 ```
 
+Define the row styles.
+
+```go
+var (
+		// HeaderStyle is the lipgloss style used for the table headers.
+		HeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("99")).Bold(true).Align(lipgloss.Center)
+		// CellStyle is the base lipgloss style used for the table rows.
+		CellStyle = lipgloss.NewStyle().Padding(0, 1).Width(14)
+		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
+		OddRowStyle = CellStyle.Foreground(gray)
+		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
+		EvenRowStyle = CellStyle.Foreground(lightGray)
+	)
+```
+
 Define some rows of data.
 
 ```go
