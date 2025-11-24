@@ -364,8 +364,12 @@ func (s Style) Render(strs ...string) string {
 
 	// Word wrap
 	if !inline && width > 0 {
-		wrapAt := width - leftPadding - rightPadding
-		str = cellbuf.Wrap(str, wrapAt, "")
+		// Include padding and border widths in available inner width so the
+		// overall rendered width (including borders and padding) matches Width.
+		wrapAt := width - leftPadding - rightPadding - s.GetHorizontalBorderSize()
+		if wrapAt > 0 {
+			str = cellbuf.Wrap(str, wrapAt, "")
+		}
 	}
 
 	// Render core text
@@ -437,7 +441,9 @@ func (s Style) Render(strs ...string) string {
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
 			}
-			str = alignTextHorizontal(str, horizontalAlign, width, st)
+			// Align to the inner width, excluding borders (padding already applied).
+			innerWidth := max(0, width-s.GetHorizontalBorderSize())
+			str = alignTextHorizontal(str, horizontalAlign, innerWidth, st)
 		}
 	}
 
