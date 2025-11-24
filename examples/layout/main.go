@@ -380,18 +380,17 @@ func main() {
 
 	// Surprise! Composite some bonus content on top of the document.
 	modal := floatingStyle.Render("Now with Compositing!")
-	layers := lipgloss.NewLayer("base", "",
-		lipgloss.NewLayer("doc", document),
-		lipgloss.NewLayer("modal", modal).X(58).Y(44),
-	)
+	layers := []*lipgloss.Layer{
+		lipgloss.NewLayer(document),
+		lipgloss.NewLayer(modal).X(58).Y(44),
+	}
 
-	canvas := lipgloss.NewCanvas(physicalWidth, layers.Bounds().Dy())
-	canvas.Compose(layers)
+	comp := lipgloss.NewCompositor(layers...)
 
 	// Okay, let's print it. We use a special Lipgloss writer to downsample
 	// colors to the terminal's color palette. And, if output's not a TTY, we
 	// will remove color entirely.
-	lipgloss.Println(canvas.Render())
+	lipgloss.Println(comp.Render())
 }
 
 // colorGrid blends colors from 4 corner quadrants, into a box region.
