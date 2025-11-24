@@ -7,8 +7,15 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// Canvas is a collection of layers that can be composed together to form a
-// single frame of text.
+// Canvas is a cell-buffer that can be used to compose and draw [uv.Drawable]s
+// like [Layer]s.
+//
+// Composed drawables are drawn onto the canvas in the order they were
+// composed, meaning later drawables will appear "on top" of earlier ones.
+//
+// A canvas can read, modify, and render its cell contents.
+//
+// It implements [uv.Screen] and [uv.Drawable].
 type Canvas struct {
 	scr uv.ScreenBuffer
 }
@@ -59,8 +66,9 @@ func (c *Canvas) WidthMethod() uv.WidthMethod {
 }
 
 // Compose composes a [Layer] or any [uv.Drawable] onto the [Canvas].
-func (c *Canvas) Compose(drawer uv.Drawable) {
+func (c *Canvas) Compose(drawer uv.Drawable) *Canvas {
 	drawer.Draw(c, c.Bounds())
+	return c
 }
 
 // Draw draws the [Canvas] onto the given [uv.Screen] within the specified

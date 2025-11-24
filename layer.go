@@ -8,7 +8,8 @@ import (
 	uv "github.com/charmbracelet/ultraviolet"
 )
 
-// Layer holds metadata about a layer in the canvas.
+// Layer represents a visual layer with content and positioning. It's a pure
+// data structure that defines the layer hierarchy without any computation.
 type Layer struct {
 	id      string
 	content string
@@ -16,19 +17,9 @@ type Layer struct {
 	layers  []*Layer
 }
 
-// flatLayer holds a layer with its calculated absolute position and bounds.
-type flatLayer struct {
-	layer  *Layer
-	absX   int
-	absY   int
-	absZ   int
-	bounds image.Rectangle
-}
-
-// NewLayer creates a new [Layer] with the given id and styled content.
-func NewLayer(id string, content string, layers ...*Layer) *Layer {
+// NewLayer creates a new [Layer] with the given content and optional child layers.
+func NewLayer(content string, layers ...*Layer) *Layer {
 	l := &Layer{
-		id:      id,
 		content: content,
 	}
 	l.AddLayers(layers...)
@@ -38,6 +29,12 @@ func NewLayer(id string, content string, layers ...*Layer) *Layer {
 // GetID returns the ID of the Layer.
 func (l *Layer) GetID() string {
 	return l.id
+}
+
+// ID sets the ID of the Layer.
+func (l *Layer) ID(id string) *Layer {
+	l.id = id
+	return l
 }
 
 // X sets the x-coordinate of the Layer relative to its parent.
@@ -73,106 +70,6 @@ func (l *Layer) GetZ() int {
 	return l.z
 }
 
-// absolutePosition calculates the absolute position by adding parent offsets.
-func (l *Layer) absolutePosition(parentX, parentY, parentZ int) (x, y, z int) {
-	return l.x + parentX, l.y + parentY, l.z + parentZ
-}
-
-// GetLayer returns a child [Layer] by its ID, or nil if not found.
-func (l *Layer) GetLayer(id string) *Layer {
-	if l.id == id {
-		return l
-	}
-	for _, layer := range l.layers {
-		found := layer.getLayerRecursive(id)
-		if found != nil {
-			return found
-		}
-	}
-	return nil
-}
-
-// getLayerRecursive recursively searches for a layer by ID.
-func (l *Layer) getLayerRecursive(id string) *Layer {
-	if l.id == id {
-		return l
-	}
-	for _, layer := range l.layers {
-		found := layer.getLayerRecursive(id)
-		if found != nil {
-			return found
-		}
-	}
-	return nil
-}
-
-// Bounds returns the bounds of the Layer as a [image.Rectangle].
-func (l *Layer) Bounds() image.Rectangle {
-	return l.boundsWithOffset(0, 0, 0)
-}
-
-// boundsWithOffset calculates bounds with parent offset applied.
-func (l *Layer) boundsWithOffset(parentX, parentY, parentZ int) image.Rectangle {
-	absX, absY, _ := l.absolutePosition(parentX, parentY, parentZ)
-
-	width, height := Width(l.content), Height(l.content)
-	this := image.Rectangle{
-		Min: image.Pt(absX, absY),
-		Max: image.Pt(absX+width, absY+height),
-	}
-
-	for _, layer := range l.layers {
-		area := layer.boundsWithOffset(absX, absY, 0)
-		this = this.Union(area)
-	}
-
-	return this
-}
-
-// InBounds checks if the given point is within the [Layer]'s bounds.
-func (l *Layer) InBounds(x, y int) bool {
-	return image.Pt(x, y).In(l.Bounds())
-}
-
-// Hit checks if the given point hits the Layer or any of its child layers. If
-// a hit is detected, it returns the ID of the top-most Layer that was hit. If
-// no hit is detected, it returns an empty string.
-func (l *Layer) Hit(x, y int) string {
-	return l.hitWithOffset(x, y, 0, 0, 0)
-}
-
-// hitWithOffset recursively checks for hits with parent offset applied.
-func (l *Layer) hitWithOffset(x, y, parentX, parentY, parentZ int) string {
-	absX, absY, absZ := l.absolutePosition(parentX, parentY, parentZ)
-
-	// Sort children by z-index for hit testing (highest z first)
-	sortedChildren := make([]*Layer, len(l.layers))
-	copy(sortedChildren, l.layers)
-	slices.SortFunc(sortedChildren, func(a, b *Layer) int {
-		aZ := a.z + absZ
-		bZ := b.z + absZ
-		return bZ - aZ
-	})
-
-	// Check children first (top-most first)
-	for _, child := range sortedChildren {
-		if hit := child.hitWithOffset(x, y, absX, absY, absZ); hit != "" {
-			return hit
-		}
-	}
-
-	// Check this layer
-	bounds := image.Rectangle{
-		Min: image.Pt(absX, absY),
-		Max: image.Pt(absX+Width(l.content), absY+Height(l.content)),
-	}
-	if image.Pt(x, y).In(bounds) {
-		return l.id
-	}
-
-	return ""
-}
-
 // AddLayers adds child layers to the Layer.
 func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 	for i, layer := range layers {
@@ -184,46 +81,146 @@ func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 	return l
 }
 
-// Draw draws the [Layer] and its children onto the given [uv.Screen]. This can
-// be a [Canvas]. All layers are drawn in global z-index order (lowest to highest),
-// regardless of hierarchy depth.
-func (l *Layer) Draw(scr uv.Screen, area image.Rectangle) {
-	var allLayers []flatLayer
-	l.flattenLayers(&allLayers, 0, 0, 0)
+// Compositor manages the composition of layers. It flattens a layer hierarchy
+// once and provides efficient drawing and hit testing operations. All computation
+// related to layers happens in the Compositor.
+type Compositor struct {
+	root   *Layer
+	layers []compositeLayer
+	index  map[string]*Layer
+	bounds image.Rectangle
+}
 
-	// Sort by absolute z-index (lowest to highest)
-	slices.SortFunc(allLayers, func(a, b flatLayer) int {
+// compositeLayer holds a flattened layer with its calculated absolute position and bounds.
+type compositeLayer struct {
+	layer  *Layer
+	absX   int
+	absY   int
+	absZ   int
+	bounds image.Rectangle
+}
+
+// NewCompositor creates a new Compositor with an internal root layer. Optional
+// layers can be provided which will be added as children of the root. The layer
+// hierarchy is flattened and sorted by z-index for efficient rendering and hit testing.
+func NewCompositor(layers ...*Layer) *Compositor {
+	root := NewLayer("")
+	root.AddLayers(layers...)
+	c := &Compositor{
+		root:  root,
+		index: make(map[string]*Layer),
+	}
+	c.flatten()
+	return c
+}
+
+// AddLayers adds layers to the compositor's root and refreshes the internal state.
+func (c *Compositor) AddLayers(layers ...*Layer) *Compositor {
+	c.root.AddLayers(layers...)
+	c.flatten()
+	return c
+}
+
+// flatten builds the internal flattened layer list and calculates overall bounds.
+func (c *Compositor) flatten() {
+	c.layers = nil
+	c.index = make(map[string]*Layer)
+	c.flattenRecursive(c.root, 0, 0, 0)
+
+	// Sort by absolute z-index (lowest to highest for drawing)
+	slices.SortFunc(c.layers, func(a, b compositeLayer) int {
 		return a.absZ - b.absZ
 	})
 
-	// Draw all layers in z-order
-	for _, fl := range allLayers {
-		if fl.bounds.Overlaps(area) {
-			content := uv.NewStyledString(fl.layer.content)
-			content.Draw(scr, fl.bounds)
+	// Calculate overall bounds
+	if len(c.layers) > 0 {
+		c.bounds = c.layers[0].bounds
+		for i := 1; i < len(c.layers); i++ {
+			c.bounds = c.bounds.Union(c.layers[i].bounds)
 		}
 	}
 }
 
-// flattenLayers recursively collects all layers with their absolute positions.
-func (l *Layer) flattenLayers(result *[]flatLayer, parentX, parentY, parentZ int) {
-	absX, absY, absZ := l.absolutePosition(parentX, parentY, parentZ)
+// flattenRecursive recursively collects all layers with their absolute positions.
+func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY, parentZ int) {
+	absX := layer.x + parentX
+	absY := layer.y + parentY
+	absZ := layer.z + parentZ
 
-	width, height := Width(l.content), Height(l.content)
+	width, height := Width(layer.content), Height(layer.content)
 	bounds := image.Rectangle{
 		Min: image.Pt(absX, absY),
 		Max: image.Pt(absX+width, absY+height),
 	}
 
-	*result = append(*result, flatLayer{
-		layer:  l,
+	c.layers = append(c.layers, compositeLayer{
+		layer:  layer,
 		absX:   absX,
 		absY:   absY,
 		absZ:   absZ,
 		bounds: bounds,
 	})
 
-	for _, child := range l.layers {
-		child.flattenLayers(result, absX, absY, absZ)
+	// Index layer by ID if it has one
+	if layer.id != "" {
+		c.index[layer.id] = layer
 	}
+
+	for _, child := range layer.layers {
+		c.flattenRecursive(child, absX, absY, absZ)
+	}
+}
+
+// Bounds returns the overall bounds of all layers in the compositor.
+func (c *Compositor) Bounds() image.Rectangle {
+	return c.bounds
+}
+
+// Draw draws all layers onto the given [uv.Screen] in z-index order.
+func (c *Compositor) Draw(scr uv.Screen, area image.Rectangle) {
+	for _, cl := range c.layers {
+		if cl.bounds.Overlaps(area) {
+			content := uv.NewStyledString(cl.layer.content)
+			content.Draw(scr, cl.bounds)
+		}
+	}
+}
+
+// Hit checks if the given point hits any layer. If a hit is detected, it
+// returns the ID of the top-most Layer that was hit. Layers with empty IDs
+// are skipped. If no hit is detected, it returns an empty string.
+func (c *Compositor) Hit(x, y int) string {
+	pt := image.Pt(x, y)
+	// Check from highest z to lowest (reverse order)
+	for i := len(c.layers) - 1; i >= 0; i-- {
+		cl := c.layers[i]
+		if cl.layer.id != "" && pt.In(cl.bounds) {
+			return cl.layer.id
+		}
+	}
+	return ""
+}
+
+// GetLayer returns a layer by its ID, or nil if not found.
+// Layers with empty IDs are not indexed and cannot be retrieved.
+func (c *Compositor) GetLayer(id string) *Layer {
+	if id == "" {
+		return nil
+	}
+	return c.index[id]
+}
+
+// Refresh re-flattens the layer hierarchy. Call this after modifying the layer
+// tree structure or positions to update the compositor's internal state.
+func (c *Compositor) Refresh() {
+	c.flatten()
+}
+
+// Render renders the compositor into a styled string. This is a helper
+// function that creates a temporary canvas, draws the compositor onto it, and
+// returns the resulting string.
+func (c *Compositor) Render() string {
+	width, height := c.bounds.Dx(), c.bounds.Dy()
+	canvas := NewCanvas(width, height)
+	return canvas.Compose(c).Render()
 }
