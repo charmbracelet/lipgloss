@@ -148,7 +148,7 @@ func (s Style) GetPaddingLeft() int {
 }
 
 // GetPaddingChar returns the style's padding character. If no value is set a
-// space (`\u0020`) is returned.
+// space is returned.
 func (s Style) GetPaddingChar() rune {
 	char := s.getAsRune(paddingCharKey)
 	if char == 0 {
@@ -209,7 +209,7 @@ func (s Style) GetMarginLeft() int {
 }
 
 // GetMarginChar returns the style's padding character. If no value is set a
-// space (`\u0020`) is returned.
+// space is returned.
 func (s Style) GetMarginChar() rune {
 	char := s.getAsRune(marginCharKey)
 	if char == 0 {
