@@ -81,6 +81,58 @@ func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 	return l
 }
 
+// GetLayer returns a descendant layer by its ID, or nil if not found.
+// Layers with empty IDs are skipped.
+func (l *Layer) GetLayer(id string) *Layer {
+	if id == "" {
+		return nil
+	}
+	if l.id == id {
+		return l
+	}
+	for _, child := range l.layers {
+		if found := child.GetLayer(id); found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+// Bounds returns the bounds of the layer and its children as an [image.Rectangle].
+func (l *Layer) Bounds() image.Rectangle {
+	return l.boundsWithOffset(0, 0)
+}
+
+// boundsWithOffset calculates bounds with parent offset applied.
+func (l *Layer) boundsWithOffset(parentX, parentY int) image.Rectangle {
+	absX := l.x + parentX
+	absY := l.y + parentY
+
+	width, height := Width(l.content), Height(l.content)
+	bounds := image.Rectangle{
+		Min: image.Pt(absX, absY),
+		Max: image.Pt(absX+width, absY+height),
+	}
+
+	for _, child := range l.layers {
+		bounds = bounds.Union(child.boundsWithOffset(absX, absY))
+	}
+
+	return bounds
+}
+
+// MaxZ returns the maximum z-index among this layer and all its descendants.
+func (l *Layer) MaxZ() int {
+	maxZ := l.z
+	for _, child := range l.layers {
+		childMaxZ := child.MaxZ()
+		if childMaxZ > maxZ {
+			maxZ = childMaxZ
+		}
+	}
+	return maxZ
+}
+
 // Compositor manages the composition of layers. It flattens a layer hierarchy
 // once and provides efficient drawing and hit testing operations. All computation
 // related to layers happens in the Compositor.
