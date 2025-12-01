@@ -197,7 +197,7 @@ func (c *Compositor) flatten() {
 func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY, parentZ int) {
 	absX := layer.x + parentX
 	absY := layer.y + parentY
-	absZ := layer.z + parentZ
+	absZ := layer.z + parentZ + 1
 
 	width, height := Width(layer.content), Height(layer.content)
 	bounds := image.Rectangle{
