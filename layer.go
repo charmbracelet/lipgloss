@@ -22,8 +22,6 @@ type Layer struct {
 func NewLayer(content string, layers ...*Layer) *Layer {
 	l := &Layer{
 		content: content,
-		width:   Width(content),
-		height:  Height(content),
 	}
 	l.AddLayers(layers...)
 	return l
@@ -34,27 +32,13 @@ func (l *Layer) GetContent() string {
 	return l.content
 }
 
-// Width sets the width of the Layer.
-func (l *Layer) Width(width int) *Layer {
-	l.content = NewStyle().Width(width).Render(l.content)
-	l.width = Width(l.content)
-	return l
-}
-
-// Height sets the height of the Layer.
-func (l *Layer) Height(height int) *Layer {
-	l.content = NewStyle().Height(height).Render(l.content)
-	l.height = Height(l.content)
-	return l
-}
-
-// GetWidth returns the width of the Layer.
-func (l *Layer) GetWidth() int {
+// Width returns the width of the Layer.
+func (l *Layer) Width() int {
 	return l.width
 }
 
-// GetHeight returns the height of the Layer.
-func (l *Layer) GetHeight() int {
+// Height returns the height of the Layer.
+func (l *Layer) Height() int {
 	return l.height
 }
 
@@ -110,6 +94,9 @@ func (l *Layer) AddLayers(layers ...*Layer) *Layer {
 		}
 		l.layers = append(l.layers, layer)
 	}
+	area := l.boundsWithOffset(0, 0)
+	l.width = area.Dx()
+	l.height = area.Dy()
 	return l
 }
 
@@ -140,6 +127,24 @@ func (l *Layer) MaxZ() int {
 		}
 	}
 	return maxZ
+}
+
+// boundsWithOffset calculates bounds with parent offset applied.
+func (l *Layer) boundsWithOffset(parentX, parentY int) image.Rectangle {
+	absX := l.x + parentX
+	absY := l.y + parentY
+
+	width, height := Width(l.content), Height(l.content)
+	bounds := image.Rectangle{
+		Min: image.Pt(absX, absY),
+		Max: image.Pt(absX+width, absY+height),
+	}
+
+	for _, child := range l.layers {
+		bounds = bounds.Union(child.boundsWithOffset(absX, absY))
+	}
+
+	return bounds
 }
 
 // LayerHit represents the result of a hit test on a [Layer].
