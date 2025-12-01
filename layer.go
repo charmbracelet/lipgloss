@@ -11,24 +11,37 @@ import (
 // Layer represents a visual layer with content and positioning. It's a pure
 // data structure that defines the layer hierarchy without any computation.
 type Layer struct {
-	id      string
-	content string
-	x, y, z int
-	layers  []*Layer
+	id            string
+	content       string
+	width, height int
+	x, y, z       int
+	layers        []*Layer
 }
 
 // NewLayer creates a new [Layer] with the given content and optional child layers.
 func NewLayer(content string, layers ...*Layer) *Layer {
 	l := &Layer{
 		content: content,
+		width:   Width(content),
+		height:  Height(content),
 	}
 	l.AddLayers(layers...)
 	return l
 }
 
-// GetContent returns the content of the Layer.
-func (l *Layer) GetContent() string {
+// Content returns the content of the Layer.
+func (l *Layer) Content() string {
 	return l.content
+}
+
+// Width returns the width of the Layer's content.
+func (l *Layer) Width() int {
+	return l.width
+}
+
+// Height returns the height of the Layer's content.
+func (l *Layer) Height() int {
+	return l.height
 }
 
 // GetID returns the ID of the Layer.
