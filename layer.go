@@ -29,18 +29,32 @@ func NewLayer(content string, layers ...*Layer) *Layer {
 	return l
 }
 
-// Content returns the content of the Layer.
-func (l *Layer) Content() string {
+// GetContent returns the content of the Layer.
+func (l *Layer) GetContent() string {
 	return l.content
 }
 
-// Width returns the width of the Layer's content.
-func (l *Layer) Width() int {
+// Width sets the width of the Layer.
+func (l *Layer) Width(width int) *Layer {
+	l.content = NewStyle().Width(width).Render(l.content)
+	l.width = Width(l.content)
+	return l
+}
+
+// Height sets the height of the Layer.
+func (l *Layer) Height(height int) *Layer {
+	l.content = NewStyle().Height(height).Render(l.content)
+	l.height = Height(l.content)
+	return l
+}
+
+// GetWidth returns the width of the Layer.
+func (l *Layer) GetWidth() int {
 	return l.width
 }
 
-// Height returns the height of the Layer's content.
-func (l *Layer) Height() int {
+// GetHeight returns the height of the Layer.
+func (l *Layer) GetHeight() int {
 	return l.height
 }
 
