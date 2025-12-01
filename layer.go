@@ -148,7 +148,6 @@ type compositeLayer struct {
 	layer  *Layer
 	absX   int
 	absY   int
-	absZ   int
 	bounds image.Rectangle
 }
 
@@ -177,11 +176,11 @@ func (c *Compositor) AddLayers(layers ...*Layer) *Compositor {
 func (c *Compositor) flatten() {
 	c.layers = nil
 	c.index = make(map[string]*Layer)
-	c.flattenRecursive(c.root, 0, 0, 0)
+	c.flattenRecursive(c.root, 0, 0)
 
 	// Sort by absolute z-index (lowest to highest for drawing)
 	slices.SortFunc(c.layers, func(a, b compositeLayer) int {
-		return a.absZ - b.absZ
+		return a.layer.z - b.layer.z
 	})
 
 	// Calculate overall bounds
@@ -194,10 +193,9 @@ func (c *Compositor) flatten() {
 }
 
 // flattenRecursive recursively collects all layers with their absolute positions.
-func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY, parentZ int) {
+func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY int) {
 	absX := layer.x + parentX
 	absY := layer.y + parentY
-	absZ := layer.z + parentZ + 1
 
 	width, height := Width(layer.content), Height(layer.content)
 	bounds := image.Rectangle{
@@ -209,7 +207,6 @@ func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY, parentZ in
 		layer:  layer,
 		absX:   absX,
 		absY:   absY,
-		absZ:   absZ,
 		bounds: bounds,
 	})
 
@@ -219,7 +216,7 @@ func (c *Compositor) flattenRecursive(layer *Layer, parentX, parentY, parentZ in
 	}
 
 	for _, child := range layer.layers {
-		c.flattenRecursive(child, absX, absY, absZ)
+		c.flattenRecursive(child, absX, absY)
 	}
 }
 

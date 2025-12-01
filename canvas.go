@@ -35,6 +35,11 @@ func (c *Canvas) Resize(width, height int) {
 	c.scr.Resize(width, height)
 }
 
+// Clear clears the canvas.
+func (c *Canvas) Clear() {
+	c.scr.Clear()
+}
+
 // Bounds implements [uv.Screen].
 func (c *Canvas) Bounds() uv.Rectangle {
 	return c.scr.Bounds()
