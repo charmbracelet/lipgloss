@@ -26,6 +26,11 @@ func NewLayer(content string, layers ...*Layer) *Layer {
 	return l
 }
 
+// GetContent returns the content of the Layer.
+func (l *Layer) GetContent() string {
+	return l.content
+}
+
 // GetID returns the ID of the Layer.
 func (l *Layer) GetID() string {
 	return l.id
@@ -98,29 +103,6 @@ func (l *Layer) GetLayer(id string) *Layer {
 	return nil
 }
 
-// Bounds returns the bounds of the layer and its children as an [image.Rectangle].
-func (l *Layer) Bounds() image.Rectangle {
-	return l.boundsWithOffset(0, 0)
-}
-
-// boundsWithOffset calculates bounds with parent offset applied.
-func (l *Layer) boundsWithOffset(parentX, parentY int) image.Rectangle {
-	absX := l.x + parentX
-	absY := l.y + parentY
-
-	width, height := Width(l.content), Height(l.content)
-	bounds := image.Rectangle{
-		Min: image.Pt(absX, absY),
-		Max: image.Pt(absX+width, absY+height),
-	}
-
-	for _, child := range l.layers {
-		bounds = bounds.Union(child.boundsWithOffset(absX, absY))
-	}
-
-	return bounds
-}
-
 // MaxZ returns the maximum z-index among this layer and all its descendants.
 func (l *Layer) MaxZ() int {
 	maxZ := l.z
@@ -131,6 +113,33 @@ func (l *Layer) MaxZ() int {
 		}
 	}
 	return maxZ
+}
+
+// LayerHit represents the result of a hit test on a [Layer].
+type LayerHit struct {
+	id     string
+	layer  *Layer
+	bounds image.Rectangle
+}
+
+// Empty returns true if the LayerHit represents no hit.
+func (lh LayerHit) Empty() bool {
+	return lh.layer == nil
+}
+
+// ID returns the ID of the hit Layer.
+func (lh LayerHit) ID() string {
+	return lh.id
+}
+
+// Layer returns the layer that was hit.
+func (lh LayerHit) Layer() *Layer {
+	return lh.layer
+}
+
+// Bounds returns the bounds of the LayerHit.
+func (lh LayerHit) Bounds() image.Rectangle {
+	return lh.bounds
 }
 
 // Compositor manages the composition of layers. It flattens a layer hierarchy
@@ -235,19 +244,23 @@ func (c *Compositor) Draw(scr uv.Screen, area image.Rectangle) {
 	}
 }
 
-// Hit checks if the given point hits any layer. If a hit is detected, it
-// returns the ID of the top-most Layer that was hit. Layers with empty IDs
-// are skipped. If no hit is detected, it returns an empty string.
-func (c *Compositor) Hit(x, y int) string {
+// Hit performs a hit test at the given (x, y) coordinates. If a layer is hit,
+// it returns the ID of the top-most layer at that point. Layers with empty IDs
+// are ignored. If no layer is hit, it returns an empty [LayerHit].
+func (c *Compositor) Hit(x, y int) LayerHit {
+	var hit LayerHit
 	pt := image.Pt(x, y)
 	// Check from highest z to lowest (reverse order)
 	for i := len(c.layers) - 1; i >= 0; i-- {
 		cl := c.layers[i]
 		if cl.layer.id != "" && pt.In(cl.bounds) {
-			return cl.layer.id
+			hit.id = cl.layer.id
+			hit.layer = cl.layer
+			hit.bounds = cl.bounds
+			return hit
 		}
 	}
-	return ""
+	return hit
 }
 
 // GetLayer returns a layer by its ID, or nil if not found.
