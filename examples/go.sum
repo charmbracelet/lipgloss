@@ -1,5 +1,5 @@
-charm.land/bubbletea/v2 v2.0.0-rc.1.0.20251106192006-06c0cda318b3 h1:kHeOXDvccLh2f0gH3qxyMhN07VEnmc/3gPAZ50wn8ko=
-charm.land/bubbletea/v2 v2.0.0-rc.1.0.20251106192006-06c0cda318b3/go.mod h1:e3yWIY4Tl/LJnOMOv9H4YgvDwrknVDm5az5ep5QRLfk=
+charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251201184111-551c60ee5a5c h1:Jn9nugUf2ddyARHsA79zsWl7szy7dV7HpBj645Sp6DU=
+charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251201184111-551c60ee5a5c/go.mod h1:BLGnNsQA++rg5IEiTVeLix8AKte880DQWjc8Afs3Nw8=
 github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be h1:9AeTilPcZAjCFIImctFaOjnTIavg87rW78vTPkQqLI8=
 github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be/go.mod h1:ySMOLuWl6zY27l47sB3qLNK6tF2fkHG55UZxx8oIVo4=
 github.com/aymanbagabas/go-udiff v0.3.1 h1:LV+qyBQ2pqe0u42ZsUEtPiCaUoqgA9gYRDs3vj1nolY=
@@ -12,12 +12,12 @@ github.com/charmbracelet/log/v2 v2.0.0-20251106192421-eb64aaa963a0 h1:lxHzxsHd4P
 github.com/charmbracelet/log/v2 v2.0.0-20251106192421-eb64aaa963a0/go.mod h1:Q7oMtlboDPnnrYiJDXNwdWmJblOmuOnycPKczlVju6I=
 github.com/charmbracelet/ssh v0.0.0-20241211182756-4fe22b0f1b7c h1:treQxMBdI2PaD4eOYfFux8stfCkUxhuUxaqGcxKqVpI=
 github.com/charmbracelet/ssh v0.0.0-20241211182756-4fe22b0f1b7c/go.mod h1:CY1xbl2z+ZeBmNWItKZyxx0zgDgnhmR57+DTsHOobJ4=
-github.com/charmbracelet/ultraviolet v0.0.0-20251120225753-26363bddd922 h1:xT8rVR6RTBTx90ViTIrB766UNC9wnGzgkrfO6UCsiZ0=
-github.com/charmbracelet/ultraviolet v0.0.0-20251120225753-26363bddd922/go.mod h1:6lfcr3MNP+kZR25sF1nQwJFuQnNYBlFy3PGX5rvslXc=
+github.com/charmbracelet/ultraviolet v0.0.0-20251202162030-ecc8c1ae4b2b h1:jY1J0PcfetoB1uJ+w8rd86gUFSpKpJJI35gnfpKF5hg=
+github.com/charmbracelet/ultraviolet v0.0.0-20251202162030-ecc8c1ae4b2b/go.mod h1:Y6kE2GzHfkyQQVCSL9r2hwokSrIlHGzZG+71+wDYSZI=
 github.com/charmbracelet/wish/v2 v2.0.0-20251106193208-3cd15da8229f h1:yR3ru/zfVX4cnyhs5GPL1dxArAtxL/IZzJ9/mt1IoeI=
 github.com/charmbracelet/wish/v2 v2.0.0-20251106193208-3cd15da8229f/go.mod h1:YW+dfIwHgy7eKZqSffA+Fx9EEW2YyXKUGkAdijsvpGI=
-github.com/charmbracelet/x/ansi v0.11.1 h1:iXAC8SyMQDJgtcz9Jnw+HU8WMEctHzoTAETIeA3JXMk=
-github.com/charmbracelet/x/ansi v0.11.1/go.mod h1:M49wjzpIujwPceJ+t5w3qh2i87+HRtHohgb5iTyepL0=
+github.com/charmbracelet/x/ansi v0.11.2 h1:XAG3FSjiVtFvgEgGrNBkCNNYrsucAt8c6bfxHyROLLs=
+github.com/charmbracelet/x/ansi v0.11.2/go.mod h1:9tY2bzX5SiJCU0iWyskjBeI2BRQfvPqI+J760Mjf+Rg=
 github.com/charmbracelet/x/conpty v0.1.0 h1:4zc8KaIcbiL4mghEON8D72agYtSeIgq8FSThSPQIb+U=
 github.com/charmbracelet/x/conpty v0.1.0/go.mod h1:rMFsDJoDwVmiYM10aD4bH2XiRgwI7NYJtQgl5yskjEQ=
 github.com/charmbracelet/x/errors v0.0.0-20240508181413-e8d8b6e2de86 h1:JSt3B+U9iqk37QUU2Rvb6DSBYRLtWqFqfxf8l5hOZUA=
@@ -32,8 +32,8 @@ github.com/charmbracelet/x/termios v0.1.1 h1:o3Q2bT8eqzGnGPOYheoYS8eEleT5ZVNYNy8
 github.com/charmbracelet/x/termios v0.1.1/go.mod h1:rB7fnv1TgOPOyyKRJ9o+AsTU/vK5WHJ2ivHeut/Pcwo=
 github.com/charmbracelet/x/windows v0.2.2 h1:IofanmuvaxnKHuV04sC0eBy/smG6kIKrWG2/jYn2GuM=
 github.com/charmbracelet/x/windows v0.2.2/go.mod h1:/8XtdKZzedat74NQFn0NGlGL4soHB0YQZrETF96h75k=
-github.com/clipperhouse/displaywidth v0.5.0 h1:AIG5vQaSL2EKqzt0M9JMnvNxOCRTKUc4vUnLWGgP89I=
-github.com/clipperhouse/displaywidth v0.5.0/go.mod h1:R+kHuzaYWFkTm7xoMmK1lFydbci4X2CicfbGstSGg0o=
+github.com/clipperhouse/displaywidth v0.6.0 h1:k32vueaksef9WIKCNcoqRNyKbyvkvkysNYnAWz2fN4s=
+github.com/clipperhouse/displaywidth v0.6.0/go.mod h1:R+kHuzaYWFkTm7xoMmK1lFydbci4X2CicfbGstSGg0o=
 github.com/clipperhouse/stringish v0.1.1 h1:+NSqMOr3GR6k1FdRhhnXrLfztGzuG+VuFDfatpWHKCs=
 github.com/clipperhouse/stringish v0.1.1/go.mod h1:v/WhFtE1q0ovMta2+m+UbpZ+2/HEXNWYXQgCt4hdOzA=
 github.com/clipperhouse/uax29/v2 v2.3.0 h1:SNdx9DVUqMoBuBoW3iLOj4FQv3dN5mDtuqwuhIGpJy4=

@@ -7,7 +7,7 @@ toolchain go1.24.4
 replace charm.land/lipgloss/v2 => ../
 
 require (
-	charm.land/bubbletea/v2 v2.0.0-rc.1.0.20251106192006-06c0cda318b3
+	charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251201184111-551c60ee5a5c
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106192539-4b304240aab7
 	github.com/charmbracelet/colorprofile v0.3.3
 	github.com/charmbracelet/ssh v0.0.0-20241211182756-4fe22b0f1b7c
@@ -21,13 +21,13 @@ require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/charmbracelet/keygen v0.5.1 // indirect
 	github.com/charmbracelet/log/v2 v2.0.0-20251106192421-eb64aaa963a0 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20251120225753-26363bddd922 // indirect
-	github.com/charmbracelet/x/ansi v0.11.1 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20251202162030-ecc8c1ae4b2b // indirect
+	github.com/charmbracelet/x/ansi v0.11.2 // indirect
 	github.com/charmbracelet/x/conpty v0.1.0 // indirect
 	github.com/charmbracelet/x/errors v0.0.0-20240508181413-e8d8b6e2de86 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
-	github.com/clipperhouse/displaywidth v0.5.0 // indirect
+	github.com/clipperhouse/displaywidth v0.6.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/creack/pty v1.1.21 // indirect

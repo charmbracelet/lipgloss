@@ -58,8 +58,8 @@ func main() {
 	melon := lipgloss.NewLayer(newCard(darkMode, "Bitter Melon"))
 	sriracha := lipgloss.NewLayer(newCard(darkMode, "Sriracha"))
 
-	// A canvas is simply a collection of layers.
-	canvas := lipgloss.NewCanvas(
+	// Let's create our layers.
+	layers := []*lipgloss.Layer{
 		// Layers can have X, Y, and Z offsets. By default, X, Y, and
 		// Z are all 0.
 		lipgloss.NewLayer(lighterField).X(5).Y(2),
@@ -70,7 +70,11 @@ func main() {
 			melon.X(22).Y(1),
 			sriracha.X(11).Y(7),
 		),
-	)
+	}
 
-	lipgloss.Println(canvas.Render())
+	// A compositor takes multiple layers and composites them together into
+	// a single output.
+	comp := lipgloss.NewCompositor(layers...)
+
+	lipgloss.Println(comp.Render())
 }
