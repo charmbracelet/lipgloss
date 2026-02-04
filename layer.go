@@ -147,6 +147,14 @@ func (l *Layer) boundsWithOffset(parentX, parentY int) image.Rectangle {
 	return bounds
 }
 
+var _ uv.Drawable = (*Layer)(nil)
+
+// Draw draws the content of the layer on the screen at the specified area.
+func (l *Layer) Draw(scr uv.Screen, area uv.Rectangle) {
+	content := uv.NewStyledString(l.content)
+	content.Draw(scr, area)
+}
+
 // LayerHit represents the result of a hit test on a [Layer].
 type LayerHit struct {
 	id     string
@@ -270,8 +278,7 @@ func (c *Compositor) Bounds() image.Rectangle {
 func (c *Compositor) Draw(scr uv.Screen, area image.Rectangle) {
 	for _, cl := range c.layers {
 		if cl.bounds.Overlaps(area) {
-			content := uv.NewStyledString(cl.layer.content)
-			content.Draw(scr, cl.bounds)
+			cl.layer.Draw(scr, cl.bounds)
 		}
 	}
 }
