@@ -408,6 +408,16 @@ func TestStyleUnset(t *testing.T) {
 
 	requireTrue(t, s.GetBorderLeft())
 	s = s.UnsetBorderLeft()
+	// After unsetting all four sides with the border style still set,
+	// implicit borders kick in (matching the rendering behavior).
+	// To fully disable borders, unset the border style as well.
+	requireTrue(t, s.GetBorderLeft())
+	s = s.UnsetBorderStyle()
+	requireFalse(t, s.GetBorderLeft())
+
+	// Explicitly setting a side to false (as opposed to unsetting) should
+	// disable that side and prevent implicit borders from applying.
+	s = NewStyle().Border(normalBorder, true, true, true, false)
 	requireFalse(t, s.GetBorderLeft())
 
 	// tab width
