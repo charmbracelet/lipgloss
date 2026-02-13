@@ -119,12 +119,6 @@ func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
 
 // Offset sets the Tree children offsets.
 func (t *Tree) Offset(start, end int) *Tree {
-	if start > end {
-		_start := start
-		start = end
-		end = _start
-	}
-
 	if start < 0 {
 		start = 0
 	}
