@@ -318,6 +318,30 @@ func TestAt(t *testing.T) {
 	}
 }
 
+func TestTreeOffset(t *testing.T) {
+	tr := tree.New().
+		Root("Root").
+		Child("A", "B", "C", "D", "E")
+
+	t.Run("start_greater_than_end", func(t *testing.T) {
+		// Offset(2,1) should skip 2 from start, 1 from end.
+		o := tree.New().Root("Root").Child("A", "B", "C", "D", "E")
+		o.Offset(2, 1)
+		golden.RequireEqual(t, []byte(o.String()))
+	})
+
+	t.Run("equal", func(t *testing.T) {
+		o := tree.New().Root("Root").Child("A", "B", "C", "D", "E")
+		o.Offset(1, 1)
+		golden.RequireEqual(t, []byte(o.String()))
+	})
+
+	t.Run("zero", func(t *testing.T) {
+		tr.Offset(0, 0)
+		golden.RequireEqual(t, []byte(tr.String()))
+	})
+}
+
 func TestFilter(t *testing.T) {
 	data := tree.NewFilter(tree.NewStringData(
 		"Foo",
