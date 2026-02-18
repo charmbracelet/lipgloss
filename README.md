@@ -490,7 +490,7 @@ var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 lipgloss.Println(style) // 你好，猫咪。
 ```
 
-## Canvas and Compositor
+## Compositing
 
 Lip Gloss includes a cell-buffer based canvas system for composing layered
 content:
