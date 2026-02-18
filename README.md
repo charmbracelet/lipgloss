@@ -44,9 +44,9 @@ go get charm.land/lipgloss/v2
 > as they’ve been designed to work together.
 >
 > ```bash
-> go get charm.land/bubbletea/v2
-> go get charm.land/bubbles/v2
-> go get charm.land/lipgloss/v2
+> go get charm.land/bubbletea/v2@latest
+> go get charm.land/bubbles/v2@latest
+> go get charm.land/lipgloss/v2@latest
 > ```
 
 ## Colors
