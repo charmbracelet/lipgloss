@@ -877,36 +877,6 @@ for i := 0; i < repeat; i++ {
 }
 ```
 
----
-
-## FAQ
-
-<details>
-<summary>
-Why are things misaligning? Why are borders at the wrong widths?
-</summary>
-<p>This is most likely due to your locale and encoding, particularly with
-regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code>
-or <code>ja_JP.UTF-8</code>). The most direct way to fix this is to set
-<code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
-
-<p>For details see <a href="https://github.com/charmbracelet/lipgloss/issues/40">https://github.com/charmbracelet/lipgloss/issues/40.</a></p>
-</details>
-
-<details>
-<summary>
-Why isn’t Lip Gloss displaying colors?
-</summary>
-<p>Lip Gloss automatically degrades colors to the best available option in the
-given terminal, and if output’s not a TTY it will remove color output entirely.
-This is common when running tests, CI, or when piping output elsewhere.</p>
-
-<p>Make sure you’re using the Lip Gloss writer functions
-(<code>lipgloss.Println</code>, etc.) to print your output, as these handle
-color downsampling automatically. If you’re using Bubble Tea, downsampling
-is built in.</p>
-</details>
-
 ## What about [Bubble Tea][tea]?
 
 Lip Gloss doesn’t replace Bubble Tea. Rather, it is an excellent Bubble Tea
