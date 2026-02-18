@@ -877,7 +877,7 @@ for i := 0; i < repeat; i++ {
 ## Upgrading from v1
 
 For a detailed guide on upgrading from Lip Gloss v1, see the
-[upgrade guide](WHATS_NEW_V2.md).
+[upgrade guide](./UPGRADE_GUIDE_V2.md).
 
 ## FAQ
 
