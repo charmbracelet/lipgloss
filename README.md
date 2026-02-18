@@ -14,6 +14,13 @@
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 
+> [!TIP]
+>
+> ### Upgrading from v1
+>
+> For a detailed guide on upgrading from Lip Gloss v1, see the
+> [upgrade guide](./UPGRADE_GUIDE_V2.md).
+
 ![Lip Gloss example](https://github.com/user-attachments/assets/92560e60-d70e-4ce0-b39e-a60bb933356b)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
@@ -873,11 +880,6 @@ for i := 0; i < repeat; i++ {
 ```
 
 ---
-
-## Upgrading from v1
-
-For a detailed guide on upgrading from Lip Gloss v1, see the
-[upgrade guide](./UPGRADE_GUIDE_V2.md).
 
 ## FAQ
 
