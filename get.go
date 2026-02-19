@@ -300,7 +300,7 @@ func (s Style) GetBorderTopWidth() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopSize() int {
-	if !s.getAsBool(borderTopKey, false) && !s.implicitBorders() {
+	if !s.hasBorder(borderTopKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetTopSize()
@@ -310,7 +310,7 @@ func (s Style) GetBorderTopSize() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftSize() int {
-	if !s.getAsBool(borderLeftKey, false) && !s.implicitBorders() {
+	if !s.hasBorder(borderLeftKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetLeftSize()
@@ -320,7 +320,7 @@ func (s Style) GetBorderLeftSize() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomSize() int {
-	if !s.getAsBool(borderBottomKey, false) && !s.implicitBorders() {
+	if !s.hasBorder(borderBottomKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetBottomSize()
@@ -330,7 +330,7 @@ func (s Style) GetBorderBottomSize() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightSize() int {
-	if !s.getAsBool(borderRightKey, false) && !s.implicitBorders() {
+	if !s.hasBorder(borderRightKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetRightSize()
@@ -531,6 +531,35 @@ func (s Style) implicitBorders() bool {
 		leftSet     = s.isSet(borderLeftKey)
 	)
 	return borderStyle != noBorder && !(topSet || rightSet || bottomSet || leftSet) //nolint:staticcheck
+}
+
+// hasBorder returns whether a specific border side should be rendered.
+// If the side has been explicitly set, its value is used. If not set, the
+// default depends on context:
+//   - If no sides are explicitly set: default to true (all sides render).
+//   - If any side is explicitly enabled (true): default to false (only enabled
+//     sides render, matching the old behavior for e.g. BorderTop(true)).
+//   - If sides are only explicitly disabled (false) with none enabled: default
+//     to true (unset sides still render). This fixes #194 and #366 where
+//     BorderTop(false).BorderRight(false).BorderBottom(false) should still
+//     render the left border.
+func (s Style) hasBorder(side propKey) bool {
+	if s.isSet(side) {
+		return s.getAsBool(side, false)
+	}
+	if s.getBorderStyle() == noBorder {
+		return false
+	}
+	// Check whether any side was explicitly turned on.
+	for _, k := range []propKey{borderTopKey, borderRightKey, borderBottomKey, borderLeftKey} {
+		if s.isSet(k) && s.getAsBool(k, false) {
+			// At least one side is explicitly enabled, so unset sides
+			// default to off (preserves "opt-in" behaviour).
+			return false
+		}
+	}
+	// No side was explicitly enabled; unset sides default to on.
+	return true
 }
 
 func (s Style) getAsTransform(propKey) func(string) string {
