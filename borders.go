@@ -279,10 +279,10 @@ func ASCIIBorder() Border {
 func (s Style) applyBorder(str string) string {
 	var (
 		border    = s.getBorderStyle()
-		hasTop    = s.getAsBool(borderTopKey, false)
-		hasRight  = s.getAsBool(borderRightKey, false)
-		hasBottom = s.getAsBool(borderBottomKey, false)
-		hasLeft   = s.getAsBool(borderLeftKey, false)
+		hasTop    = s.hasBorder(borderTopKey)
+		hasRight  = s.hasBorder(borderRightKey)
+		hasBottom = s.hasBorder(borderBottomKey)
+		hasLeft   = s.hasBorder(borderLeftKey)
 
 		topFG    = s.getAsColor(borderTopForegroundKey)
 		rightFG  = s.getAsColor(borderRightForegroundKey)
@@ -294,15 +294,6 @@ func (s Style) applyBorder(str string) string {
 		bottomBG = s.getAsColor(borderBottomBackgroundKey)
 		leftBG   = s.getAsColor(borderLeftBackgroundKey)
 	)
-
-	// If a border is set and no sides have been specifically turned on or off
-	// render borders on all sides.
-	if s.implicitBorders() {
-		hasTop = true
-		hasRight = true
-		hasBottom = true
-		hasLeft = true
-	}
 
 	// If no border is set or all borders are been disabled, abort.
 	if border == noBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
