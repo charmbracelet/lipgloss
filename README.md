@@ -2,8 +2,8 @@
 
 <p>
     <picture>
-      <source media="(prefers-color-scheme: light)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340">
-      <source media="(prefers-color-scheme: dark)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-dark-2025-06.png" width="340">
+      <source media="(prefers-color-scheme: light)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-v2-header-light.png" width="340">
+      <source media="(prefers-color-scheme: dark)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-v2-header-dark.png" width="340">
       <img src="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340" />
     </picture>
     <br>
