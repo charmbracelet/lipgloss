@@ -411,8 +411,9 @@ content:
 canvas := lipgloss.NewCanvas(80, 24)
 
 // Create some layers.
-a := lipgloss.NewLayer(thisContent).X(20).Y(10)
-b := lipgloss.NewLayer(thatContent).X(10).Y(5).Z(1)
+a := lipgloss.NewLayer(pickles).X(4).Y(2).Z(1)
+b := lipgloss.NewLayer(bitterMelon).X(22).Y(1)
+c := lipgloss.NewLayer(sriracha).X(11).Y(7)
 
 // Composite the layuers together.
 compositor := lipgloss.NewCompositor(a, b)
@@ -421,7 +422,9 @@ compositor := lipgloss.NewCompositor(a, b)
 output := canvas.Compose(compositor).Render()
 ```
 
-For a more thorough overview, see [the canvas example](./examples/canvas/main.go).
+For a more thorough example, see [the canvas
+example](./examples/canvas/main.go). For reference, including how to detect
+mouse clicks on layers, see [the docs][docs].
 
 ### Joining Paragraphs
 
