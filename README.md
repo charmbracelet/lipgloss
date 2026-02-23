@@ -77,145 +77,32 @@ lipgloss.BrightCyan
 lipgloss.Black
 ```
 
-### Color Downsampling
+### Color Utilities
 
-One of the best things about Lip Gloss is that it can automatically downsample
-colors to the best available profile, stripping colors (and ANSI) entirely when
-output is not a TTY.
-
-If you’re using Lip Gloss with Bubble Tea there’s nothing to do here:
-downsampling is built into Bubble Tea v2. If you’re not using Bubble Tea, use
-the Lip Gloss writer functions, which are a drop-in replacement for the `fmt`
-package:
+Lip Gloss ships with a handful of handy tools for working with colors:
 
 ```go
-s := lipgloss.NewStyle()
-    .Foreground(lipgloss.Color("#EB4268"))
-    .Render("Hello!")
+// This color is more or less the color of Sriracha sauce.
+c := lipgloss.Color("#EB4268)
 
-// Downsample if needed and print to stdout.
-lipgloss.Println(s)
+// Dark Sriracha sauce:
+darker := lipgloss.Darken(c, 0.5)
 
-// Render to a variable.
-downsampled := lipgloss.Sprint(s)
+// Light Sriracha sauce:
+lighter := lipgloss.Lighten(c, 0.35)
 
-// Print to stderr.
-lipgloss.Fprint(os.Stderr, s)
+// The complementary color of Sriracha sauce is greenish:
+greenish := lipgloss.Complementary(c)
+
+// Set the alpha channel and to make your Sriracha sauce more watered down:
+wateredDown := lipgloss.Alpha(c, 0.2)
 ```
 
-The full set: `Print`, `Println`, `Printf`, `Fprint`, `Fprintln`, `Fprintf`,
-`Sprint`, `Sprintln`, `Sprintf`.
+### More
 
-Need more control? Check out
-[Colorprofile](https://github.com/charmbracelet/colorprofile), which Lip Gloss
-uses under the hood.
-
-### Adaptive Colors
-
-You can render different colors at runtime depending on whether the terminal
-has a light or dark background:
-
-```go
-hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
-lightDark := lipgloss.LightDark(hasDarkBG)
-
-myColor := lightDark(lipgloss.Color("#D7FFAE"), lipgloss.Color("#D75FEE"))
-```
-
-#### With Bubble Tea
-
-In Bubble Tea, request the background color, listen for a
-`BackgroundColorMsg`, and respond accordingly:
-
-```go
-func (m model) Init() tea.Cmd {
-    // First, send a Cmd to request the terminal background color.
-    return tea.RequestBackgroundColor
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-    switch msg := msg.(type) {
-    case tea.BackgroundColorMsg:
-        // Great, we have the background color. Now we can set up our styles
-        // against the color.
-        m.styles = newStyles(msg.IsDark())
-        return m, nil
-    }
-}
-
-func newStyles(bgIsDark bool) styles {
-    // A little ternary function that will return the appropriate color
-    // based on the background color.
-    lightDark := lipgloss.LightDark(bgIsDark)
-
-    return styles{
-        myHotStyle: lipgloss.NewStyle().Foreground(lightDark(
-            lipgloss.Color("#f1f1f1"),
-            lipgloss.Color("#333333"),
-        )),
-    }
-}
-```
-
-#### Standalone
-
-If you’re not using Bubble Tea you can perform the query manually:
-
-```go
-// What's the background color?
-hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
-
-// A helper function that will return the appropriate color based on the
-// background.
-lightDark := lipgloss.LightDark(hasDarkBG)
-
-// A couple colors with light and dark variants.
-thisColor := lightDark(lipgloss.Color("#C5ADF9"), lipgloss.Color("#864EFF"))
-thatColor := lightDark(lipgloss.Color("#37CD96"), lipgloss.Color("#22C78A"))
-
-a := lipgloss.NewStyle().Foreground(thisColor).Render("this")
-b := lipgloss.NewStyle().Foreground(thatColor).Render("that")
-
-// Render the appriate colors at runtime:
-lipgloss.Fprintf(os.Stderr, "my fave colors are %s and %s", a, b)
-```
-
-### Complete Colors
-
-In some cases where you may want to specify exact values for each color profile
-(ANSI 16, ANSI 156, and TrueColor). For these cases, use the `Complete` helper:
-
-```go
-// You'll need the colorprofile package.
-import "github.com/charmbracelet/colorprofile"
-
-// Get the color profile.
-profile := colorprofile.Detect(os.Stdout, os.Environ())
-
-// Create a function for rendering the appropriate color based on the profile.
-var completeColor := lipgloss.Complete(profile)
-
-// Now we'll choose the appropriate color at runtime.
-myColor := completeColor(ansiColor, ansi256Color, trueColor)
-```
-
-<details>
-<summary>Migrating from v1?</summary>
-
-The `compat` package provides `AdaptiveColor`, `CompleteColor`, and
-`CompleteAdaptiveColor` for a quicker migration from v1. These work by
-looking at `stdin` and `stdout` on a global basis:
-
-```go
-import "charm.land/lipgloss/v2/compat"
-
-color := compat.AdaptiveColor{
-    Light: lipgloss.Color("#f1f1f1"),
-    Dark:  lipgloss.Color("#cccccc"),
-}
-```
-
-</details>
+Lip Gloss also supports blending colors, choosing light or dark variants of
+colors at runtime, and more. For details, see [Advanced Color
+Usage](#advanced-color-usage) and [the docs][docs].
 
 ## Inline Formatting
 
@@ -397,15 +284,6 @@ colors := lipgloss.Blend1D(10, lipgloss.Color("#FF0000"), lipgloss.Color("#0000F
 // 2D gradient with rotation
 colors := lipgloss.Blend2D(80, 24, 45.0, color1, color2, color3)
 ```
-
-### Color Utilities
-
-| Function              | Description                     |
-| --------------------- | ------------------------------- |
-| `Alpha(c, alpha)`     | Set a color’s alpha channel     |
-| `Complementary(c)`    | Get the complementary color     |
-| `Darken(c, percent)`  | Darken a color by a percentage  |
-| `Lighten(c, percent)` | Lighten a color by a percentage |
 
 ## Copying Styles
 
@@ -891,6 +769,157 @@ for i := 0; i < repeat; i++ {
     t.Child("Lip Gloss")
 }
 ```
+
+## Advanced Color Usage
+
+Lip Gloss was designed with user experience in mind, and it includes tooling
+for changing colors at runtime based on the terminal’s capabilities and
+background color.
+
+<details>
+<summary>Migrating from v1?</summary>
+
+The `compat` package provides `AdaptiveColor`, `CompleteColor`, and
+`CompleteAdaptiveColor` for a quicker migration from v1. These work by
+looking at `stdin` and `stdout` on a global basis:
+
+```go
+import "charm.land/lipgloss/v2/compat"
+
+color := compat.AdaptiveColor{
+    Light: lipgloss.Color("#f1f1f1"),
+    Dark:  lipgloss.Color("#cccccc"),
+}
+```
+
+Note that we don't recommend this for new code as it removes the purity from
+Lip Gloss, computationally speaking, as it removes transparency around when
+I/O happens, which could cause Lip Gloss to compete for resources (like stdin)
+with other tools.
+
+</details>
+
+### Adaptive Colors
+
+You can render different colors at runtime depending on whether the terminal
+has a light or dark background:
+
+```go
+hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+lightDark := lipgloss.LightDark(hasDarkBG)
+
+myColor := lightDark(lipgloss.Color("#D7FFAE"), lipgloss.Color("#D75FEE"))
+```
+
+#### With Bubble Tea
+
+In Bubble Tea, request the background color, listen for a
+`BackgroundColorMsg`, and respond accordingly:
+
+```go
+func (m model) Init() tea.Cmd {
+    // First, send a Cmd to request the terminal background color.
+    return tea.RequestBackgroundColor
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    switch msg := msg.(type) {
+    case tea.BackgroundColorMsg:
+        // Great, we have the background color. Now we can set up our styles
+        // against the color.
+        m.styles = newStyles(msg.IsDark())
+        return m, nil
+    }
+}
+
+func newStyles(bgIsDark bool) styles {
+    // A little ternary function that will return the appropriate color
+    // based on the background color.
+    lightDark := lipgloss.LightDark(bgIsDark)
+
+    return styles{
+        myHotStyle: lipgloss.NewStyle().Foreground(lightDark(
+            lipgloss.Color("#f1f1f1"),
+            lipgloss.Color("#333333"),
+        )),
+    }
+}
+```
+
+#### Standalone
+
+If you’re not using Bubble Tea you can perform the query manually:
+
+```go
+// What's the background color?
+hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
+
+// A helper function that will return the appropriate color based on the
+// background.
+lightDark := lipgloss.LightDark(hasDarkBG)
+
+// A couple colors with light and dark variants.
+thisColor := lightDark(lipgloss.Color("#C5ADF9"), lipgloss.Color("#864EFF"))
+thatColor := lightDark(lipgloss.Color("#37CD96"), lipgloss.Color("#22C78A"))
+
+a := lipgloss.NewStyle().Foreground(thisColor).Render("this")
+b := lipgloss.NewStyle().Foreground(thatColor).Render("that")
+
+// Render the appriate colors at runtime:
+lipgloss.Fprintf(os.Stderr, "my fave colors are %s and %s", a, b)
+```
+
+### Complete Colors
+
+In some cases where you may want to specify exact values for each color profile
+(ANSI 16, ANSI 156, and TrueColor). For these cases, use the `Complete` helper:
+
+```go
+// You'll need the colorprofile package.
+import "github.com/charmbracelet/colorprofile"
+
+// Get the color profile.
+profile := colorprofile.Detect(os.Stdout, os.Environ())
+
+// Create a function for rendering the appropriate color based on the profile.
+var completeColor := lipgloss.Complete(profile)
+
+// Now we'll choose the appropriate color at runtime.
+myColor := completeColor(ansiColor, ansi256Color, trueColor)
+```
+
+### Color Downsampling
+
+One of the best things about Lip Gloss is that it can automatically downsample
+colors to the best available profile, stripping colors (and ANSI) entirely when
+output is not a TTY.
+
+If you’re using Lip Gloss with Bubble Tea there’s nothing to do here:
+downsampling is built into Bubble Tea v2. If you’re not using Bubble Tea, use
+the Lip Gloss writer functions, which are a drop-in replacement for the `fmt`
+package:
+
+```go
+s := lipgloss.NewStyle()
+    .Foreground(lipgloss.Color("#EB4268"))
+    .Render("Hello!")
+
+// Downsample if needed and print to stdout.
+lipgloss.Println(s)
+
+// Render to a variable.
+downsampled := lipgloss.Sprint(s)
+
+// Print to stderr.
+lipgloss.Fprint(os.Stderr, s)
+```
+
+The full set: `Print`, `Println`, `Printf`, `Fprint`, `Fprintln`, `Fprintf`,
+`Sprint`, `Sprintln`, `Sprintf`.
+
+Need more control? Check out
+[Colorprofile](https://github.com/charmbracelet/colorprofile), which Lip Gloss
+uses under the hood.
 
 ## What about [Bubble Tea][tea]?
 
