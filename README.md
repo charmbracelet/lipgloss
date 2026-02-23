@@ -108,20 +108,11 @@ For more, see [advanced color usage](#advanced-color-usage).
 Lip Gloss ships with a handful of handy tools for working with colors:
 
 ```go
-// This color is more or less the color of Sriracha sauce.
-c := lipgloss.Color("#EB4268)
-
-// Dark Sriracha sauce:
-darker := lipgloss.Darken(c, 0.5)
-
-// Light Sriracha sauce:
-lighter := lipgloss.Lighten(c, 0.35)
-
-// The complementary color of Sriracha sauce is greenish:
-greenish := lipgloss.Complementary(c)
-
-// Set the alpha channel and to make your Sriracha sauce more watered down:
-wateredDown := lipgloss.Alpha(c, 0.2)
+c := lipgloss.Color("#EB4268")      // Sriracha sauce color
+dark := lipgloss.Darken(c, 0.5)     // dark Sriracha sauce
+light := lipgloss.Lighten(c, 0.35)  // light Sriracha sauce
+green := lipgloss.Complementary(c)  // greenish Sriracha sauce
+withAlpha := lipgloss.Alpha(c, 0.2) // watered down Sriracha sauce
 ```
 
 ### More
