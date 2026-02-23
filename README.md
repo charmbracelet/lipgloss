@@ -401,6 +401,8 @@ assemble your layouts.
 
 ### Compositing
 
+<p><img width="350" alt="xx" src="https://github.com/user-attachments/assets/1921bac6-2408-436a-9d9e-7930fe4c6ec9" /></p>
+
 Lip Gloss includes a powerful, cell-based compositor for rendering layered
 content:
 
