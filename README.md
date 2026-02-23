@@ -407,19 +407,13 @@ Lip Gloss includes a powerful, cell-based compositor for rendering layered
 content:
 
 ```go
-// Create a canvas.
-canvas := lipgloss.NewCanvas(80, 24)
-
 // Create some layers.
 a := lipgloss.NewLayer(pickles).X(4).Y(2).Z(1)
 b := lipgloss.NewLayer(bitterMelon).X(22).Y(1)
 c := lipgloss.NewLayer(sriracha).X(11).Y(7)
 
-// Composite the layuers together.
-compositor := lipgloss.NewCompositor(a, b)
-
-// Render 'em to a string.
-output := canvas.Compose(compositor).Render()
+// Composite 'em and render.
+output := compositor.Compose(a, b, c).Render()
 ```
 
 For a more thorough example, see [the canvas
