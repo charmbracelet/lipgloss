@@ -394,24 +394,32 @@ var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
 lipgloss.Println(style) // 你好，猫咪。
 ```
 
-## Compositing
-
-Lip Gloss includes a cell-buffer based canvas system for composing layered
-content:
-
-```go
-canvas := lipgloss.NewCanvas(80, 24)
-
-layer := lipgloss.NewLayer(content).X(10).Y(5).Z(1).ID("panel")
-compositor := lipgloss.NewCompositor(layer)
-
-output := canvas.Compose(compositor).Render()
-```
-
 ## Utilities
 
 In addition to pure styling, Lip Gloss also ships with some utilities to help
 assemble your layouts.
+
+### Compositing
+
+Lip Gloss includes a powerful, cell-based compositor for rendering layered
+content:
+
+```go
+// Create a canvas.
+canvas := lipgloss.NewCanvas(80, 24)
+
+// Create some layers.
+a := lipgloss.NewLayer(thisContent).X(20).Y(10)
+b := lipgloss.NewLayer(thatContent).X(10).Y(5).Z(1)
+
+// Composite the layuers together.
+compositor := lipgloss.NewCompositor(a, b)
+
+// Render 'em to a string.
+output := canvas.Compose(compositor).Render()
+```
+
+For a more thorough overview, see [the canvas example](./examples/canvas).
 
 ### Joining Paragraphs
 
@@ -463,7 +471,8 @@ colors := lipgloss.Blend2D(80, 24, 45.0, color1, color2, color3)
 
 ### Placing Text in Whitespace
 
-Sometimes you’ll simply want to place a block of text in whitespace.
+Sometimes you’ll simply want to place a block of text in whitespace. This is
+a lightweight alternative to compositing.
 
 ```go
 // Center a paragraph horizontally in a space 80 cells wide. The height of
