@@ -199,7 +199,8 @@ var completeColor := lipgloss.Complete(profile)
 myColor := completeColor(ansiColor, ansi256Color, trueColor)
 ```
 
-### Compat Package
+<details>
+<summary>Migrating from v1?</summary>
 
 The `compat` package provides `AdaptiveColor`, `CompleteColor`, and
 `CompleteAdaptiveColor` for a quicker migration from v1. These work by
@@ -213,6 +214,8 @@ color := compat.AdaptiveColor{
     Dark:  lipgloss.Color("#cccccc"),
 }
 ```
+
+</details>
 
 ## Inline Formatting
 
