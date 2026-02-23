@@ -37,7 +37,7 @@ go get charm.land/lipgloss/v2
 > [!TIP]
 >
 > Upgrading from v1? Check out the [upgrade guide](./UPGRADE_GUIDE_V2.md), or
-> point your LLM at it and go to town.
+> point your LLM at it and let it go to town.
 
 ## Colors
 
@@ -89,9 +89,11 @@ the Lip Gloss writer functions, which are a drop-in replacement for the `fmt`
 package:
 
 ```go
-s := someStyle.Render("Hello!")
+s := lipgloss.NewStyle()
+    .Foreground(lipgloss.Color("#EB4268"))
+    .Render("Hello!")
 
-// Downsample and print to stdout.
+// Downsample if needed and print to stdout.
 lipgloss.Println(s)
 
 // Render to a variable.
@@ -103,6 +105,10 @@ lipgloss.Fprint(os.Stderr, s)
 
 The full set: `Print`, `Println`, `Printf`, `Fprint`, `Fprintln`, `Fprintf`,
 `Sprint`, `Sprintln`, `Sprintf`.
+
+Need more control? Check out
+[Colorprofile](https://github.com/charmbracelet/colorprofile), which Lip Gloss
+uses under the hood.
 
 ### Adaptive Colors
 
@@ -123,19 +129,25 @@ In Bubble Tea, request the background color, listen for a
 
 ```go
 func (m model) Init() tea.Cmd {
+    // First, send a Cmd to request the terminal background color.
     return tea.RequestBackgroundColor
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     switch msg := msg.(type) {
     case tea.BackgroundColorMsg:
+        // Great, we have the background color. Now we can set up our styles
+        // against the color.
         m.styles = newStyles(msg.IsDark())
         return m, nil
     }
 }
 
 func newStyles(bgIsDark bool) styles {
+    // A little ternary function that will return the appropriate color
+    // based on the background color.
     lightDark := lipgloss.LightDark(bgIsDark)
+
     return styles{
         myHotStyle: lipgloss.NewStyle().Foreground(lightDark(
             lipgloss.Color("#f1f1f1"),
