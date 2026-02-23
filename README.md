@@ -9,11 +9,6 @@
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 
-> [!TIP]
->
-> Upgrading from v1? See the [upgrade guide](./UPGRADE_GUIDE_V2.md) for more
-> details.
-
 ![Lip Gloss example](https://github.com/user-attachments/assets/92560e60-d70e-4ce0-b39e-a60bb933356b)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
@@ -40,14 +35,9 @@ go get charm.land/lipgloss/v2
 ```
 
 > [!TIP]
-> Using Lip Gloss with [Bubble Tea][tea]? Make sure you get all the latest v2s
-> as they’ve been designed to work together.
 >
-> ```bash
-> go get charm.land/bubbletea/v2@latest
-> go get charm.land/bubbles/v2@latest
-> go get charm.land/lipgloss/v2@latest
-> ```
+> Upgrading from v1? Check out the [upgrade guide](./UPGRADE_GUIDE_V2.md), or
+> point your LLM at it and go to town.
 
 ## Colors
 
