@@ -90,7 +90,7 @@ lipgloss.BrightCyan
 lipgloss.BrightWhite
 ```
 
-### Automatically Downsampling colors
+### Automatically Downsampling Colors
 
 Some users don't have Truecolor terminals. Other times, output might not
 support color at all (for example, in logs). Lip Gloss was designed to handle
@@ -115,7 +115,7 @@ green := lipgloss.Complementary(c)  // greenish Sriracha sauce
 withAlpha := lipgloss.Alpha(c, 0.2) // watered down Sriracha sauce
 ```
 
-### More
+### Advanced Color Tooling
 
 Lip Gloss also supports color blending, automatically choosing light or dark
 variants of colors at runtime, and a lot more. For details, see [Advanced Color
@@ -421,7 +421,7 @@ compositor := lipgloss.NewCompositor(a, b)
 output := canvas.Compose(compositor).Render()
 ```
 
-For a more thorough overview, see [the canvas example](./examples/canvas).
+For a more thorough overview, see [the canvas example](./examples/canvas/main.go).
 
 ### Joining Paragraphs
 
