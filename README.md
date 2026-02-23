@@ -112,8 +112,8 @@ uses under the hood.
 
 ### Adaptive Colors
 
-You can render different colors depending on whether the terminal has a light
-or dark background:
+You can render different colors at runtime depending on whether the terminal
+has a light or dark background:
 
 ```go
 hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
@@ -162,26 +162,41 @@ func newStyles(bgIsDark bool) styles {
 If you’re not using Bubble Tea you can perform the query manually:
 
 ```go
+// What's the background color?
 hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
+
+// A helper function that will return the appropriate color based on the
+// background.
 lightDark := lipgloss.LightDark(hasDarkBG)
 
+// A couple colors with light and dark variants.
 thisColor := lightDark(lipgloss.Color("#C5ADF9"), lipgloss.Color("#864EFF"))
 thatColor := lightDark(lipgloss.Color("#37CD96"), lipgloss.Color("#22C78A"))
 
 a := lipgloss.NewStyle().Foreground(thisColor).Render("this")
 b := lipgloss.NewStyle().Foreground(thatColor).Render("that")
 
+// Render the appriate colors at runtime:
 lipgloss.Fprintf(os.Stderr, "my fave colors are %s and %s", a, b)
 ```
 
 ### Complete Colors
 
-For cases where you want to specify exact values for each color profile, use
-the `Complete` helper:
+In some cases where you may want to specify exact values for each color profile
+(ANSI 16, ANSI 156, and TrueColor). For these cases, use the `Complete` helper:
 
 ```go
-complete := lipgloss.Complete(profile)
-myColor := complete(ansiColor, ansi256Color, trueColor)
+// You'll need the colorprofile package.
+import "github.com/charmbracelet/colorprofile"
+
+// Get the color profile.
+profile := colorprofile.Detect(os.Stdout, os.Environ())
+
+// Create a function for rendering the appropriate color based on the profile.
+var completeColor := lipgloss.Complete(profile)
+
+// Now we'll choose the appropriate color at runtime.
+myColor := completeColor(ansiColor, ansi256Color, trueColor)
 ```
 
 ### Compat Package
