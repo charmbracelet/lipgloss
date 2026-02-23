@@ -72,10 +72,36 @@ lipgloss.Color("#3C3C3C") // a dark gray
 There are also named constants for the 16 standard ANSI colors:
 
 ```go
-lipgloss.Red
-lipgloss.BrightCyan
 lipgloss.Black
+lipgloss.Red
+lipgloss.Green
+lipgloss.Yellow
+lipgloss.Blue
+lipgloss.Magenta
+lipgloss.Cyan
+lipgloss.White
+lipgloss.BrightBlack
+lipgloss.BrightRed
+lipgloss.BrightGreen
+lipgloss.BrightYellow
+lipgloss.BrightBlue
+lipgloss.BrightMagenta
+lipgloss.BrightCyan
+lipgloss.BrightWhite
 ```
+
+### Automatically Downsampling colors
+
+Some users don't have Truecolor terminals. Other times, output might not
+support color at all (for example, in logs). Lip Gloss was designed to handle
+this gracefully by automatically downsampling colors to the best available
+profile.
+
+If you're using Lip Gloss with Bubble Tea, there’s nothing to do. If you're
+using Lip Gloss standalone, just use `lipgloss.Println` or `lipgloss.Sprint`
+(and their variants).
+
+For more, see [advanced color usage](#advanced-color-usage).
 
 ### Color Utilities
 
