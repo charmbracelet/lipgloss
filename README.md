@@ -117,8 +117,8 @@ withAlpha := lipgloss.Alpha(c, 0.2) // watered down Sriracha sauce
 
 ### More
 
-Lip Gloss also supports blending colors, choosing light or dark variants of
-colors at runtime, and more. For details, see [Advanced Color
+Lip Gloss also supports color blending, automatically choosing light or dark
+variants of colors at runtime, and a lot more. For details, see [Advanced Color
 Usage](#advanced-color-usage) and [the docs][docs].
 
 ## Inline Formatting
@@ -160,6 +160,9 @@ s := lipgloss.NewStyle().
 
 lipgloss.Println(s.Render("Visit Charm"))
 ```
+
+In unsupported terminals this will degrade gracefully and hyperlinks will
+simply not render.
 
 ## Block-Level Formatting
 
@@ -278,9 +281,7 @@ lipgloss.NewStyle().
     Border(lipgloss.DoubleBorder(), true, false, false, true)
 ```
 
-### Border Color Blending
-
-Apply gradient colors to borders:
+You can also pass multiple colors to a border for a gradient effect:
 
 ```go
 s := lipgloss.NewStyle().
@@ -288,19 +289,7 @@ s := lipgloss.NewStyle().
     BorderForegroundBlend(lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
 ```
 
-For more on borders see [the docs][docs].
-
-## Color Blending
-
-Blend colors in one or two dimensions for gradient effects:
-
-```go
-// 1D gradient
-colors := lipgloss.Blend1D(10, lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
-
-// 2D gradient with rotation
-colors := lipgloss.Blend2D(80, 24, 45.0, color1, color2, color3)
-```
+For more on borders see [the docs](https://pkg.go.dev/charm.land/lipgloss/v2#Border).
 
 ## Copying Styles
 
@@ -458,6 +447,18 @@ height := lipgloss.Height(block)
 
 // Here's a shorthand function.
 w, h := lipgloss.Size(block)
+```
+
+### Blending Colors
+
+You can blend colors in one or two dimensions for gradient effects:
+
+```go
+// 1-dimentinoal gradient
+colors := lipgloss.Blend1D(10, lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
+
+// 2-dimensional gradient with rotation
+colors := lipgloss.Blend2D(80, 24, 45.0, color1, color2, color3)
 ```
 
 ### Placing Text in Whitespace
@@ -789,9 +790,11 @@ for i := 0; i < repeat; i++ {
 
 ## Advanced Color Usage
 
-Lip Gloss was designed with user experience in mind, and it includes tooling
-for changing colors at runtime based on the terminal’s capabilities and
-background color.
+One of the most powerful features of Lip Gloss is the ability to render
+different colors at runtime depending on the user's terminal and environment,
+allowing you to present the best possible user experience.
+
+This section shows you how to do exactly that.
 
 <details>
 <summary>Migrating from v1?</summary>
