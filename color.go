@@ -232,7 +232,7 @@ func isDarkColor(c color.Color) bool {
 	return l < 0.5 //nolint:mnd
 }
 
-// CompleteFunc is a function that returns the appropriate color based on the
+// CompleteColorFunc is a function that returns the appropriate color based on the
 // given color profile.
 //
 // Example usage:
@@ -246,23 +246,23 @@ func isDarkColor(c color.Color) bool {
 //	)
 //	fmt.Println("Ooh, pretty color: ", color)
 //
-// For more info see [Complete].
-type CompleteFunc func(ansi, ansi256, truecolor color.Color) color.Color
+// For more info see [CompleteColor].
+type CompleteColorFunc func(ansi, ansi256, truecolor color.Color) color.Color
 
-// Complete returns a function that will return the appropriate color based on
+// CompleteColor returns a function that will return the appropriate color based on
 // the given color profile.
 //
 // Example usage:
 //
 //	p := colorprofile.Detect(os.Stderr, os.Environ())
-//	complete := lipgloss.Complete(p)
+//	complete := lipgloss.CompleteColor(p)
 //	color := complete(
 //	    lipgloss.Color(1), // ANSI
 //	    lipgloss.Color(124), // ANSI256
 //	    lipgloss.Color("#ff34ac"), // TrueColor
 //	)
 //	fmt.Println("Ooh, pretty color: ", color)
-func Complete(p colorprofile.Profile) CompleteFunc {
+func CompleteColor(p colorprofile.Profile) CompleteColorFunc {
 	return func(ansi, ansi256, truecolor color.Color) color.Color {
 		switch p { //nolint:exhaustive
 		case colorprofile.ANSI:
