@@ -222,3 +222,105 @@ func maxRuneWidthOld(str string) int {
 
 	return width
 }
+
+func TestGetBorderSidesWithImplicitBorders(t *testing.T) {
+	// When using BorderStyle() without explicitly setting sides,
+	// all sides should be implicitly enabled (matching render behavior).
+	// See: https://github.com/charmbracelet/lipgloss/issues/522
+	t.Run("BorderStyle only (implicit borders)", func(t *testing.T) {
+		s := NewStyle().BorderStyle(NormalBorder())
+
+		if !s.GetBorderTop() {
+			t.Error("GetBorderTop() = false, want true (implicit border)")
+		}
+		if !s.GetBorderRight() {
+			t.Error("GetBorderRight() = false, want true (implicit border)")
+		}
+		if !s.GetBorderBottom() {
+			t.Error("GetBorderBottom() = false, want true (implicit border)")
+		}
+		if !s.GetBorderLeft() {
+			t.Error("GetBorderLeft() = false, want true (implicit border)")
+		}
+
+		_, top, right, bottom, left := s.GetBorder()
+		if !top || !right || !bottom || !left {
+			t.Errorf("GetBorder() sides = (%v, %v, %v, %v), want all true", top, right, bottom, left)
+		}
+	})
+
+	// When sides are explicitly set, implicit borders should not interfere.
+	t.Run("Border with explicit sides", func(t *testing.T) {
+		s := NewStyle().Border(NormalBorder(), true, false, true, false)
+
+		if !s.GetBorderTop() {
+			t.Error("GetBorderTop() = false, want true")
+		}
+		if s.GetBorderRight() {
+			t.Error("GetBorderRight() = true, want false")
+		}
+		if !s.GetBorderBottom() {
+			t.Error("GetBorderBottom() = false, want true")
+		}
+		if s.GetBorderLeft() {
+			t.Error("GetBorderLeft() = true, want false")
+		}
+	})
+
+	// When no border is set at all, all getters should return false.
+	t.Run("No border set", func(t *testing.T) {
+		s := NewStyle()
+
+		if s.GetBorderTop() {
+			t.Error("GetBorderTop() = true, want false")
+		}
+		if s.GetBorderRight() {
+			t.Error("GetBorderRight() = true, want false")
+		}
+		if s.GetBorderBottom() {
+			t.Error("GetBorderBottom() = true, want false")
+		}
+		if s.GetBorderLeft() {
+			t.Error("GetBorderLeft() = true, want false")
+		}
+	})
+
+	// Frame size should be consistent with border side getters.
+	t.Run("Frame size consistency with BorderStyle only", func(t *testing.T) {
+		s := NewStyle().BorderStyle(NormalBorder()).Padding(1, 2)
+
+		// GetHorizontalFrameSize should include both border and padding
+		hFrame := s.GetHorizontalFrameSize()
+		wantH := 2 + 4 // 2 for left+right border, 4 for left+right padding
+		if hFrame != wantH {
+			t.Errorf("GetHorizontalFrameSize() = %d, want %d", hFrame, wantH)
+		}
+
+		vFrame := s.GetVerticalFrameSize()
+		wantV := 2 + 2 // 2 for top+bottom border, 2 for top+bottom padding
+		if vFrame != wantV {
+			t.Errorf("GetVerticalFrameSize() = %d, want %d", vFrame, wantV)
+		}
+	})
+
+	// Once a side is explicitly set, implicitBorders is no longer in effect.
+	t.Run("BorderStyle then explicit side disables implicit", func(t *testing.T) {
+		s := NewStyle().BorderStyle(NormalBorder()).BorderTop(true)
+
+		// Top was explicitly set to true
+		if !s.GetBorderTop() {
+			t.Error("GetBorderTop() = false, want true")
+		}
+		// Other sides should be false because at least one side was explicitly set,
+		// so implicit borders no longer applies.
+		if s.GetBorderRight() {
+			t.Error("GetBorderRight() = true, want false (implicit borders disabled)")
+		}
+		if s.GetBorderBottom() {
+			t.Error("GetBorderBottom() = true, want false (implicit borders disabled)")
+		}
+		if s.GetBorderLeft() {
+			t.Error("GetBorderLeft() = true, want false (implicit borders disabled)")
+		}
+	})
+}
