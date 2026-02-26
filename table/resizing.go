@@ -60,6 +60,7 @@ func (t *Table) resize() {
 	r.borderRight = t.borderRight
 	r.borderHeader = t.borderHeader
 	r.borderRow = t.borderRow
+	r.adaptiveOverflow = t.adaptiveOverflow
 
 	var allRows [][]string
 	if hasHeaders {
@@ -104,7 +105,7 @@ func (t *Table) resize() {
 	}
 
 	t.widths, t.heights = r.optimizedWidths()
-	t.firstVisibleRowIndex, t.lastVisibleRowIndex = r.visibleRowIndexes()
+	t.firstVisibleRowIndex, t.lastVisibleRowIndex, t.overflowHeight = r.visibleRowIndexes()
 }
 
 // resizerColumn is a column in the resizer.
@@ -139,6 +140,8 @@ type resizer struct {
 	borderRight     bool
 	borderHeader    bool
 	borderRow       bool
+
+	adaptiveOverflow bool
 }
 
 // newResizer creates a new resizer.
@@ -189,9 +192,9 @@ func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) 
 // optimizedWidths returns the optimized column widths and row heights.
 func (r *resizer) optimizedWidths() (colWidths, rowHeights []int) {
 	if r.maxTotal() <= r.tableWidth {
-		return r.expandTableWidth()
+		return r.expandTableWidth(), r.rowHeights
 	}
-	return r.shrinkTableWidth()
+	return r.shrinkTableWidth(), r.rowHeights
 }
 
 // detectTableWidth detects the table width.
@@ -200,7 +203,7 @@ func (r *resizer) detectTableWidth() int {
 }
 
 // expandTableWidth expands the table width.
-func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
+func (r *resizer) expandTableWidth() (colWidths []int) {
 	colWidths = r.maxColumnWidths()
 
 	for {
@@ -225,12 +228,13 @@ func (r *resizer) expandTableWidth() (colWidths, rowHeights []int) {
 		colWidths[shorterColumnIndex]++
 	}
 
-	rowHeights = r.expandRowHeights(colWidths)
+	r.expandRowHeights(colWidths)
+
 	return
 }
 
 // shrinkTableWidth shrinks the table width.
-func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
+func (r *resizer) shrinkTableWidth() (colWidths []int) {
 	colWidths = r.maxColumnWidths()
 
 	// Cut width of columns that are way too big.
@@ -301,14 +305,16 @@ func (r *resizer) shrinkTableWidth() (colWidths, rowHeights []int) {
 	shrinkToMedian()
 	shrinkBiggestColumns(false)
 
-	return colWidths, r.expandRowHeights(colWidths)
+	r.expandRowHeights(colWidths)
+
+	return colWidths
 }
 
 // expandRowHeights expands the row heights.
-func (r *resizer) expandRowHeights(colWidths []int) (rowHeights []int) {
-	rowHeights = r.defaultRowHeights()
+func (r *resizer) expandRowHeights(colWidths []int) {
+	r.rowHeights = r.defaultRowHeights()
 	if !r.wrap {
-		return rowHeights
+		return
 	}
 	hasHeaders := len(r.headers) > 0
 
@@ -316,14 +322,13 @@ func (r *resizer) expandRowHeights(colWidths []int) (rowHeights []int) {
 		for j, cell := range row {
 			// NOTE(@andreynering): Headers always have a height of 1 (+ padding), even when wrap is enabled.
 			if hasHeaders && i == 0 {
-				rowHeights[i] = 1 + r.yPaddingForCell(i, j)
+				r.rowHeights[i] = 1 + r.yPaddingForCell(i, j)
 				continue
 			}
 			height := r.detectContentHeight(cell, colWidths[j]-r.xPaddingForCol(j)) + r.yPaddingForCell(i, j)
-			rowHeights[i] = max(rowHeights[i], height)
+			r.rowHeights[i] = max(r.rowHeights[i], height)
 		}
 	}
-	return
 }
 
 // defaultRowHeights returns the default row heights.
@@ -422,60 +427,76 @@ func (r *resizer) detectContentHeight(content string, width int) (height int) {
 	return
 }
 
-// visibleRowIndexes detects the last visible row, shown as overflow, when a
-// fixed table height was set.
-// If the table height is not fixed or it's enough to show the whole table, it
-// returns -2.
-// Keep in mind that it'll return -1 for the header, and start from 0 for the
-// data rows.
-func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex int) {
+// visibleRowIndexes calculates the indexes of the first and last visible rows
+// according to the current yOffset and tableHeight. If the table height is not
+// fixed or if the last row is visible, lastVisibleRowIndex will be -2.
+// Note that the calculated indexes ignore the header row, so 0 corresponds to
+// the first data row. The header row is always visible if it exists.
+// The last return value is the number of cells that the overflow row should
+// take up for the table to fill the available height.
+func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex, overflowHeight int) {
 	if !r.useManualHeight {
-		return 0, -2
+		return 0, -2, 0
 	}
 
 	hasHeaders := len(r.headers) > 0
+	lastIndex := len(r.allRows) - 1 - btoi(hasHeaders)
 
-	// XXX(@andreynering): There are known edge cases where this won't work
-	// 100% correctly, in particular for cells with padding and/or wrapped
-	// content. This will cover the most common scenarios, though.
+	// Account for fixed elements (top/bottom borders, headers with their border).
+	available := r.tableHeight - btoi(r.borderTop) -
+		btoi(r.borderBottom) -
+		bton(hasHeaders, r.rowHeights[0]) -
+		btoi(hasHeaders && r.borderHeader)
+
+	// The first row we add does not need a row border.
+	available += btoi(r.borderRow)
+
+	// Start from the offset with no visible rows.
 	firstVisibleRowIndex = r.yOffset
-	bordersHeight := (btoi(r.borderTop) +
-		btoi(r.borderBottom) +
-		btoi(hasHeaders && r.borderHeader) +
-		bton(hasHeaders, r.yPaddingForCell(0, 0)) +
-		(btoi(r.borderRow) * (len(r.allRows) - btoi(hasHeaders) - 1)))
-	if firstVisibleRowIndex > 0 && len(r.allRows)+bordersHeight-firstVisibleRowIndex < r.tableHeight {
-		firstVisibleRowIndex = len(r.allRows) - r.tableHeight + bordersHeight
-	}
+	lastVisibleRowIndex = firstVisibleRowIndex - 1
 
-	printedRows := btoi(r.borderTop) + 1 + btoi(hasHeaders && r.borderHeader) + bton(hasHeaders, r.yPaddingForCell(0, 0))
+	// First add rows at the bottom until we reach the available height, or the last row.
+	for available > 0 && lastVisibleRowIndex < lastIndex {
+		row := r.rowHeights[lastVisibleRowIndex+1+btoi(hasHeaders)] + btoi(r.borderRow)
+		overflow := bton(lastVisibleRowIndex+1 < lastIndex, 1+btoi(r.borderRow)+r.yPaddingForCell(lastVisibleRowIndex+2, 0))
 
-	for i := range r.allRows {
-		// NOTE(@andreynering): Skip non-visible rows if yOffset is set.
-		if i <= firstVisibleRowIndex {
-			continue
+		if available-row-overflow < 0 {
+			break
 		}
 
-		isHeader := hasHeaders && i == 0
-		isLastRow := i == len(r.allRows)-1
-
-		rowHeight := r.rowHeights[i] + r.yPaddingForCell(i, 0)
-		nextRowPadding := r.yPaddingForCell(i+1, 0)
-
-		sum := (printedRows +
-			rowHeight +
-			btoi(isHeader && r.borderHeader) +
-			btoi(r.borderBottom) +
-			btoi(!isHeader && !isLastRow) +
-			btoi(!isLastRow && r.borderRow) +
-			nextRowPadding)
-
-		if sum > r.tableHeight {
-			return firstVisibleRowIndex, i - btoi(hasHeaders)
-		}
-
-		printedRows += rowHeight + btoi(isHeader && r.borderHeader) + btoi(!isHeader && r.borderRow)
+		lastVisibleRowIndex++
+		available -= row
 	}
 
-	return firstVisibleRowIndex, -2
+	if lastVisibleRowIndex == lastIndex {
+		// Then add rows at the top until we reach the available height, or the first row.
+		for available > 0 && firstVisibleRowIndex > 0 {
+			row := r.rowHeights[firstVisibleRowIndex-1+btoi(hasHeaders)] + btoi(r.borderRow)
+
+			if available-row < 0 {
+				break
+			}
+
+			firstVisibleRowIndex--
+			available -= row
+		}
+	}
+
+	if lastVisibleRowIndex >= lastIndex {
+		return firstVisibleRowIndex, -2, 0
+	}
+
+	// If no rows are visible, we need to account for the overflow row border.
+	if firstVisibleRowIndex > lastVisibleRowIndex {
+		available -= btoi(r.borderRow)
+	}
+
+	overflow := 1 + r.yPaddingForCell(lastVisibleRowIndex+1, 0)
+
+	if r.adaptiveOverflow {
+		maxOverflow := available - btoi(r.borderRow) - r.yPaddingForCell(lastVisibleRowIndex+1, 0)
+		overflow = max(overflow, maxOverflow)
+	}
+
+	return firstVisibleRowIndex, lastVisibleRowIndex, overflow
 }

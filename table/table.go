@@ -70,6 +70,8 @@ type Table struct {
 
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
+	adaptiveOverflow     bool
+	overflowHeight       int
 }
 
 // New returns a new Table that can be modified through different
@@ -94,6 +96,14 @@ func New() *Table {
 // ClearRows clears the table rows.
 func (t *Table) ClearRows() *Table {
 	t.data = NewStringData()
+	return t
+}
+
+// AdaptiveOverflow instructs the table to render the optional overflow row
+// with the exact height needed to fill the remaining available space, instead
+// of a single line.
+func (t *Table) AdaptiveOverflow(adaptive bool) *Table {
+	t.adaptiveOverflow = adaptive
 	return t
 }
 
@@ -349,7 +359,12 @@ func (t *Table) String() string {
 			if t.lastVisibleRowIndex != -2 && r > t.lastVisibleRowIndex {
 				break
 			}
-			sb.WriteString(t.constructRow(r))
+			sb.WriteString(t.constructRow(r, false))
+		}
+
+		// Add an overflow row to show that there are more rows not being rendered.
+		if t.lastVisibleRowIndex != -2 {
+			sb.WriteString(t.constructRow(t.lastVisibleRowIndex+1, true))
 		}
 	}
 
@@ -475,16 +490,17 @@ func (t *Table) constructHeaders() string {
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration. If isOverflow is true, the row is
 // rendered as an overflow row (using ellipsis).
-func (t *Table) constructRow(index int) string {
+func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
 	cells := make([]string, 0, t.data.Columns()*2+1)
 
 	hasHeaders := len(t.headers) > 0
-	height := t.heights[index+btoi(hasHeaders)]
-	isLastRow := index == t.data.Rows()-1
-	isOverflow := !isLastRow && t.lastVisibleRowIndex == index
-	if isOverflow {
-		height = max(height, 1)
+
+	var height int
+	if !isOverflow {
+		height = t.heights[index+btoi(hasHeaders)]
+	} else {
+		height = t.overflowHeight
 	}
 
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
