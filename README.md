@@ -461,7 +461,7 @@ w, h := lipgloss.Size(block)
 You can blend colors in one or two dimensions for gradient effects:
 
 ```go
-// 1-dimentinoal gradient
+// 1-dimensional gradient
 colors := lipgloss.Blend1D(10, lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
 
 // 2-dimensional gradient with rotation
