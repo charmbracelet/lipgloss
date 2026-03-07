@@ -55,7 +55,7 @@ func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOpti
 		// Is this line shorter than the longest line?
 		short := max(0, contentWidth-ansi.StringWidth(l))
 
-		switch pos { //nolint:exhaustive
+		switch pos {
 		case Left:
 			b.WriteString(l)
 			b.WriteString(ws.render(gap + short))
@@ -101,7 +101,7 @@ func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOptio
 	emptyLine := ws.render(width)
 	b := strings.Builder{}
 
-	switch pos { //nolint:exhaustive
+	switch pos {
 	case Top:
 		b.WriteString(str)
 		b.WriteRune('\n')

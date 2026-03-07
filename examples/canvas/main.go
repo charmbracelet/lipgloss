@@ -50,8 +50,8 @@ func main() {
 	lightDark := lipgloss.LightDark(darkMode)
 
 	// A few text blocks.
-	lighterField := newField(17, 43, lightDark(charmtone.Smoke, charmtone.Charcoal))
-	darkerField := newField(17, 43, lightDark(charmtone.Squid, charmtone.Pepper))
+	lighterField := newField(17, 43, lightDark(charmtone.Smoke, charmtone.Pepper))
+	darkerField := newField(17, 43, lightDark(charmtone.Squid, charmtone.Charcoal))
 
 	// A few layers. Layers are created from strings (or blocks of text).
 	pickles := lipgloss.NewLayer(newCard(darkMode, "Pickles"))

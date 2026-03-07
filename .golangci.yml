@@ -30,9 +30,16 @@ linters:
       - text: '(slog|log)\.\w+'
         linters:
           - noctx
+      - linters:
+          - revive
+        text: "var-naming"
+
     generated: lax
     presets:
       - common-false-positives
+  settings:
+    exhaustive:
+      default-signifies-exhaustive: true
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

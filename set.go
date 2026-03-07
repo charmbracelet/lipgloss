@@ -11,7 +11,7 @@ func (s *Style) set(key propKey, value any) {
 	// them at zero or above. We could use uints instead, but the
 	// conversions are a little tedious, so we're sticking with ints for
 	// sake of usability.
-	switch key { //nolint:exhaustive
+	switch key {
 	case foregroundKey:
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
@@ -111,7 +111,7 @@ func (s *Style) set(key propKey, value any) {
 
 // setFrom sets the property from another style.
 func (s *Style) setFrom(key propKey, i Style) {
-	switch key { //nolint:exhaustive
+	switch key {
 	case foregroundKey:
 		s.set(foregroundKey, i.fgColor)
 	case backgroundKey:

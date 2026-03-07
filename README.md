@@ -1,18 +1,13 @@
 # Lip Gloss
 
-<p>
-    <picture>
-      <source media="(prefers-color-scheme: light)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340">
-      <source media="(prefers-color-scheme: dark)" srcset="https://stuff.charm.sh/lipgloss/lip-gloss-dark-2025-06.png" width="340">
-      <img src="https://stuff.charm.sh/lipgloss/lip-gloss-light-2025-06.png" width="340" />
-    </picture>
-    <br>
+<p >
+    <img src="https://github.com/user-attachments/assets/d13bbe1a-d2b2-4d18-9302-419a0bc3f579" width="350"><br>
     <a href="https://github.com/charmbracelet/lipgloss/releases"><img src="https://img.shields.io/github/release/charmbracelet/lipgloss.svg" alt="Latest Release"></a>
-    <a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
+    <a href="https://pkg.go.dev/charm.land/lipgloss/v2?tab=doc"><img src="https://godoc.org/github.com/golang/gddo?status.svg" alt="GoDoc"></a>
     <a href="https://github.com/charmbracelet/lipgloss/actions"><img src="https://github.com/charmbracelet/lipgloss/workflows/build/badge.svg" alt="Build Status"></a>
 </p>
 
-Style definitions for nice terminal layouts. Built with TUIs in mind.
+<p>Style definitions for nice terminal layouts. Built with TUIs in mind.</p>
 
 ![Lip Gloss example](https://github.com/user-attachments/assets/92560e60-d70e-4ce0-b39e-a60bb933356b)
 
@@ -20,8 +15,7 @@ Lip Gloss takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Lip Gloss.
 
 ```go
-
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 var style = lipgloss.NewStyle().
     Bold(true).
@@ -31,8 +25,19 @@ var style = lipgloss.NewStyle().
     PaddingLeft(4).
     Width(22)
 
-fmt.Println(style.Render("Hello, kitty"))
+lipgloss.Println(style.Render("Hello, kitty"))
 ```
+
+## Installation
+
+```bash
+go get charm.land/lipgloss/v2
+```
+
+> [!TIP]
+>
+> Upgrading from v1? Check out the [upgrade guide](./UPGRADE_GUIDE_V2.md), or
+> point your LLM at it and let it go to town.
 
 ## Colors
 
@@ -64,44 +69,57 @@ lipgloss.Color("#3C3C3C") // a dark gray
 
 ...as well as a 1-bit ASCII profile, which is black and white only.
 
-The terminal's color profile will be automatically detected, and colors outside
-the gamut of the current palette will be automatically coerced to their closest
-available value.
-
-### Adaptive Colors
-
-You can also specify color options for light and dark backgrounds:
+There are also named constants for the 16 standard ANSI colors:
 
 ```go
-lipgloss.AdaptiveColor{Light: "236", Dark: "248"}
+lipgloss.Black
+lipgloss.Red
+lipgloss.Green
+lipgloss.Yellow
+lipgloss.Blue
+lipgloss.Magenta
+lipgloss.Cyan
+lipgloss.White
+lipgloss.BrightBlack
+lipgloss.BrightRed
+lipgloss.BrightGreen
+lipgloss.BrightYellow
+lipgloss.BrightBlue
+lipgloss.BrightMagenta
+lipgloss.BrightCyan
+lipgloss.BrightWhite
 ```
 
-The terminal's background color will automatically be detected and the
-appropriate color will be chosen at runtime.
+### Automatically Downsampling Colors
 
-### Complete Colors
+Some users don't have Truecolor terminals. Other times, output might not
+support color at all (for example, in logs). Lip Gloss was designed to handle
+this gracefully by automatically downsampling colors to the best available
+profile.
 
-CompleteColor specifies exact values for True Color, ANSI256, and ANSI color
-profiles.
+If you're using Lip Gloss with Bubble Tea, there’s nothing to do. If you're
+using Lip Gloss standalone, just use `lipgloss.Println` or `lipgloss.Sprint`
+(and their variants).
+
+For more, see [advanced color usage](#advanced-color-usage).
+
+### Color Utilities
+
+Lip Gloss ships with a handful of handy tools for working with colors:
 
 ```go
-lipgloss.CompleteColor{TrueColor: "#0000FF", ANSI256: "86", ANSI: "5"}
+c := lipgloss.Color("#EB4268")      // Sriracha sauce color
+dark := lipgloss.Darken(c, 0.5)     // dark Sriracha sauce
+light := lipgloss.Lighten(c, 0.35)  // light Sriracha sauce
+green := lipgloss.Complementary(c)  // greenish Sriracha sauce
+withAlpha := lipgloss.Alpha(c, 0.2) // watered down Sriracha sauce
 ```
 
-Automatic color degradation will not be performed in this case and it will be
-based on the color specified.
+### Advanced Color Tooling
 
-### Complete Adaptive Colors
-
-You can use `CompleteColor` with `AdaptiveColor` to specify the exact values for
-light and dark backgrounds without automatic color degradation.
-
-```go
-lipgloss.CompleteAdaptiveColor{
-    Light: CompleteColor{TrueColor: "#d7ffae", ANSI256: "193", ANSI: "11"},
-    Dark:  CompleteColor{TrueColor: "#d75fee", ANSI256: "163", ANSI: "5"},
-}
-```
+Lip Gloss also supports color blending, automatically choosing light or dark
+variants of colors at runtime, and a lot more. For details, see [Advanced Color
+Usage](#advanced-color-usage) and [the docs][docs].
 
 ## Inline Formatting
 
@@ -117,6 +135,34 @@ var style = lipgloss.NewStyle().
     Underline(true).
     Reverse(true)
 ```
+
+### Underline Styles
+
+Beyond simple on/off, underlines support multiple styles and custom colors:
+
+```go
+s := lipgloss.NewStyle().
+    UnderlineStyle(lipgloss.UnderlineCurly).
+    UnderlineColor(lipgloss.Color("#FF0000"))
+```
+
+Available styles: `UnderlineNone`, `UnderlineSingle`, `UnderlineDouble`,
+`UnderlineCurly`, `UnderlineDotted`, `UnderlineDashed`.
+
+### Hyperlinks
+
+Styles can render clickable hyperlinks in supporting terminals:
+
+```go
+s := lipgloss.NewStyle().
+    Foreground(lipgloss.Color("#7B2FBE")).
+    Hyperlink("https://charm.land")
+
+lipgloss.Println(s.Render("Visit Charm"))
+```
+
+In unsupported terminals this will degrade gracefully and hyperlinks will
+simply not render.
 
 ## Block-Level Formatting
 
@@ -154,6 +200,16 @@ lipgloss.NewStyle().Padding(1, 4, 2)
 // Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
 // the bottom, and 1 on the left
 lipgloss.NewStyle().Margin(2, 4, 3, 1)
+```
+
+You can also customize the characters used for padding and margin fill:
+
+```go
+s := lipgloss.NewStyle().
+    Padding(1, 2).
+    PaddingChar('·').
+    Margin(1, 2).
+    MarginChar('░')
 ```
 
 ## Aligning Text
@@ -225,7 +281,15 @@ lipgloss.NewStyle().
     Border(lipgloss.DoubleBorder(), true, false, false, true)
 ```
 
-For more on borders see [the docs][docs].
+You can also pass multiple colors to a border for a gradient effect:
+
+```go
+s := lipgloss.NewStyle().
+    Border(lipgloss.RoundedBorder()).
+    BorderForegroundBlend(lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
+```
+
+For more on borders see [the docs](https://pkg.go.dev/charm.land/lipgloss/v2#Border).
 
 ## Copying Styles
 
@@ -237,12 +301,10 @@ style := lipgloss.NewStyle().Foreground(lipgloss.Color("219"))
 copiedStyle := style // this is a true copy
 
 wildStyle := style.Blink(true) // this is also true copy, with blink added
-
 ```
 
-Since `Style` data structures contains only primitive types, assigning a style
-to another effectively creates a new copy of the style without mutating the
-original.
+Since `Style` is a pure value type, assigning a style to another effectively
+creates a new copy of the style without mutating the original.
 
 ## Inheritance
 
@@ -273,7 +335,7 @@ var style = lipgloss.NewStyle().
     UnsetBackground()                  // never mind
 ```
 
-When a rule is unset, it won't be inherited or copied.
+When a rule is unset, it won’t be inherited or copied.
 
 ## Enforcing Rules
 
@@ -306,27 +368,57 @@ style = style.TabWidth(0)    // remove tabs entirely
 style = style.TabWidth(lipgloss.NoTabConversion) // leave tabs intact
 ```
 
+## Wrapping
+
+The `Wrap` function wraps text while preserving ANSI styles and hyperlinks
+across line boundaries:
+
+```go
+wrapped := lipgloss.Wrap(styledText, 40, " ")
+```
+
 ## Rendering
 
 Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
 
 ```go
 style := lipgloss.NewStyle().Bold(true).SetString("Hello,")
-fmt.Println(style.Render("kitty.")) // Hello, kitty.
-fmt.Println(style.Render("puppy.")) // Hello, puppy.
+lipgloss.Println(style.Render("kitty.")) // Hello, kitty.
+lipgloss.Println(style.Render("puppy.")) // Hello, puppy.
 ```
 
 But you could also use the Stringer interface:
 
 ```go
 var style = lipgloss.NewStyle().SetString("你好，猫咪。").Bold(true)
-fmt.Println(style) // 你好，猫咪。
+lipgloss.Println(style) // 你好，猫咪。
 ```
 
 ## Utilities
 
 In addition to pure styling, Lip Gloss also ships with some utilities to help
 assemble your layouts.
+
+### Compositing
+
+<p><img width="350" alt="xx" src="https://github.com/user-attachments/assets/1921bac6-2408-436a-9d9e-7930fe4c6ec9" /></p>
+
+Lip Gloss includes a powerful, cell-based compositor for rendering layered
+content:
+
+```go
+// Create some layers.
+a := lipgloss.NewLayer(pickles).X(4).Y(2).Z(1)
+b := lipgloss.NewLayer(bitterMelon).X(22).Y(1)
+c := lipgloss.NewLayer(sriracha).X(11).Y(7)
+
+// Composite 'em and render.
+output := compositor.Compose(a, b, c).Render()
+```
+
+For a more thorough example, see [the canvas
+example](./examples/canvas/main.go). For reference, including how to detect
+mouse clicks on layers, see [the docs][docs].
 
 ### Joining Paragraphs
 
@@ -364,9 +456,22 @@ height := lipgloss.Height(block)
 w, h := lipgloss.Size(block)
 ```
 
+### Blending Colors
+
+You can blend colors in one or two dimensions for gradient effects:
+
+```go
+// 1-dimentinoal gradient
+colors := lipgloss.Blend1D(10, lipgloss.Color("#FF0000"), lipgloss.Color("#0000FF"))
+
+// 2-dimensional gradient with rotation
+colors := lipgloss.Blend2D(80, 24, 45.0, color1, color2, color3)
+```
+
 ### Placing Text in Whitespace
 
-Sometimes you’ll simply want to place a block of text in whitespace.
+Sometimes you’ll simply want to place a block of text in whitespace. This is
+a lightweight alternative to compositing.
 
 ```go
 // Center a paragraph horizontally in a space 80 cells wide. The height of
@@ -388,7 +493,7 @@ You can also style the whitespace. For details, see [the docs][docs].
 Lip Gloss ships with a table rendering sub-package.
 
 ```go
-import "github.com/charmbracelet/lipgloss/table"
+import "charm.land/lipgloss/v2/table"
 ```
 
 Define some rows of data.
@@ -440,13 +545,10 @@ t.Row("English", "You look absolutely fabulous.", "How's it going?")
 Print the table.
 
 ```go
-fmt.Println(t)
+lipgloss.Println(t)
 ```
 
 ![Table Example](https://github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
-
-> [!WARNING]
-> Table `Rows` need to be declared before `YOffset` otherwise it does nothing.
 
 ### Table Borders
 
@@ -484,14 +586,14 @@ table.New().Border(lipgloss.ASCIIBorder())
 +----------+--------------+-----------+
 ```
 
-For more on tables see [the docs](https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
+For more on tables see [the docs][docs] and [examples](https://github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
 ## Rendering Lists
 
 Lip Gloss ships with a list rendering sub-package.
 
 ```go
-import "github.com/charmbracelet/lipgloss/list"
+import "charm.land/lipgloss/v2/list"
 ```
 
 Define a new list.
@@ -503,7 +605,7 @@ l := list.New("A", "B", "C")
 Print the list.
 
 ```go
-fmt.Println(l)
+lipgloss.Println(l)
 
 // • A
 // • B
@@ -529,7 +631,7 @@ l := list.New(
 Print the list.
 
 ```go
-fmt.Println(l)
+lipgloss.Println(l)
 ```
 
 <p align="center">
@@ -545,7 +647,7 @@ itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("212")).MarginRight(1
 
 l := list.New(
     "Glossier",
-    "Claire’s Boutique",
+    "Claire's Boutique",
     "Nyx",
     "Mac",
     "Milk",
@@ -598,7 +700,7 @@ for i := 0; i < repeat; i++ {
 Lip Gloss ships with a tree rendering sub-package.
 
 ```go
-import "github.com/charmbracelet/lipgloss/tree"
+import "charm.land/lipgloss/v2/tree"
 ```
 
 Define a new tree.
@@ -611,7 +713,7 @@ t := tree.Root(".").
 Print the tree.
 
 ```go
-fmt.Println(t)
+lipgloss.Println(t)
 
 // .
 // ├── A
@@ -642,7 +744,7 @@ t := tree.Root(".").
 Print the tree.
 
 ```go
-fmt.Println(t)
+lipgloss.Println(t)
 ```
 
 <p align="center">
@@ -694,48 +796,158 @@ for i := 0; i < repeat; i++ {
 }
 ```
 
----
+## Advanced Color Usage
 
-## FAQ
+One of the most powerful features of Lip Gloss is the ability to render
+different colors at runtime depending on the user's terminal and environment,
+allowing you to present the best possible user experience.
 
-<details>
-<summary>
-Why are things misaligning? Why are borders at the wrong widths?
-</summary>
-<p>This is most likely due to your locale and encoding, particularly with
-regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code>
-or <code>ja_JP.UTF-8</code>). The most direct way to fix this is to set
-<code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
-
-<p>For details see <a href="https://github.com/charmbracelet/lipgloss/issues/40">https://github.com/charmbracelet/lipgloss/issues/40.</a></p>
-</details>
+This section shows you how to do exactly that.
 
 <details>
-<summary>
-Why isn't Lip Gloss displaying colors?
-</summary>
-<p>Lip Gloss automatically degrades colors to the best available option in the
-given terminal, and if output's not a TTY it will remove color output entirely.
-This is common when running tests, CI, or when piping output elsewhere.</p>
+<summary>Migrating from v1?</summary>
 
-<p>If necessary, you can force a color profile in your tests with
-<a href="https://pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"><code>SetColorProfile</code></a>.</p>
+The `compat` package provides `AdaptiveColor`, `CompleteColor`, and
+`CompleteAdaptiveColor` for a quicker migration from v1. These work by
+looking at `stdin` and `stdout` on a global basis:
 
 ```go
-import (
-    "github.com/charmbracelet/lipgloss"
-    "github.com/muesli/termenv"
-)
+import "charm.land/lipgloss/v2/compat"
 
-lipgloss.SetColorProfile(termenv.TrueColor)
+color := compat.AdaptiveColor{
+    Light: lipgloss.Color("#f1f1f1"),
+    Dark:  lipgloss.Color("#cccccc"),
+}
 ```
 
-_Note:_ this option limits the flexibility of your application and can cause
-ANSI escape codes to be output in cases where that might not be desired. Take
-careful note of your use case and environment before choosing to force a color
-profile.
+Note that we don't recommend this for new code as it removes the purity from
+Lip Gloss, computationally speaking, as it removes transparency around when
+I/O happens, which could cause Lip Gloss to compete for resources (like stdin)
+with other tools.
 
 </details>
+
+### Adaptive Colors
+
+You can render different colors at runtime depending on whether the terminal
+has a light or dark background:
+
+```go
+hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+lightDark := lipgloss.LightDark(hasDarkBG)
+
+myColor := lightDark(lipgloss.Color("#D7FFAE"), lipgloss.Color("#D75FEE"))
+```
+
+#### With Bubble Tea
+
+In Bubble Tea, request the background color, listen for a
+`BackgroundColorMsg`, and respond accordingly:
+
+```go
+func (m model) Init() tea.Cmd {
+    // First, send a Cmd to request the terminal background color.
+    return tea.RequestBackgroundColor
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    switch msg := msg.(type) {
+    case tea.BackgroundColorMsg:
+        // Great, we have the background color. Now we can set up our styles
+        // against the color.
+        m.styles = newStyles(msg.IsDark())
+        return m, nil
+    }
+}
+
+func newStyles(bgIsDark bool) styles {
+    // A little ternary function that will return the appropriate color
+    // based on the background color.
+    lightDark := lipgloss.LightDark(bgIsDark)
+
+    return styles{
+        myHotStyle: lipgloss.NewStyle().Foreground(lightDark(
+            lipgloss.Color("#f1f1f1"),
+            lipgloss.Color("#333333"),
+        )),
+    }
+}
+```
+
+#### Standalone
+
+If you’re not using Bubble Tea you can perform the query manually:
+
+```go
+// What's the background color?
+hasDarkBG := lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
+
+// A helper function that will return the appropriate color based on the
+// background.
+lightDark := lipgloss.LightDark(hasDarkBG)
+
+// A couple colors with light and dark variants.
+thisColor := lightDark(lipgloss.Color("#C5ADF9"), lipgloss.Color("#864EFF"))
+thatColor := lightDark(lipgloss.Color("#37CD96"), lipgloss.Color("#22C78A"))
+
+a := lipgloss.NewStyle().Foreground(thisColor).Render("this")
+b := lipgloss.NewStyle().Foreground(thatColor).Render("that")
+
+// Render the appriate colors at runtime:
+lipgloss.Fprintf(os.Stderr, "my fave colors are %s and %s", a, b)
+```
+
+### Complete Colors
+
+In some cases where you may want to specify exact values for each color profile
+(ANSI 16, ANSI 156, and TrueColor). For these cases, use the `Complete` helper:
+
+```go
+// You'll need the colorprofile package.
+import "github.com/charmbracelet/colorprofile"
+
+// Get the color profile.
+profile := colorprofile.Detect(os.Stdout, os.Environ())
+
+// Create a function for rendering the appropriate color based on the profile.
+var completeColor := lipgloss.Complete(profile)
+
+// Now we'll choose the appropriate color at runtime.
+myColor := completeColor(ansiColor, ansi256Color, trueColor)
+```
+
+### Color Downsampling
+
+One of the best things about Lip Gloss is that it can automatically downsample
+colors to the best available profile, stripping colors (and ANSI) entirely when
+output is not a TTY.
+
+If you’re using Lip Gloss with Bubble Tea there’s nothing to do here:
+downsampling is built into Bubble Tea v2. If you’re not using Bubble Tea, use
+the Lip Gloss writer functions, which are a drop-in replacement for the `fmt`
+package:
+
+```go
+s := lipgloss.NewStyle()
+    .Foreground(lipgloss.Color("#EB4268"))
+    .Render("Hello!")
+
+// Downsample if needed and print to stdout.
+lipgloss.Println(s)
+
+// Render to a variable.
+downsampled := lipgloss.Sprint(s)
+
+// Print to stderr.
+lipgloss.Fprint(os.Stderr, s)
+```
+
+The full set: `Print`, `Println`, `Printf`, `Fprint`, `Fprintln`, `Fprintf`,
+`Sprint`, `Sprintln`, `Sprintf`.
+
+Need more control? Check out
+[Colorprofile](https://github.com/charmbracelet/colorprofile), which Lip Gloss
+uses under the hood.
 
 ## What about [Bubble Tea][tea]?
 
@@ -746,16 +958,7 @@ instead of concerning yourself with low-level layout details.
 
 In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
 
-[tea]: https://github.com/charmbracelet/tea
-
-## Under the Hood
-
-Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
-libraries which deal with color and ANSI-aware text operations, respectively.
-For many use cases Termenv and Reflow will be sufficient for your needs.
-
-[termenv]: https://github.com/muesli/termenv
-[reflow]: https://github.com/muesli/reflow
+[tea]: https://github.com/charmbracelet/bubbletea
 
 ## Rendering Markdown
 
@@ -775,9 +978,8 @@ See [contributing][contribute].
 
 We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
-- [Twitter](https://twitter.com/charmcli)
-- [The Fediverse](https://mastodon.social/@charmcli)
-- [Discord](https://charm.sh/chat)
+- [Discord](https://charm.land/chat)
+- [Matrix](https://charm.land/matrix)
 
 ## License
 
@@ -785,12 +987,10 @@ We’d love to hear your thoughts on this project. Feel free to drop us a note!
 
 ---
 
-Part of [Charm](https://charm.sh).
+Part of [Charm](https://charm.land).
 
-<a href="https://charm.sh/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-banner-next.jpg" width="400"></a>
+<a href="https://charm.land/"><img alt="The Charm logo" src="https://stuff.charm.sh/charm-banner-next.jpg" width="400"></a>
 
 Charm热爱开源 • Charm loves open source
 
-[docs]: https://pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
-[wish]: https://github.com/charmbracelet/wish
-[ssh-example]: examples/ssh
+[docs]: https://pkg.go.dev/charm.land/lipgloss/v2?tab=doc

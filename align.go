@@ -20,7 +20,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style)
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
 
 		if shortAmount > 0 {
-			switch pos { //nolint:exhaustive
+			switch pos {
 			case Right:
 				s := strings.Repeat(" ", shortAmount)
 				if style != nil {
