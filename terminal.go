@@ -94,7 +94,7 @@ func queryTerminal(
 	pa := ansi.GetParser()
 	defer ansi.PutParser(pa)
 
-	var acc []byte // Accumulate partial responses before filtering
+	var acc []byte    // Accumulate partial responses before filtering
 	var buf [256]byte // 256 bytes should be enough for most responses
 	var state byte
 	for {
