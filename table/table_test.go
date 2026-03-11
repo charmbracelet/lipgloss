@@ -1042,6 +1042,44 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 	}
 }
 
+func TestContentWrapping_WithHeight(t *testing.T) {
+	tests := []struct {
+		name     string
+		headers  []string
+		data     [][]string
+	}{
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+				{"Florida", "I want to go somewhere hot, humid, and affordable. Florida has really good food, just don't go during hurricane season!", "$$"},
+				{"Maine", "I'm thinking about going during the summer to check out Acadia National Park. Might be cold though...", "$$"},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			for i := 5; i <= 35; i += 10 {
+				t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+					table := New().
+						Height(i).
+						Width(60).
+						Border(lipgloss.NormalBorder()).
+						BorderRow(false).
+						StyleFunc(TableStyle).
+						Headers(tc.headers...).
+						Rows(tc.data...)
+					golden.RequireEqual(t, []byte(table.String()))
+				})
+			}
+		})
+	}
+}
+
 func TestContentWrapping_ColumnWidth(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -1296,7 +1334,7 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 			Rows(rows...).
 			BorderRow(true).
 			YOffset(80).
-			Height(45)
+			Height(43)
 		content := table.String()
 		golden.RequireEqual(t, []byte(content))
 	})
