@@ -483,11 +483,6 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 		return firstVisibleRowIndex, -2, 0
 	}
 
-	// If no rows are visible, we need to account for the overflow row border.
-	if firstVisibleRowIndex > lastVisibleRowIndex {
-		available -= btoi(r.borderRow)
-	}
-
 	overflow := 1 + r.yPaddingForCell(lastVisibleRowIndex+1, 0)
 
 	return firstVisibleRowIndex, lastVisibleRowIndex, overflow
