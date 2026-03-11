@@ -60,7 +60,6 @@ func (t *Table) resize() {
 	r.borderRight = t.borderRight
 	r.borderHeader = t.borderHeader
 	r.borderRow = t.borderRow
-	r.adaptiveOverflow = t.adaptiveOverflow
 
 	var allRows [][]string
 	if hasHeaders {
@@ -140,8 +139,6 @@ type resizer struct {
 	borderRight     bool
 	borderHeader    bool
 	borderRow       bool
-
-	adaptiveOverflow bool
 }
 
 // newResizer creates a new resizer.
@@ -492,11 +489,6 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 	}
 
 	overflow := 1 + r.yPaddingForCell(lastVisibleRowIndex+1, 0)
-
-	if r.adaptiveOverflow {
-		maxOverflow := available - btoi(r.borderRow) - r.yPaddingForCell(lastVisibleRowIndex+1, 0)
-		overflow = max(overflow, maxOverflow)
-	}
 
 	return firstVisibleRowIndex, lastVisibleRowIndex, overflow
 }

@@ -70,7 +70,6 @@ type Table struct {
 
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
-	adaptiveOverflow     bool
 	overflowHeight       int
 }
 
@@ -96,14 +95,6 @@ func New() *Table {
 // ClearRows clears the table rows.
 func (t *Table) ClearRows() *Table {
 	t.data = NewStringData()
-	return t
-}
-
-// AdaptiveOverflow instructs the table to render the optional overflow row
-// with the exact height needed to fill the remaining available space, instead
-// of a single line.
-func (t *Table) AdaptiveOverflow(adaptive bool) *Table {
-	t.adaptiveOverflow = adaptive
 	return t
 }
 
