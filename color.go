@@ -85,9 +85,9 @@ func Color(s string) color.Color {
 	}
 
 	if i < 16 {
-		return ansi.BasicColor(i) //nolint:gosec
+		return ansi.BasicColor(i)
 	} else if i < 256 {
-		return ANSIColor(i) //nolint:gosec
+		return ANSIColor(i)
 	}
 
 	r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
@@ -264,7 +264,7 @@ type CompleteFunc func(ansi, ansi256, truecolor color.Color) color.Color
 //	fmt.Println("Ooh, pretty color: ", color)
 func Complete(p colorprofile.Profile) CompleteFunc {
 	return func(ansi, ansi256, truecolor color.Color) color.Color {
-		switch p { //nolint:exhaustive
+		switch p {
 		case colorprofile.ANSI:
 			return ansi
 		case colorprofile.ANSI256:
