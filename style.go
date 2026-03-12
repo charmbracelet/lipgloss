@@ -147,7 +147,7 @@ type Style struct {
 	link, linkParams string
 
 	// we store bool props values here
-	attrs int
+	attrs int64
 
 	// props that have values
 	fgColor color.Color
