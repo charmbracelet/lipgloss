@@ -6,7 +6,7 @@ go 1.25.0
 
 require (
 	github.com/aymanbagabas/go-udiff v0.4.1
-	github.com/charmbracelet/colorprofile v0.4.2
+	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/charmbracelet/x/exp/golden v0.0.0-20250806222409-83e3a29d542f
