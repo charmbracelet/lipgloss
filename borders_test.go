@@ -6,94 +6,95 @@ import (
 	"github.com/rivo/uniseg"
 )
 
-func TestStyle_GetBorderSizes(t *testing.T) {
-	tests := []struct {
-		name  string
-		style Style
-		wantX int
-		wantY int
+func BenchmarkBorderRendering(b *testing.B) {
+	dimensions := []struct {
+		name   string
+		width  int
+		height int
 	}{
-		{
-			name:  "Default style",
-			style: NewStyle(),
-			wantX: 0,
-			wantY: 0,
-		},
-		{
-			name:  "Border(NormalBorder())",
-			style: NewStyle().Border(NormalBorder()),
-			wantX: 2,
-			wantY: 2,
-		},
-		{
-			name:  "Border(NormalBorder(), true)",
-			style: NewStyle().Border(NormalBorder(), true),
-			wantX: 2,
-			wantY: 2,
-		},
-		{
-			name:  "Border(NormalBorder(), true, false)",
-			style: NewStyle().Border(NormalBorder(), true, false),
-			wantX: 0,
-			wantY: 2,
-		},
-		{
-			name:  "Border(NormalBorder(), true, true, false)",
-			style: NewStyle().Border(NormalBorder(), true, true, false),
-			wantX: 2,
-			wantY: 1,
-		},
-		{
-			name:  "Border(NormalBorder(), true, true, false, false)",
-			style: NewStyle().Border(NormalBorder(), true, true, false, false),
-			wantX: 1,
-			wantY: 1,
-		},
-		{
-			name:  "BorderTop(true).BorderStyle(NormalBorder())",
-			style: NewStyle().BorderTop(true).BorderStyle(NormalBorder()),
-			wantX: 0,
-			wantY: 1,
-		},
-		{
-			name:  "BorderStyle(NormalBorder())",
-			style: NewStyle().BorderStyle(NormalBorder()),
-			wantX: 2,
-			wantY: 2,
-		},
-		{
-			name:  "Custom BorderStyle",
-			style: NewStyle().BorderStyle(Border{Left: "123456789"}),
-			wantX: 1, // left and right borders are laid out vertically, one rune per row
-			wantY: 0,
-		},
+		{"10x5", 10, 5},
+		{"20x10", 20, 10},
+		{"40x20", 40, 15},
+		{"80x40", 80, 20},
+		{"120x60", 120, 25},
+		{"160x80", 160, 30},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotX := tt.style.GetHorizontalBorderSize()
-			if gotX != tt.wantX {
-				t.Errorf("Style.GetHorizontalBorderSize() got %d, want %d", gotX, tt.wantX)
-			}
+	for _, dim := range dimensions {
+		b.Run(dim.name, func(b *testing.B) {
+			style := NewStyle().
+				Border(RoundedBorder(), true).
+				Foreground(Color("#ffffff")).
+				Background(Color("#000000")).
+				Width(dim.width).
+				Height(dim.height)
 
-			gotY := tt.style.GetVerticalBorderSize()
-			if gotY != tt.wantY {
-				t.Errorf("Style.GetVerticalBorderSize() got %d, want %d", gotY, tt.wantY)
+			b.ResetTimer()
+			for b.Loop() {
+				_ = style.Render("")
 			}
+		})
+	}
+}
 
-			gotX = tt.style.GetHorizontalFrameSize()
-			if gotX != tt.wantX {
-				t.Errorf("Style.GetHorizontalFrameSize() got %d, want %d", gotX, tt.wantX)
+func BenchmarkBorderBlend(b *testing.B) {
+	dimensions := []struct {
+		name   string
+		width  int
+		height int
+	}{
+		{"10x5", 10, 5},
+		{"20x10", 20, 10},
+		{"40x20", 40, 15},
+		{"80x40", 80, 20},
+		{"120x60", 120, 25},
+		{"160x80", 160, 30},
+	}
+
+	for _, dim := range dimensions {
+		b.Run(dim.name, func(b *testing.B) {
+			style := NewStyle().
+				Border(RoundedBorder(), true).
+				BorderForegroundBlend(
+					Color("#00FA68"),
+					Color("#9900FF"),
+					Color("#ED5353"),
+				).
+				Width(dim.width).
+				Height(dim.height)
+
+			b.ResetTimer()
+			for b.Loop() {
+				_ = style.Render("")
 			}
+		})
+	}
+}
 
-			gotY = tt.style.GetVerticalFrameSize()
-			if gotY != tt.wantY {
-				t.Errorf("Style.GetVerticalFrameSize() got %d, want %d", gotY, tt.wantY)
-			}
+func BenchmarkBorderRenderingNoColors(b *testing.B) {
+	dimensions := []struct {
+		name   string
+		width  int
+		height int
+	}{
+		{"10x5", 10, 5},
+		{"20x10", 20, 10},
+		{"40x20", 40, 15},
+		{"80x40", 80, 20},
+		{"120x60", 120, 25},
+		{"160x80", 160, 30},
+	}
 
-			gotX, gotY = tt.style.GetFrameSize()
-			if gotX != tt.wantX || gotY != tt.wantY {
-				t.Errorf("Style.GetFrameSize() got (%d, %d), want (%d, %d)", gotX, gotY, tt.wantX, tt.wantY)
+	for _, dim := range dimensions {
+		b.Run(dim.name, func(b *testing.B) {
+			style := NewStyle().
+				Border(RoundedBorder(), true).
+				Width(dim.width).
+				Height(dim.height)
+
+			b.ResetTimer()
+			for b.Loop() {
+				_ = style.Render("")
 			}
 		})
 	}

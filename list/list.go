@@ -20,11 +20,11 @@
 //	)
 //
 //	fmt.Println(groceries)
-package list
+package list //nolint:revive
 
 import (
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 // List represents a list of items that can be displayed. Lists can contain
@@ -142,6 +142,36 @@ func (l *List) EnumeratorStyle(style lipgloss.Style) *List {
 //		})
 func (l *List) EnumeratorStyleFunc(f StyleFunc) *List {
 	l.tree.EnumeratorStyleFunc(func(children tree.Children, index int) lipgloss.Style {
+		return f(children, index)
+	})
+	return l
+}
+
+// IndenterStyle sets the enumerator style for all enumerators.
+//
+// To set the enumerator style conditionally based on the item value or index,
+// use [IndenterStyleFunc].
+func (l *List) IndenterStyle(style lipgloss.Style) *List {
+	l.tree.IndenterStyle(style)
+	return l
+}
+
+// IndenterStyleFunc sets the enumerator style function for the list items.
+//
+// Use this to conditionally set different styles based on the current items,
+// sibling items, or index values (i.e. even or odd).
+//
+// Example:
+//
+//	l := list.New().
+//		IndenterStyleFunc(func(_ list.Items, i int) lipgloss.Style {
+//			if selected == i {
+//				return lipgloss.NewStyle().Foreground(brightPink)
+//			}
+//			return lipgloss.NewStyle()
+//		})
+func (l *List) IndenterStyleFunc(f StyleFunc) *List {
+	l.tree.IndenterStyleFunc(func(children tree.Children, index int) lipgloss.Style {
 		return f(children, index)
 	})
 	return l

@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 func main() {
@@ -31,7 +29,10 @@ func main() {
 					"Leek",
 					"Artichoke",
 				),
-		).ItemStyle(itemStyle).EnumeratorStyle(enumeratorStyle).Enumerator(tree.RoundedEnumerator)
+		).ItemStyle(itemStyle).
+		EnumeratorStyle(enumeratorStyle).
+		Enumerator(tree.RoundedEnumerator).
+		IndenterStyle(enumeratorStyle)
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }

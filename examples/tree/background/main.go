@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 func main() {
-	enumeratorStyle := lipgloss.NewStyle().
+	darkBg := lipgloss.NewStyle().
 		Background(lipgloss.Color("0")).
 		Padding(0, 1)
 
@@ -23,7 +21,8 @@ func main() {
 	t := tree.Root("# Table of Contents").
 		RootStyle(itemStyle).
 		ItemStyle(itemStyle).
-		EnumeratorStyle(enumeratorStyle).
+		EnumeratorStyle(darkBg).
+		IndenterStyle(darkBg).
 		Child(
 			tree.Root("## Chapter 1").
 				Child("Chapter 1.1").
@@ -35,5 +34,5 @@ func main() {
 				Child("Chapter 2.2"),
 		)
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }

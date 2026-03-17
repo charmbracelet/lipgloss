@@ -5,9 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/golden"
-	"github.com/muesli/termenv"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -25,6 +24,24 @@ func TestTable(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?")
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestTableWithBackground(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BaseStyle(lipgloss.NewStyle().Background(lipgloss.Color("18"))).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("15"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
+		}).
 		Headers("LANGUAGE", "FORMAL", "INFORMAL").
 		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
 		Row("French", "Bonjour", "Salut").
@@ -92,24 +109,7 @@ func TestTableNoStyleFunc(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableMarginAndRightAlignment(t *testing.T) {
-	table := New().
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(func(row, col int) lipgloss.Style {
-			return lipgloss.NewStyle().Margin(0, 1).Align(lipgloss.Right)
-		}).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Arabic", "أهلين", "أهلا").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableOffset(t *testing.T) {
+func TestTableYOffset(t *testing.T) {
 	table := New().
 		Border(lipgloss.NormalBorder()).
 		StyleFunc(TableStyle).
@@ -119,7 +119,8 @@ func TestTableOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1).
+		Height(8)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
@@ -236,6 +237,26 @@ func TestTableNoColumnSeparatorsWithHeaders(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestInnerBordersOnly(t *testing.T) {
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		BorderColumn(false).
+		StyleFunc(TableStyle).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+		Row("French", "Bonjour", "Salut").
+		Row("Japanese", "こんにちは", "やあ").
+		Row("Russian", "Zdravstvuyte", "Privet").
+		Row("Spanish", "Hola", "¿Qué tal?").
+		BorderTop(false).
+		BorderRight(false).
+		BorderBottom(false).
+		BorderLeft(false).
+		BorderRow(true).
+		BorderColumn(true)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestBorderColumnsWithExtraRows(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
@@ -336,28 +357,14 @@ func TestTableRowSeparators(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	t.Run("no overflow", func(t *testing.T) {
-		table := New().
-			Border(lipgloss.NormalBorder()).
-			StyleFunc(TableStyle).
-			BorderRow(true).
-			Headers("LANGUAGE", "FORMAL", "INFORMAL").
-			Rows(rows...)
+	table := New().
+		Border(lipgloss.NormalBorder()).
+		StyleFunc(TableStyle).
+		BorderRow(true).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
 
-		golden.RequireEqual(t, []byte(table.String()))
-	})
-
-	t.Run("with overflow", func(t *testing.T) {
-		table := New().
-			Border(lipgloss.NormalBorder()).
-			StyleFunc(TableStyle).
-			BorderRow(true).
-			Headers("LANGUAGE", "FORMAL", "INFORMAL").
-			Rows(rows...).
-			Height(8)
-
-		golden.RequireEqual(t, []byte(table.String()))
-	})
+	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestTableHeights(t *testing.T) {
@@ -441,14 +448,45 @@ func TestTableWidthShrink(t *testing.T) {
 		{"Spanish", "Hola", "¿Qué tal?"},
 	}
 
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		Border(lipgloss.NormalBorder()).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
+	t.Run("NoBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			BorderLeft(false).
+			BorderRight(false).
+			Border(lipgloss.NormalBorder()).
+			BorderColumn(false).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("DefaultBorders", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
+
+	t.Run("OutlineBordersOnly", func(t *testing.T) {
+		table := New().
+			Width(30).
+			StyleFunc(TableStyle).
+			Border(lipgloss.NormalBorder()).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Rows(rows...).
+			BorderTop(true).
+			BorderBottom(true).
+			BorderLeft(true).
+			BorderRight(true).
+			BorderColumn(false).
+			BorderRow(false).
+			BorderHeader(true)
+		golden.RequireEqual(t, []byte(table.String()))
+	})
 }
 
 func TestTableWidthSmartCrop(t *testing.T) {
@@ -509,28 +547,6 @@ func TestTableWidthSmartCropTiny(t *testing.T) {
 }
 
 func TestTableWidths(t *testing.T) {
-	rows := [][]string{
-		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
-		{"French", "Bonjour", "Salut"},
-		{"Japanese", "こんにちは", "やあ"},
-		{"Russian", "Zdravstvuyte", "Privet"},
-		{"Spanish", "Hola", "¿Qué tal?"},
-	}
-
-	table := New().
-		Width(30).
-		StyleFunc(TableStyle).
-		BorderLeft(false).
-		BorderRight(false).
-		Border(lipgloss.NormalBorder()).
-		BorderColumn(false).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Rows(rows...)
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableWidthShrinkNoBorders(t *testing.T) {
 	rows := [][]string{
 		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
 		{"French", "Bonjour", "Salut"},
@@ -645,47 +661,80 @@ func TestTableHeightExtra(t *testing.T) {
 }
 
 func TestTableHeightShrink(t *testing.T) {
-	table := New().
-		Height(8).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("French", "Bonjour", "Salut").
-		Row("Japanese", "こんにちは", "やあ").
-		Row("Russian", "Zdravstvuyte", "Privet").
-		Row("Spanish", "Hola", "¿Qué tal?")
+	headers := []string{"LANGUAGE", "FORMAL", "INFORMAL"}
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+	paddingStyleFunc := func(row, col int) lipgloss.Style {
+		return TableStyle(row, col).Padding(1)
+	}
 
-	golden.RequireEqual(t, []byte(table.String()))
+	t.Run("NoBorderRow", func(t *testing.T) {
+		for i := 1; i <= 9; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		for i := 1; i <= 13; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(TableStyle).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("NoBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 21; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(false).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
+
+	t.Run("WithBorderRowPadding", func(t *testing.T) {
+		for i := 1; i <= 25; i++ {
+			t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+				table := New().
+					Height(i).
+					Border(lipgloss.NormalBorder()).
+					BorderRow(true).
+					StyleFunc(paddingStyleFunc).
+					Headers(headers...).
+					Rows(rows...)
+				golden.RequireEqual(t, []byte(table.String()))
+			})
+		}
+	})
 }
 
-func TestTableHeightMinimum(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("ID", "LANGUAGE", "FORMAL", "INFORMAL").
-		Row("1", "Chinese", "Nǐn hǎo", "Nǐ hǎo").
-		Row("2", "French", "Bonjour", "Salut").
-		Row("3", "Japanese", "こんにちは", "やあ").
-		Row("4", "Russian", "Zdravstvuyte", "Privet").
-		Row("5", "Spanish", "Hola", "¿Qué tal?")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableHeightMinimumShowData(t *testing.T) {
-	table := New().
-		Height(0).
-		Border(lipgloss.NormalBorder()).
-		StyleFunc(TableStyle).
-		Headers("LANGUAGE", "FORMAL", "INFORMAL").
-		Row("Chinese", "Nǐn hǎo", "Nǐ hǎo")
-
-	golden.RequireEqual(t, []byte(table.String()))
-}
-
-func TestTableHeightWithOffset(t *testing.T) {
+func TestTableHeightWithYOffset(t *testing.T) {
 	// This test exists to check for a bug/edge case when the table has an
 	// offset and the height is set.
 
@@ -699,13 +748,12 @@ func TestTableHeightWithOffset(t *testing.T) {
 		Row("Japanese", "こんにちは", "やあ").
 		Row("Russian", "Zdravstvuyte", "Privet").
 		Row("Spanish", "Hola", "¿Qué tal?").
-		Offset(1)
+		YOffset(1)
 
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
 func TestStyleFunc(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	tests := []struct {
 		name  string
 		style StyleFunc
@@ -994,6 +1042,44 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 	}
 }
 
+func TestContentWrapping_WithHeight(t *testing.T) {
+	tests := []struct {
+		name     string
+		headers  []string
+		data     [][]string
+	}{
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+				{"Florida", "I want to go somewhere hot, humid, and affordable. Florida has really good food, just don't go during hurricane season!", "$$"},
+				{"Maine", "I'm thinking about going during the summer to check out Acadia National Park. Might be cold though...", "$$"},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			for i := 5; i <= 35; i += 10 {
+				t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+					table := New().
+						Height(i).
+						Width(60).
+						Border(lipgloss.NormalBorder()).
+						BorderRow(false).
+						StyleFunc(TableStyle).
+						Headers(tc.headers...).
+						Rows(tc.data...)
+					golden.RequireEqual(t, []byte(table.String()))
+				})
+			}
+		})
+	}
+}
+
 func TestContentWrapping_ColumnWidth(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -1119,7 +1205,7 @@ func TestCarriageReturn(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
-func TestTableShrinkWithOffset(t *testing.T) {
+func TestTableShrinkWithYOffset(t *testing.T) {
 	rows := [][]string{
 		{"1", "Tokyo", "Japan", "37,274,000"},
 		{"2", "Delhi", "India", "32,065,760"},
@@ -1222,15 +1308,36 @@ func TestTableShrinkWithOffset(t *testing.T) {
 		{"99", "Shijiazhuang", "China", "4,285,135"},
 		{"100", "Montreal", "Canada", "4,276,526"},
 	}
-	table := New().
-		Rows(rows...).
-		Offset(80).
-		Height(45)
 
-	got := lipgloss.Height(table.String())
-	if got != table.height {
-		t.Fatalf("expected the height to be %d with an offset of %d. got: table with height %d\n%s", table.height, table.offset, got, table.String())
-	}
+	t.Run("NoHeaders", func(t *testing.T) {
+		table := New().
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithHeaders", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			YOffset(80).
+			Height(45)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
+
+	t.Run("WithBorderRow", func(t *testing.T) {
+		table := New().
+			Headers("Rank", "City", "Country", "Population").
+			Rows(rows...).
+			BorderRow(true).
+			YOffset(80).
+			Height(43)
+		content := table.String()
+		golden.RequireEqual(t, []byte(content))
+	})
 }
 
 func TestBorderStyles(t *testing.T) {
@@ -1271,6 +1378,86 @@ func TestBorderStyles(t *testing.T) {
 	}
 }
 
+func TestNoFinalEmptyRowWhenOverflow(t *testing.T) {
+	headers := []string{"Rank", "City", "Country", "Population"}
+	rows := [][]string{
+		{"1", "Tokyo", "Japan", "37,274,000"},
+		{"2", "Delhi", "India", "32,065,760"},
+		{"3", "Shanghai", "China", "28,516,904"},
+		{"4", "Dhaka", "Bangladesh", "22,478,116"},
+		{"5", "São Paulo", "Brazil", "22,429,800"},
+		{"6", "Mexico City", "Mexico", "22,085,140"},
+		{"7", "Cairo", "Egypt", "21,750,020"},
+		{"8", "Beijing", "China", "21,333,332"},
+		{"9", "Mumbai", "India", "20,961,472"},
+		{"10", "Osaka", "Japan", "19,059,856"},
+		{"11", "Chongqing", "China", "16,874,740"},
+		{"12", "Karachi", "Pakistan", "16,839,950"},
+		{"13", "Istanbul", "Turkey", "15,636,243"},
+		{"14", "Kinshasa", "DR Congo", "15,628,085"},
+		{"15", "Lagos", "Nigeria", "15,387,639"},
+		{"16", "Buenos Aires", "Argentina", "15,369,919"},
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		BorderRow(true).
+		Height(16)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeading(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestExtraPaddingHeadingLong(t *testing.T) {
+	headers := []string{"Looong Name", "Looong Country of Origin", "Looong Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(2, 2)
+	}
+	table := New().
+		Width(46).
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestBorderedCells(t *testing.T) {
+	headers := []string{"Name", "Country of Origin", "Dunk-able"}
+	rows := [][]string{
+		{"Chocolate Digestives", "UK", "Yes"},
+		{"Tim Tams", "Australia", "No"},
+		{"Hobnobs", "UK", "Yes"},
+	}
+	styleFunc := func(row, col int) lipgloss.Style {
+		return lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
+	}
+	table := New().
+		Headers(headers...).
+		Rows(rows...).
+		StyleFunc(styleFunc)
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 // Examples
 
 func ExampleTable_Wrap() {
@@ -1299,12 +1486,13 @@ func ExampleTable_Wrap() {
 	fmt.Println(table.String())
 
 	// Output:
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
+	//
+	// 	┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
 	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
 	// │ Lorem ipsum… │ 耐許ヱヨカハ… │ شيء قد للحكو… │ 版応道潟部中… │ 각급 선거관…  │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
-	// ╭──────────────┬───────────────┬───────────────┬───────────────┬───────────────╮
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
+	// ┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
 	// │    Hello     │     你好      │     مرحبًا     │  안녕하세요   │               │
 	// ├──────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
 	// │ Lorem ipsum  │ 耐許ヱヨカハ  │ شيء قد        │ 版応道潟部中  │ 각급          │
@@ -1363,7 +1551,7 @@ func ExampleTable_Wrap() {
 	// │              │ ス静将ず業巨  │               │               │               │
 	// │              │ 職ノラホ収嗅  │               │               │               │
 	// │              │ ざな。        │               │               │               │
-	// ╰──────────────┴───────────────┴───────────────┴───────────────┴───────────────╯
+	// └──────────────┴───────────────┴───────────────┴───────────────┴───────────────┘
 }
 
 // Check that stylized wrapped content does not go beyond its cell.

@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 func main() {
@@ -23,5 +22,5 @@ func main() {
 				Child("OpenBSD"),
 		)
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }

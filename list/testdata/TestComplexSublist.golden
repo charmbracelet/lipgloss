@@ -3,35 +3,35 @@
   • foo2
   • bar2
 • Qux
-   I. aaa
-  II. bbb
+   [38;5;99mI.[m aaa
+  [38;5;99mII.[m bbb
 • Deep
-  A. foo
-  B. Deeper
-    1. a
-    2. b
-    3. Even Deeper, inherit parent renderer
-      * sus
-      * d minor
-      * f#
-      * One ore level, with another renderer
-        - a      
-          multine
-          string 
-        - hoccus poccus
-        - abra kadabra
-        - And finally, a tree within all this
-          ├── another
-          │   multine
-          │   string 
-          ├── something
-          ├── a subtree
-          │   ├── yup
-          │   ├── many itens
-          │   └── another
-          ├── hallo
-          └── wunderbar!
-        - this is a tree              
-          and other obvious statements
-  C. bar
+  [38;5;212mA.[m foo
+  [38;5;212mB.[m Deeper
+  [38;5;212m [m [38;5;99m1.[m a
+  [38;5;212m [m [38;5;99m2.[m b
+  [38;5;212m [m [38;5;99m3.[m Even Deeper, inherit parent renderer
+  [38;5;212m [m [38;5;99m [m [38;5;212m*[m sus
+  [38;5;212m [m [38;5;99m [m [38;5;212m*[m d minor
+  [38;5;212m [m [38;5;99m [m [38;5;212m*[m f#
+  [38;5;212m [m [38;5;99m [m [38;5;212m*[m One ore level, with another renderer
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m-[m a      
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m multine
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m string 
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m-[m hoccus poccus
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m-[m abra kadabra
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m-[m And finally, a tree within all this
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m├──[m another
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m│  [m multine
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m│  [m string 
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m├──[m something
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m├──[m a subtree
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m│  [m [38;5;212m├──[m yup
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m│  [m [38;5;212m├──[m many itens
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m│  [m [38;5;212m└──[m another
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m├──[m hallo
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m [38;5;212m└──[m wunderbar!
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m-[m this is a tree              
+  [38;5;212m [m [38;5;99m [m [38;5;212m [m [38;5;99m [m and other obvious statements
+  [38;5;212mC.[m bar
 • Baz

@@ -1,16 +1,14 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 type styles struct {
 	base,
 	block,
-	enumerator,
+	pink,
 	dir,
 	toggle,
 	file lipgloss.Style
@@ -25,7 +23,7 @@ func defaultStyles() styles {
 		Padding(1, 3).
 		Margin(1, 3).
 		Width(40)
-	s.enumerator = s.base.
+	s.pink = s.base.
 		Foreground(lipgloss.Color("212")).
 		PaddingRight(1)
 	s.dir = s.base.
@@ -66,7 +64,8 @@ func main() {
 
 	t := tree.Root(dir{"~/charm", true, s}).
 		Enumerator(tree.RoundedEnumerator).
-		EnumeratorStyle(s.enumerator).
+		IndenterStyle(s.pink).
+		EnumeratorStyle(s.pink).
 		Child(
 			dir{"ayman", false, s},
 			tree.Root(dir{"bash", true, s}).
@@ -88,5 +87,5 @@ func main() {
 			dir{"maas", false, s},
 		)
 
-	fmt.Println(s.block.Render(t.String()))
+	lipgloss.Println(s.block.Render(t.String()))
 }

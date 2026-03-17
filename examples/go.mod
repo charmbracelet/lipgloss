@@ -1,50 +1,46 @@
 module examples
 
-go 1.19
+go 1.24.3
 
-replace github.com/charmbracelet/lipgloss => ../
+toolchain go1.24.4
 
-replace github.com/charmbracelet/lipgloss/list => ../list
+replace charm.land/lipgloss/v2 => ../
 
 require (
-	github.com/charmbracelet/lipgloss v0.11.0
-	github.com/charmbracelet/ssh v0.0.0-20240401141849-854cddfa2917
-	github.com/charmbracelet/wish v1.4.0
-	github.com/creack/pty v1.1.21
-	github.com/lucasb-eyer/go-colorful v1.2.0
-	github.com/muesli/gamut v0.3.1
-	github.com/muesli/termenv v0.16.0
-	golang.org/x/term v0.29.0
+	charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251201184111-551c60ee5a5c
+	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106192539-4b304240aab7
+	github.com/charmbracelet/colorprofile v0.4.2
+	github.com/charmbracelet/ssh v0.0.0-20241211182756-4fe22b0f1b7c
+	github.com/charmbracelet/wish/v2 v2.0.0-20251106193208-3cd15da8229f
+	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250627134340-c144409e381c
+	github.com/charmbracelet/x/term v0.2.2
+	github.com/rivo/uniseg v0.4.7
 )
 
 require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
-	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/bubbletea v0.25.0 // indirect
-	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
-	github.com/charmbracelet/keygen v0.5.0 // indirect
-	github.com/charmbracelet/log v0.4.0 // indirect
-	github.com/charmbracelet/x/ansi v0.8.0 // indirect
-	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
-	github.com/charmbracelet/x/errors v0.0.0-20240117030013-d31dba354651 // indirect
-	github.com/charmbracelet/x/exp/term v0.0.0-20240328150354-ab9afc214dfd // indirect
-	github.com/charmbracelet/x/term v0.2.1 // indirect
-	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
+	github.com/charmbracelet/keygen v0.5.1 // indirect
+	github.com/charmbracelet/log/v2 v2.0.0-20251106192421-eb64aaa963a0 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
+	github.com/charmbracelet/x/ansi v0.11.6 // indirect
+	github.com/charmbracelet/x/conpty v0.1.0 // indirect
+	github.com/charmbracelet/x/errors v0.0.0-20240508181413-e8d8b6e2de86 // indirect
+	github.com/charmbracelet/x/termios v0.1.1 // indirect
+	github.com/charmbracelet/x/windows v0.2.2 // indirect
+	github.com/clipperhouse/displaywidth v0.9.0 // indirect
+	github.com/clipperhouse/stringish v0.1.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.5.0 // indirect
+	github.com/creack/pty v1.1.21 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
+	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
+	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762 // indirect
-	github.com/muesli/kmeans v0.3.1 // indirect
-	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
 )
+
+// replace with log v2
+replace github.com/charmbracelet/log => github.com/charmbracelet/log v0.4.1-0.20241010222913-47ce960d4847

@@ -2,18 +2,12 @@ package lipgloss
 
 import (
 	"fmt"
-	"io"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/muesli/termenv"
 )
 
 func TestUnderline(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -21,20 +15,28 @@ func TestUnderline(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Underline(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			NewStyle().Underline(true),
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m\x1b[4m \x1b[m\x1b[4;4mc\x1b[m",
 		},
 		{
-			r.NewStyle().Underline(true).UnderlineSpaces(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			NewStyle().Underline(true).UnderlineSpaces(true),
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m\x1b[4m \x1b[m\x1b[4;4mc\x1b[m",
 		},
 		{
-			r.NewStyle().Underline(true).UnderlineSpaces(false),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
+			NewStyle().Underline(true).UnderlineSpaces(false),
+			"\x1b[4;4ma\x1b[m\x1b[4;4mb\x1b[m \x1b[4;4mc\x1b[m",
 		},
 		{
-			r.NewStyle().UnderlineSpaces(true),
-			"ab\x1b[4m \x1b[0mc",
+			NewStyle().UnderlineSpaces(true),
+			"ab\x1b[4m \x1b[mc",
+		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly),
+			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
+		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly).UnderlineColor(Color("#FF0000")),
+			"\x1b[4;58;2;255;0;0;4:3ma\x1b[m\x1b[4;58;2;255;0;0;4:3mb\x1b[m\x1b[58;2;255;0;0;4m \x1b[m\x1b[4;58;2;255;0;0;4:3mc\x1b[m",
 		},
 	}
 
@@ -42,17 +44,24 @@ func TestUnderline(t *testing.T) {
 		s := tc.style.SetString("ab c")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }
 
+func TestGetUnderlineColor(t *testing.T) {
+	t.Parallel()
+
+	red := Color("#FF0000")
+	s := NewStyle().Underline(true).UnderlineColor(red)
+	if s.GetUnderlineColor() != red {
+		t.Errorf("GetUnderlineColor() = %v, want %v", s.GetUnderlineColor(), red)
+	}
+}
+
 func TestStrikethrough(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -60,20 +69,20 @@ func TestStrikethrough(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Strikethrough(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			NewStyle().Strikethrough(true),
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
-			r.NewStyle().Strikethrough(true).StrikethroughSpaces(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			NewStyle().Strikethrough(true).StrikethroughSpaces(true),
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
-			r.NewStyle().Strikethrough(true).StrikethroughSpaces(false),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
+			NewStyle().Strikethrough(true).StrikethroughSpaces(false),
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m \x1b[9mc\x1b[m",
 		},
 		{
-			r.NewStyle().StrikethroughSpaces(true),
-			"ab\x1b[9m \x1b[0mc",
+			NewStyle().StrikethroughSpaces(true),
+			"ab\x1b[9m \x1b[mc",
 		},
 	}
 
@@ -81,17 +90,14 @@ func TestStrikethrough(t *testing.T) {
 		s := tc.style.SetString("ab c")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
 }
 
 func TestStyleRender(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetColorProfile(termenv.TrueColor)
-	r.SetHasDarkBackground(true)
 	t.Parallel()
 
 	tt := []struct {
@@ -99,32 +105,28 @@ func TestStyleRender(t *testing.T) {
 		expected string
 	}{
 		{
-			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			NewStyle().Foreground(Color("#5A56E0")),
+			"\x1b[38;2;90;86;224mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
+			NewStyle().Bold(true),
+			"\x1b[1mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Bold(true),
-			"\x1b[1mhello\x1b[0m",
+			NewStyle().Italic(true),
+			"\x1b[3mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Italic(true),
-			"\x1b[3mhello\x1b[0m",
+			NewStyle().Underline(true),
+			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
 		},
 		{
-			r.NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
+			NewStyle().Blink(true),
+			"\x1b[5mhello\x1b[m",
 		},
 		{
-			r.NewStyle().Blink(true),
-			"\x1b[5mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[0m",
+			NewStyle().Faint(true),
+			"\x1b[2mhello\x1b[m",
 		},
 	}
 
@@ -132,72 +134,10 @@ func TestStyleRender(t *testing.T) {
 		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
-	}
-}
-
-func TestStyleCustomRender(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	r.SetHasDarkBackground(false)
-	r.SetColorProfile(termenv.TrueColor)
-	tt := []struct {
-		style    Style
-		expected string
-	}{
-		{
-			r.NewStyle().Foreground(Color("#5A56E0")),
-			"\x1b[38;2;89;86;224mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;255;254;18mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Bold(true),
-			"\x1b[1mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Italic(true),
-			"\x1b[3mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
-		},
-		{
-			r.NewStyle().Blink(true),
-			"\x1b[5mhello\x1b[0m",
-		},
-		{
-			r.NewStyle().Faint(true),
-			"\x1b[2mhello\x1b[0m",
-		},
-		{
-			NewStyle().Faint(true).Renderer(r),
-			"\x1b[2mhello\x1b[0m",
-		},
-	}
-
-	for i, tc := range tt {
-		s := tc.style.SetString("hello")
-		res := s.Render()
-		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
-		}
-	}
-}
-
-func TestStyleRenderer(t *testing.T) {
-	r := NewRenderer(io.Discard)
-	s1 := NewStyle().Bold(true)
-	s2 := s1.Renderer(r)
-	if s1.r == s2.r {
-		t.Fatalf("expected different renderers")
 	}
 }
 
@@ -375,7 +315,7 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 0, s.GetMarginLeft())
 
 	// padding
-	s = NewStyle().Padding(1, 2, 3, 4)
+	s = NewStyle().Padding(1, 2, 3, 4).PaddingChar('x')
 	requireEqual(t, 1, s.GetPaddingTop())
 	s = s.UnsetPaddingTop()
 	requireEqual(t, 0, s.GetPaddingTop())
@@ -391,6 +331,10 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, 4, s.GetPaddingLeft())
 	s = s.UnsetPaddingLeft()
 	requireEqual(t, 0, s.GetPaddingLeft())
+
+	requireEqual(t, 'x', s.GetPaddingChar())
+	s = s.UnsetPaddingChar()
+	requireEqual(t, ' ', s.GetPaddingChar())
 
 	// border
 	s = NewStyle().Border(normalBorder, true, true, true, true)
@@ -442,7 +386,7 @@ func TestStyleValue(t *testing.T) {
 			name:     "set string with bold",
 			text:     "foo",
 			style:    NewStyle().SetString("bar").Bold(true),
-			expected: "\x1b[1mbar foo\x1b[0m",
+			expected: "\x1b[1mbar foo\x1b[m",
 		},
 		{
 			name:     "new style with string",
@@ -479,11 +423,16 @@ func TestStyleValue(t *testing.T) {
 	for i, tc := range tt {
 		res := tc.style.Render(tc.text)
 		if res != tc.expected {
-			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
-				i, tc.expected, formatEscapes(tc.expected),
-				res, formatEscapes(res))
+			t.Errorf("Test %d, expected:\n`%q`\n\nActual output:\n`%q`\n\n",
+				i, tc.expected,
+				res)
 		}
 	}
+}
+
+func TestCustomPaddingChar(t *testing.T) {
+	s := NewStyle().Padding(0, 3).PaddingChar('x')
+	requireEqual(t, "xxxTESTxxx", s.Render("TEST"))
 }
 
 func TestTabConversion(t *testing.T) {
@@ -526,7 +475,7 @@ func TestStringTransform(t *testing.T) {
 					n++
 				}
 				rune = rune[0:n]
-				for i := 0; i < n/2; i++ {
+				for i := range n / 2 {
 					rune[i], rune[n-1-i] = rune[n-1-i], rune[i]
 				}
 				return string(rune)
@@ -535,20 +484,10 @@ func TestStringTransform(t *testing.T) {
 		},
 	} {
 		res := NewStyle().Bold(true).Transform(tc.fn).Render(tc.input)
-		expected := "\x1b[1m" + tc.expected + "\x1b[0m"
+		expected := "\x1b[1m" + tc.expected + "\x1b[m"
 		if res != expected {
 			t.Errorf("Test #%d:\nExpected: %q\nGot:      %q", i+1, expected, res)
 		}
-	}
-}
-
-func BenchmarkStyleRender(b *testing.B) {
-	s := NewStyle().
-		Bold(true).
-		Foreground(Color("#ffffff"))
-
-	for i := 0; i < b.N; i++ {
-		s.Render("Hello world")
 	}
 }
 
@@ -562,7 +501,7 @@ func requireFalse(tb testing.TB, b bool) {
 	requireEqual(tb, false, b)
 }
 
-func requireEqual(tb testing.TB, a, b interface{}) {
+func requireEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if !reflect.DeepEqual(a, b) {
 		tb.Errorf("%v != %v", a, b)
@@ -570,7 +509,7 @@ func requireEqual(tb testing.TB, a, b interface{}) {
 	}
 }
 
-func requireNotEqual(tb testing.TB, a, b interface{}) {
+func requireNotEqual(tb testing.TB, a, b any) {
 	tb.Helper()
 	if reflect.DeepEqual(a, b) {
 		tb.Errorf("%v == %v", a, b)
@@ -588,5 +527,217 @@ func TestCarriageReturnInRender(t *testing.T) {
 	if got != want {
 		t.Logf("got(detailed):\n%q\nwant(detailed):\n%q", got, want)
 		t.Fatalf("got(string):\n%s\nwant(string):\n%s", got, want)
+	}
+}
+
+func TestWidth(t *testing.T) {
+	tests := []struct {
+		name  string
+		style Style
+	}{
+		{"width with borders", NewStyle().Padding(0, 2).Border(NormalBorder(), true)},
+		{"width no borders", NewStyle().Padding(0, 2)},
+		{"width unset borders", NewStyle().Padding(0, 2).Border(NormalBorder(), true).BorderLeft(false).BorderRight(false)},
+		{"width single-sided border", NewStyle().Padding(0, 2).Border(NormalBorder(), true).UnsetBorderBottom().UnsetBorderTop().UnsetBorderRight()},
+	}
+	{
+		for _, tc := range tests {
+			t.Run(tc.name, func(t *testing.T) {
+				content := "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+				contentWidth := 80 - tc.style.GetHorizontalFrameSize()
+				rendered := tc.style.Width(contentWidth).Render(content)
+				if Width(rendered) != contentWidth {
+					t.Log("\n" + rendered)
+					t.Fatalf("got: %d\n, want: %d", Width(rendered), contentWidth)
+				}
+			})
+		}
+	}
+}
+
+func TestHeight(t *testing.T) {
+	tests := []struct {
+		name  string
+		style Style
+	}{
+		{"height with borders", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true)},
+		{"height no borders", NewStyle().Width(80).Padding(0, 2)},
+		{"height unset borders", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true).BorderBottom(false).BorderTop(false)},
+		{"height single-sided border", NewStyle().Width(80).Padding(0, 2).Border(NormalBorder(), true).UnsetBorderLeft().UnsetBorderBottom().UnsetBorderRight()},
+	}
+	{
+		for _, tc := range tests {
+			t.Run(tc.name, func(t *testing.T) {
+				content := "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+				contentHeight := 20 - tc.style.GetVerticalFrameSize()
+				rendered := tc.style.Height(contentHeight).Render(content)
+				if Height(rendered) != contentHeight {
+					t.Log("\n" + rendered)
+					t.Fatalf("got: %d\n, want: %d", Height(rendered), contentHeight)
+				}
+			})
+		}
+	}
+}
+
+func TestHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com"),
+			expected: "\x1b]8;;https://example.com\x07https://example.com\x1b]8;;\x07",
+		},
+		{
+			name:     "hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example"),
+			expected: "\x1b]8;id=123;https://example.com\x07example\x1b]8;;\x07",
+		},
+		{
+			name: "hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")),
+			expected: "\x1b]8;id=123;https://example.com\x07\x1b[1;38;5;234mexample\x1b[m\x1b]8;;\x07",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
+func TestUnsetHyperlink(t *testing.T) {
+	tests := []struct {
+		name     string
+		style    Style
+		expected string
+	}{
+		{
+			name:     "unset hyperlink",
+			style:    NewStyle().Hyperlink("https://example.com").SetString("https://example.com").UnsetHyperlink(),
+			expected: "https://example.com",
+		},
+		{
+			name:     "unset hyperlink with text",
+			style:    NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").UnsetHyperlink(),
+			expected: "example",
+		},
+		{
+			name: "unset hyperlink with text and style",
+			style: NewStyle().Hyperlink("https://example.com", "id=123").SetString("example").
+				Bold(true).Foreground(Color("234")).UnsetHyperlink(),
+			expected: "\x1b[1;38;5;234mexample\x1b[m",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.style.String() != tc.expected {
+				t.Fatalf("got: %q, want: %q", tc.style.String(), tc.expected)
+			}
+		})
+	}
+}
+
+func BenchmarkPad(b *testing.B) {
+	tests := []struct {
+		name string
+		str  string
+		n    int
+	}{
+		{name: "pad-10", str: "foo bar", n: 10},
+		{name: "pad-100", str: "foo bar", n: 100},
+		{name: "pad-negative-10", str: "foo bar", n: -10},
+		{name: "pad-negative-100", str: "foo bar", n: -100},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				pad(tt.str, tt.n, nil, ' ')
+			}
+		})
+	}
+}
+
+func BenchmarkStyleRender(b *testing.B) {
+	tests := []struct {
+		name  string
+		style Style
+		input string
+	}{
+		{
+			name: "simple-1-line",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: "Hello world",
+		},
+		{
+			name: "simple-5-lines",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-5-lines-inline",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Inline(true),
+			input: strings.Repeat("Hello world\n", 5),
+		},
+		{
+			name: "simple-10-lines-5-height-40-width",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Height(5).
+				Width(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+		{
+			name: "simple-10-lines-width-maxwidth-borders-padding-margins",
+			style: NewStyle().
+				Bold(true).
+				Foreground(Color("#ffffff")).
+				Width(40).
+				MaxWidth(40).
+				Border(RoundedBorder(), true).
+				Padding(1, 1).
+				Margin(1, 1),
+			input: strings.Repeat("Hello world\n", 10),
+		},
+	}
+	for _, tt := range tests {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				tt.style.Render(tt.input)
+			}
+		})
 	}
 }

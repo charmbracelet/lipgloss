@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
 )
 
 func addBranches(root *tree.Tree, path string) error {
@@ -59,6 +59,7 @@ func main() {
 	}
 
 	t := tree.Root(pwd).
+		IndenterStyle(enumeratorStyle).
 		EnumeratorStyle(enumeratorStyle).
 		RootStyle(itemStyle).
 		ItemStyle(itemStyle)
@@ -68,5 +69,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(t)
+	lipgloss.Println(t)
 }
