@@ -432,7 +432,9 @@ func (s Style) applyBorder(str string) string {
 
 	// Render top
 	if hasTop {
-		top := renderHorizontalEdge(border.TopLeft, border.Top, border.TopRight, width)
+		topTitle := s.getAsString(borderTopTitleKey, "")
+		topTitleAlign := s.getAsPosition(borderTopTitleAlignKey, Left)
+		top := renderHorizontalEdgeWithTitle(border.TopLeft, border.Top, border.TopRight, width, topTitle, topTitleAlign)
 		if blend != nil {
 			out.WriteString(s.styleBorderBlend(top, blend.topGradient, topBG))
 		} else {
@@ -482,7 +484,9 @@ func (s Style) applyBorder(str string) string {
 
 	// Render bottom
 	if hasBottom {
-		bottom := renderHorizontalEdge(border.BottomLeft, border.Bottom, border.BottomRight, width)
+		bottomTitle := s.getAsString(borderBottomTitleKey, "")
+		bottomTitleAlign := s.getAsPosition(borderBottomTitleAlignKey, Left)
+		bottom := renderHorizontalEdgeWithTitle(border.BottomLeft, border.Bottom, border.BottomRight, width, bottomTitle, bottomTitleAlign)
 		out.WriteRune('\n')
 		if blend != nil {
 			out.WriteString(s.styleBorderBlend(bottom, blend.bottomGradient, bottomBG))
@@ -510,6 +514,91 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 	out.WriteString(left)
 
 	for i := 0; i < width-leftWidth-rightWidth; {
+		r := runes[j]
+		out.WriteRune(r)
+		i += ansi.StringWidth(string(r))
+		j++
+		if j >= len(runes) {
+			j = 0
+		}
+	}
+
+	out.WriteString(right)
+	return out.String()
+}
+
+// renderHorizontalEdgeWithTitle renders a horizontal border edge with an
+// optional title embedded in it. The title replaces part of the border
+// characters and is surrounded by a single space on each side.
+func renderHorizontalEdgeWithTitle(left, middle, right string, width int, title string, align Position) string {
+	if title == "" {
+		return renderHorizontalEdge(left, middle, right, width)
+	}
+
+	if middle == "" {
+		middle = " "
+	}
+
+	leftWidth := ansi.StringWidth(left)
+	rightWidth := ansi.StringWidth(right)
+	innerWidth := width - leftWidth - rightWidth
+
+	// Title with surrounding spaces
+	titleDisplay := " " + title + " "
+	titleWidth := ansi.StringWidth(titleDisplay)
+
+	// Truncate title if too long
+	if titleWidth > innerWidth-2 {
+		maxTitle := innerWidth - 4 // room for spaces and ellipsis
+		if maxTitle < 1 {
+			return renderHorizontalEdge(left, middle, right, width)
+		}
+		titleDisplay = " " + ansi.Truncate(title, maxTitle, "…") + " "
+		titleWidth = ansi.StringWidth(titleDisplay)
+	}
+
+	// Calculate border fill on each side of the title
+	fillTotal := innerWidth - titleWidth
+	var leftFill, rightFill int
+
+	switch align {
+	case Right:
+		leftFill = fillTotal - 1
+		rightFill = 1
+	case Center:
+		leftFill = fillTotal / 2
+		rightFill = fillTotal - leftFill
+	default: // Left
+		leftFill = 1
+		rightFill = fillTotal - 1
+	}
+
+	if leftFill < 0 {
+		leftFill = 0
+	}
+	if rightFill < 0 {
+		rightFill = 0
+	}
+
+	out := strings.Builder{}
+	out.WriteString(left)
+
+	runes := []rune(middle)
+	j := 0
+	for i := 0; i < leftFill; {
+		r := runes[j]
+		out.WriteRune(r)
+		i += ansi.StringWidth(string(r))
+		j++
+		if j >= len(runes) {
+			j = 0
+		}
+	}
+
+	out.WriteString(titleDisplay)
+
+	j = 0
+	for i := 0; i < rightFill; {
 		r := runes[j]
 		out.WriteRune(r)
 		i += ansi.StringWidth(string(r))

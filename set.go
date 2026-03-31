@@ -72,6 +72,14 @@ func (s *Style) set(key propKey, value any) {
 		s.borderBottomBgColor = colorOrNil(value)
 	case borderLeftBackgroundKey:
 		s.borderLeftBgColor = colorOrNil(value)
+	case borderTopTitleKey:
+		s.borderTopTitle = value.(string)
+	case borderBottomTitleKey:
+		s.borderBottomTitle = value.(string)
+	case borderTopTitleAlignKey:
+		s.borderTopTitleAlign = value.(Position)
+	case borderBottomTitleAlignKey:
+		s.borderBottomTitleAlign = value.(Position)
 	case maxWidthKey:
 		s.maxWidth = max(0, value.(int))
 	case maxHeightKey:
@@ -170,6 +178,14 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(borderBottomBackgroundKey, i.borderBottomBgColor)
 	case borderLeftBackgroundKey:
 		s.set(borderLeftBackgroundKey, i.borderLeftBgColor)
+	case borderTopTitleKey:
+		s.set(borderTopTitleKey, i.borderTopTitle)
+	case borderBottomTitleKey:
+		s.set(borderBottomTitleKey, i.borderBottomTitle)
+	case borderTopTitleAlignKey:
+		s.set(borderTopTitleAlignKey, i.borderTopTitleAlign)
+	case borderBottomTitleAlignKey:
+		s.set(borderBottomTitleAlignKey, i.borderBottomTitleAlign)
 	case maxWidthKey:
 		s.set(maxWidthKey, i.maxWidth)
 	case maxHeightKey:
@@ -713,6 +729,52 @@ func (s Style) BorderBottomBackground(c color.Color) Style {
 // border.
 func (s Style) BorderLeftBackground(c color.Color) Style {
 	s.set(borderLeftBackgroundKey, c)
+	return s
+}
+
+// BorderTopTitle sets a title string to be rendered within the top border.
+// The title replaces part of the border line. If the title is longer than
+// the available border width, it will be truncated with an ellipsis.
+//
+// Example:
+//
+//	lipgloss.NewStyle().
+//	    BorderStyle(lipgloss.RoundedBorder()).
+//	    BorderTopTitle("My Title")
+//
+// Produces:
+//
+//	╭─ My Title ─────╮
+//	│                 │
+//	╰─────────────────╯
+func (s Style) BorderTopTitle(title string) Style {
+	s.set(borderTopTitleKey, title)
+	return s
+}
+
+// BorderBottomTitle sets a title string to be rendered within the bottom border.
+//
+// Example:
+//
+//	lipgloss.NewStyle().
+//	    BorderStyle(lipgloss.RoundedBorder()).
+//	    BorderBottomTitle("Status: OK")
+func (s Style) BorderBottomTitle(title string) Style {
+	s.set(borderBottomTitleKey, title)
+	return s
+}
+
+// BorderTopTitleAlign sets the alignment of the top border title.
+// Use lipgloss.Left (default), lipgloss.Center, or lipgloss.Right.
+func (s Style) BorderTopTitleAlign(p Position) Style {
+	s.set(borderTopTitleAlignKey, p)
+	return s
+}
+
+// BorderBottomTitleAlign sets the alignment of the bottom border title.
+// Use lipgloss.Left (default), lipgloss.Center, or lipgloss.Right.
+func (s Style) BorderBottomTitleAlign(p Position) Style {
+	s.set(borderBottomTitleAlignKey, p)
 	return s
 }
 

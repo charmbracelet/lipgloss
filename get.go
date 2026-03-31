@@ -598,17 +598,38 @@ func (s Style) getAsInt(k propKey) int {
 	return 0
 }
 
-func (s Style) getAsPosition(k propKey) Position {
+func (s Style) getAsPosition(k propKey, defaults ...Position) Position {
+	def := Position(0)
+	if len(defaults) > 0 {
+		def = defaults[0]
+	}
 	if !s.isSet(k) {
-		return Position(0)
+		return def
 	}
 	switch k { //nolint:exhaustive
 	case alignHorizontalKey:
 		return s.alignHorizontal
 	case alignVerticalKey:
 		return s.alignVertical
+	case borderTopTitleAlignKey:
+		return s.borderTopTitleAlign
+	case borderBottomTitleAlignKey:
+		return s.borderBottomTitleAlign
 	}
-	return Position(0)
+	return def
+}
+
+func (s Style) getAsString(k propKey, def string) string {
+	if !s.isSet(k) {
+		return def
+	}
+	switch k { //nolint:exhaustive
+	case borderTopTitleKey:
+		return s.borderTopTitle
+	case borderBottomTitleKey:
+		return s.borderBottomTitle
+	}
+	return def
 }
 
 func (s Style) getBorderStyle() Border {

@@ -85,6 +85,12 @@ const (
 
 	transformKey
 
+	// Border titles.
+	borderTopTitleKey
+	borderBottomTitleKey
+	borderTopTitleAlignKey
+	borderBottomTitleAlignKey
+
 	// Hyperlink.
 	linkKey
 	linkParamsKey
@@ -190,6 +196,11 @@ type Style struct {
 	maxWidth  int
 	maxHeight int
 	tabWidth  int
+
+	borderTopTitle         string
+	borderBottomTitle      string
+	borderTopTitleAlign    Position
+	borderBottomTitleAlign Position
 
 	transform func(string) string
 }
