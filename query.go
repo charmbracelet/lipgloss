@@ -10,6 +10,12 @@ import (
 )
 
 func backgroundColor(in term.File, out term.File) (color.Color, error) {
+	// Check if input is a terminal before trying to query. Without a TTY,
+	// MakeRaw and the subsequent OSC query will hang indefinitely.
+	if !term.IsTerminal(in.Fd()) {
+		return nil, fmt.Errorf("input is not a terminal")
+	}
+
 	state, err := term.MakeRaw(in.Fd())
 	if err != nil {
 		return nil, fmt.Errorf("error setting raw state to detect background color: %w", err)
