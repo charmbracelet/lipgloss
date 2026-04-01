@@ -403,11 +403,7 @@ func (s Style) applyBorder(str string) string {
 		}
 	}
 
-	// For now, limit corners to one rune.
-	border.TopLeft = getFirstRuneAsString(border.TopLeft)
-	border.TopRight = getFirstRuneAsString(border.TopRight)
-	border.BottomRight = getFirstRuneAsString(border.BottomRight)
-	border.BottomLeft = getFirstRuneAsString(border.BottomLeft)
+	// Multi-character corners are supported. No truncation is applied.
 
 	var topFG, rightFG, bottomFG, leftFG color.Color
 	var (

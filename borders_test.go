@@ -177,6 +177,53 @@ func BenchmarkGetFirstRuneAsString(b *testing.B) {
 	})
 }
 
+func TestMultiCharCorners(t *testing.T) {
+	// Multi-character corners should not be truncated (issue #605).
+	border := Border{
+		Top:         "─",
+		Bottom:      "─",
+		Left:        "│",
+		Right:       "│",
+		TopLeft:     "╔═",
+		TopRight:    "═╗",
+		BottomLeft:  "╚═",
+		BottomRight: "═╝",
+	}
+
+	style := NewStyle().
+		Border(border, true).
+		Width(10)
+
+	result := style.Render("hi")
+
+	// The multi-character corners should appear in the output.
+	if !containsString(result, "╔═") {
+		t.Errorf("expected multi-char top-left corner '╔═' in output, got:\n%s", result)
+	}
+	if !containsString(result, "═╗") {
+		t.Errorf("expected multi-char top-right corner '═╗' in output, got:\n%s", result)
+	}
+	if !containsString(result, "╚═") {
+		t.Errorf("expected multi-char bottom-left corner '╚═' in output, got:\n%s", result)
+	}
+	if !containsString(result, "═╝") {
+		t.Errorf("expected multi-char bottom-right corner '═╝' in output, got:\n%s", result)
+	}
+}
+
+func containsString(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && stringContains(s, substr))
+}
+
+func stringContains(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}
+
 func BenchmarkMaxRuneWidth(b *testing.B) {
 	testCases := []struct {
 		name string
