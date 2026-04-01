@@ -56,6 +56,33 @@ func RoundedEnumerator(children Children, index int) string {
 //	}
 type Indenter func(children Children, index int) string
 
+// BulletEnumerator enumerates tree children with bullets.
+//
+// • Foo
+// • Bar
+// • Baz.
+func BulletEnumerator(Children, int) string {
+	return "•"
+}
+
+// DashEnumerator enumerates tree children with dashes.
+//
+// - Foo
+// - Bar
+// - Baz.
+func DashEnumerator(Children, int) string {
+	return "-"
+}
+
+// AsteriskEnumerator enumerates tree children with asterisks.
+//
+// * Foo
+// * Bar
+// * Baz.
+func AsteriskEnumerator(Children, int) string {
+	return "*"
+}
+
 // DefaultIndenter indents a tree for nested trees and multiline content.
 //
 // ├── Foo

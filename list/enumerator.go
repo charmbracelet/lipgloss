@@ -126,3 +126,31 @@ func Asterisk(Items, int) string {
 func Dash(Items, int) string {
 	return "-"
 }
+
+// Tree is an enumeration using tree-style branch characters.
+// It uses the same characters as tree.DefaultEnumerator.
+//
+//	Example:
+//	  ├── Foo
+//	  ├── Bar
+//	  └── Baz
+func Tree(items Items, index int) string {
+	if items.Length()-1 == index {
+		return "└──"
+	}
+	return "├──"
+}
+
+// RoundedTree is an enumeration using tree-style branch characters with
+// rounded corners. It uses the same characters as tree.RoundedEnumerator.
+//
+//	Example:
+//	  ├── Foo
+//	  ├── Bar
+//	  ╰── Baz
+func RoundedTree(items Items, index int) string {
+	if items.Length()-1 == index {
+		return "╰──"
+	}
+	return "├──"
+}
