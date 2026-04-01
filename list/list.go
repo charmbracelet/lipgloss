@@ -264,6 +264,18 @@ func (l *List) Items(items ...any) *List {
 	return l
 }
 
+// GetItems returns the list's items as a tree.Children interface.
+// This allows iterating over the items in the list.
+//
+//	l := list.New("A", "B", "C")
+//	items := l.GetItems()
+//	for i := range items.Length() {
+//		fmt.Println(items.At(i).Value())
+//	}
+func (l *List) GetItems() Items {
+	return l.tree.Children()
+}
+
 // Enumerator sets the list enumerator.
 //
 // There are several predefined enumerators:
