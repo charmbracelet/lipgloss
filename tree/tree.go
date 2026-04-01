@@ -256,6 +256,24 @@ func (t *Tree) EnumeratorStyleFunc(fn StyleFunc) *Tree {
 	return t
 }
 
+// EnumeratorDepthStyleFunc sets the enumeration style function with depth
+// awareness. The depth parameter indicates the nesting level (0 for root
+// children, 1 for their children, and so on).
+//
+// This takes precedence over EnumeratorStyleFunc when set.
+//
+//	t := tree.New().
+//		EnumeratorDepthStyleFunc(func(_ tree.Children, i int, depth int) lipgloss.Style {
+//		    if depth == 0 {
+//		        return lipgloss.NewStyle().Foreground(primaryColor)
+//		    }
+//		    return lipgloss.NewStyle().Foreground(secondaryColor)
+//		})
+func (t *Tree) EnumeratorDepthStyleFunc(fn DepthStyleFunc) *Tree {
+	t.ensureRenderer().style.enumeratorDepthFunc = fn
+	return t
+}
+
 // IndenterStyle sets a static style for all indenters.
 //
 // Use IndenterStyleFunc to conditionally set styles based on the tree node.
@@ -281,6 +299,15 @@ func (t *Tree) IndenterStyleFunc(fn StyleFunc) *Tree {
 		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	t.ensureRenderer().style.indenterFunc = fn
+	return t
+}
+
+// IndenterDepthStyleFunc sets the indentation style function with depth
+// awareness. The depth parameter indicates the nesting level.
+//
+// This takes precedence over IndenterStyleFunc when set.
+func (t *Tree) IndenterDepthStyleFunc(fn DepthStyleFunc) *Tree {
+	t.ensureRenderer().style.indenterDepthFunc = fn
 	return t
 }
 
@@ -313,6 +340,28 @@ func (t *Tree) ItemStyleFunc(fn StyleFunc) *Tree {
 		fn = func(Children, int) lipgloss.Style { return lipgloss.NewStyle() }
 	}
 	t.ensureRenderer().style.itemFunc = fn
+	return t
+}
+
+// ItemDepthStyleFunc sets the item style function with depth awareness.
+// The depth parameter indicates the nesting level (0 for root children,
+// 1 for their children, and so on).
+//
+// This takes precedence over ItemStyleFunc when set.
+//
+//	t := tree.New().
+//		ItemDepthStyleFunc(func(_ tree.Children, i int, depth int) lipgloss.Style {
+//		    // Dim items at deeper levels.
+//		    if depth > 1 {
+//		        return lipgloss.NewStyle().Faint(true)
+//		    }
+//		    return lipgloss.NewStyle()
+//		})
+func (t *Tree) ItemDepthStyleFunc(fn DepthStyleFunc) *Tree {
+	if fn == nil {
+		fn = func(Children, int, int) lipgloss.Style { return lipgloss.NewStyle() }
+	}
+	t.ensureRenderer().style.itemDepthFunc = fn
 	return t
 }
 

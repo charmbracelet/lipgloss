@@ -9,12 +9,23 @@ import (
 // StyleFunc allows the tree to be styled per item.
 type StyleFunc func(children Children, i int) lipgloss.Style
 
+// DepthStyleFunc allows the tree to be styled per item with depth awareness.
+// The depth parameter indicates the nesting level (0 for root children, 1 for
+// their children, and so on).
+type DepthStyleFunc func(children Children, i int, depth int) lipgloss.Style
+
 // Style is the styling applied to the tree.
 type Style struct {
 	enumeratorFunc StyleFunc
 	indenterFunc   StyleFunc
 	itemFunc       StyleFunc
-	root           lipgloss.Style
+
+	// Depth-aware style functions (take precedence over non-depth variants).
+	enumeratorDepthFunc DepthStyleFunc
+	indenterDepthFunc   DepthStyleFunc
+	itemDepthFunc       DepthStyleFunc
+
+	root lipgloss.Style
 }
 
 // newRenderer returns the renderer used to render a tree.
@@ -45,6 +56,11 @@ type renderer struct {
 
 // render is responsible for actually rendering the tree.
 func (r *renderer) render(node Node, root bool, prefix string) string {
+	return r.renderWithDepth(node, root, prefix, 0)
+}
+
+// renderWithDepth renders the tree while tracking depth for depth-aware styling.
+func (r *renderer) renderWithDepth(node Node, root bool, prefix string, depth int) string {
 	if node.Hidden() {
 		return ""
 	}
@@ -66,6 +82,26 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		strs = append(strs, r.style.root.Render(line))
 	}
 
+	// Helper to resolve style functions, preferring depth-aware variants.
+	resolveEnumStyle := func(c Children, i int) lipgloss.Style {
+		if r.style.enumeratorDepthFunc != nil {
+			return r.style.enumeratorDepthFunc(c, i, depth)
+		}
+		return r.style.enumeratorFunc(c, i)
+	}
+	resolveIndentStyle := func(c Children, i int) lipgloss.Style {
+		if r.style.indenterDepthFunc != nil {
+			return r.style.indenterDepthFunc(c, i, depth)
+		}
+		return r.style.indenterFunc(c, i)
+	}
+	resolveItemStyle := func(c Children, i int) lipgloss.Style {
+		if r.style.itemDepthFunc != nil {
+			return r.style.itemDepthFunc(c, i, depth)
+		}
+		return r.style.itemFunc(c, i)
+	}
+
 	for i := range children.Length() {
 		if i < children.Length()-1 {
 			if child := children.At(i + 1); child.Hidden() {
@@ -77,7 +113,7 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 			}
 		}
 		prefix := enumerator(children, i)
-		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
+		prefix = resolveEnumStyle(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
 	}
 
@@ -86,10 +122,10 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 		if child.Hidden() {
 			continue
 		}
-		indentStyle := r.style.indenterFunc(children, i)
-		enumStyle := r.style.enumeratorFunc(children, i)
+		indentStyle := resolveIndentStyle(children, i)
+		enumStyle := resolveEnumStyle(children, i)
 
-		itemStyle := r.style.itemFunc(children, i)
+		itemStyle := resolveItemStyle(children, i)
 
 		indent := indentStyle.Render(indenter(children, i))
 		nodePrefix := enumStyle.Render(enumerator(children, i))
@@ -152,10 +188,11 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 					renderer = child.r
 				}
 			}
-			if s := renderer.render(
+			if s := renderer.renderWithDepth(
 				child,
 				false,
 				prefix+indent,
+				depth+1,
 			); s != "" {
 				strs = append(strs, s)
 			}
