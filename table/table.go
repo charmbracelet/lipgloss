@@ -71,6 +71,8 @@ type Table struct {
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
 	overflowHeight       int
+
+	showOverflow bool
 }
 
 // New returns a new Table that can be modified through different
@@ -88,6 +90,7 @@ func New() *Table {
 		borderRight:  true,
 		borderTop:    true,
 		wrap:         true,
+		showOverflow: true,
 		data:         NewStringData(),
 	}
 }
@@ -300,6 +303,19 @@ func (t *Table) VisibleRows() int {
 	return t.lastVisibleRowIndex - t.firstVisibleRowIndex + 1
 }
 
+// Overflow sets whether or not the overflow indicator row ("...") is shown
+// when the table height is too small to display all rows. By default, the
+// overflow row is shown.
+func (t *Table) Overflow(show bool) *Table {
+	t.showOverflow = show
+	return t
+}
+
+// GetOverflow returns whether the overflow indicator row is shown.
+func (t *Table) GetOverflow() bool {
+	return t.showOverflow
+}
+
 // Wrap dictates whether or not the table content should wrap.
 //
 // This only applies to data cells. Headers are never wrapped.
@@ -354,7 +370,7 @@ func (t *Table) String() string {
 		}
 
 		// Add an overflow row to show that there are more rows not being rendered.
-		if t.lastVisibleRowIndex != -2 {
+		if t.lastVisibleRowIndex != -2 && t.showOverflow {
 			sb.WriteString(t.constructRow(t.lastVisibleRowIndex+1, true))
 		}
 	}
