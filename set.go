@@ -522,6 +522,18 @@ func (s Style) Border(b Border, sides ...bool) Style {
 //	lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder())
 func (s Style) BorderStyle(b Border) Style {
 	s.set(borderStyleKey, b)
+
+	// If no border sides have been explicitly configured, enable all sides
+	// by default. This matches the rendering behavior documented above and
+	// ensures that GetBorderTop/Right/Bottom/Left return consistent results.
+	if !s.isSet(borderTopKey) && !s.isSet(borderRightKey) &&
+		!s.isSet(borderBottomKey) && !s.isSet(borderLeftKey) {
+		s.set(borderTopKey, true)
+		s.set(borderRightKey, true)
+		s.set(borderBottomKey, true)
+		s.set(borderLeftKey, true)
+	}
+
 	return s
 }
 

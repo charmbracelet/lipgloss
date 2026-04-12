@@ -741,3 +741,23 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestBorderStyleDefaultSides(t *testing.T) {
+	t.Parallel()
+
+	// Regression test for https://github.com/charmbracelet/lipgloss/issues/366
+	// BorderStyle should enable all border sides by default when no sides
+	// have been explicitly configured.
+	s := NewStyle().
+		BorderStyle(Border{Left: "   new             "}).
+		BorderForeground(Color("#FFA500"))
+
+	requireTrue(t, s.GetBorderLeft())
+	requireTrue(t, s.GetBorderTop())
+	requireTrue(t, s.GetBorderRight())
+	requireTrue(t, s.GetBorderBottom())
+
+	// BorderStyle should not override explicitly set sides.
+	s2 := NewStyle().BorderLeft(false).BorderStyle(NormalBorder())
+	requireFalse(t, s2.GetBorderLeft())
+}
