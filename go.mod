@@ -14,7 +14,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0
 	github.com/lucasb-eyer/go-colorful v1.4.0
 	github.com/rivo/uniseg v0.4.7
-	golang.org/x/sys v0.42.0
+	golang.org/x/sys v0.43.0
 )
 
 require (
