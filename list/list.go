@@ -20,7 +20,7 @@
 //	)
 //
 //	fmt.Println(groceries)
-package list //nolint:revive
+package list
 
 import (
 	"charm.land/lipgloss/v2"
