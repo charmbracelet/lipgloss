@@ -517,6 +517,31 @@ func requireNotEqual(tb testing.TB, a, b any) {
 	}
 }
 
+func TestInlinePreservesWordBoundaries(t *testing.T) {
+	// Inline collapses multi-line input onto a single line. Newlines
+	// should be replaced with a space so adjacent words don't end up
+	// jammed together. Regression for #116.
+	testStyle := NewStyle().Inline(true)
+	got := testStyle.Render("hello\nworld")
+	want := "hello world"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+
+	// \r\n normalizes to \n first, then becomes a single space.
+	got = testStyle.Render("hello\r\nworld")
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+
+	// Multiple consecutive newlines each become their own space.
+	got = testStyle.Render("a\n\nb")
+	want = "a  b"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
 func TestCarriageReturnInRender(t *testing.T) {
 	out := fmt.Sprintf("%s\r\n%s\r\n", "Super duper california oranges", "Hello world")
 	testStyle := NewStyle().
