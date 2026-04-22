@@ -580,6 +580,88 @@ func TestHeight(t *testing.T) {
 	}
 }
 
+func TestGetHorizontalFrameSize(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		style    Style
+		expected int
+	}{
+		{"no style", NewStyle(), 0},
+		{"padding only", NewStyle().PaddingLeft(2).PaddingRight(3), 5},
+		{"normal border", NewStyle().Border(NormalBorder(), true), 2},
+		{"thick border", NewStyle().Border(ThickBorder(), true), 2},
+		{"double border", NewStyle().Border(DoubleBorder(), true), 2},
+		{"rounded border", NewStyle().Border(RoundedBorder(), true), 2},
+		{"hidden border", NewStyle().Border(HiddenBorder(), true), 2},
+		{"border and padding", NewStyle().Border(NormalBorder(), true).PaddingLeft(1).PaddingRight(1), 4},
+		{"margin only", NewStyle().MarginLeft(3).MarginRight(4), 7},
+		{"margin padding border", NewStyle().MarginLeft(1).MarginRight(1).PaddingLeft(2).PaddingRight(2).Border(NormalBorder(), true), 8},
+		{"left right border only", NewStyle().Border(NormalBorder(), false, false, false).BorderLeft(true).BorderRight(true), 2},
+		{"top bottom border only", NewStyle().Border(NormalBorder(), true, false, true, false), 0},
+		{"asymmetric padding", NewStyle().PaddingLeft(5).PaddingRight(1), 6},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.style.GetHorizontalFrameSize(); got != tc.expected {
+				t.Fatalf("got %d, want %d", got, tc.expected)
+			}
+		})
+	}
+}
+
+func TestGetVerticalFrameSize(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		style    Style
+		expected int
+	}{
+		{"no style", NewStyle(), 0},
+		{"padding only", NewStyle().PaddingTop(2).PaddingBottom(3), 5},
+		{"normal border", NewStyle().Border(NormalBorder(), true), 2},
+		{"thick border", NewStyle().Border(ThickBorder(), true), 2},
+		{"double border", NewStyle().Border(DoubleBorder(), true), 2},
+		{"hidden border", NewStyle().Border(HiddenBorder(), true), 2},
+		{"border and padding", NewStyle().Border(NormalBorder(), true).PaddingTop(1).PaddingBottom(1), 4},
+		{"margin only", NewStyle().MarginTop(3).MarginBottom(4), 7},
+		{"margin padding border", NewStyle().MarginTop(1).MarginBottom(1).PaddingTop(2).PaddingBottom(2).Border(NormalBorder(), true), 8},
+		{"top bottom border only", NewStyle().Border(NormalBorder(), true, false, true, false), 2},
+		{"left right border only", NewStyle().Border(NormalBorder(), false, false, false).BorderLeft(true).BorderRight(true), 0},
+		{"asymmetric margin", NewStyle().MarginTop(5).MarginBottom(1), 6},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.style.GetVerticalFrameSize(); got != tc.expected {
+				t.Fatalf("got %d, want %d", got, tc.expected)
+			}
+		})
+	}
+}
+
+func TestGetFrameSize(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name            string
+		style           Style
+		expectedX       int
+		expectedY       int
+	}{
+		{"no style", NewStyle(), 0, 0},
+		{"padding only", NewStyle().Padding(1, 2), 4, 2},
+		{"border only", NewStyle().Border(NormalBorder(), true), 2, 2},
+		{"full frame", NewStyle().Margin(1).Padding(2).Border(NormalBorder(), true), 8, 8},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			gotX, gotY := tc.style.GetFrameSize()
+			if gotX != tc.expectedX || gotY != tc.expectedY {
+				t.Fatalf("got (%d, %d), want (%d, %d)", gotX, gotY, tc.expectedX, tc.expectedY)
+			}
+		})
+	}
+}
+
 func TestHyperlink(t *testing.T) {
 	tests := []struct {
 		name     string
