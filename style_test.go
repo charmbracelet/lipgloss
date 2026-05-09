@@ -34,6 +34,10 @@ func TestUnderline(t *testing.T) {
 			NewStyle().UnderlineStyle(UnderlineCurly),
 			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
 		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly).UnderlineColor(Color("#FF0000")),
+			"\x1b[4;58;2;255;0;0;4:3ma\x1b[m\x1b[4;58;2;255;0;0;4:3mb\x1b[m\x1b[58;2;255;0;0;4m \x1b[m\x1b[4;58;2;255;0;0;4:3mc\x1b[m",
+		},
 	}
 
 	for i, tc := range tt {
@@ -44,6 +48,16 @@ func TestUnderline(t *testing.T) {
 				i, tc.expected,
 				res)
 		}
+	}
+}
+
+func TestGetUnderlineColor(t *testing.T) {
+	t.Parallel()
+
+	red := Color("#FF0000")
+	s := NewStyle().Underline(true).UnderlineColor(red)
+	if s.GetUnderlineColor() != red {
+		t.Errorf("GetUnderlineColor() = %v, want %v", s.GetUnderlineColor(), red)
 	}
 }
 

@@ -208,6 +208,94 @@ func BenchmarkMaxRuneWidth(b *testing.B) {
 	}
 }
 
+func TestBorderGetTopBottomSize(t *testing.T) {
+	tests := []struct {
+		name       string
+		border     Border
+		wantTop    int
+		wantBottom int
+		wantLeft   int
+		wantRight  int
+	}{
+		{
+			name:       "normal border",
+			border:     NormalBorder(),
+			wantTop:    1,
+			wantBottom: 1,
+			wantLeft:   1,
+			wantRight:  1,
+		},
+		{
+			name:       "no border",
+			border:     Border{},
+			wantTop:    0,
+			wantBottom: 0,
+			wantLeft:   0,
+			wantRight:  0,
+		},
+		{
+			name: "wide rune in top-right corner",
+			border: Border{
+				Top: "─", Bottom: "─", Left: "│", Right: "│",
+				TopLeft: "┌", TopRight: "⏩", BottomLeft: "└", BottomRight: "┘",
+			},
+			wantTop:    1, // top border is always 1 row, regardless of rune width
+			wantBottom: 1,
+			wantLeft:   1,
+			wantRight:  2, // wide corner rune included in right edge width
+		},
+		{
+			name: "wide rune in bottom-right corner",
+			border: Border{
+				Top: "─", Bottom: "─", Left: "│", Right: "│",
+				TopLeft: "┌", TopRight: "┐", BottomLeft: "└", BottomRight: "⏩",
+			},
+			wantTop:    1,
+			wantBottom: 1, // bottom border is always 1 row
+			wantLeft:   1,
+			wantRight:  2, // wide corner rune included in right edge width
+		},
+		{
+			name: "wide rune as left border char",
+			border: Border{
+				Top: "─", Bottom: "─", Left: "⏩", Right: "│",
+				TopLeft: "┌", TopRight: "┐", BottomLeft: "└", BottomRight: "┘",
+			},
+			wantTop:    1,
+			wantBottom: 1,
+			wantLeft:   2, // left border with wide rune is 2 cells wide
+			wantRight:  1,
+		},
+		{
+			name: "top-only border parts",
+			border: Border{
+				Top: "─", TopLeft: "┌", TopRight: "┐",
+			},
+			wantTop:    1,
+			wantBottom: 0, // no bottom border parts
+			wantLeft:   1, // TopLeft included in left edge width
+			wantRight:  1, // TopRight included in right edge width
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.border.GetTopSize(); got != tt.wantTop {
+				t.Errorf("GetTopSize() = %d, want %d", got, tt.wantTop)
+			}
+			if got := tt.border.GetBottomSize(); got != tt.wantBottom {
+				t.Errorf("GetBottomSize() = %d, want %d", got, tt.wantBottom)
+			}
+			if got := tt.border.GetLeftSize(); got != tt.wantLeft {
+				t.Errorf("GetLeftSize() = %d, want %d", got, tt.wantLeft)
+			}
+			if got := tt.border.GetRightSize(); got != tt.wantRight {
+				t.Errorf("GetRightSize() = %d, want %d", got, tt.wantRight)
+			}
+		})
+	}
+}
+
 func maxRuneWidthOld(str string) int {
 	var width int
 

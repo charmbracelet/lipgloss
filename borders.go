@@ -29,11 +29,14 @@ type Border struct {
 	MiddleBottom string
 }
 
-// GetTopSize returns the width of the top border. If borders contain runes of
-// varying widths, the widest rune is returned. If no border exists on the top
-// edge, 0 is returned.
+// GetTopSize returns the height of the top border. A top border always
+// occupies exactly one row, so this returns 1 if a top border exists and 0
+// otherwise.
 func (b Border) GetTopSize() int {
-	return getBorderEdgeWidth(b.TopLeft, b.Top, b.TopRight)
+	if b.TopLeft == "" && b.Top == "" && b.TopRight == "" {
+		return 0
+	}
+	return 1
 }
 
 // GetRightSize returns the width of the right border. If borders contain
@@ -43,11 +46,14 @@ func (b Border) GetRightSize() int {
 	return getBorderEdgeWidth(b.TopRight, b.Right, b.BottomRight)
 }
 
-// GetBottomSize returns the width of the bottom border. If borders contain
-// runes of varying widths, the widest rune is returned. If no border exists on
-// the bottom edge, 0 is returned.
+// GetBottomSize returns the height of the bottom border. A bottom border
+// always occupies exactly one row, so this returns 1 if a bottom border exists
+// and 0 otherwise.
 func (b Border) GetBottomSize() int {
-	return getBorderEdgeWidth(b.BottomLeft, b.Bottom, b.BottomRight)
+	if b.BottomLeft == "" && b.Bottom == "" && b.BottomRight == "" {
+		return 0
+	}
+	return 1
 }
 
 // GetLeftSize returns the width of the left border. If borders contain runes
