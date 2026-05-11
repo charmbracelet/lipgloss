@@ -1,0 +1,32 @@
+name: coverage
+on: [push, pull_request]
+
+jobs:
+  coverage:
+    strategy:
+      matrix:
+        go-version: [^1]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GO111MODULE: "on"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - run: |
+          git config --global url."https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/charmbracelet".insteadOf "https://github.com/charmbracelet"
+          git config --global url."https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/charmcli".insteadOf "https://github.com/charmcli"
+
+      - name: Coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go test -race -covermode atomic -coverprofile=profile.cov ./...
+          go install github.com/mattn/goveralls@latest
+          goveralls -coverprofile=profile.cov -service=github
