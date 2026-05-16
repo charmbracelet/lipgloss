@@ -421,6 +421,15 @@ func TestCustomPaddingChar(t *testing.T) {
 	requireEqual(t, "xxxTESTxxx", s.Render("TEST"))
 }
 
+// Regression for #116. Inline used to drop \n entirely, so a multi-line
+// input was rendered as a single run-on word: "hello\nworld" became
+// "helloworld". Newlines now collapse to spaces so the words stay
+// separated.
+func TestInlineCollapsesNewlinesToSpaces(t *testing.T) {
+	s := NewStyle().Inline(true)
+	requireEqual(t, "hello world", s.Render("hello\nworld"))
+}
+
 func TestTabConversion(t *testing.T) {
 	s := NewStyle()
 	requireEqual(t, "[    ]", s.Render("[\t]"))
