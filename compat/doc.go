@@ -3,19 +3,12 @@
 // global variables, is not thread-safe, and only works with the default
 // standard I/O streams.
 //
-// In case you want [os.Stderr] to be used as the default writer, you can set
-// both [Writer] and [HasDarkBackground] to use [os.Stderr] with
-// the following code:
+// Background and color profile detection use [os.Stderr] by default (matching
+// log and most Bubble Tea apps). Override detection with [SetHasDarkBackground]
+// or by assigning [HasDarkBackground] before rendering any adaptive colors.
 //
-//	import (
-//		"os"
+// In Bubble Tea, sync from tea.BackgroundColorMsg:
 //
-//		"github.com/charmbracelet/colorprofile"
-//		"charm.land/lipgloss/v2/impure"
-//	)
-//
-//	func init() {
-//		impure.Writer = colorprofile.NewWriter(os.Stderr, os.Environ())
-//		impure.HasDarkBackground, _ = lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
-//	}
+//	case tea.BackgroundColorMsg:
+//	    compat.SetHasDarkBackground(msg.IsDark())
 package compat
