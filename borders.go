@@ -333,13 +333,22 @@ func (s Style) applyBorder(str string) string {
 		hasLeft   = s.getAsBool(borderLeftKey, false)
 	)
 
-	// If a border is set and no sides have been specifically turned on or off
-	// render borders on all sides.
-	if s.isBorderStyleSetWithoutSides() {
-		hasTop = true
-		hasRight = true
-		hasBottom = true
-		hasLeft = true
+	// If a border style is set, any side the caller didn't touch defaults to
+	// on. That way BorderTop(false) on its own leaves the other three sides
+	// rendered, instead of silently turning the whole border off.
+	if border != noBorder {
+		if !s.isSet(borderTopKey) {
+			hasTop = true
+		}
+		if !s.isSet(borderRightKey) {
+			hasRight = true
+		}
+		if !s.isSet(borderBottomKey) {
+			hasBottom = true
+		}
+		if !s.isSet(borderLeftKey) {
+			hasLeft = true
+		}
 	}
 
 	// If no border is set or all borders are been disabled, abort.
