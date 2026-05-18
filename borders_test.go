@@ -208,6 +208,29 @@ func BenchmarkMaxRuneWidth(b *testing.B) {
 	}
 }
 
+func TestBorderPartialSidesDefaultOn(t *testing.T) {
+	// Regression for #194: turning some sides off shouldn't take the
+	// untouched sides down with them.
+	s := NewStyle().
+		Border(NormalBorder()).
+		BorderTop(false).
+		BorderRight(false).
+		BorderBottom(false)
+
+	got := s.Render("x")
+	want := "│x"
+	if got != want {
+		t.Errorf("expected only the left border to render; got %q, want %q", got, want)
+	}
+
+	if s.GetBorderLeftSize() != 1 {
+		t.Errorf("GetBorderLeftSize: got %d, want 1", s.GetBorderLeftSize())
+	}
+	if s.GetBorderTopSize() != 0 {
+		t.Errorf("GetBorderTopSize: got %d, want 0", s.GetBorderTopSize())
+	}
+}
+
 func maxRuneWidthOld(str string) int {
 	var width int
 

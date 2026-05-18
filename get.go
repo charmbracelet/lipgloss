@@ -345,10 +345,7 @@ func (s Style) GetBorderTopWidth() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
 func (s Style) GetBorderTopSize() int {
-	if s.isBorderStyleSetWithoutSides() {
-		return 1
-	}
-	if !s.getAsBool(borderTopKey, false) {
+	if !s.borderSideRendered(borderTopKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetTopSize()
@@ -358,10 +355,7 @@ func (s Style) GetBorderTopSize() int {
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
 func (s Style) GetBorderLeftSize() int {
-	if s.isBorderStyleSetWithoutSides() {
-		return 1
-	}
-	if !s.getAsBool(borderLeftKey, false) {
+	if !s.borderSideRendered(borderLeftKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetLeftSize()
@@ -371,10 +365,7 @@ func (s Style) GetBorderLeftSize() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the left edge, 0 is returned.
 func (s Style) GetBorderBottomSize() int {
-	if s.isBorderStyleSetWithoutSides() {
-		return 1
-	}
-	if !s.getAsBool(borderBottomKey, false) {
+	if !s.borderSideRendered(borderBottomKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetBottomSize()
@@ -384,13 +375,23 @@ func (s Style) GetBorderBottomSize() int {
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
 func (s Style) GetBorderRightSize() int {
-	if s.isBorderStyleSetWithoutSides() {
-		return 1
-	}
-	if !s.getAsBool(borderRightKey, false) {
+	if !s.borderSideRendered(borderRightKey) {
 		return 0
 	}
 	return s.getBorderStyle().GetRightSize()
+}
+
+// borderSideRendered reports whether the given border side should render in
+// the final output, matching applyBorder: a side defaults to on whenever a
+// border style is set and the caller hasn't explicitly turned that side off.
+func (s Style) borderSideRendered(key propKey) bool {
+	if s.getBorderStyle() == noBorder {
+		return false
+	}
+	if !s.isSet(key) {
+		return true
+	}
+	return s.getAsBool(key, false)
 }
 
 // GetHorizontalBorderSize returns the width of the horizontal borders. If
@@ -640,16 +641,3 @@ func getLines(s string) (lines []string, widest int) {
 	return lines, widest
 }
 
-// isBorderStyleSetWithoutSides returns true if the border style is set but no
-// sides are set. This is used to determine if the border should be rendered by
-// default.
-func (s Style) isBorderStyleSetWithoutSides() bool {
-	var (
-		border    = s.getBorderStyle()
-		topSet    = s.isSet(borderTopKey)
-		rightSet  = s.isSet(borderRightKey)
-		bottomSet = s.isSet(borderBottomKey)
-		leftSet   = s.isSet(borderLeftKey)
-	)
-	return border != noBorder && !(topSet || rightSet || bottomSet || leftSet) //nolint:staticcheck
-}
