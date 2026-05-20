@@ -13,8 +13,8 @@ func Wrap(s string, width int, breakpoints string) string {
 	var buf bytes.Buffer
 	s = ansi.Wrap(s, width, breakpoints)
 	w := NewWrapWriter(&buf)
-	defer w.Close() //nolint:errcheck
 	_, _ = io.WriteString(w, s)
+	_ = w.Close()
 	return buf.String()
 }
 
