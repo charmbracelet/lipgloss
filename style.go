@@ -482,13 +482,10 @@ func (s Style) Render(strs ...string) string {
 		str = alignTextVertical(str, verticalAlign, height, nil)
 	}
 
-	// Set alignment. This will also pad short lines with spaces so that all
-	// lines are the same length, so we run it under a few different conditions
-	// beyond alignment.
+	// Set alignment. This also pads short lines to the widest line when a block
+	// width is set or when center/right alignment needs equal line widths.
 	{
-		numLines := strings.Count(str, "\n")
-
-		if numLines != 0 || width != 0 {
+		if width > 0 || horizontalAlign != Left {
 			var st *ansi.Style
 			if colorWhitespace || styleWhitespace {
 				st = &teWhitespace
