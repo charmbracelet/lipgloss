@@ -141,6 +141,36 @@ func TestStyleRender(t *testing.T) {
 	}
 }
 
+func TestStyleRenderPreservesBackgroundAfterANSIReset(t *testing.T) {
+	t.Parallel()
+
+	style := NewStyle().Background(Color("22"))
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "explicit reset",
+			input:    "\x1b[32mname\x1b[0m: value",
+			expected: "\x1b[48;5;22m\x1b[32mname\x1b[0m\x1b[48;5;22m: value\x1b[m",
+		},
+		{
+			name:     "implicit reset",
+			input:    "\x1b[32mname\x1b[m: value",
+			expected: "\x1b[48;5;22m\x1b[32mname\x1b[m\x1b[48;5;22m: value\x1b[m",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := style.Render(tc.input); got != tc.expected {
+				t.Errorf("expected:\n`%q`\n\nActual output:\n`%q`\n\n", tc.expected, got)
+			}
+		})
+	}
+}
+
 func TestValueCopy(t *testing.T) {
 	t.Parallel()
 
