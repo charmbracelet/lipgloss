@@ -19,7 +19,9 @@ func (s Style) UnsetItalic() Style {
 
 // UnsetUnderline removes the underline style rule, if set.
 func (s Style) UnsetUnderline() Style {
-	return s.Underline(false)
+	s.unset(underlineKey)
+	s.ul = UnderlineNone
+	return s
 }
 
 // UnsetStrikethrough removes the strikethrough style rule, if set.
