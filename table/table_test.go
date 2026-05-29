@@ -489,6 +489,25 @@ func TestTableWidthShrink(t *testing.T) {
 	})
 }
 
+func TestTableWidthIncludesColumnBorders(t *testing.T) {
+	t.Parallel()
+
+	rows := [][]string{
+		{"AB", "CD"},
+		{"12", "34"},
+	}
+
+	table := New().
+		Width(10).
+		Border(lipgloss.NormalBorder()).
+		Headers("AB", "CD").
+		Rows(rows...)
+
+	if got := lipgloss.Width(table.String()); got > 10 {
+		t.Fatalf("expected rendered width <= 10, got %d:\n%s", got, table.String())
+	}
+}
+
 func TestTableWidthSmartCrop(t *testing.T) {
 	rows := [][]string{
 		{"Kini", "40", "New York"},

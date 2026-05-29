@@ -188,7 +188,7 @@ func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) 
 
 // optimizedWidths returns the optimized column widths and row heights.
 func (r *resizer) optimizedWidths() (colWidths, rowHeights []int) {
-	if r.maxTotal() <= r.tableWidth {
+	if r.maxTotal()+r.totalHorizontalBorder() <= r.tableWidth {
 		return r.expandTableWidth(), r.rowHeights
 	}
 	return r.shrinkTableWidth(), r.rowHeights
