@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/golden"
+
+	"charm.land/lipgloss/v2"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -1044,9 +1045,9 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 
 func TestContentWrapping_WithHeight(t *testing.T) {
 	tests := []struct {
-		name     string
-		headers  []string
-		data     [][]string
+		name    string
+		headers []string
+		data    [][]string
 	}{
 		{
 			"LongHeaderContentLongAndShortRows",
@@ -1594,4 +1595,80 @@ func TestWrapStyleFuncContent(t *testing.T) {
 		Width(60).
 		Wrap(true)
 	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestContentWidth(t *testing.T) {
+	const maxWidth = 120
+
+	// narrowData's content fits comfortably within maxWidth.
+	narrowData := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	// wideData's content is wider than maxWidth, so content-width mode can't
+	// fit it and must fall back to maxWidth.
+	wideData := [][]string{
+		{"English", "Good morning, I truly hope that you are having a wonderful and relaxing day so far", "Hey there, how is absolutely everything going for you today?"},
+		{"French", "Bonjour, j'espère sincèrement que vous passez une journée merveilleuse et reposante", "Salut, comment se passe vraiment toute ta journée jusqu'ici?"},
+		{"Spanish", "Buenos días, espero de verdad que esté teniendo un día maravilloso y muy relajante", "Hola, ¿cómo va absolutamente todo por aquí el día de hoy?"},
+	}
+
+	tests := []struct {
+		name         string
+		data         [][]string
+		contentWidth bool
+		wantWidth    int
+	}{
+		{
+			// No content-width mode: the table expands to fill maxWidth.
+			name:      "narrow-default",
+			data:      narrowData,
+			wantWidth: maxWidth,
+		},
+		{
+			// Content-width mode: content fits under maxWidth, so the table
+			// shrinks to its content width.
+			name:         "narrow-content-width",
+			data:         narrowData,
+			contentWidth: true,
+			wantWidth:    34,
+		},
+		{
+			// No content-width mode: content is wider than maxWidth, so the
+			// table is shrunk to fit maxWidth.
+			name:      "wide-default",
+			data:      wideData,
+			wantWidth: maxWidth,
+		},
+		{
+			// Content-width mode, but content exceeds maxWidth: maxWidth acts
+			// as the cap, so the result matches the default.
+			name:         "wide-content-width",
+			data:         wideData,
+			contentWidth: true,
+			wantWidth:    maxWidth,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Width(maxWidth).
+				StyleFunc(TableStyle).
+				Border(lipgloss.NormalBorder()).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Rows(tc.data...)
+			if tc.contentWidth {
+				table = table.ContentWidth()
+			}
+
+			if w := lipgloss.Width(table.String()); w != tc.wantWidth {
+				t.Fatalf("expected table width to be %d, got %d", tc.wantWidth, w)
+			}
+
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
 }
