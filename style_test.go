@@ -314,6 +314,12 @@ func TestStyleUnset(t *testing.T) {
 	s = s.UnsetMarginLeft()
 	requireEqual(t, 0, s.GetMarginLeft())
 
+	// margin background
+	s = NewStyle().MarginBackground(col)
+	requireEqual(t, col, s.GetMarginBackground())
+	s = s.UnsetMarginBackground()
+	requireNotEqual(t, col, s.GetMarginBackground())
+
 	// padding
 	s = NewStyle().Padding(1, 2, 3, 4).PaddingChar('x')
 	requireEqual(t, 1, s.GetPaddingTop())
