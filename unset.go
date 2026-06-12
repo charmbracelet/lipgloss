@@ -176,6 +176,26 @@ func (s Style) UnsetMarginBackground() Style {
 	return s
 }
 
+// UnsetBorder removes all border style rules.
+func (s Style) UnsetBorder() Style {
+	s.unset(borderStyleKey)
+	s.unset(borderTopKey)
+	s.unset(borderRightKey)
+	s.unset(borderBottomKey)
+	s.unset(borderLeftKey)
+	s.unset(borderTopForegroundKey)
+	s.unset(borderRightForegroundKey)
+	s.unset(borderBottomForegroundKey)
+	s.unset(borderLeftForegroundKey)
+	s.unset(borderForegroundBlendKey)
+	s.unset(borderForegroundBlendOffsetKey)
+	s.unset(borderTopBackgroundKey)
+	s.unset(borderRightBackgroundKey)
+	s.unset(borderBottomBackgroundKey)
+	s.unset(borderLeftBackgroundKey)
+	return s
+}
+
 // UnsetBorderStyle removes the border style rule, if set.
 func (s Style) UnsetBorderStyle() Style {
 	s.unset(borderStyleKey)
