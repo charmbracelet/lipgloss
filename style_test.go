@@ -517,6 +517,23 @@ func requireNotEqual(tb testing.TB, a, b any) {
 	}
 }
 
+func TestMultilineRenderLeftAlignNoTrailingPadding(t *testing.T) {
+	style := NewStyle().Foreground(Color("#58A6FF"))
+	long := strings.Repeat("a", 80)
+	short := "short"
+	rendered := style.Render(long + "\n" + short)
+
+	lines := strings.Split(rendered, "\n")
+	if len(lines) < 2 {
+		t.Fatalf("expected at least 2 lines, got %d", len(lines))
+	}
+
+	shortLine := lines[1]
+	if strings.TrimRight(shortLine, " ") != shortLine {
+		t.Fatalf("short line has trailing whitespace padding: %q", shortLine)
+	}
+}
+
 func TestCarriageReturnInRender(t *testing.T) {
 	out := fmt.Sprintf("%s\r\n%s\r\n", "Super duper california oranges", "Hello world")
 	testStyle := NewStyle().
