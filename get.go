@@ -344,6 +344,10 @@ func (s Style) GetBorderTopWidth() int {
 // GetBorderTopSize returns the width of the top border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the top edge, 0 is returned.
+//
+// Width measurement uses the same maxRuneWidth helper as applyBorder, so this
+// getter and the renderer are always consistent — including on systems where
+// Unicode East-Asian-Width ambiguous runes are reported as wide.
 func (s Style) GetBorderTopSize() int {
 	if !s.isBorderStyleSetWithoutSides() && !s.getAsBool(borderTopKey, false) {
 		return 0
@@ -354,6 +358,10 @@ func (s Style) GetBorderTopSize() int {
 // GetBorderLeftSize returns the width of the left border. If borders contain
 // runes of varying widths, the widest rune is returned. If no border exists on
 // the left edge, 0 is returned.
+//
+// Width measurement uses the same maxRuneWidth helper as applyBorder, so this
+// getter and the renderer are always consistent — including on systems where
+// Unicode East-Asian-Width ambiguous runes are reported as wide.
 func (s Style) GetBorderLeftSize() int {
 	if !s.isBorderStyleSetWithoutSides() && !s.getAsBool(borderLeftKey, false) {
 		return 0
@@ -364,6 +372,10 @@ func (s Style) GetBorderLeftSize() int {
 // GetBorderBottomSize returns the width of the bottom border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the bottom edge, 0 is returned.
+//
+// Width measurement uses the same maxRuneWidth helper as applyBorder, so this
+// getter and the renderer are always consistent — including on systems where
+// Unicode East-Asian-Width ambiguous runes are reported as wide.
 func (s Style) GetBorderBottomSize() int {
 	if !s.isBorderStyleSetWithoutSides() && !s.getAsBool(borderBottomKey, false) {
 		return 0
@@ -374,6 +386,10 @@ func (s Style) GetBorderBottomSize() int {
 // GetBorderRightSize returns the width of the right border. If borders
 // contain runes of varying widths, the widest rune is returned. If no border
 // exists on the right edge, 0 is returned.
+//
+// Width measurement uses the same maxRuneWidth helper as applyBorder, so this
+// getter and the renderer are always consistent — including on systems where
+// Unicode East-Asian-Width ambiguous runes are reported as wide.
 func (s Style) GetBorderRightSize() int {
 	if !s.isBorderStyleSetWithoutSides() && !s.getAsBool(borderRightKey, false) {
 		return 0
