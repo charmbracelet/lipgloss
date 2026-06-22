@@ -71,6 +71,7 @@ type Table struct {
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
 	overflowHeight       int
+	overflowRow          bool
 }
 
 // New returns a new Table that can be modified through different
@@ -88,6 +89,7 @@ func New() *Table {
 		borderRight:  true,
 		borderTop:    true,
 		wrap:         true,
+		overflowRow:  true,
 		data:         NewStringData(),
 	}
 }
@@ -251,6 +253,22 @@ func (t *Table) GetBorderRow() bool {
 	return t.borderRow
 }
 
+// OverflowRow sets whether to show an overflow row when the table content
+// exceeds the configured height. The overflow row displays an ellipsis (…)
+// in each column to indicate that there are more rows below.
+//
+// Set to false to disable the overflow row, useful when implementing
+// custom pagination or when the overflow indicator is not desired.
+func (t *Table) OverflowRow(v bool) *Table {
+	t.overflowRow = v
+	return t
+}
+
+// GetOverflowRow returns whether the overflow row is enabled.
+func (t *Table) GetOverflowRow() bool {
+	return t.overflowRow
+}
+
 // Width sets the table width, this auto-sizes the columns to fit the width by
 // either expanding or contracting the widths of each column as a best effort
 // approach.
@@ -354,7 +372,7 @@ func (t *Table) String() string {
 		}
 
 		// Add an overflow row to show that there are more rows not being rendered.
-		if t.lastVisibleRowIndex != -2 {
+		if t.lastVisibleRowIndex != -2 && t.overflowRow {
 			sb.WriteString(t.constructRow(t.lastVisibleRowIndex+1, true))
 		}
 	}
