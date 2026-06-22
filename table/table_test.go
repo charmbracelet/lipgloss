@@ -1595,3 +1595,70 @@ func TestWrapStyleFuncContent(t *testing.T) {
 		Wrap(true)
 	golden.RequireEqual(t, []byte(table.String()))
 }
+
+func TestOverflowRowDisabled(t *testing.T) {
+	headers := []string{"Rank", "City", "Country"}
+	rows := [][]string{
+		{"1", "Tokyo", "Japan"},
+		{"2", "Delhi", "India"},
+		{"3", "Shanghai", "China"},
+		{"4", "Dhaka", "Bangladesh"},
+		{"5", "São Paulo", "Brazil"},
+	}
+
+	t.Run("overflow_enabled_default", func(t *testing.T) {
+		// Default behavior: overflow row should appear.
+		table := New().
+			Headers(headers...).
+			Rows(rows...).
+			Height(5)
+
+		output := table.String()
+		if !strings.Contains(output, "…") {
+			t.Error("expected overflow row with ellipsis when overflow is enabled")
+		}
+	})
+
+	t.Run("overflow_disabled", func(t *testing.T) {
+		// With OverflowRow(false), no overflow row should appear.
+		table := New().
+			Headers(headers...).
+			Rows(rows...).
+			Height(5).
+			OverflowRow(false)
+
+		output := table.String()
+		if strings.Contains(output, "…") {
+			t.Errorf("expected no overflow row when OverflowRow is disabled, got:\n%s", output)
+		}
+	})
+
+	t.Run("overflow_disabled_shows_all", func(t *testing.T) {
+		// When height is large enough, disabling overflow should make no difference.
+		tableEnabled := New().
+			Headers(headers...).
+			Rows(rows...).
+			Height(100)
+
+		tableDisabled := New().
+			Headers(headers...).
+			Rows(rows...).
+			Height(100).
+			OverflowRow(false)
+
+		if tableEnabled.String() != tableDisabled.String() {
+			t.Error("expected same output when all rows fit regardless of overflow setting")
+		}
+	})
+
+	t.Run("getter", func(t *testing.T) {
+		table := New()
+		if !table.GetOverflowRow() {
+			t.Error("expected OverflowRow to be true by default")
+		}
+		table.OverflowRow(false)
+		if table.GetOverflowRow() {
+			t.Error("expected OverflowRow to be false after setting")
+		}
+	})
+}
