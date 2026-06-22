@@ -319,6 +319,111 @@ func TestAt(t *testing.T) {
 	}
 }
 
+func TestTreeOffset(t *testing.T) {
+	build := func() *tree.Tree {
+		return tree.New().
+			Root("Root").
+			Child("A", "B", "C", "D", "E")
+	}
+
+	t.Run("zero_offset", func(t *testing.T) {
+		// Offset(0,0) should show all children.
+		tr := build()
+		tr.Offset(0, 0)
+		got := tr.Children()
+		want := []string{"A", "B", "C", "D", "E"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("skip_from_start", func(t *testing.T) {
+		// Offset(2,0) should skip A,B → show C,D,E.
+		tr := build()
+		tr.Offset(2, 0)
+		got := tr.Children()
+		want := []string{"C", "D", "E"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("skip_from_end", func(t *testing.T) {
+		// Offset(0,2) should skip D,E → show A,B,C.
+		tr := build()
+		tr.Offset(0, 2)
+		got := tr.Children()
+		want := []string{"A", "B", "C"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("skip_from_both", func(t *testing.T) {
+		// Offset(2,1) should skip A,B from start and E from end → show C,D.
+		tr := build()
+		tr.Offset(2, 1)
+		got := tr.Children()
+		want := []string{"C", "D"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("start_greater_than_end", func(t *testing.T) {
+		// Offset(3,1) — start > end is valid, no swap should happen.
+		// Skip A,B,C from start, skip E from end → show D.
+		tr := build()
+		tr.Offset(3, 1)
+		got := tr.Children()
+		want := []string{"D"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("offset_larger_than_children", func(t *testing.T) {
+		// Offset(10,0) should produce empty children.
+		tr := build()
+		tr.Offset(10, 0)
+		got := tr.Children()
+		if got.Length() != 0 {
+			t.Errorf("expected 0 children, got %d", got.Length())
+		}
+	})
+
+	t.Run("negative_values_clamped_to_zero", func(t *testing.T) {
+		// Negative values should be treated as zero.
+		tr := build()
+		tr.Offset(-1, -2)
+		got := tr.Children()
+		want := []string{"A", "B", "C", "D", "E"}
+		assertChildren(t, got, want)
+	})
+
+	t.Run("offset_swallows_all", func(t *testing.T) {
+		// Offset(2,3) on 5 items: skip A,B + C,D,E = nothing left.
+		tr := build()
+		tr.Offset(2, 3)
+		got := tr.Children()
+		if got.Length() != 0 {
+			t.Errorf("expected 0 children, got %d", got.Length())
+		}
+	})
+
+	t.Run("equal_offset", func(t *testing.T) {
+		// Offset(1,1) on 5 items: skip A + skip E → show B,C,D.
+		tr := build()
+		tr.Offset(1, 1)
+		got := tr.Children()
+		want := []string{"B", "C", "D"}
+		assertChildren(t, got, want)
+	})
+}
+
+func assertChildren(t *testing.T, got tree.Children, want []string) {
+	t.Helper()
+	if got.Length() != len(want) {
+		t.Errorf("expected %d children, got %d", len(want), got.Length())
+		return
+	}
+	for i, w := range want {
+		if got.At(i).Value() != w {
+			t.Errorf("expected child %d to be %q, got %q", i, w, got.At(i).Value())
+		}
+	}
+}
+
 func TestFilter(t *testing.T) {
 	data := tree.NewFilter(tree.NewStringData(
 		"Foo",
