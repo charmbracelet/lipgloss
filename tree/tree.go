@@ -118,19 +118,17 @@ func (t *Tree) Hide(hide bool) *Tree {
 // SetHidden hides a Tree node.
 func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
 
-// Offset sets the Tree children offsets.
+// Offset sets the Tree children offsets. Start is the number of children to
+// skip from the beginning, and end is the number of children to skip from the
+// end. For example, Offset(2, 1) on [A, B, C, D, E] yields [C, D].
+//
+// Passing a negative value for either parameter treats it as zero (no offset).
 func (t *Tree) Offset(start, end int) *Tree {
-	if start > end {
-		_start := start
-		start = end
-		end = _start
-	}
-
 	if start < 0 {
 		start = 0
 	}
-	if end < 0 || end > t.children.Length() {
-		end = t.children.Length()
+	if end < 0 {
+		end = 0
 	}
 
 	t.offset[0] = start
@@ -363,8 +361,26 @@ func (t *Tree) Width(width int) *Tree {
 
 // Children returns the children of a node.
 func (t *Tree) Children() Children {
+	start := t.offset[0]
+	end := t.offset[1]
+	n := t.children.Length()
+
+	// Clamp offsets to valid range.
+	if start < 0 {
+		start = 0
+	}
+	if start > n {
+		start = n
+	}
+	if end < 0 {
+		end = 0
+	}
+	if end > n-start {
+		end = n - start
+	}
+
 	var data []Node
-	for i := t.offset[0]; i < t.children.Length()-t.offset[1]; i++ {
+	for i := start; i < n-end; i++ {
 		data = append(data, t.children.At(i))
 	}
 	return NodeChildren(data)
