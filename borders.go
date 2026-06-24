@@ -509,10 +509,21 @@ func renderHorizontalEdge(left, middle, right string, width int) string {
 	out := strings.Builder{}
 	out.WriteString(left)
 
-	for i := 0; i < width-leftWidth-rightWidth; {
+	inner := width - leftWidth - rightWidth
+	for i := 0; i < inner; {
 		r := runes[j]
+		rw := ansi.StringWidth(string(r))
+		if i+rw > inner {
+			// The next rune is too wide to fit in the remaining space (e.g. a
+			// wide middle rune against an odd inner width). Pad with a single
+			// space so we land exactly on the target width instead of
+			// overshooting it.
+			out.WriteRune(' ')
+			i++
+			continue
+		}
 		out.WriteRune(r)
-		i += ansi.StringWidth(string(r))
+		i += rw
 		j++
 		if j >= len(runes) {
 			j = 0
