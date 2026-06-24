@@ -644,6 +644,32 @@ func TestUnsetHyperlink(t *testing.T) {
 	}
 }
 
+// TestBorderStylePartialSides ensures that disabling individual border sides
+// via BorderStyle+BorderTop/Right/Bottom/Left(false) does not make all sides
+// disappear. Regression test for https://github.com/charmbracelet/lipgloss/issues/194.
+func TestBorderStylePartialSides(t *testing.T) {
+	b := NormalBorder()
+	content := "hi"
+
+	// All four sides should render with only a style set.
+	allSides := NewStyle().BorderStyle(b).Render(content)
+	if Height(allSides) != 3 || Width(allSides) != 4 {
+		t.Fatalf("expected 3 rows and 4 cols for all-sides border, got height=%d width=%d", Height(allSides), Width(allSides))
+	}
+
+	// Disabling only the top: right, bottom, left must still render.
+	noTop := NewStyle().BorderStyle(b).BorderTop(false).Render(content)
+	if Height(noTop) != 2 {
+		t.Fatalf("expected 2 rows (no top border), got %d\n%s", Height(noTop), noTop)
+	}
+
+	// Disabling only the left: top, right, bottom must still render.
+	noLeft := NewStyle().BorderStyle(b).BorderLeft(false).Render(content)
+	if Height(noLeft) != 3 {
+		t.Fatalf("expected 3 rows (no left border), got %d\n%s", Height(noLeft), noLeft)
+	}
+}
+
 func BenchmarkPad(b *testing.B) {
 	tests := []struct {
 		name string
