@@ -426,13 +426,28 @@ func (s Style) Render(strs ...string) string {
 				b.WriteRune('\n')
 			}
 			if useSpaceStyler {
-				// Look for spaces and apply a different styler
-				for _, r := range line {
-					if unicode.IsSpace(r) {
-						b.WriteString(teSpace.Styled(string(r)))
-						continue
+				// Look for spaces and apply a different styler, while passing
+				// through any ANSI escape sequences already present in the line
+				// so they are not mangled (e.g. when rendering an
+				// already-styled string).
+				// See https://github.com/charmbracelet/lipgloss/issues/233.
+				var state byte
+				for len(line) > 0 {
+					seq, width, n, newState := ansi.DecodeSequence(line, state, nil)
+					if n == 0 {
+						break
 					}
-					b.WriteString(te.Styled(string(r)))
+					switch {
+					case width == 0:
+						// Control or escape sequence: emit verbatim, unstyled.
+						b.WriteString(seq)
+					case isSpaceSequence(seq):
+						b.WriteString(teSpace.Styled(seq))
+					default:
+						b.WriteString(te.Styled(seq))
+					}
+					line = line[n:]
+					state = newState
 				}
 			} else {
 				b.WriteString(te.Styled(line))
@@ -523,6 +538,17 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	return str
+}
+
+// isSpaceSequence reports whether the given grapheme consists solely of
+// whitespace runes.
+func isSpaceSequence(s string) bool {
+	for _, r := range s {
+		if !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return s != ""
 }
 
 func (s Style) maybeConvertTabs(str string) string {
