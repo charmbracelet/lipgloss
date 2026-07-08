@@ -568,11 +568,15 @@ func (s Style) applyMargins(str string, inline bool) string {
 		_, width := getLines(str)
 		spaces := strings.Repeat(" ", width)
 
+		// Style each margin line on its own so the reset lands before the
+		// newline, not at the start of the next line (see #115).
 		if topMargin > 0 {
-			str = style.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
+			line := style.Styled(spaces)
+			str = strings.Repeat(line+"\n", topMargin) + str
 		}
 		if bottomMargin > 0 {
-			str += style.Styled(strings.Repeat("\n"+spaces, bottomMargin))
+			line := style.Styled(spaces)
+			str += strings.Repeat("\n"+line, bottomMargin)
 		}
 	}
 
