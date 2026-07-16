@@ -326,21 +326,13 @@ func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlen
 
 func (s Style) applyBorder(str string) string {
 	var (
-		border    = s.getBorderStyle()
-		hasTop    = s.getAsBool(borderTopKey, false)
-		hasRight  = s.getAsBool(borderRightKey, false)
-		hasBottom = s.getAsBool(borderBottomKey, false)
-		hasLeft   = s.getAsBool(borderLeftKey, false)
+		border      = s.getBorderStyle()
+		defaultSide = border != noBorder
+		hasTop      = s.getAsBool(borderTopKey, defaultSide)
+		hasRight    = s.getAsBool(borderRightKey, defaultSide)
+		hasBottom   = s.getAsBool(borderBottomKey, defaultSide)
+		hasLeft     = s.getAsBool(borderLeftKey, defaultSide)
 	)
-
-	// If a border is set and no sides have been specifically turned on or off
-	// render borders on all sides.
-	if s.isBorderStyleSetWithoutSides() {
-		hasTop = true
-		hasRight = true
-		hasBottom = true
-		hasLeft = true
-	}
 
 	// If no border is set or all borders are been disabled, abort.
 	if border == noBorder || (!hasTop && !hasRight && !hasBottom && !hasLeft) {
