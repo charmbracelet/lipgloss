@@ -194,6 +194,13 @@ type Style struct {
 	transform func(string) string
 }
 
+const (
+	ansiCSI         = "\x1b["
+	ansiSGRCommand  = 'm'
+	minCSIFinalByte = 0x40
+	maxCSIFinalByte = 0x7e
+)
+
 // joinString joins a list of strings into a single string separated with a
 // space.
 func joinString(strs ...string) string {
@@ -435,7 +442,7 @@ func (s Style) Render(strs ...string) string {
 					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(te.Styled(line))
+				b.WriteString(te.Styled(reapplyStyleAfterReset(line, te)))
 			}
 		}
 
@@ -523,6 +530,74 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	return str
+}
+
+func reapplyStyleAfterReset(str string, style ansi.Style) string {
+	if len(style) == 0 || !strings.Contains(str, ansiCSI) {
+		return str
+	}
+
+	var b strings.Builder
+	styleSequence := style.String()
+	for len(str) > 0 {
+		idx := strings.Index(str, ansiCSI)
+		if idx == -1 {
+			b.WriteString(str)
+			break
+		}
+
+		b.WriteString(str[:idx])
+		str = str[idx:]
+
+		end := findCSIEnd(str)
+		if end == -1 {
+			b.WriteString(str)
+			break
+		}
+
+		sequence := str[:end+1]
+		b.WriteString(sequence)
+		str = str[end+1:]
+		if isStyleReset(sequence) && str != "" {
+			b.WriteString(styleSequence)
+		}
+	}
+
+	return b.String()
+}
+
+func findCSIEnd(str string) int {
+	for i := len(ansiCSI); i < len(str); i++ {
+		if str[i] >= minCSIFinalByte && str[i] <= maxCSIFinalByte {
+			return i
+		}
+	}
+	return -1
+}
+
+func isStyleReset(sequence string) bool {
+	if !strings.HasPrefix(sequence, ansiCSI) || sequence[len(sequence)-1] != ansiSGRCommand {
+		return false
+	}
+
+	params := sequence[len(ansiCSI) : len(sequence)-1]
+	if params == "" {
+		return true
+	}
+
+	for _, param := range strings.FieldsFunc(params, func(r rune) bool {
+		return r == ';' || r == ':'
+	}) {
+		if param == "" {
+			continue
+		}
+		for _, r := range param {
+			if r != '0' {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (s Style) maybeConvertTabs(str string) string {
