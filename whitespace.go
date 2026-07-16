@@ -33,11 +33,15 @@ func (w whitespace) render(width int) string {
 
 	// Cycle through runes and print them into the whitespace.
 	for i := 0; i < width; {
-		b.WriteRune(r[j])
-		// Measure the width of the rune we just wrote, ensuring we always
-		// make progress to avoid infinite loops with zero-width characters
-		// like tabs.
 		runeWidth := ansi.StringWidth(string(r[j]))
+		// Don't overshoot the target width with a wide (multi-cell) rune.
+		// Any remaining gap is padded with spaces below instead.
+		if i+runeWidth > width {
+			break
+		}
+		b.WriteRune(r[j])
+		// Ensure we always make progress to avoid infinite loops with
+		// zero-width characters like tabs.
 		if runeWidth < 1 {
 			runeWidth = 1
 		}
