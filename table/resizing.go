@@ -97,10 +97,16 @@ func (t *Table) resize() {
 		}
 	}
 
-	// A table width wasn't specified. In this case, detect according to
-	// content width.
-	if r.tableWidth <= 0 {
+	switch {
+	case r.tableWidth <= 0:
+		// A table width wasn't specified. In this case, detect according to
+		// content width.
 		r.tableWidth = r.detectTableWidth()
+	case t.contentWidth:
+		// Render at content width, treating the specified width as a maximum.
+		if cw := r.detectTableWidth(); cw < r.tableWidth {
+			r.tableWidth = cw
+		}
 	}
 
 	t.widths, t.heights = r.optimizedWidths()
