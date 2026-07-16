@@ -3,6 +3,7 @@ package lipgloss
 import (
 	"testing"
 
+	"github.com/charmbracelet/x/ansi"
 	"github.com/rivo/uniseg"
 )
 
@@ -221,4 +222,27 @@ func maxRuneWidthOld(str string) int {
 	}
 
 	return width
+}
+
+func TestRenderHorizontalEdgeWideMiddle(t *testing.T) {
+	tests := []struct {
+		name      string
+		left, mid string
+		right     string
+		width     int
+	}{
+		{"WideMid_EvenInner", "X", "あ", "Y", 6}, // inner 4: あ あ -> 4 cells
+		{"WideMid_OddInner", "X", "あ", "Y", 7},  // inner 5: must not overshoot to 6
+		{"WideMid_NoCorners", "", "あ", "", 5},   // inner 5
+		{"NarrowMid_Odd", "X", "-", "Y", 7},     // inner 5, baseline
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := renderHorizontalEdge(tt.left, tt.mid, tt.right, tt.width)
+			if w := ansi.StringWidth(got); w != tt.width {
+				t.Errorf("renderHorizontalEdge(%q,%q,%q,%d) width = %d, want %d (out=%q)",
+					tt.left, tt.mid, tt.right, tt.width, w, tt.width, got)
+			}
+		})
+	}
 }
