@@ -49,13 +49,20 @@ type Indenter func(items Items, index int) string
 //	  c. Baz
 //	  d. Qux.
 func Alphabet(_ Items, i int) string {
-	if i >= abcLen*abcLen+abcLen {
-		return fmt.Sprintf("%c%c%c.", 'A'+i/abcLen/abcLen-1, 'A'+(i/abcLen)%abcLen-1, 'A'+i%abcLen)
+	// Alphabetic labels are bijective base-26 (like spreadsheet column names:
+	// A..Z, AA..ZZ, AAA..): there's no zero digit, so we borrow by decrementing
+	// before each division. Building the label digit by digit keeps it correct
+	// for any index, including the three-letter range and beyond.
+	var letters []byte
+	for n := i + 1; n > 0; n /= abcLen {
+		n--
+		letters = append(letters, 'A'+byte(n%abcLen))
 	}
-	if i >= abcLen {
-		return fmt.Sprintf("%c%c.", 'A'+i/abcLen-1, 'A'+(i)%abcLen)
+	// Digits were generated least-significant first, so reverse them.
+	for l, r := 0, len(letters)-1; l < r; l, r = l+1, r-1 {
+		letters[l], letters[r] = letters[r], letters[l]
 	}
-	return fmt.Sprintf("%c.", 'A'+i%abcLen)
+	return string(letters) + "."
 }
 
 const abcLen = 26
