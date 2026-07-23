@@ -311,7 +311,7 @@ func TestLighten(t *testing.T) {
 	}
 }
 
-func TestRgbFormat(t *testing.T) {
+func TestParseRgb(t *testing.T) {
 	tests := []struct {
 		name        string
 		input       string
