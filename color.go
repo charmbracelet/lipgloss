@@ -98,11 +98,19 @@ func Color(s string) color.Color {
 
 	// RGB format
 	c, err := parseRgb(s)
-	if err != nil {
-		return noColor
+	if err == nil {
+		return c
 	}
 
-	return c
+	// HSL format
+	c, err = parseHsl(s)
+	if err == nil {
+		return c
+	}
+
+	return noColor
+}
+
 // hueToRgb converts a normalized hue value into an RGB channel value. The p and
 // q parameters define the color bounds, and t specifies the hue position for
 // the channel being calculated. The returned value is normalized between 0 and 1.
