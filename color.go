@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"image/color"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -66,6 +67,8 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	ansi256Color := lipgloss.Color("21")
 //	hexColor := lipgloss.Color("#0000ff")
 func Color(s string) color.Color {
+
+	// Hex format
 	if strings.HasPrefix(s, "#") {
 		c, err := parseHex(s)
 		if err != nil {
@@ -74,24 +77,31 @@ func Color(s string) color.Color {
 		return c
 	}
 
+	// Ansi format
 	i, err := strconv.Atoi(s)
+	if err == nil {
+		if i < 0 {
+			// Only positive numbers
+			i = -i
+		}
+
+		if i < 16 {
+			return ansi.BasicColor(i) //nolint:gosec
+		} else if i < 256 {
+			return ANSIColor(i) //nolint:gosec
+		}
+
+		r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
+		return color.RGBA{R: r, G: g, B: b, A: 0xff}
+	}
+
+	// RGB format
+	c, err := parseRgb(s)
 	if err != nil {
 		return noColor
 	}
 
-	if i < 0 {
-		// Only positive numbers
-		i = -i
-	}
-
-	if i < 16 {
-		return ansi.BasicColor(i) //nolint:gosec
-	} else if i < 256 {
-		return ANSIColor(i) //nolint:gosec
-	}
-
-	r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
-	return color.RGBA{R: r, G: g, B: b, A: 0xff}
+	return c
 }
 
 var errInvalidFormat = errors.New("invalid hex format") // pre-allocated.
@@ -132,6 +142,32 @@ func parseHex(s string) (c color.RGBA, err error) {
 		err = errInvalidFormat
 	}
 	return c, err
+}
+
+// parseRgb parses a string of rgb format and returns a color.RGBA. The string can
+// be in the format rgb(r, g, b) where r, g, and b are numbers.
+func parseRgb(s string) (c color.RGBA, err error) {
+	reRGB := regexp.MustCompile(`^rgb\(\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$`)
+	m := reRGB.FindStringSubmatch(s)
+	if m == nil {
+		return color.RGBA{}, errInvalidFormat
+	}
+	values := [3]int{}
+	for i, str := range m[1:4] {
+		values[i], _ = strconv.Atoi(str)
+		if values[i] < 0 {
+			values[i] = 0
+		}
+		if values[i] > 255 {
+			values[i] = 255
+		}
+	}
+	return color.RGBA{
+		R: uint8(values[0]),
+		G: uint8(values[1]),
+		B: uint8(values[2]),
+		A: 0xff,
+	}, nil
 }
 
 // RGBColor is a color specified by red, green, and blue values.
