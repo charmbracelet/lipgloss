@@ -310,3 +310,73 @@ func TestLighten(t *testing.T) {
 		})
 	}
 }
+
+func TestRgbFormat(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expected    color.Color
+		expectError bool
+	}{
+		{name: "valid-rgb-single-sapces-red", input: "rgb(255, 0, 0)", expected: hex("#FF0000")},
+		{name: "valid-rgb-single-sapces-green", input: "rgb(0, 255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-single-sapces-blue", input: "rgb(0, 0, 255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-single-sapces-white", input: "rgb(255, 255, 255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-single-sapces-black", input: "rgb(0, 0, 0)", expected: hex("#000000")},
+		{name: "valid-rgb-single-sapces-gray", input: "rgb(128, 128, 128)", expected: hex("#808080")},
+		{name: "valid-rgb-no-sapces-red", input: "rgb(255,0,0)", expected: hex("#FF0000")},
+		{name: "valid-rgb-no-sapces-green", input: "rgb(0,255,0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-no-sapces-blue", input: "rgb(0,0,255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-no-sapces-white", input: "rgb(255,255,255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-no-sapces-black", input: "rgb(0,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-no-sapces-gray", input: "rgb(128,128,128)", expected: hex("#808080")},
+		{name: "valid-rgb-inconsistent-single-sapces-red", input: "rgb(255,0,0 )", expected: hex("#FF0000")},
+		{name: "valid-rgb-inconsistent-single-sapces-green", input: "rgb(0,255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-inconsistent-single-sapces-blue", input: "rgb(0,0 ,255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-inconsistent-single-sapces-white", input: "rgb(255, 255,255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-inconsistent-single-sapces-black", input: "rgb(0 ,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-inconsistent-single-sapces-gray", input: "rgb( 128,128,128)", expected: hex("#808080")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-red", input: "rgb(255  ,0,0 )", expected: hex("#FF0000")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-green", input: "rgb(0,    255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-blue", input: "rgb(0,0 ,   255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-white", input: "rgb(255, 255,255  )", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-black", input: "rgb(        0 ,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-gray", input: "rgb( 128    , 128  , 128 )", expected: hex("#808080")},
+		{name: "valid-rgb-out-of-range-red", input: "rgb(256, -1, -1)", expected: hex("#FF0000")},
+		{name: "valid-rgb-out-of-range-green", input: "rgb(-255, 512, -255)", expected: hex("#00FF00")},
+		{name: "valid-rgb-out-of-range-blue", input: "rgb(-100, -200, 300)", expected: hex("#0000FF")},
+		{name: "valid-rgb-out-of-range-white", input: "rgb(500, 1000, 1500)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-out-of-range-black", input: "rgb(-10, -100, -1000)", expected: hex("#000000")},
+		{name: "two-values", input: "rgb(255, 0)", expectError: true},
+		{name: "four-values", input: "rgb(0,255, 0, 255)", expectError: true},
+		{name: "upper-case", input: "RGB(255, 0, 0)", expectError: true},
+		{name: "no-values", input: "rgb(, , )", expectError: true},
+		{name: "missing )", input: "rgb(0, 255, 0", expectError: true},
+		{name: "unexpected rune (", input: "rgb((0, 0, 255)", expectError: true},
+		{name: "unexpected rune .", input: "rgb(255. 255, 255)", expectError: true},
+		{name: "unexpected rune b", input: "rgb(0, b0, 0)", expectError: true},
+		{name: "unexpected float", input: "rgb(255, 31.415, 0)", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := parseRgb(tt.input)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("parseRgb() expected error but got none for input %q", tt.input)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("parseRgb() unexpected error for input %q: %v", tt.input, err)
+				return
+			}
+
+			expectColorMatches(t, result, tt.expected)
+		})
+	}
+}
