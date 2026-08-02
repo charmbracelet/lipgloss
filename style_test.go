@@ -435,6 +435,40 @@ func TestCustomPaddingChar(t *testing.T) {
 	requireEqual(t, "xxxTESTxxx", s.Render("TEST"))
 }
 
+// Vertical margins add rows padded to the width of the widest line, and a style
+// with no vertical margin adds none.
+//
+// applyMargins derives that width by walking every line of the block, and the walk
+// is guarded on a top or bottom margin actually being set — so these cover both
+// sides of the guard.
+//
+// What they do NOT pin is the walk itself: horizontal alignment has already padded
+// every line out to the widest by the time applyMargins runs, so reading the width
+// off the first line passes too. The equality is incidental to that ordering rather
+// than a property of the block, which is worth knowing before relying on it.
+//
+// Align(Left) rather than a bare NewStyle(): with no properties at all Render
+// returns before it reaches alignment or margins, so the block would come back
+// untouched and the case would assert nothing about this path.
+func TestVerticalMargins(t *testing.T) {
+	t.Parallel()
+
+	base := NewStyle().Align(Left)
+	block := "long line here\nshort"
+
+	requireEqual(t, "long line here\nshort         ", base.Render(block))
+	requireEqual(t, "              \nlong line here\nshort         ", base.MarginTop(1).Render(block))
+	requireEqual(t, "long line here\nshort         \n              ", base.MarginBottom(1).Render(block))
+	requireEqual(t,
+		"              \nlong line here\nshort         \n              ",
+		base.MarginTop(1).MarginBottom(1).Render(block))
+
+	// Widest line last: order does not affect the padded width.
+	requireEqual(t,
+		"              \nshort         \nlong line here",
+		base.MarginTop(1).Render("short\nlong line here"))
+}
+
 func TestTabConversion(t *testing.T) {
 	s := NewStyle()
 	requireEqual(t, "[    ]", s.Render("[\t]"))
