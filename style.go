@@ -401,7 +401,8 @@ func (s Style) Render(strs ...string) string {
 
 	// Strip newlines in single line mode
 	if inline {
-		str = strings.ReplaceAll(str, "\n", "")
+		str = strings.TrimSuffix(str, "\n")
+		str = strings.ReplaceAll(str, "\n", " ")
 	}
 
 	// Include borders in block size.
