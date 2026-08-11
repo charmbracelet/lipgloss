@@ -273,6 +273,9 @@ func (t *Table) GetHeight() int {
 
 // YOffset sets the table rendering offset.
 func (t *Table) YOffset(o int) *Table {
+	if o < 0 {
+		o = 0
+	}
 	t.yOffset = o
 	return t
 }
