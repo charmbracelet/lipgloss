@@ -530,6 +530,15 @@ func TestCarriageReturnInRender(t *testing.T) {
 	}
 }
 
+func TestInlineJoinsLinesWithSpace(t *testing.T) {
+	got := NewStyle().Inline(true).Render("hello\nworld")
+	want := "hello world"
+
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
 func TestWidth(t *testing.T) {
 	tests := []struct {
 		name  string
