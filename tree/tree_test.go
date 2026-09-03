@@ -160,6 +160,38 @@ func TestTreeNil(t *testing.T) {
 	golden.RequireEqual(t, []byte(tree.String()))
 }
 
+func TestNilValues(t *testing.T) {
+	t.Run("new leaf", func(t *testing.T) {
+		leaf := tree.NewLeaf(nil, false)
+		if got := leaf.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("set leaf value", func(t *testing.T) {
+		leaf := tree.NewLeaf("value", false)
+		leaf.SetValue(nil)
+		if got := leaf.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("new tree", func(t *testing.T) {
+		tr := tree.Root(nil)
+		if got := tr.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("set tree value", func(t *testing.T) {
+		tr := tree.Root("value")
+		tr.SetValue(nil)
+		if got := tr.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+}
+
 func TestTreeCustom(t *testing.T) {
 	tree := tree.New().
 		Child(
