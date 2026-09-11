@@ -2,7 +2,7 @@ module charm.land/lipgloss/v2
 
 retract v2.0.0-beta1 // We add a "." after the "beta" in the version number.
 
-go 1.25.0
+go 1.26.7
 
 require (
 	github.com/aymanbagabas/go-udiff v0.4.1
