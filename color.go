@@ -4,6 +4,8 @@ import (
 	"cmp"
 	"errors"
 	"image/color"
+	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -66,6 +68,8 @@ func (n NoColor) RGBA() (r, g, b, a uint32) {
 //	ansi256Color := lipgloss.Color("21")
 //	hexColor := lipgloss.Color("#0000ff")
 func Color(s string) color.Color {
+
+	// Hex format
 	if strings.HasPrefix(s, "#") {
 		c, err := parseHex(s)
 		if err != nil {
@@ -74,24 +78,61 @@ func Color(s string) color.Color {
 		return c
 	}
 
+	// Ansi format
 	i, err := strconv.Atoi(s)
-	if err != nil {
-		return noColor
+	if err == nil {
+		if i < 0 {
+			// Only positive numbers
+			i = -i
+		}
+
+		if i < 16 {
+			return ansi.BasicColor(i) //nolint:gosec
+		} else if i < 256 {
+			return ANSIColor(i) //nolint:gosec
+		}
+
+		r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
+		return color.RGBA{R: r, G: g, B: b, A: 0xff}
 	}
 
-	if i < 0 {
-		// Only positive numbers
-		i = -i
+	// RGB format
+	c, err := parseRgb(s)
+	if err == nil {
+		return c
 	}
 
-	if i < 16 {
-		return ansi.BasicColor(i) //nolint:gosec
-	} else if i < 256 {
-		return ANSIColor(i) //nolint:gosec
+	// HSL format
+	c, err = parseHsl(s)
+	if err == nil {
+		return c
 	}
 
-	r, g, b := uint8((i>>16)&0xff), uint8(i>>8&0xff), uint8(i&0xff) //nolint:gosec
-	return color.RGBA{R: r, G: g, B: b, A: 0xff}
+	return noColor
+}
+
+// hueToRgb converts a normalized hue value into an RGB channel value. The p and
+// q parameters define the color bounds, and t specifies the hue position for
+// the channel being calculated. The returned value is normalized between 0 and 1.
+func hueToRgb(p, q, t float64) float64 {
+	if t < 0 {
+		t += 1
+	}
+	if t > 1 {
+		t -= 1
+	}
+
+	if t < 1.0/6.0 {
+		return p + (q-p)*6*t
+	}
+	if t < 1.0/2.0 {
+		return q
+	}
+	if t < 2.0/3.0 {
+		return p + (q-p)*(2.0/3.0-t)*6
+	}
+
+	return p
 }
 
 var errInvalidFormat = errors.New("invalid hex format") // pre-allocated.
@@ -132,6 +173,91 @@ func parseHex(s string) (c color.RGBA, err error) {
 		err = errInvalidFormat
 	}
 	return c, err
+}
+
+// parseHsl parses a string of hsl format and returns a color.RGBA. The string can
+// be in the format hsl(h, s%, l%) where h is the hue, s is the saturation, and
+// l is the lightness. Values outside the valid range are clamped or normalized.
+func parseHsl(s string) (color.RGBA, error) {
+	reHSL := regexp.MustCompile(`^hsl\(\s*(-?\d+)\s*,\s*(-?\d+)\s*%\s*,\s*(-?\d+)\s*%\s*\)$`)
+
+	m := reHSL.FindStringSubmatch(s)
+	if m == nil {
+		return color.RGBA{}, errInvalidFormat
+	}
+
+	light, _ := strconv.Atoi(m[3])
+	if light <= 0 {
+		return color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff}, nil
+	}
+	if light >= 100 {
+		return color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}, nil
+	}
+
+	sat, _ := strconv.Atoi(m[2])
+	if sat <= 0 {
+		lightHex := uint8((light * 255) / 100)
+		return color.RGBA{R: lightHex, G: lightHex, B: lightHex, A: 0xff}, nil
+	}
+	if sat > 100 {
+		sat = 100
+	}
+
+	h, _ := strconv.Atoi(m[1])
+	h %= 360
+	for h < 0 {
+		h += 360
+	}
+	// Convert HSL values from percentages to [0,1]
+	hf := float64(h) / 360.0
+	sf := float64(sat) / 100.0
+	lf := float64(light) / 100.0
+
+	var q float64
+	if lf < 0.5 {
+		q = lf * (1 + sf)
+	} else {
+		q = lf + sf - lf*sf
+	}
+
+	p := 2*lf - q
+
+	r := hueToRgb(p, q, hf+1.0/3.0)
+	g := hueToRgb(p, q, hf)
+	b := hueToRgb(p, q, hf-1.0/3.0)
+
+	return color.RGBA{
+		R: uint8(math.Round(r * 255)),
+		G: uint8(math.Round(g * 255)),
+		B: uint8(math.Round(b * 255)),
+		A: 0xff,
+	}, nil
+}
+
+// parseRgb parses a string of rgb format and returns a color.RGBA. The string can
+// be in the format rgb(r, g, b) where r, g, and b are numbers.
+func parseRgb(s string) (c color.RGBA, err error) {
+	reRGB := regexp.MustCompile(`^rgb\(\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$`)
+	m := reRGB.FindStringSubmatch(s)
+	if m == nil {
+		return color.RGBA{}, errInvalidFormat
+	}
+	values := [3]int{}
+	for i, str := range m[1:4] {
+		values[i], _ = strconv.Atoi(str)
+		if values[i] < 0 {
+			values[i] = 0
+		}
+		if values[i] > 255 {
+			values[i] = 255
+		}
+	}
+	return color.RGBA{
+		R: uint8(values[0]),
+		G: uint8(values[1]),
+		B: uint8(values[2]),
+		A: 0xff,
+	}, nil
 }
 
 // RGBColor is a color specified by red, green, and blue values.

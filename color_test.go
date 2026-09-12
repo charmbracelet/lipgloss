@@ -310,3 +310,149 @@ func TestLighten(t *testing.T) {
 		})
 	}
 }
+
+func TestParseRgb(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expected    color.Color
+		expectError bool
+	}{
+		{name: "valid-rgb-single-sapces-red", input: "rgb(255, 0, 0)", expected: hex("#FF0000")},
+		{name: "valid-rgb-single-sapces-green", input: "rgb(0, 255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-single-sapces-blue", input: "rgb(0, 0, 255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-single-sapces-white", input: "rgb(255, 255, 255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-single-sapces-black", input: "rgb(0, 0, 0)", expected: hex("#000000")},
+		{name: "valid-rgb-single-sapces-gray", input: "rgb(128, 128, 128)", expected: hex("#808080")},
+		{name: "valid-rgb-no-sapces-red", input: "rgb(255,0,0)", expected: hex("#FF0000")},
+		{name: "valid-rgb-no-sapces-green", input: "rgb(0,255,0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-no-sapces-blue", input: "rgb(0,0,255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-no-sapces-white", input: "rgb(255,255,255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-no-sapces-black", input: "rgb(0,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-no-sapces-gray", input: "rgb(128,128,128)", expected: hex("#808080")},
+		{name: "valid-rgb-inconsistent-single-sapces-red", input: "rgb(255,0,0 )", expected: hex("#FF0000")},
+		{name: "valid-rgb-inconsistent-single-sapces-green", input: "rgb(0,255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-inconsistent-single-sapces-blue", input: "rgb(0,0 ,255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-inconsistent-single-sapces-white", input: "rgb(255, 255,255)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-inconsistent-single-sapces-black", input: "rgb(0 ,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-inconsistent-single-sapces-gray", input: "rgb( 128,128,128)", expected: hex("#808080")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-red", input: "rgb(255  ,0,0 )", expected: hex("#FF0000")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-green", input: "rgb(0,    255, 0)", expected: hex("#00FF00")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-blue", input: "rgb(0,0 ,   255)", expected: hex("#0000FF")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-white", input: "rgb(255, 255,255  )", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-black", input: "rgb(        0 ,0,0)", expected: hex("#000000")},
+		{name: "valid-rgb-inconsistent-multiple-sapces-gray", input: "rgb( 128    , 128  , 128 )", expected: hex("#808080")},
+		{name: "valid-rgb-out-of-range-red", input: "rgb(256, -1, -1)", expected: hex("#FF0000")},
+		{name: "valid-rgb-out-of-range-green", input: "rgb(-255, 512, -255)", expected: hex("#00FF00")},
+		{name: "valid-rgb-out-of-range-blue", input: "rgb(-100, -200, 300)", expected: hex("#0000FF")},
+		{name: "valid-rgb-out-of-range-white", input: "rgb(500, 1000, 1500)", expected: hex("#FFFFFF")},
+		{name: "valid-rgb-out-of-range-black", input: "rgb(-10, -100, -1000)", expected: hex("#000000")},
+		{name: "two-values", input: "rgb(255, 0)", expectError: true},
+		{name: "four-values", input: "rgb(0,255, 0, 255)", expectError: true},
+		{name: "upper-case", input: "RGB(255, 0, 0)", expectError: true},
+		{name: "no-values", input: "rgb(, , )", expectError: true},
+		{name: "missing )", input: "rgb(0, 255, 0", expectError: true},
+		{name: "unexpected rune (", input: "rgb((0, 0, 255)", expectError: true},
+		{name: "unexpected rune .", input: "rgb(255. 255, 255)", expectError: true},
+		{name: "unexpected rune b", input: "rgb(0, b0, 0)", expectError: true},
+		{name: "unexpected float", input: "rgb(255, 31.415, 0)", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := parseRgb(tt.input)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("parseRgb() expected error but got none for input %q", tt.input)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("parseRgb() unexpected error for input %q: %v", tt.input, err)
+				return
+			}
+
+			expectColorMatches(t, result, tt.expected)
+		})
+	}
+}
+
+func TestParseHsl(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expected    color.Color
+		expectError bool
+	}{
+		{name: "valid-hsl-single-sapces-red", input: "hsl(0, 100%, 50%)", expected: hex("#FF0000")},
+		{name: "valid-hsl-single-sapces-green", input: "hsl(120, 100%, 50%)", expected: hex("#00FF00")},
+		{name: "valid-hsl-single-sapces-blue", input: "hsl(240, 100%, 50%)", expected: hex("#0000FF")},
+		{name: "valid-hsl-single-sapces-white", input: "hsl(0, 0%, 100%)", expected: hex("#FFFFFF")},
+		{name: "valid-hsl-single-sapces-white-yellow-hue", input: "hsl(180, 50%, 100%)", expected: hex("#FFFFFF")},
+		{name: "valid-hsl-single-sapces-black-yellow-hue", input: "hsl(180, 50%, 0%)", expected: hex("#000000")},
+		{name: "valid-hsl-single-sapces-black", input: "hsl(0, 0%, 0%)", expected: hex("#000000")},
+		{name: "valid-hsl-single-sapces-gray", input: "hsl(0, 0%, 50%)", expected: hex("#7F7F7F")},
+		{name: "valid-hsl-single-sapces-pink", input: "hsl(0, 100%, 75%)", expected: hex("#ff8080")},
+		{name: "valid-hsl-single-sapces-light-green", input: "hsl(120, 100%, 75%)", expected: hex("#80ff80")},
+		{name: "valid-hsl-single-sapces-dark-blue", input: "hsl(240, 100%, 25%)", expected: hex("#000080")},
+		{name: "valid-hsl-no-sapces-red", input: "hsl(0,100%,50%)", expected: hex("#FF0000")},
+		{name: "valid-hsl-no-sapces-green", input: "hsl(120,100%,50%)", expected: hex("#00FF00")},
+		{name: "valid-hsl-no-sapces-blue", input: "hsl(240,100%,50%)", expected: hex("#0000FF")},
+		{name: "valid-hsl-no-sapces-white", input: "hsl(0,0%,100%)", expected: hex("#FFFFFF")},
+		{name: "valid-hsl-no-sapces-black", input: "hsl(0,0%,0%)", expected: hex("#000000")},
+		{name: "valid-hsl-no-sapces-gray", input: "hsl(0,0%,50%)", expected: hex("#7F7F7F")},
+		{name: "valid-hsl-inconsistent-single-sapces-red", input: "hsl( 0,100%,50%)", expected: hex("#FF0000")},
+		{name: "valid-hsl-inconsistent-single-sapces-green", input: "hsl(120 ,100%,50%)", expected: hex("#00FF00")},
+		{name: "valid-hsl-inconsistent-single-sapces-blue", input: "hsl(240, 100%,50%)", expected: hex("#0000FF")},
+		{name: "valid-hsl-inconsistent-single-sapces-white", input: "hsl(0,0% ,100%)", expected: hex("#FFFFFF")},
+		{name: "valid-hsl-inconsistent-single-sapces-black", input: "hsl(0,0%, 0%)", expected: hex("#000000")},
+		{name: "valid-hsl-inconsistent-single-sapces-gray", input: "hsl(0,0%,50% )", expected: hex("#7F7F7F")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-red", input: "hsl(     0, 100%, 50%)", expected: hex("#FF0000")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-green", input: "hsl(120   , 100%, 50%)", expected: hex("#00FF00")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-blue", input: "hsl(240,   100%, 50%)", expected: hex("#0000FF")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-white", input: "hsl(0, 0%,       100%)", expected: hex("#FFFFFF")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-black", input: "hsl(0, 0%, 0%       )", expected: hex("#000000")},
+		{name: "valid-hsl-inconsistent-multiple-sapces-gray", input: "hsl(0, 0%,         50%)", expected: hex("#7F7F7F")},
+		{name: "valid-hsl-out-of-range-negative-cyan", input: "hsl(-180, 50%, 50%)", expected: hex("#40bfbf")},
+		{name: "valid-hsl-out-of-range-red", input: "hsl(360, 100%, 50%)", expected: hex("#FF0000")},
+		{name: "valid-hsl-gray", input: "hsl(360, 0%, 50%)", expected: hex("#7F7F7F")},
+		{name: "no-percentage", input: "hsl(0, 1, 0)", expectError: true},
+		{name: "two-values", input: "hsl(255, 0%)", expectError: true},
+		{name: "four-values", input: "hsl(0, 50%, 50%, 100)", expectError: true},
+		{name: "four-values-percentage", input: "hsl(0, 50%, 50%, 100%)", expectError: true},
+		{name: "upper-case", input: "HSL(0, 100%, 50%)", expectError: true},
+		{name: "no-values", input: "hsl(, , )", expectError: true},
+		{name: "no-values-percentages", input: "hsl(, %, %)", expectError: true},
+		{name: "missing )", input: "hsl(240, 100%, 50%", expectError: true},
+		{name: "unexpected rune (", input: "hsl((120 ,100%,50%)", expectError: true},
+		{name: "unexpected rune .", input: "hsl(0. 0%, 100%)", expectError: true},
+		{name: "unexpected rune b", input: "hsl(180, b50%, 0%)", expectError: true},
+		{name: "unexpected float", input: "hsl(0, 100%, 55.5%)", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := parseHsl(tt.input)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("parseHsl() expected error but got none for input %q", tt.input)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("parseHsl() unexpected error for input %q: %v", tt.input, err)
+				return
+			}
+
+			expectColorMatches(t, result, tt.expected)
+		})
+	}
+}
