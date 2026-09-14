@@ -10,11 +10,19 @@ import (
 // the same width by padding them with spaces. If a style is passed, use that
 // to style the spaces added.
 func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style) string {
-	lines, widestLine := getLines(str)
+	str = strings.ReplaceAll(str, "\t", "    ")
+	str = strings.ReplaceAll(str, "\r\n", "\n")
+	lines := strings.Split(str, "\n")
+	widths := make([]int, len(lines))
+	var widestLine int
+	for i, line := range lines {
+		widths[i] = ansi.StringWidth(line)
+		widestLine = max(widestLine, widths[i])
+	}
 	var b strings.Builder
 
 	for i, l := range lines {
-		lineWidth := ansi.StringWidth(l)
+		lineWidth := widths[i]
 
 		shortAmount := widestLine - lineWidth                // difference from the widest line
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
