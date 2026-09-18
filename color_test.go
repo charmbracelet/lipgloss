@@ -310,3 +310,29 @@ func TestLighten(t *testing.T) {
 		})
 	}
 }
+
+func TestIsDarkColor(t *testing.T) {
+	tests := []struct {
+		name  string
+		color color.Color
+		dark  bool
+	}{
+		{name: "black", color: hex("#000000"), dark: true},
+		{name: "white", color: hex("#FFFFFF"), dark: false},
+		{name: "pure-blue", color: hex("#0000FF"), dark: true},
+		{name: "pure-green", color: hex("#00FF00"), dark: false},
+		{name: "pure-red", color: hex("#FF0000"), dark: false},
+		{name: "solarized-dark-background", color: hex("#002B36"), dark: true},
+		{name: "solarized-light-background", color: hex("#FDF6E3"), dark: false},
+		{name: "dracula-background", color: hex("#282A36"), dark: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := isDarkColor(tt.color); got != tt.dark {
+				t.Errorf("isDarkColor(%s) = %v, want %v", tt.name, got, tt.dark)
+			}
+		})
+	}
+}

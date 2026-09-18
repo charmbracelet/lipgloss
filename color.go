@@ -211,8 +211,8 @@ func LightDark(isDark bool) LightDarkFunc {
 	}
 }
 
-// isDarkColor returns whether the given color is dark (based on the luminance
-// portion of the color as interpreted as HSL).
+// isDarkColor returns whether the given color is dark, based on its CIELAB
+// lightness.
 //
 // Example usage:
 //
@@ -228,7 +228,7 @@ func isDarkColor(c color.Color) bool {
 		return true
 	}
 
-	_, _, l := col.Hsl()
+	l, _, _ := col.Lab()
 	return l < 0.5 //nolint:mnd
 }
 
