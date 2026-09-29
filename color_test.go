@@ -263,6 +263,35 @@ func TestComplementary(t *testing.T) {
 	}
 }
 
+func TestIsDarkColor(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		color color.Color
+		dark  bool
+	}{
+		{name: "black", color: hex("#000000"), dark: true},
+		{name: "white", color: hex("#FFFFFF"), dark: false},
+		// Saturated blue has HSL lightness 0.5 (so the old check treated it as
+		// light) but CIE Lab lightness ~0.32, matching its low luminance.
+		{name: "pure-blue", color: hex("#0000FF"), dark: true},
+		{name: "dos-blue", color: hex("#0000AA"), dark: true},
+		{name: "solarized-dark", color: hex("#002B36"), dark: true},
+		{name: "solarized-light", color: hex("#FDF6E3"), dark: false},
+		{name: "dracula", color: hex("#282A36"), dark: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := isDarkColor(tt.color); got != tt.dark {
+				t.Errorf("isDarkColor() = %v, want %v", got, tt.dark)
+			}
+		})
+	}
+}
+
 func TestDarken(t *testing.T) {
 	tests := []struct {
 		name     string
