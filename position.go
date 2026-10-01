@@ -67,8 +67,7 @@ func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOpti
 		default: // somewhere in the middle
 			totalGap := gap + short
 
-			split := int(math.Round(float64(totalGap) * pos.value()))
-			left := totalGap - split
+			left := int(math.Round(float64(totalGap) * pos.value()))
 			right := totalGap - left
 
 			b.WriteString(ws.render(left))
@@ -117,8 +116,7 @@ func PlaceVertical(height int, pos Position, str string, opts ...WhitespaceOptio
 		b.WriteString(str)
 
 	default: // Somewhere in the middle
-		split := int(math.Round(float64(gap) * pos.value()))
-		top := gap - split
+		top := int(math.Round(float64(gap) * pos.value()))
 		bottom := gap - top
 
 		b.WriteString(strings.Repeat(emptyLine+"\n", top))
