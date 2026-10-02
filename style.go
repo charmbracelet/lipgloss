@@ -478,7 +478,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	// Height
-	if height > 0 {
+	if !inline && height > 0 {
 		str = alignTextVertical(str, verticalAlign, height, nil)
 	}
 
@@ -514,7 +514,7 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	// Truncate according to MaxHeight
-	if maxHeight > 0 {
+	if !inline && maxHeight > 0 {
 		lines := strings.Split(str, "\n")
 		height := min(maxHeight, len(lines))
 		if len(lines) > 0 {

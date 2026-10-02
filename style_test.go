@@ -517,6 +517,61 @@ func requireNotEqual(tb testing.TB, a, b any) {
 	}
 }
 
+func TestInlineRendersSingleLineIgnoringHeight(t *testing.T) {
+	tests := []struct {
+		name  string
+		style Style
+		input string
+		want  string
+	}{
+		{
+			name:  "inline with height and padding",
+			style: NewStyle().Height(5).Padding(1, 2).Inline(true),
+			input: "hello",
+			want:  "hello",
+		},
+		{
+			name:  "inline with height and align vertical center",
+			style: NewStyle().Height(5).AlignVertical(Center).Inline(true),
+			input: "hello",
+			want:  "hello",
+		},
+		{
+			name:  "inline with height and align vertical bottom",
+			style: NewStyle().Height(5).AlignVertical(Bottom).Inline(true),
+			input: "hello",
+			want:  "hello",
+		},
+		{
+			name:  "inline with height and multiline input",
+			style: NewStyle().Height(3).Inline(true),
+			input: "foo\nbar\nbaz",
+			want:  "foobarbaz",
+		},
+		{
+			name:  "inline with height and borders",
+			style: NewStyle().Height(4).BorderStyle(NormalBorder()).Inline(true),
+			input: "hello",
+			want:  "hello",
+		},
+		{
+			name:  "inline with maxHeight",
+			style: NewStyle().MaxHeight(3).Inline(true),
+			input: "hello",
+			want:  "hello",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.style.Render(tt.input)
+			if got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestCarriageReturnInRender(t *testing.T) {
 	out := fmt.Sprintf("%s\r\n%s\r\n", "Super duper california oranges", "Hello world")
 	testStyle := NewStyle().
