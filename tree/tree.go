@@ -71,8 +71,10 @@ func (s *Leaf) SetValue(value any) {
 	switch item := value.(type) {
 	case Node, fmt.Stringer:
 		s.value = item.(fmt.Stringer).String()
-	case string, nil:
-		s.value = item.(string)
+	case string:
+		s.value = item
+	case nil:
+		s.value = ""
 	default:
 		s.value = fmt.Sprintf("%v", item)
 	}
@@ -391,8 +393,10 @@ func (t *Tree) Root(root any) *Tree {
 		t = t.Child(item.children)
 	case Node, fmt.Stringer:
 		t.value = item.(fmt.Stringer).String()
-	case string, nil:
-		t.value = item.(string)
+	case string:
+		t.value = item
+	case nil:
+		t.value = ""
 	default:
 		t.value = fmt.Sprintf("%v", item)
 	}
