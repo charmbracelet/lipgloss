@@ -741,3 +741,26 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestStyleInline(t *testing.T) {
+    tests := []struct {
+        name  string
+        input string
+        want  string
+    }{
+        {"single newline", "hello\nworld", "hello world"},
+        {"trailing newline", "hello\n", "hello"},
+        {"leading newline", "\nhello", " hello"},
+        {"no newline", "hello", "hello"},
+        {"crlf", "hello\r\nworld", "hello world"},
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got := NewStyle().Inline(true).Render(tt.input)
+            if got != tt.want {
+                t.Errorf("got %q, want %q", got, tt.want)
+            }
+        })
+    }
+}
