@@ -563,8 +563,10 @@ func (s Style) applyMargins(str string, inline bool) string {
 	str = padLeft(str, leftMargin, &style, marginChar)
 	str = padRight(str, rightMargin, &style, marginChar)
 
-	// Top/bottom margin
-	if !inline {
+	// Top/bottom margin. getLines walks every line to find the widest, which is
+	// only needed when there is actually a margin row to pad, so it is guarded
+	// rather than run unconditionally.
+	if !inline && (topMargin > 0 || bottomMargin > 0) {
 		_, width := getLines(str)
 		spaces := strings.Repeat(" ", width)
 
