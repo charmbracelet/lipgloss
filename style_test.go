@@ -51,6 +51,19 @@ func TestUnderline(t *testing.T) {
 	}
 }
 
+func TestMarginBackground(t *testing.T) {
+	t.Parallel()
+
+	// The background reset must terminate each margin line before its newline,
+	// not leak onto the start of the next line, and the bottom margin line must
+	// be colored too (#115).
+	s := NewStyle().MarginBackground(Color("9")).Margin(1, 0)
+	expected := "\x1b[101m  \x1b[m\nhi\n\x1b[101m  \x1b[m"
+	if res := s.Render("hi"); res != expected {
+		t.Errorf("expected:\n%q\n\nactual:\n%q", expected, res)
+	}
+}
+
 func TestGetUnderlineColor(t *testing.T) {
 	t.Parallel()
 
