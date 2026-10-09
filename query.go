@@ -3,7 +3,6 @@ package lipgloss
 import (
 	"fmt"
 	"image/color"
-	"os"
 	"runtime"
 
 	"github.com/charmbracelet/x/term"
@@ -32,31 +31,14 @@ func backgroundColor(in term.File, out term.File) (color.Color, error) {
 // This function is intended for standalone Lip Gloss use only. If you're using
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
 func BackgroundColor(in term.File, out term.File) (bg color.Color, err error) {
-	if runtime.GOOS == "windows" { //nolint:nestif
-		// On Windows, when the input/output is redirected or piped, we need to
-		// open the console explicitly.
-		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks
-		if !term.IsTerminal(in.Fd()) {
-			f, err := os.OpenFile("CONIN$", os.O_RDWR, 0o644) //nolint:gosec
-			if err != nil {
-				return nil, fmt.Errorf("error opening CONIN$: %w", err)
-			}
-			in = f
-		}
-		if !term.IsTerminal(out.Fd()) {
-			f, err := os.OpenFile("CONOUT$", os.O_RDWR, 0o644) //nolint:gosec
-			if err != nil {
-				return nil, fmt.Errorf("error opening CONOUT$: %w", err)
-			}
-			out = f
-		}
-		return backgroundColor(in, out)
-	}
-
-	// NOTE: On Unix, one of the given files must be a tty.
 	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
 		return nil, fmt.Errorf("input/output is not a terminal")
 	}
+
+	if runtime.GOOS == "windows" {
+		return backgroundColor(in, out)
+	}
+
 	for _, f := range []term.File{in, out} {
 		if bg, err = backgroundColor(f, f); err == nil {
 			return bg, nil
