@@ -97,6 +97,24 @@ func TestStrikethrough(t *testing.T) {
 	}
 }
 
+func TestInlineNewlineSpacing(t *testing.T) {
+	t.Parallel()
+
+	style := NewStyle().Inline(true)
+
+	got := style.Render("hello\nworld")
+	want := "hello world"
+	if got != want {
+		t.Fatalf("Render(%q) = %q, want %q", "hello\nworld", got, want)
+	}
+
+	got = style.Render("hello\nworld\n")
+	want = "hello world"
+	if got != want {
+		t.Fatalf("Render(%q) = %q, want %q", "hello\nworld\n", got, want)
+	}
+}
+
 func TestStyleRender(t *testing.T) {
 	t.Parallel()
 
