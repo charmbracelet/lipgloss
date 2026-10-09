@@ -414,6 +414,22 @@ func (s Style) Render(strs ...string) string {
 		str = Wrap(str, wrapAt, "")
 	}
 
+	// Keep ANSI state in the content from affecting padding or borders. Close
+	// it before each line ends, then restore it after the next line's frame.
+	borderSet := s.getBorderStyle() != noBorder &&
+		(s.isBorderStyleSetWithoutSides() ||
+			s.getAsBool(borderTopKey, false) ||
+			s.getAsBool(borderRightKey, false) ||
+			s.getAsBool(borderBottomKey, false) ||
+			s.getAsBool(borderLeftKey, false))
+	paddingSet := topPadding > 0 || rightPadding > 0 || bottomPadding > 0 || leftPadding > 0
+	hasANSI := strings.IndexByte(str, ansi.ESC) >= 0 ||
+		strings.IndexByte(str, ansi.CSI) >= 0 ||
+		strings.IndexByte(str, ansi.OSC) >= 0
+	if !inline && hasANSI && strings.ContainsRune(str, '\n') && (borderSet || paddingSet) {
+		str = isolateANSIAtLineBoundaries(str)
+	}
+
 	// Render core text
 	{
 		var b strings.Builder

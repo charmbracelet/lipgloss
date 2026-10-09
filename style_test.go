@@ -141,6 +141,194 @@ func TestStyleRender(t *testing.T) {
 	}
 }
 
+func TestStyleRenderIsolatesMultilineANSIFromFrame(t *testing.T) {
+	t.Parallel()
+
+	longSGR := "\x1b[" + strings.Repeat("1;", 32) + "1m"
+	tests := []struct {
+		name  string
+		input string
+		style Style
+		want  string
+	}{
+		{
+			name:  "SGR",
+			input: "\x1b[31mred one\nred two\x1b[0m plain",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 2),
+			want: "┌─────────────────┐\n" +
+				"│  \x1b[31mred one\x1b[m        │\n" +
+				"│  \x1b[31mred two\x1b[0m plain  │\n" +
+				"└─────────────────┘",
+		},
+		{
+			name:  "private CSI ending in m",
+			input: "\x1b[31mA\x1b[>4;1m\nB\x1b[0m",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌───┐\n" +
+				"│ \x1b[31mA\x1b[>4;1m\x1b[m │\n" +
+				"│ \x1b[31mB\x1b[0m │\n" +
+				"└───┘",
+		},
+		{
+			name: "SGR and OSC 8 hyperlink",
+			input: "\x1b]8;id=1;https://example.com\a\x1b[31mone\n" +
+				"two\x1b[0m\x1b]8;;\a",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 2),
+			want: "┌───────┐\n" +
+				"│  \x1b]8;id=1;https://example.com\a\x1b[31mone\x1b[m\x1b]8;;\a  │\n" +
+				"│  \x1b]8;id=1;https://example.com\a\x1b[31mtwo\x1b[0m\x1b]8;;\a  │\n" +
+				"└───────┘",
+		},
+		{
+			name:  "unclosed SGR with border only",
+			input: "\x1b[31mone\ntwo",
+			style: NewStyle().Border(NormalBorder()),
+			want: "┌───┐\n" +
+				"│\x1b[31mone\x1b[m│\n" +
+				"│\x1b[31mtwo\x1b[m│\n" +
+				"└───┘",
+		},
+		{
+			name:  "SGR with padding only",
+			input: "\x1b[31mone\ntwo\x1b[0m",
+			style: NewStyle().Padding(0, 1),
+			want: " \x1b[31mone\x1b[m \n" +
+				" \x1b[31mtwo\x1b[0m ",
+		},
+		{
+			name:  "extended SGR attributes",
+			input: "\x1b[53;73mone\ntwo\x1b[55;75m",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌─────┐\n" +
+				"│ \x1b[53;73mone\x1b[m │\n" +
+				"│ \x1b[53;73mtwo\x1b[55;75m │\n" +
+				"└─────┘",
+		},
+		{
+			name:  "distinct SGR attributes",
+			input: "\x1b[5;6mone\ntwo\x1b[25m",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌─────┐\n" +
+				"│ \x1b[5;6mone\x1b[m │\n" +
+				"│ \x1b[5;6mtwo\x1b[25m │\n" +
+				"└─────┘",
+		},
+		{
+			name:  "truecolor with zero channels",
+			input: "\x1b[38;2;255;0;0mone\ntwo\x1b[39m",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌─────┐\n" +
+				"│ \x1b[38;2;255;0;0mone\x1b[m │\n" +
+				"│ \x1b[38;2;255;0;0mtwo\x1b[39m │\n" +
+				"└─────┘",
+		},
+		{
+			name:  "long SGR parameter list",
+			input: longSGR + "one\ntwo\x1b[22m",
+			style: NewStyle().Border(NormalBorder()),
+			want: "┌───┐\n" +
+				"│" + longSGR + "one\x1b[m│\n" +
+				"│\x1b[1mtwo\x1b[22m│\n" +
+				"└───┘",
+		},
+		{
+			name: "OSC 8 URI with semicolon",
+			input: "\x1b]8;id=x;https://example.com/a;b\aone\n" +
+				"two\x1b]8;;\a",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌─────┐\n" +
+				"│ \x1b]8;id=x;https://example.com/a;b\aone\x1b]8;;\a │\n" +
+				"│ \x1b]8;id=x;https://example.com/a;b\atwo\x1b]8;;\a │\n" +
+				"└─────┘",
+		},
+		{
+			name: "OSC 8 command with leading zero",
+			input: "\x1b]08;;https://example.com\aone\n" +
+				"two\x1b]8;;\a",
+			style: NewStyle().Border(NormalBorder()).Padding(0, 1),
+			want: "┌─────┐\n" +
+				"│ \x1b]08;;https://example.com\aone\x1b]8;;\a │\n" +
+				"│ \x1b]08;;https://example.com\atwo\x1b]8;;\a │\n" +
+				"└─────┘",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.style.Render(tt.input); got != tt.want {
+				t.Fatalf("rendered bytes:\n got: %q\nwant: %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsolateANSIAtLineBoundariesPreservesMalformedSequence(t *testing.T) {
+	t.Parallel()
+
+	input := "\x1b[31mone\x1b[38;\ntwo"
+	if got := isolateANSIAtLineBoundaries(input); got != input {
+		t.Fatalf("isolated bytes:\n got: %q\nwant: %q", got, input)
+	}
+}
+
+func TestIsolateANSIAtLineBoundariesPreservesOtherOSC(t *testing.T) {
+	t.Parallel()
+
+	input := "\x1b]0;title\a\x1b[31mone\ntwo\x1b[0m"
+	want := "\x1b]0;title\a\x1b[31mone\x1b[m\n\x1b[31mtwo\x1b[0m"
+	if got := isolateANSIAtLineBoundaries(input); got != want {
+		t.Fatalf("isolated bytes:\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestStyleRenderMultilineANSISelectiveResetsStayLinear(t *testing.T) {
+	t.Parallel()
+
+	const lines = 1600
+	var input strings.Builder
+	for i := 0; i < lines; i++ {
+		input.WriteString("\x1b[1mA\x1b[22m")
+		if i < lines-1 {
+			input.WriteByte('\n')
+		}
+	}
+
+	source := input.String()
+	got := NewStyle().Border(NormalBorder()).Render(source)
+	if len(got) > len(source)*4 {
+		t.Fatalf("rendered output grew from %d to %d bytes", len(source), len(got))
+	}
+}
+
+func TestStyleRenderMultilineANSIWithoutFrameUnchanged(t *testing.T) {
+	t.Parallel()
+
+	input := "\x1b[31mone\ntwo\x1b[0m"
+	if got := NewStyle().Inline(false).Render(input); got != input {
+		t.Fatalf("rendered bytes:\n got: %q\nwant: %q", got, input)
+	}
+
+	wantInline := "\x1b[31monetwo\x1b[0m"
+	style := NewStyle().Border(NormalBorder()).Padding(0, 2).Inline(true)
+	if got := style.Render(input); got != wantInline {
+		t.Fatalf("inline rendered bytes:\n got: %q\nwant: %q", got, wantInline)
+	}
+}
+
+func TestStyleRenderMultilineANSIWithWrapping(t *testing.T) {
+	t.Parallel()
+
+	input := "\x1b[31mone\ntwo\x1b[0m"
+	want := "┌────────┐\n" +
+		"│ \x1b[31mone\x1b[m    │\n" +
+		"│ \x1b[31mtwo\x1b[0m    │\n" +
+		"└────────┘"
+	style := NewStyle().Width(10).Border(NormalBorder()).Padding(0, 1)
+	if got := style.Render(input); got != want {
+		t.Fatalf("wrapped rendered bytes:\n got: %q\nwant: %q", got, want)
+	}
+}
+
 func TestValueCopy(t *testing.T) {
 	t.Parallel()
 
