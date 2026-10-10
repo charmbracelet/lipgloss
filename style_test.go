@@ -741,3 +741,29 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestGetBorderSidesWithBorderStyleOnly(t *testing.T) {
+	// Regression test for https://github.com/charmbracelet/lipgloss/issues/366:
+	// GetBorder* returned false when a border style was set via BorderStyle()
+	// without explicit BorderLeft/Top/Right/Bottom calls, even though applyBorder
+	// renders all sides in that case.
+	s := NewStyle().BorderStyle(NormalBorder())
+
+	if !s.GetBorderTop() {
+		t.Error("expected GetBorderTop() == true when border style is set without explicit sides")
+	}
+	if !s.GetBorderRight() {
+		t.Error("expected GetBorderRight() == true when border style is set without explicit sides")
+	}
+	if !s.GetBorderBottom() {
+		t.Error("expected GetBorderBottom() == true when border style is set without explicit sides")
+	}
+	if !s.GetBorderLeft() {
+		t.Error("expected GetBorderLeft() == true when border style is set without explicit sides")
+	}
+
+	_, top, right, bottom, left := s.GetBorder()
+	if !top || !right || !bottom || !left {
+		t.Errorf("expected GetBorder() sides all true, got top=%v right=%v bottom=%v left=%v", top, right, bottom, left)
+	}
+}

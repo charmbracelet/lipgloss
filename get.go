@@ -235,11 +235,16 @@ func (s Style) GetVerticalMargins() int {
 // border style, Border{} is returned. For all other unset values false is
 // returned.
 func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
-	return s.getBorderStyle(),
-		s.getAsBool(borderTopKey, false),
-		s.getAsBool(borderRightKey, false),
-		s.getAsBool(borderBottomKey, false),
-		s.getAsBool(borderLeftKey, false)
+	top = s.getAsBool(borderTopKey, false)
+	right = s.getAsBool(borderRightKey, false)
+	bottom = s.getAsBool(borderBottomKey, false)
+	left = s.getAsBool(borderLeftKey, false)
+	// When a border style is set but no sides are explicitly enabled,
+	// applyBorder renders all sides — mirror that behaviour here.
+	if s.isBorderStyleSetWithoutSides() {
+		top, right, bottom, left = true, true, true, true
+	}
+	return s.getBorderStyle(), top, right, bottom, left
 }
 
 // GetBorderStyle returns the style's border style (type Border). If no value
@@ -251,24 +256,36 @@ func (s Style) GetBorderStyle() Border {
 // GetBorderTop returns the style's top border setting. If no value is set
 // false is returned.
 func (s Style) GetBorderTop() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderTopKey, false)
 }
 
 // GetBorderRight returns the style's right border setting. If no value is set
 // false is returned.
 func (s Style) GetBorderRight() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderRightKey, false)
 }
 
 // GetBorderBottom returns the style's bottom border setting. If no value is
 // set false is returned.
 func (s Style) GetBorderBottom() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderBottomKey, false)
 }
 
 // GetBorderLeft returns the style's left border setting. If no value is
 // set false is returned.
 func (s Style) GetBorderLeft() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderLeftKey, false)
 }
 
