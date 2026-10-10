@@ -352,6 +352,10 @@ func TestStyleUnset(t *testing.T) {
 
 	requireTrue(t, s.GetBorderLeft())
 	s = s.UnsetBorderLeft()
+	// At this point every side is unset but the border style is still set,
+	// which means it renders on all sides by default. Clear the style too so
+	// the getter reflects an actually empty border.
+	s = s.UnsetBorderStyle()
 	requireFalse(t, s.GetBorderLeft())
 
 	// tab width
@@ -359,6 +363,42 @@ func TestStyleUnset(t *testing.T) {
 	requireEqual(t, s.GetTabWidth(), 2)
 	s = s.UnsetTabWidth()
 	requireNotEqual(t, s.GetTabWidth(), 4)
+}
+
+func TestGetBorderWithoutSides(t *testing.T) {
+	t.Parallel()
+
+	// When BorderStyle is called without specifying sides, all four sides are
+	// rendered. The bool and size getters should agree with that.
+	s := NewStyle().BorderStyle(NormalBorder())
+	requireTrue(t, s.GetBorderTop())
+	requireTrue(t, s.GetBorderRight())
+	requireTrue(t, s.GetBorderBottom())
+	requireTrue(t, s.GetBorderLeft())
+	requireEqual(t, 1, s.GetBorderTopSize())
+	requireEqual(t, 1, s.GetBorderRightSize())
+	requireEqual(t, 1, s.GetBorderBottomSize())
+	requireEqual(t, 1, s.GetBorderLeftSize())
+
+	_, top, right, bottom, left := s.GetBorder()
+	requireTrue(t, top)
+	requireTrue(t, right)
+	requireTrue(t, bottom)
+	requireTrue(t, left)
+
+	// A style with no border at all should still report false everywhere.
+	empty := NewStyle()
+	requireFalse(t, empty.GetBorderTop())
+	requireFalse(t, empty.GetBorderRight())
+	requireFalse(t, empty.GetBorderBottom())
+	requireFalse(t, empty.GetBorderLeft())
+
+	// Explicit side toggles must win over the default-on behavior.
+	partial := NewStyle().Border(NormalBorder(), false, true, true, true)
+	requireFalse(t, partial.GetBorderTop())
+	requireTrue(t, partial.GetBorderRight())
+	requireTrue(t, partial.GetBorderBottom())
+	requireTrue(t, partial.GetBorderLeft())
 }
 
 func TestStyleValue(t *testing.T) {
