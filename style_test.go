@@ -741,3 +741,170 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestGetHorizontalFrameSize(t *testing.T) {
+	t.Parallel()
+
+	tt := []struct {
+		name  string
+		style Style
+		want  int
+	}{
+		{
+			name:  "default zero",
+			style: NewStyle(),
+			want:  0,
+		},
+		{
+			name:  "padding only",
+			style: NewStyle().Padding(2, 4),
+			want:  8, // left(4) + right(4)
+		},
+		{
+			name:  "padding asymmetric",
+			style: NewStyle().Padding(0, 1, 0, 3),
+			want:  4, // left(3) + right(1)
+		},
+		{
+			name:  "margins only",
+			style: NewStyle().Margin(1, 2),
+			want:  4, // left(2) + right(2)
+		},
+		{
+			name:  "normal border all sides",
+			style: NewStyle().Border(NormalBorder(), true),
+			want:  2, // left(1) + right(1)
+		},
+		{
+			name:  "rounded border all sides",
+			style: NewStyle().Border(RoundedBorder(), true),
+			want:  2,
+		},
+		{
+			name:  "double border all sides",
+			style: NewStyle().Border(DoubleBorder(), true),
+			want:  2,
+		},
+		{
+			name:  "padding plus border",
+			style: NewStyle().Padding(0, 3).Border(NormalBorder(), true),
+			want:  8, // left(1) + right(1) + left-pad(3) + right-pad(3)
+		},
+		{
+			name:  "padding plus border plus margins",
+			style: NewStyle().Padding(0, 2).Margin(0, 1).Border(NormalBorder(), true),
+			want:  8, // left-margin(1) + left-border(1) + left-pad(2) + right-pad(2) + right-border(1) + right-margin(1)
+		},
+		{
+			name:  "border without sides defaults to all sides",
+			style: NewStyle().Border(NormalBorder()),
+			want:  2,
+		},
+		{
+			name:  "single-sided border left only",
+			style: NewStyle().Border(NormalBorder(), true).BorderLeft(true).UnsetBorderRight().UnsetBorderTop().UnsetBorderBottom(),
+			want:  1, // left(1) only
+		},
+		{
+			name:  "no border when all sides unset",
+			style: NewStyle().Border(NormalBorder()).BorderTop(false).BorderRight(false).BorderBottom(false).BorderLeft(false),
+			want:  0,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.style.GetHorizontalFrameSize()
+			if got != tc.want {
+				t.Errorf("GetHorizontalFrameSize() = %d, want %d", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestGetVerticalFrameSize(t *testing.T) {
+	t.Parallel()
+
+	tt := []struct {
+		name  string
+		style Style
+		want  int
+	}{
+		{
+			name:  "default zero",
+			style: NewStyle(),
+			want:  0,
+		},
+		{
+			name:  "padding only",
+			style: NewStyle().Padding(2, 0),
+			want:  4, // top(2) + bottom(2)
+		},
+		{
+			name:  "padding asymmetric",
+			style: NewStyle().Padding(1, 0, 3, 0),
+			want:  4, // top(1) + bottom(3)
+		},
+		{
+			name:  "margins only",
+			style: NewStyle().Margin(2, 0),
+			want:  4, // top(2) + bottom(2)
+		},
+		{
+			name:  "normal border all sides",
+			style: NewStyle().Border(NormalBorder(), true),
+			want:  2, // top(1) + bottom(1)
+		},
+		{
+			name:  "thick border all sides",
+			style: NewStyle().Border(ThickBorder(), true),
+			want:  2,
+		},
+		{
+			name:  "padding plus border",
+			style: NewStyle().Padding(2, 0).Border(NormalBorder(), true),
+			want:  6, // top(1) + top-pad(2) + bottom-pad(2) + bottom(1)
+		},
+		{
+			name:  "padding plus border plus margins",
+			style: NewStyle().Padding(1, 0).Margin(2, 0).Border(NormalBorder(), true),
+			want:  8, // top-margin(2) + top-border(1) + top-pad(1) + bottom-pad(1) + bottom-border(1) + bottom-margin(2)
+		},
+		{
+			name:  "single-sided border top only",
+			style: NewStyle().Border(NormalBorder()).BorderTop(true).UnsetBorderRight().UnsetBorderBottom().UnsetBorderLeft(),
+			want:  1,
+		},
+		{
+			name:  "hidden border",
+			style: NewStyle().Border(HiddenBorder(), true),
+			want:  2, // hidden border still has size 1 per side
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.style.GetVerticalFrameSize()
+			if got != tc.want {
+				t.Errorf("GetVerticalFrameSize() = %d, want %d", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestGetFrameSize(t *testing.T) {
+	t.Parallel()
+
+	style := NewStyle().Padding(1, 2).Margin(0, 1).Border(NormalBorder(), true)
+	x, y := style.GetFrameSize()
+
+	wantX := 8 // left-margin(1) + left-border(1) + left-pad(2) + right-pad(2) + right-border(1) + right-margin(1)
+	wantY := 4 // top-margin(0) + top-border(1) + top-pad(1) + bottom-pad(1) + bottom-border(1) + bottom-margin(0)
+
+	if x != wantX {
+		t.Errorf("GetFrameSize() x = %d, want %d", x, wantX)
+	}
+	if y != wantY {
+		t.Errorf("GetFrameSize() y = %d, want %d", y, wantY)
+	}
+}
