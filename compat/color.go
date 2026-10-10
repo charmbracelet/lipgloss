@@ -10,11 +10,35 @@ import (
 
 var (
 	// HasDarkBackground is true if the terminal has a dark background.
-	HasDarkBackground = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+	//
+	// When the NO_COLOR environment variable is set (per
+	// https://no-color.org), this remains false and the background
+	// query is skipped to avoid the init-time stdin/stdout side
+	// effects (raw-mode toggle, OSC 11 + DA1 query writes, blocking
+	// stdin read) that would otherwise leak ANSI bytes into the
+	// terminal and steal pre-buffered stdin input under a PTY.
+	HasDarkBackground bool
 
 	// Profile is the color profile of the terminal.
-	Profile = colorprofile.Detect(os.Stdout, os.Environ())
+	Profile colorprofile.Profile
 )
+
+func init() {
+	// colorprofile.Detect reads only the environment and the stdout
+	// file descriptor; it has no stdin side effects, so it is always
+	// safe to run at init time. It honors NO_COLOR internally.
+	Profile = colorprofile.Detect(os.Stdout, os.Environ())
+
+	// Skip the background-color query when NO_COLOR is set. Per
+	// https://no-color.org, any non-empty value disables color
+	// behavior. HasDarkBackground therefore defaults to false, which
+	// callers interpret as a light background — the safer default
+	// when querying is disallowed.
+	if os.Getenv("NO_COLOR") != "" {
+		return
+	}
+	HasDarkBackground = lipgloss.HasDarkBackground(os.Stdin, os.Stdout)
+}
 
 // AdaptiveColor provides color options for light and dark backgrounds. The
 // appropriate color will be returned at runtime based on the darkness of the
