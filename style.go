@@ -399,9 +399,10 @@ func (s Style) Render(strs ...string) string {
 	// carriage returns can cause strange behaviour when rendering.
 	str = strings.ReplaceAll(str, "\r\n", "\n")
 
-	// Strip newlines in single line mode
+	// Replace newlines with spaces in single line mode so words from
+	// separate lines don't get concatenated.
 	if inline {
-		str = strings.ReplaceAll(str, "\n", "")
+		str = strings.ReplaceAll(str, "\n", " ")
 	}
 
 	// Include borders in block size.
