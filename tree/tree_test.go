@@ -1,6 +1,7 @@
 package tree_test
 
 import (
+	"slices"
 	"testing"
 
 	"charm.land/lipgloss/v2"
@@ -499,4 +500,29 @@ func TestTypes(t *testing.T) {
 		Child([]string{"Qux", "Quux", "Quuux"})
 
 	golden.RequireEqual(t, []byte(tree.String()))
+}
+
+func TestTreeChildAfterSlice(t *testing.T) {
+	tests := []struct {
+		name     string
+		children []any
+		want     []string
+	}{
+		{"after []string", []any{"a", []string{"b", "c"}, "d"}, []string{"a", "b", "c", "d"}},
+		{"after []any", []any{"a", []any{"b", "c"}, "d"}, []string{"a", "b", "c", "d"}},
+		{"after []any with tree", []any{"a", []any{tree.Root("b"), "c"}, "d"}, []string{"a", "b", "c", "d"}},
+		{"after other types", []any{"a", 0, "d"}, []string{"a", "0", "d"}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			children := tree.Root("root").Child(tc.children...).Children()
+			got := make([]string, 0, children.Length())
+			for i := range children.Length() {
+				got = append(got, children.At(i).Value())
+			}
+			if !slices.Equal(got, tc.want) {
+				t.Errorf("want children %v, got %v", tc.want, got)
+			}
+		})
+	}
 }

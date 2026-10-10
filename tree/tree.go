@@ -188,17 +188,17 @@ func (t *Tree) Child(children ...any) *Tree {
 			s := Leaf{value: item}
 			t.children = t.children.(NodeChildren).Append(&s)
 		case []any:
-			return t.Child(item...)
+			t.Child(item...)
 		case []string:
 			ss := make([]any, 0, len(item))
 			for _, s := range item {
 				ss = append(ss, s)
 			}
-			return t.Child(ss...)
+			t.Child(ss...)
 		case nil:
 			continue
 		default:
-			return t.Child(fmt.Sprintf("%v", item))
+			t.Child(fmt.Sprintf("%v", item))
 		}
 	}
 	return t
