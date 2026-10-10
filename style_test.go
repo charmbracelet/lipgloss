@@ -741,3 +741,49 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestBorderSizeGettersWithBorderStyleOnly(t *testing.T) {
+	t.Parallel()
+
+	// When BorderStyle() is used without explicitly enabling individual sides,
+	// the renderer defaults all four sides to visible. The size getters must
+	// agree with what the renderer actually draws rather than returning a
+	// hardcoded 1 regardless of the border's actual character widths.
+
+	t.Run("normal border horizontal size", func(t *testing.T) {
+		s := NewStyle().BorderStyle(NormalBorder())
+		requireEqual(t, 2, s.GetHorizontalBorderSize())
+	})
+
+	t.Run("normal border vertical size", func(t *testing.T) {
+		s := NewStyle().BorderStyle(NormalBorder())
+		requireEqual(t, 2, s.GetVerticalBorderSize())
+	})
+
+	t.Run("horizontal frame size includes border and padding", func(t *testing.T) {
+		// left border(1) + right border(1) + left pad(2) + right pad(2) = 6
+		s := NewStyle().BorderStyle(NormalBorder()).Padding(1, 2)
+		requireEqual(t, 6, s.GetHorizontalFrameSize())
+	})
+
+	t.Run("vertical frame size includes border and padding", func(t *testing.T) {
+		// top border(1) + bottom border(1) + top pad(1) + bottom pad(1) = 4
+		s := NewStyle().BorderStyle(NormalBorder()).Padding(1, 2)
+		requireEqual(t, 4, s.GetVerticalFrameSize())
+	})
+
+	t.Run("wide custom border left size", func(t *testing.T) {
+		// A custom border whose vertical sides use fullwidth characters (display
+		// width 2). GetBorderLeftSize / GetBorderRightSize must return 2.
+		b := NormalBorder()
+		b.Left = "｜" // U+FF5C FULLWIDTH VERTICAL LINE, display width 2
+		b.Right = "｜"
+		b.TopLeft = "｜"
+		b.TopRight = "｜"
+		b.BottomLeft = "｜"
+		b.BottomRight = "｜"
+		s := NewStyle().BorderStyle(b)
+		requireEqual(t, 2, s.GetBorderLeftSize())
+		requireEqual(t, 2, s.GetBorderRightSize())
+	})
+}
