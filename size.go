@@ -23,9 +23,9 @@ func Width(str string) (width int) {
 	return width
 }
 
-// Height returns height of a string in cells. This is done simply by
-// counting \n characters. If your output has \r\n, that sequence will be
-// replaced with a \n in [Style.Render].
+// Height returns height of a string in cells, calculated simply
+// as 1 plus the number of \n characters. If your output has \r\n,
+// that sequence will be replaced with a \n in [Style.Render].
 func Height(str string) int {
 	return strings.Count(str, "\n") + 1
 }
