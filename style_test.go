@@ -354,6 +354,19 @@ func TestStyleUnset(t *testing.T) {
 	s = s.UnsetBorderLeft()
 	requireFalse(t, s.GetBorderLeft())
 
+	// unset all border properties at once
+	s = NewStyle().Border(normalBorder, true, true, true, true).
+		BorderForeground(col).BorderBackground(col)
+	requireTrue(t, s.GetBorderTop())
+	requireTrue(t, s.GetBorderRight())
+	requireTrue(t, s.GetBorderBottom())
+	requireTrue(t, s.GetBorderLeft())
+	s = s.UnsetBorder()
+	requireFalse(t, s.GetBorderTop())
+	requireFalse(t, s.GetBorderRight())
+	requireFalse(t, s.GetBorderBottom())
+	requireFalse(t, s.GetBorderLeft())
+
 	// tab width
 	s = NewStyle().TabWidth(2)
 	requireEqual(t, s.GetTabWidth(), 2)
