@@ -294,13 +294,10 @@ func Alpha(c color.Color, alpha float64) color.Color {
 		return nil
 	}
 
-	r, g, b, _ := c.RGBA()
-	return color.RGBA{
-		R: uint8(min(255, float64(r>>8))),
-		G: uint8(min(255, float64(g>>8))),
-		B: uint8(min(255, float64(b>>8))),
-		A: uint8(clamp(alpha, 0, 1) * 255),
-	}
+	// Convert to non-premultiplied channels before replacing the alpha value.
+	nrgba := color.NRGBAModel.Convert(c).(color.NRGBA)
+	nrgba.A = uint8(clamp(alpha, 0, 1) * 255)
+	return nrgba
 }
 
 // Complementary returns the complementary color (180° away on color wheel) of

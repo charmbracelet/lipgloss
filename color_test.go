@@ -2,7 +2,9 @@ package lipgloss
 
 import (
 	"fmt"
+	"image"
 	"image/color"
+	"image/draw"
 	"testing"
 )
 
@@ -184,50 +186,131 @@ func TestAlpha(t *testing.T) {
 			name:     "alpha-full-opacity",
 			color:    color.RGBA{R: 255, G: 0, B: 0, A: 255},
 			alpha:    1.0,
-			expected: color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			expected: color.NRGBA{R: 255, G: 0, B: 0, A: 255},
 		},
 		{
 			name:     "alpha-half-opacity",
 			color:    color.RGBA{R: 0, G: 255, B: 0, A: 255},
 			alpha:    0.5,
-			expected: color.RGBA{R: 0, G: 255, B: 0, A: 127},
+			expected: color.NRGBA{R: 0, G: 255, B: 0, A: 127},
 		},
 		{
 			name:     "alpha-quarter-opacity",
 			color:    color.RGBA{R: 0, G: 0, B: 255, A: 255},
 			alpha:    0.25,
-			expected: color.RGBA{R: 0, G: 0, B: 255, A: 63},
+			expected: color.NRGBA{R: 0, G: 0, B: 255, A: 63},
 		},
 		{
 			name:     "alpha-zero-opacity",
 			color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
 			alpha:    0.0,
-			expected: color.RGBA{R: 255, G: 255, B: 255, A: 0},
+			expected: color.NRGBA{R: 255, G: 255, B: 255, A: 0},
 		},
 		{
 			name:     "alpha-clamp-above-max",
 			color:    color.RGBA{R: 255, G: 0, B: 255, A: 255},
 			alpha:    1.5,
-			expected: color.RGBA{R: 255, G: 0, B: 255, A: 255},
+			expected: color.NRGBA{R: 255, G: 0, B: 255, A: 255},
 		},
 		{
 			name:     "alpha-clamp-below-min",
 			color:    color.RGBA{R: 255, G: 255, B: 0, A: 255},
 			alpha:    -0.5,
-			expected: color.RGBA{R: 255, G: 255, B: 0, A: 0},
+			expected: color.NRGBA{R: 255, G: 255, B: 0, A: 0},
 		},
 		{
 			name:     "alpha-complex-color",
 			color:    color.RGBA{R: 18, G: 52, B: 86, A: 255},
 			alpha:    0.75,
-			expected: color.RGBA{R: 18, G: 52, B: 86, A: 191},
+			expected: color.NRGBA{R: 18, G: 52, B: 86, A: 191},
+		},
+		{
+			name:  "alpha-nil",
+			alpha: 0.5,
+		},
+		{
+			name:     "alpha-premultiplied-source",
+			color:    color.RGBA{R: 128, G: 64, B: 32, A: 128},
+			alpha:    1,
+			expected: color.NRGBA{R: 255, G: 127, B: 63, A: 255},
+		},
+		{
+			name:     "alpha-premultiplied-source-half-opacity",
+			color:    color.RGBA{R: 128, G: 0, B: 0, A: 128},
+			alpha:    0.5,
+			expected: color.NRGBA{R: 255, G: 0, B: 0, A: 127},
+		},
+		{
+			name:     "alpha-non-premultiplied-source",
+			color:    color.NRGBA{R: 255, G: 128, B: 64, A: 128},
+			alpha:    1,
+			expected: color.NRGBA{R: 255, G: 128, B: 64, A: 255},
+		},
+		{
+			name:     "alpha-transparent-non-premultiplied-source",
+			color:    color.NRGBA{R: 255, G: 128, B: 64},
+			alpha:    1,
+			expected: color.NRGBA{R: 255, G: 128, B: 64, A: 255},
+		},
+		{
+			name:     "alpha-transparent-premultiplied-source",
+			color:    color.RGBA{},
+			alpha:    1,
+			expected: color.NRGBA{A: 255},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			expectColorMatches(t, Alpha(tt.color, tt.alpha), tt.expected)
+			got := Alpha(tt.color, tt.alpha)
+			expectColorMatches(t, got, tt.expected)
+			if got != nil {
+				r, g, b, a := got.RGBA()
+				if r > a || g > a || b > a {
+					t.Errorf("RGBA() = (%d, %d, %d, %d): RGB channels exceed alpha", r, g, b, a)
+				}
+			}
+		})
+	}
+}
+
+func TestAlphaDrawOver(t *testing.T) {
+	tests := []struct {
+		name     string
+		color    color.Color
+		alpha    float64
+		expected color.RGBA
+	}{
+		{
+			name:     "transparent-white",
+			color:    color.White,
+			alpha:    0,
+			expected: color.RGBA{A: 255},
+		},
+		{
+			name:     "half-opaque-white",
+			color:    color.White,
+			alpha:    0.5,
+			expected: color.RGBA{R: 127, G: 127, B: 127, A: 255},
+		},
+		{
+			name:     "premultiplied-red",
+			color:    color.RGBA{R: 128, A: 128},
+			alpha:    1,
+			expected: color.RGBA{R: 255, A: 255},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			dst := image.NewRGBA(image.Rect(0, 0, 1, 1))
+			dst.SetRGBA(0, 0, color.RGBA{A: 255})
+			draw.Draw(dst, dst.Bounds(), image.NewUniform(Alpha(tt.color, tt.alpha)), image.Point{}, draw.Over)
+			if got := dst.RGBAAt(0, 0); got != tt.expected {
+				t.Errorf("draw.Over = %v, want %v", got, tt.expected)
+			}
 		})
 	}
 }
