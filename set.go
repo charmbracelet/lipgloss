@@ -178,6 +178,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(tabWidthKey, i.tabWidth)
 	case transformKey:
 		s.set(transformKey, i.transform)
+	case linkKey:
+		s.set(linkKey, i.link)
+	case linkParamsKey:
+		s.set(linkParamsKey, i.linkParams)
 	default:
 		// Set attributes for set bool properties
 		s.set(key, i.attrs)

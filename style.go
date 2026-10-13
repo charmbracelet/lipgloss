@@ -236,7 +236,9 @@ func (s Style) Copy() Style {
 //
 // Margins, padding, and underlying string values are not inherited.
 func (s Style) Inherit(i Style) Style {
-	for k := boldKey; k <= transformKey; k <<= 1 {
+	hadOwnLink := s.isSet(linkKey)
+
+	for k := boldKey; k <= linkParamsKey; k <<= 1 {
 		if !i.isSet(k) {
 			continue
 		}
@@ -252,6 +254,11 @@ func (s Style) Inherit(i Style) Style {
 			// The margins also inherit the background color
 			if !s.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
 				s.set(marginBackgroundKey, i.bgColor)
+			}
+		case linkParamsKey:
+			// If this style already defined its own link, don't inherit parameters from another link.
+			if hadOwnLink {
+				continue
 			}
 		}
 
