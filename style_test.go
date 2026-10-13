@@ -166,9 +166,15 @@ func TestStyleInherit(t *testing.T) {
 		Foreground(Color("#ffffff")).
 		Background(Color("#111111")).
 		Margin(1, 1, 1, 1).
-		Padding(1, 1, 1, 1)
+		Padding(1, 1, 1, 1).
+		Hyperlink("https://charm.sh", "id=123")
 
 	i := NewStyle().Inherit(s)
+
+	sLink, sParams := s.GetHyperlink()
+	iLink, iParams := i.GetHyperlink()
+	requireEqual(t, sLink, iLink)
+	requireEqual(t, sParams, iParams)
 
 	requireEqual(t, s.GetBold(), i.GetBold())
 	requireEqual(t, s.GetItalic(), i.GetItalic())
@@ -189,6 +195,41 @@ func TestStyleInherit(t *testing.T) {
 	requireNotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
 	requireNotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
 	requireNotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+}
+
+func TestStyleInheritHyperlink(t *testing.T) {
+	t.Parallel()
+
+	parent := NewStyle().Hyperlink("https://charm.sh", "id=123")
+	child := NewStyle().Inherit(parent)
+
+	link, params := child.GetHyperlink()
+	requireEqual(t, "https://charm.sh", link)
+	requireEqual(t, "id=123", params)
+
+	// Child with existing hyperlink should preserve its own link and params.
+	childWithLink := NewStyle().Hyperlink("https://example.com", "id=456").Inherit(parent)
+	cLink, cParams := childWithLink.GetHyperlink()
+	requireEqual(t, "https://example.com", cLink)
+	requireEqual(t, "id=456", cParams)
+
+	// Child with existing link without params should not inherit parent params.
+	childNoParams := NewStyle().Hyperlink("https://example.com").Inherit(parent)
+	npLink, npParams := childNoParams.GetHyperlink()
+	requireEqual(t, "https://example.com", npLink)
+	requireEqual(t, "", npParams)
+
+	// Child should render the inherited hyperlink.
+	rendered := child.Render("click")
+	expected := "\x1b]8;id=123;https://charm.sh\x07click\x1b]8;;\x07"
+	requireEqual(t, expected, rendered)
+
+	// Parent without hyperlink should not set hyperlink on child.
+	noLinkParent := NewStyle().Bold(true)
+	childNoLink := NewStyle().Italic(true).Inherit(noLinkParent)
+	nlLink, nlParams := childNoLink.GetHyperlink()
+	requireEqual(t, "", nlLink)
+	requireEqual(t, "", nlParams)
 }
 
 func TestStyleCopy(t *testing.T) {
