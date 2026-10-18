@@ -500,3 +500,45 @@ func TestTypes(t *testing.T) {
 
 	golden.RequireEqual(t, []byte(tree.String()))
 }
+
+func TestChildSliceFollowingSiblings(t *testing.T) {
+	t.Run("slice of strings preserves subsequent siblings", func(t *testing.T) {
+		tr := tree.New().Root("root").Child("a", []string{"b", "c"}, "d")
+		if tr.Children().Length() != 4 {
+			t.Fatalf("expected 4 children, got %d", tr.Children().Length())
+		}
+		expected := []string{"a", "b", "c", "d"}
+		for i, exp := range expected {
+			if val := tr.Children().At(i).Value(); val != exp {
+				t.Errorf("child %d: expected %q, got %q", i, exp, val)
+			}
+		}
+	})
+
+	t.Run("slice of any preserves subsequent siblings", func(t *testing.T) {
+		tr := tree.New().Root("root").Child("a", []any{"b", "c"}, "d")
+		if tr.Children().Length() != 4 {
+			t.Fatalf("expected 4 children, got %d", tr.Children().Length())
+		}
+		expected := []string{"a", "b", "c", "d"}
+		for i, exp := range expected {
+			if val := tr.Children().At(i).Value(); val != exp {
+				t.Errorf("child %d: expected %q, got %q", i, exp, val)
+			}
+		}
+	})
+
+	t.Run("default types preserve subsequent siblings", func(t *testing.T) {
+		tr := tree.New().Root("root").Child(1, 2, "three")
+		if tr.Children().Length() != 3 {
+			t.Fatalf("expected 3 children, got %d", tr.Children().Length())
+		}
+		expected := []string{"1", "2", "three"}
+		for i, exp := range expected {
+			if val := tr.Children().At(i).Value(); val != exp {
+				t.Errorf("child %d: expected %q, got %q", i, exp, val)
+			}
+		}
+	})
+}
+
