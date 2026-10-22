@@ -500,3 +500,70 @@ func TestTypes(t *testing.T) {
 
 	golden.RequireEqual(t, []byte(tree.String()))
 }
+
+func TestTreeConsecutiveHiddenChildren(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		hidden []bool
+		want   string
+	}{
+		{"none", []bool{false, false}, "├── A\n└── B"},
+		{"leading", []bool{true, true, false}, "└── C"},
+		{"middle", []bool{false, true, true, false}, "├── A\n└── D"},
+		{"trailing", []bool{false, true, true}, "└── A"},
+		{"all", []bool{true, true, true}, ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tr := tree.New()
+			for i, hidden := range tc.hidden {
+				tr.Child(tree.NewLeaf(string(rune('A'+i)), hidden))
+			}
+			if got := tr.String(); got != tc.want {
+				t.Errorf("rendered %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestTreeHiddenChildrenEnumerator(t *testing.T) {
+	tr := tree.New().Child(
+		tree.NewLeaf("hidden first", true),
+		tree.NewLeaf("visible", false),
+		tree.NewLeaf("hidden middle", true),
+		tree.NewLeaf("visible last", false),
+		tree.NewLeaf("hidden last", true),
+		tree.NewLeaf("hidden last too", true),
+	).Enumerator(func(children tree.Children, i int) string {
+		if i >= children.Length() {
+			t.Errorf("enumerator index %d is outside %d children", i, children.Length())
+			return ""
+		}
+		if children.At(i).Hidden() {
+			t.Errorf("enumerator called for hidden child %q", children.At(i).Value())
+		}
+		return tree.DefaultEnumerator(children, i)
+	})
+	if got, want := tr.String(), "├── visible\n└── visible last"; got != want {
+		t.Errorf("rendered %q, want %q", got, want)
+	}
+}
+
+func TestTreeHiddenChildrenToggle(t *testing.T) {
+	hidden := tree.Root("hidden").Child("nested").Hide(true)
+	tr := tree.New().Child(tree.Root("visible").Child("child"), hidden, tree.NewLeaf("last", true))
+	const wantHidden = "└── visible\n    └── child"
+	for range 2 {
+		if got := tr.String(); got != wantHidden {
+			t.Errorf("rendered %q, want %q", got, wantHidden)
+		}
+	}
+	hidden.SetHidden(false)
+	const wantVisible = "├── visible\n│   └── child\n└── hidden\n    └── nested"
+	if got := tr.String(); got != wantVisible {
+		t.Errorf("rendered %q after unhiding, want %q", got, wantVisible)
+	}
+	hidden.SetHidden(true)
+	if got := tr.String(); got != wantHidden {
+		t.Errorf("rendered %q after hiding again, want %q", got, wantHidden)
+	}
+}

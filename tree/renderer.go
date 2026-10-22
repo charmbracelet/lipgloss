@@ -50,7 +50,13 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	}
 
 	var maxLen int
-	children := node.Children()
+	allChildren := node.Children()
+	children := make(NodeChildren, 0, allChildren.Length())
+	for i := range allChildren.Length() {
+		if child := allChildren.At(i); !child.Hidden() {
+			children = append(children, child)
+		}
+	}
 	enumerator := r.enumerator
 	indenter := r.indenter
 
@@ -67,15 +73,6 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 	}
 
 	for i := range children.Length() {
-		if i < children.Length()-1 {
-			if child := children.At(i + 1); child.Hidden() {
-				// Don't count the last child if its hidden. This renders the
-				// last visible element with the right prefix
-				//
-				// The only type of Children is NodeChildren.
-				children = children.(NodeChildren).Remove(i + 1)
-			}
-		}
 		prefix := enumerator(children, i)
 		prefix = r.style.enumeratorFunc(children, i).Render(prefix)
 		maxLen = max(lipgloss.Width(prefix), maxLen)
@@ -83,9 +80,6 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 
 	for i := range children.Length() {
 		child := children.At(i)
-		if child.Hidden() {
-			continue
-		}
 		indentStyle := r.style.indenterFunc(children, i)
 		enumStyle := r.style.enumeratorFunc(children, i)
 
