@@ -741,3 +741,16 @@ func BenchmarkStyleRender(b *testing.B) {
 		})
 	}
 }
+
+func TestStyleWidthHeightExtremeNoPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("panic: %v", r)
+		}
+	}()
+	s := NewStyle().Width(1 << 60).Height(1 << 60)
+	if s.GetWidth() > maxWidth || s.GetHeight() > maxHeight {
+		t.Fatalf("not clamped: %d x %d", s.GetWidth(), s.GetHeight())
+	}
+	_ = s.Render("hi")
+}

@@ -5,6 +5,13 @@ import (
 	"strings"
 )
 
+// Maximum sane dimensions to avoid panics (makeslice: len out of range)
+// when extreme values are passed to Width/Height.
+const (
+	maxWidth  = 1 << 20
+	maxHeight = 1 << 20
+)
+
 // Set a value on the underlying rules map.
 func (s *Style) set(key propKey, value any) {
 	// We don't allow negative integers on any of our other values, so just keep
@@ -21,9 +28,23 @@ func (s *Style) set(key propKey, value any) {
 	case underlineKey:
 		s.ul = value.(Underline)
 	case widthKey:
-		s.width = max(0, value.(int))
+		v := value.(int)
+		if v < 0 {
+			v = 0
+		}
+		if v > maxWidth {
+			v = maxWidth
+		}
+		s.width = v
 	case heightKey:
-		s.height = max(0, value.(int))
+		v := value.(int)
+		if v < 0 {
+			v = 0
+		}
+		if v > maxHeight {
+			v = maxHeight
+		}
+		s.height = v
 	case alignHorizontalKey:
 		s.alignHorizontal = value.(Position)
 	case alignVerticalKey:
