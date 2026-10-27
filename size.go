@@ -2,8 +2,6 @@ package lipgloss
 
 import (
 	"strings"
-
-	"github.com/charmbracelet/x/ansi"
 )
 
 // Width returns the cell width of characters in the string. ANSI sequences are
@@ -14,7 +12,7 @@ import (
 // will give you accurate results.
 func Width(str string) (width int) {
 	for l := range strings.SplitSeq(str, "\n") {
-		w := ansi.StringWidth(l)
+		w := stringWidth(l)
 		if w > width {
 			width = w
 		}
