@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image/color"
 	"testing"
+
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 // hex converts a color to a hex string or panics if invalid.
@@ -113,6 +115,32 @@ func TestRGBA(t *testing.T) {
 		if o != tc.expected {
 			t.Errorf("expected %X, got %X (test #%d)", tc.expected, o, i+1)
 		}
+	}
+}
+
+func TestRGBColorRGBA(t *testing.T) {
+	t.Parallel()
+
+	for value := 0; value < 256; value++ {
+		c := RGBColor{R: uint8(value), G: uint8(value * 3), B: uint8(value * 7)}
+		want := color.RGBA{R: c.R, G: c.G, B: c.B, A: 255}
+		r, g, b, a := c.RGBA()
+		wr, wg, wb, wa := want.RGBA()
+		if r != wr || g != wg || b != wb || a != wa {
+			t.Fatalf("RGBColor%+v.RGBA() = (%d, %d, %d, %d), want (%d, %d, %d, %d)", c, r, g, b, a, wr, wg, wb, wa)
+		}
+	}
+}
+
+func TestRGBColorNormalizedWhite(t *testing.T) {
+	t.Parallel()
+
+	c, ok := colorful.MakeColor(RGBColor{R: 255, G: 255, B: 255})
+	if !ok {
+		t.Fatal("MakeColor rejected RGBColor")
+	}
+	if c.R != 1 || c.G != 1 || c.B != 1 {
+		t.Errorf("normalized RGBColor white = %v, want (1, 1, 1)", c)
 	}
 }
 
