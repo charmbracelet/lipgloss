@@ -227,8 +227,9 @@ func (c *Compositor) flatten() {
 	c.index = make(map[string]*Layer)
 	c.flattenRecursive(c.root, 0, 0)
 
-	// Sort by absolute z-index (lowest to highest for drawing)
-	slices.SortFunc(c.layers, func(a, b compositeLayer) int {
+	// Sort by absolute z-index (lowest to highest for drawing). The sort is
+	// stable so layers that share a z-index keep their insertion order.
+	slices.SortStableFunc(c.layers, func(a, b compositeLayer) int {
 		return a.layer.z - b.layer.z
 	})
 
