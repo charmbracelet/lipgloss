@@ -25,9 +25,11 @@ func Blend1D(steps int, stops ...color.Color) []color.Color {
 	}
 
 	// Ensure they didn't provide any nil colors.
-	stops = slices.DeleteFunc(stops, func(c color.Color) bool {
-		return c == nil
-	})
+	if slices.Contains(stops, nil) {
+		stops = slices.DeleteFunc(slices.Clone(stops), func(c color.Color) bool {
+			return c == nil
+		})
+	}
 
 	if len(stops) == 0 {
 		return nil // We can't safely fallback.
@@ -126,9 +128,11 @@ func Blend2D(width, height int, angle float64, stops ...color.Color) []color.Col
 	}
 
 	// Ensure they didn't provide any nil colors.
-	stops = slices.DeleteFunc(stops, func(c color.Color) bool {
-		return c == nil
-	})
+	if slices.Contains(stops, nil) {
+		stops = slices.DeleteFunc(slices.Clone(stops), func(c color.Color) bool {
+			return c == nil
+		})
+	}
 
 	if len(stops) == 0 {
 		return nil // We can't safely fallback.
