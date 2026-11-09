@@ -16,8 +16,8 @@ func Wrap(s string, width int, breakpoints string) string {
 	// the same length as the input plus a little. Size it once.
 	buf.Grow(len(s) + len(s)/8)
 	w := NewWrapWriter(&buf)
-	defer w.Close() //nolint:errcheck
 	_, _ = io.WriteString(w, s)
+	_ = w.Close()
 	return buf.String()
 }
 
