@@ -191,6 +191,18 @@ func TestStyleInherit(t *testing.T) {
 	requireNotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
 }
 
+func TestUnsetUnderlineAllowsInheritance(t *testing.T) {
+	t.Parallel()
+
+	parent := NewStyle().Underline(true)
+
+	explicitOff := NewStyle().Underline(false).Inherit(parent)
+	requireFalse(t, explicitOff.GetUnderline())
+
+	unset := NewStyle().Underline(true).UnsetUnderline().Inherit(parent)
+	requireTrue(t, unset.GetUnderline())
+}
+
 func TestStyleCopy(t *testing.T) {
 	t.Parallel()
 
