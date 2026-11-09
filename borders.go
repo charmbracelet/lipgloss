@@ -403,11 +403,8 @@ func (s Style) applyBorder(str string) string {
 		}
 	}
 
-	// For now, limit corners to one rune.
-	border.TopLeft = getFirstRuneAsString(border.TopLeft)
-	border.TopRight = getFirstRuneAsString(border.TopRight)
-	border.BottomRight = getFirstRuneAsString(border.BottomRight)
-	border.BottomLeft = getFirstRuneAsString(border.BottomLeft)
+	// Corners may be multi-character strings. The renderHorizontalEdge
+	// function uses ansi.StringWidth to account for their display width.
 
 	var topFG, rightFG, bottomFG, leftFG color.Color
 	var (

@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/rivo/uniseg"
@@ -140,6 +141,84 @@ func TestGetFirstRuneAsString(t *testing.T) {
 				t.Errorf("getFirstRuneAsString(%q) = %q, but old implementation returns %q", tt.input, got, old)
 			}
 		})
+	}
+}
+
+func TestMultiCharacterCorners(t *testing.T) {
+	t.Parallel()
+
+	// Define a border with multi-character corners.
+	customBorder := Border{
+		Top:         "-",
+		Bottom:      "-",
+		Left:        "|",
+		Right:       "|",
+		TopLeft:     "##",
+		TopRight:    "##",
+		BottomLeft:  "##",
+		BottomRight: "##",
+	}
+
+	style := NewStyle().
+		Border(customBorder).
+		Width(10)
+
+	result := style.Render("Hi")
+	lines := strings.Split(result, "\n")
+
+	// The top border should start with "##" (multi-char corner).
+	if !strings.HasPrefix(lines[0], "##") {
+		t.Errorf("expected top border to start with '##', got: %q", lines[0])
+	}
+
+	// The top border should end with "##" (multi-char corner).
+	if !strings.HasSuffix(lines[0], "##") {
+		t.Errorf("expected top border to end with '##', got: %q", lines[0])
+	}
+
+	// The bottom border should also use multi-character corners.
+	lastLine := lines[len(lines)-1]
+	if !strings.HasPrefix(lastLine, "##") {
+		t.Errorf("expected bottom border to start with '##', got: %q", lastLine)
+	}
+	if !strings.HasSuffix(lastLine, "##") {
+		t.Errorf("expected bottom border to end with '##', got: %q", lastLine)
+	}
+
+	// Verify the top border contains the multi-character corner, not a single char.
+	// Before the fix, corners were truncated to 1 rune, so "##" would become "#".
+	if strings.HasPrefix(lines[0], "#-") {
+		t.Errorf("corner was truncated to single char (old behavior): %q", lines[0])
+	}
+}
+
+func TestMultiCharacterCornersAsymmetric(t *testing.T) {
+	t.Parallel()
+
+	// Different corner sizes.
+	customBorder := Border{
+		Top:         "=",
+		Bottom:      "=",
+		Left:        "|",
+		Right:       "|",
+		TopLeft:     ">>",
+		TopRight:    "<<",
+		BottomLeft:  ">>",
+		BottomRight: "<<",
+	}
+
+	style := NewStyle().
+		Border(customBorder).
+		Width(8)
+
+	result := style.Render("Test")
+	lines := strings.Split(result, "\n")
+
+	if !strings.HasPrefix(lines[0], ">>") {
+		t.Errorf("expected top border to start with '>>', got: %q", lines[0])
+	}
+	if !strings.HasSuffix(lines[0], "<<") {
+		t.Errorf("expected top border to end with '<<', got: %q", lines[0])
 	}
 }
 
