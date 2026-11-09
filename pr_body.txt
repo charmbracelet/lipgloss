@@ -1,0 +1,5 @@
+I noticed that while lipgloss has `MarginBackground()` to set the margin background color and `UnsetMarginBackground()` to clear it, there's no corresponding getter to retrieve the value.
+
+This adds `GetMarginBackground()` which returns the style's margin background color (or nil if not set). The implementation follows the same pattern as other color getters in the codebase.
+
+Addresses the remaining gap from #111.
