@@ -625,15 +625,24 @@ func (s Style) getAsTransform(propKey) func(string) string {
 	return s.transform
 }
 
+// stringWidth reports the display width of s. Tabs are measured as 4 columns
+// so width calculations match the historical getLines behaviour without
+// rewriting the string (which would break TabWidth(NoTabConversion)).
+func stringWidth(s string) int {
+	if strings.Contains(s, "\t") {
+		s = strings.ReplaceAll(s, "\t", "    ")
+	}
+	return ansi.StringWidth(s)
+}
+
 // Split a string into lines, additionally returning the size of the widest
 // line.
 func getLines(s string) (lines []string, widest int) {
-	s = strings.ReplaceAll(s, "\t", "    ")
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	lines = strings.Split(s, "\n")
 
 	for _, l := range lines {
-		w := ansi.StringWidth(l)
+		w := stringWidth(l)
 		if widest < w {
 			widest = w
 		}
