@@ -490,6 +490,30 @@ func TestTableWidthShrink(t *testing.T) {
 	})
 }
 
+func TestTableWidthShrinkBorders(t *testing.T) {
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	// The content and padding fit in 36 columns, but the borders don't.
+	table := New().
+		Width(36).
+		StyleFunc(TableStyle).
+		Border(lipgloss.NormalBorder()).
+		Headers("LANGUAGE", "FORMAL", "INFORMAL").
+		Rows(rows...)
+
+	if lipgloss.Width(table.String()) != 36 {
+		t.Fatalf("expected table width to be 36, got %d", lipgloss.Width(table.String()))
+	}
+
+	golden.RequireEqual(t, []byte(table.String()))
+}
+
 func TestTableWidthSmartCrop(t *testing.T) {
 	rows := [][]string{
 		{"Kini", "40", "New York"},
