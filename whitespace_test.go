@@ -3,6 +3,8 @@ package lipgloss
 import (
 	"testing"
 	"time"
+
+	"github.com/charmbracelet/x/ansi"
 )
 
 func TestWhitespaceRenderWithTab(t *testing.T) {
@@ -48,5 +50,27 @@ func TestWhitespaceRenderNormal(t *testing.T) {
 	result := ws.render(5)
 	if len(result) != 5 {
 		t.Errorf("expected 5 characters, got %d", len(result))
+	}
+}
+
+func TestWhitespaceRenderWideChars(t *testing.T) {
+	// Rendering with wide (multi-cell) characters must never exceed the
+	// requested width. Any leftover cells are padded with spaces instead.
+	for _, tc := range []struct {
+		chars string
+		width int
+	}{
+		{"橋", 1},
+		{"橋", 3},
+		{"橋", 5},
+		{"a橋", 4},
+		{"橋", 0},
+	} {
+		ws := newWhitespace(WithWhitespaceChars(tc.chars))
+		got := ansi.StringWidth(ws.render(tc.width))
+		if got != tc.width {
+			t.Errorf("render(%d) with chars %q produced width %d, want %d",
+				tc.width, tc.chars, got, tc.width)
+		}
 	}
 }
