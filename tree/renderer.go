@@ -58,10 +58,12 @@ func (r *renderer) render(node Node, root bool, prefix string) string {
 
 	// print the root node name if its not empty.
 	if name := node.Value(); name != "" && root {
-		line := r.style.root.Render(name)
+		// Pad the raw name, then apply the root style exactly once, so
+		// transforms and styles don't run twice over the same line.
+		line := name
 		// If the line is shorter than the desired width, we pad it with spaces.
 		if pad := r.width - lipgloss.Width(line); pad > 0 {
-			line = name + r.style.root.Render(strings.Repeat(" ", pad))
+			line += strings.Repeat(" ", pad)
 		}
 		strs = append(strs, r.style.root.Render(line))
 	}

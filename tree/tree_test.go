@@ -91,6 +91,17 @@ func TestTreeRoot(t *testing.T) {
 	golden.RequireEqual(t, []byte(tree.String()))
 }
 
+func TestTreeRootStyleRenderedOnce(t *testing.T) {
+	tree := tree.New().
+		Root("Root").
+		Child("child").
+		RootStyle(lipgloss.NewStyle().Transform(func(s string) string {
+			return s + "!"
+		}))
+
+	golden.RequireEqual(t, []byte(tree.String()))
+}
+
 func TestTreeStartsWithSubtree(t *testing.T) {
 	tree := tree.New().
 		Child(
