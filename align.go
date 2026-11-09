@@ -6,6 +6,11 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+// maxPadding is an upper bound on string repetitions to prevent
+// memory allocation panics (e.g. makeslice: len out of range)
+// when styles are assigned extremely large dimensions.
+const maxPadding = 1048576
+
 // Perform text alignment. If the string is multi-lined, we also make all lines
 // the same width by padding them with spaces. If a style is passed, use that
 // to style the spaces added.
@@ -18,6 +23,11 @@ func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style)
 
 		shortAmount := widestLine - lineWidth                // difference from the widest line
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
+
+		// Clamp shortAmount to avoid makeslice panics on extreme values.
+		if shortAmount > maxPadding {
+			shortAmount = maxPadding
+		}
 
 		if shortAmount > 0 {
 			switch pos {
@@ -66,7 +76,11 @@ func alignTextVertical(str string, pos Position, height int, _ *ansi.Style) stri
 
 	switch pos {
 	case Top:
-		return str + strings.Repeat("\n", height-strHeight)
+		pad := height - strHeight
+		if pad > maxPadding {
+			pad = maxPadding
+		}
+		return str + strings.Repeat("\n", pad)
 	case Center:
 		topPadding, bottomPadding := (height-strHeight)/2, (height-strHeight)/2 //nolint:mnd
 		if strHeight+topPadding+bottomPadding > height {
@@ -74,9 +88,19 @@ func alignTextVertical(str string, pos Position, height int, _ *ansi.Style) stri
 		} else if strHeight+topPadding+bottomPadding < height {
 			bottomPadding++
 		}
+		if topPadding > maxPadding {
+			topPadding = maxPadding
+		}
+		if bottomPadding > maxPadding {
+			bottomPadding = maxPadding
+		}
 		return strings.Repeat("\n", topPadding) + str + strings.Repeat("\n", bottomPadding)
 	case Bottom:
-		return strings.Repeat("\n", height-strHeight) + str
+		pad := height - strHeight
+		if pad > maxPadding {
+			pad = maxPadding
+		}
+		return strings.Repeat("\n", pad) + str
 	}
 	return str
 }
