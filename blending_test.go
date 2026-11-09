@@ -132,6 +132,37 @@ func TestBlend1D(t *testing.T) {
 			},
 			expected: []color.Color{},
 		},
+		{
+			name:  "2-steps-3-stops-leading-nil",
+			steps: 2,
+			stops: []color.Color{
+				nil,
+				color.RGBA{R: 255, G: 0, B: 0, A: 255},
+				color.RGBA{R: 0, G: 255, B: 0, A: 255},
+			},
+			expected: []color.Color{
+				&color.RGBA{R: 255, G: 0, B: 0, A: 255},
+				&color.RGBA{R: 0, G: 255, B: 0, A: 255},
+			},
+		},
+		{
+			name:  "2-steps-2-stops-one-nil",
+			steps: 2,
+			stops: []color.Color{
+				color.RGBA{R: 255, G: 0, B: 0, A: 255},
+				nil,
+			},
+			expected: []color.Color{
+				&color.RGBA{R: 255, G: 0, B: 0, A: 255},
+				&color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			},
+		},
+		{
+			name:     "1-step-1-nil-stop",
+			steps:    1,
+			stops:    []color.Color{nil},
+			expected: []color.Color{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -147,6 +178,19 @@ func TestBlend1D(t *testing.T) {
 				expectColorMatches(t, got[i], tt.expected[i])
 			}
 		})
+	}
+}
+
+func TestBlend1DDoesNotAliasStops(t *testing.T) {
+	red := color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	green := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+	stops := []color.Color{red, green}
+
+	got := Blend1D(2, stops...)
+	got[0] = color.RGBA{R: 1, G: 2, B: 3, A: 255}
+
+	if stops[0] != red {
+		t.Errorf("modifying result changed caller's stops: got %v, want %v", stops[0], red)
 	}
 }
 

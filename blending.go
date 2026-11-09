@@ -20,10 +20,6 @@ func Blend1D(steps int, stops ...color.Color) []color.Color {
 		steps = 0
 	}
 
-	if steps <= len(stops) {
-		return stops[:steps]
-	}
-
 	// Ensure they didn't provide any nil colors.
 	stops = slices.DeleteFunc(stops, func(c color.Color) bool {
 		return c == nil
@@ -31,6 +27,10 @@ func Blend1D(steps int, stops ...color.Color) []color.Color {
 
 	if len(stops) == 0 {
 		return nil // We can't safely fallback.
+	}
+
+	if steps <= len(stops) {
+		return slices.Clone(stops[:steps])
 	}
 
 	// If they only provided one valid color (or some nil colors), we will just return
