@@ -628,7 +628,9 @@ func (s Style) getAsTransform(propKey) func(string) string {
 // Split a string into lines, additionally returning the size of the widest
 // line.
 func getLines(s string) (lines []string, widest int) {
-	s = strings.ReplaceAll(s, "\t", "    ")
+	// Do not rewrite tabs here. Measuring can use the existing string
+	// width, and callers (Render, borders, join, place) must keep the
+	// original characters so TabWidth(NoTabConversion) can honor tabs.
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	lines = strings.Split(s, "\n")
 

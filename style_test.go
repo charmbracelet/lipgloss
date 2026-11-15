@@ -469,6 +469,15 @@ func TestTabConversion(t *testing.T) {
 	requireEqual(t, "[]", s.Render("[\t]"))
 	s = NewStyle().TabWidth(-1)
 	requireEqual(t, "[\t]", s.Render("[\t]"))
+
+	// Multi-line strings used to have tabs expanded by getLines even when
+	// TabWidth is NoTabConversion.
+	s = NewStyle().TabWidth(NoTabConversion)
+	requireEqual(t, "a\tb", s.Render("a\tb"))
+	requireEqual(t, "a\tb\nc\td", s.Render("a\tb\nc\td"))
+	s = NewStyle().TabWidth(NoTabConversion).Foreground(Color("2"))
+	requireEqual(t, "\x1b[32ma\tb\x1b[m", s.Render("a\tb"))
+	requireEqual(t, "\x1b[32ma\tb\x1b[m\n\x1b[32mc\td\x1b[m", s.Render("a\tb\nc\td"))
 }
 
 func TestStringTransform(t *testing.T) {
