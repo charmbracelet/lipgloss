@@ -326,8 +326,13 @@ func (t *Table) Wrap(w bool) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
+	// Treat missing data as empty before measuring header columns.
+	if t.data == nil {
+		t.data = NewStringData()
+	}
+
 	hasHeaders := len(t.headers) > 0
-	hasRows := t.data != nil && t.data.Rows() > 0
+	hasRows := t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
