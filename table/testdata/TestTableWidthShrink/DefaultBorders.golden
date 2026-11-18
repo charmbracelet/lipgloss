@@ -1,13 +1,14 @@
-┌────────┬─────────┬─────────┐
-│ LANGU… │ FORMAL  │ INFORM… │
-├────────┼─────────┼─────────┤
-│ Chines │ Nǐn hǎo │ Nǐ hǎo  │
-│ e      │         │         │
-│ French │ Bonjour │ Salut   │
-│ Japane │ こんに  │ やあ    │
-│ se     │ ちは    │         │
-│ Russia │ Zdravst │ Privet  │
-│ n      │ vuyte   │         │
-│ Spanis │ Hola    │ ¿Qué    │
-│ h      │         │ tal?    │
-└────────┴─────────┴─────────┘
+┌─────────┬────────┬─────────┐
+│ LANGUA… │ FORMAL │ INFORM… │
+├─────────┼────────┼─────────┤
+│ Chinese │ Nǐn    │ Nǐ hǎo  │
+│         │ hǎo    │         │
+│ French  │ Bonjou │ Salut   │
+│         │ r      │         │
+│ Japanes │ こんに │ やあ    │
+│ e       │ ちは   │         │
+│ Russian │ Zdravs │ Privet  │
+│         │ tvuyte │         │
+│ Spanish │ Hola   │ ¿Qué    │
+│         │        │ tal?    │
+└─────────┴────────┴─────────┘
