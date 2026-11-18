@@ -3,8 +3,6 @@ package lipgloss
 import (
 	"math"
 	"strings"
-
-	"github.com/charmbracelet/x/ansi"
 )
 
 // Position represents a position along a horizontal or vertical axis. It's in
@@ -53,7 +51,7 @@ func PlaceHorizontal(width int, pos Position, str string, opts ...WhitespaceOpti
 	var b strings.Builder
 	for i, l := range lines {
 		// Is this line shorter than the longest line?
-		short := max(0, contentWidth-ansi.StringWidth(l))
+		short := max(0, contentWidth-stringWidth(l))
 
 		switch pos {
 		case Left:
