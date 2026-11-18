@@ -822,8 +822,8 @@ func TestClearRows(t *testing.T) {
 	table.ClearRows()
 	table.Row("French", "Bonjour", "Salut")
 
-	// String() will try to get the rows from table.data
-	table.String()
+	// String() will try to get the rows from table.data.
+	_ = table.String()
 }
 
 func TestContentWrapping(t *testing.T) {
@@ -1670,5 +1670,47 @@ func TestFitContent(t *testing.T) {
 
 			golden.RequireEqual(t, []byte(table.String()))
 		})
+	}
+}
+
+func TestTableRendersHeadersWithEmptyData(t *testing.T) {
+	t.Parallel()
+	got := New().Data(NewStringData()).Headers("a").String()
+	want := "┌─┐\n│a│\n├─┤\n└─┘"
+	if got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+func TestTableRenderingDoesNotReplaceExistingData(t *testing.T) {
+	t.Parallel()
+	data := NewStringData([]string{"b"})
+	table := New().Data(data).Headers("a")
+	got := table.String()
+	want := "┌─┐\n│a│\n├─┤\n│b│\n└─┘"
+	if got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	if table.GetData() != data {
+		t.Error("rendering replaced the existing data source")
+	}
+}
+
+func TestTableRendersNilDataWithHeaders(t *testing.T) {
+	t.Parallel()
+	table := New().Data(nil).Headers("a")
+	want := "┌─┐\n│a│\n├─┤\n└─┘"
+	if got := table.String(); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	// Rendering again must preserve the headers-only output.
+	if got := table.String(); got != want {
+		t.Errorf("second render:\n%s\nwant:\n%s", got, want)
+	}
+	if table.GetData() != nil {
+		t.Error("rendering replaced nil data")
+	}
+	if got := New().Data(nil).String(); got != "" {
+		t.Errorf("nil data without headers rendered %q, want empty output", got)
 	}
 }

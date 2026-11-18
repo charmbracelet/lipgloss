@@ -326,8 +326,15 @@ func (t *Table) Wrap(w bool) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
+	// Render nil data as empty on a copy so the caller's table is untouched.
+	if t.data == nil {
+		tc := *t
+		tc.data = NewStringData()
+		return tc.String()
+	}
+
 	hasHeaders := len(t.headers) > 0
-	hasRows := t.data != nil && t.data.Rows() > 0
+	hasRows := t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
