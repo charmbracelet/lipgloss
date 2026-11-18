@@ -2,8 +2,53 @@ package lipgloss
 
 import (
 	"image/color"
+	"slices"
 	"testing"
 )
+
+func TestBlendPreservesColorStops(t *testing.T) {
+	t.Parallel()
+
+	red := color.RGBA{R: 255, A: 255}
+	blue := color.RGBA{B: 255, A: 255}
+	for _, tt := range []struct {
+		name  string
+		stops []color.Color
+	}{
+		{name: "leading_nil", stops: []color.Color{nil, red, blue}},
+		{name: "middle_nil", stops: []color.Color{red, nil, blue}},
+		{name: "single_color", stops: []color.Color{nil, red}},
+		{name: "no_nil", stops: []color.Color{red, blue}},
+	} {
+		for _, blend := range []struct {
+			name   string
+			apply  func([]color.Color) []color.Color
+			length int
+		}{
+			{name: "1D", apply: func(stops []color.Color) []color.Color { return Blend1D(5, stops...) }, length: 5},
+			{name: "2D", apply: func(stops []color.Color) []color.Color { return Blend2D(3, 2, 45, stops...) }, length: 6},
+		} {
+			t.Run(tt.name+"/"+blend.name, func(t *testing.T) {
+				t.Parallel()
+
+				stops := slices.Clone(tt.stops)
+				before := slices.Clone(stops)
+				result := blend.apply(stops)
+				if !slices.Equal(stops, before) {
+					t.Errorf("caller color stops changed: got %v, want %v", stops, before)
+				}
+				if len(result) != blend.length {
+					t.Fatalf("gradient length = %d, want %d", len(result), blend.length)
+				}
+				for i, c := range result {
+					if c == nil {
+						t.Errorf("gradient color %d is nil", i)
+					}
+				}
+			})
+		}
+	}
+}
 
 func TestBlend1D(t *testing.T) {
 	tests := []struct {
