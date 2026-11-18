@@ -1672,3 +1672,36 @@ func TestFitContent(t *testing.T) {
 		})
 	}
 }
+
+func TestTableWidthShrinkBorderOnly(t *testing.T) {
+	newTable := func() *Table {
+		return New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(func(row, col int) lipgloss.Style {
+				return lipgloss.NewStyle().Padding(0, 1)
+			}).
+			Headers("LANGUAGE", "FORMAL", "INFORMAL").
+			Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+			Row("French", "Bonjour", "Salut").
+			Row("Russian", "Zdravstvuyte", "Privet").
+			Row("Spanish", "Hola", "¿Qué tal?")
+	}
+
+	natural := lipgloss.Width(newTable().String())
+
+	// Widths that the content and padding fit in, but the borders don't. The
+	// columns must shrink so the right border stays visible.
+	for width := natural - 4; width < natural; width++ {
+		t.Run(fmt.Sprintf("width-%d", width), func(t *testing.T) {
+			out := newTable().Width(width).String()
+			for i, line := range strings.Split(out, "\n") {
+				if w := lipgloss.Width(line); w != width {
+					t.Fatalf("line %d: expected width %d, got %d\n%s", i, width, w, out)
+				}
+				if !strings.ContainsAny(line[len(line)-len("│"):], "│┐┤┘") {
+					t.Fatalf("line %d: right border is missing\n%s", i, out)
+				}
+			}
+		})
+	}
+}
