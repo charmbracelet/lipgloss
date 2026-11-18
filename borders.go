@@ -290,6 +290,9 @@ func (s Style) borderBlend(width, height int, colors ...color.Color) *borderBlen
 		(height+width+2)*2,
 		colors...,
 	)
+	if len(gradient) == 0 {
+		return nil
+	}
 
 	// Rotate array forward or reverse based on the offset if provided.
 	if r := -s.getAsInt(borderForegroundBlendOffsetKey); r != 0 {
@@ -421,7 +424,8 @@ func (s Style) applyBorder(str string) string {
 	var blend *borderBlend
 	if len(blendFG) > 0 {
 		blend = s.borderBlend(width, len(lines), blendFG...)
-	} else {
+	}
+	if blend == nil {
 		topFG = s.getAsColor(borderTopForegroundKey)
 		rightFG = s.getAsColor(borderRightForegroundKey)
 		bottomFG = s.getAsColor(borderBottomForegroundKey)

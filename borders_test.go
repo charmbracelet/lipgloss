@@ -222,3 +222,12 @@ func maxRuneWidthOld(str string) int {
 
 	return width
 }
+
+func TestBorderForegroundBlendNil(t *testing.T) {
+	// Should not panic when stops are all nil
+	style := NewStyle().Border(NormalBorder(), true).BorderForegroundBlend(nil, nil)
+	out := style.Render("test")
+	if out == "" {
+		t.Fatal("expected non-empty output")
+	}
+}
