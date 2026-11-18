@@ -1707,6 +1707,9 @@ func TestTableRendersNilDataWithHeaders(t *testing.T) {
 	if got := table.String(); got != want {
 		t.Errorf("second render:\n%s\nwant:\n%s", got, want)
 	}
+	if table.GetData() != nil {
+		t.Error("rendering replaced nil data")
+	}
 	if got := New().Data(nil).String(); got != "" {
 		t.Errorf("nil data without headers rendered %q, want empty output", got)
 	}
