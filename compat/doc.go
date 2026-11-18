@@ -4,18 +4,19 @@
 // standard I/O streams.
 //
 // In case you want [os.Stderr] to be used as the default writer, you can set
-// both [Writer] and [HasDarkBackground] to use [os.Stderr] with
+// both [Profile] and [HasDarkBackground] to use [os.Stderr] with
 // the following code:
 //
 //	import (
 //		"os"
 //
+//		"charm.land/lipgloss/v2"
+//		"charm.land/lipgloss/v2/compat"
 //		"github.com/charmbracelet/colorprofile"
-//		"charm.land/lipgloss/v2/impure"
 //	)
 //
 //	func init() {
-//		impure.Writer = colorprofile.NewWriter(os.Stderr, os.Environ())
-//		impure.HasDarkBackground, _ = lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
+//		compat.Profile = colorprofile.Detect(os.Stderr, os.Environ())
+//		compat.HasDarkBackground = lipgloss.HasDarkBackground(os.Stdin, os.Stderr)
 //	}
 package compat
