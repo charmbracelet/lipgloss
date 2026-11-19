@@ -5,13 +5,32 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/charmbracelet/colorprofile"
 )
 
 // Writer is the default writer that prints to stdout, automatically
-// downsampling colors when necessary.
-var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
+// downsampling colors when necessary. Its color profile is detected on the
+// first print, not when the package is imported, so a program that only
+// renders strings does not query the terminal. Assign Writer before that
+// first print to keep your own profile.
+var (
+	Writer        = &colorprofile.Writer{Forward: os.Stdout}
+	defaultWriter = Writer
+	writerOnce    sync.Once
+)
+
+func ensureWriter() *colorprofile.Writer {
+	writerOnce.Do(func() {
+		if Writer != defaultWriter {
+			return
+		}
+		detected := colorprofile.NewWriter(os.Stdout, os.Environ())
+		Writer.Profile = detected.Profile
+	})
+	return Writer
+}
 
 // Println to stdout, automatically downsampling colors when necessary, ending
 // with a trailing newline.
@@ -24,7 +43,7 @@ var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
 //
 //	Println("Time for a", str, "sandwich!")
 func Println(v ...any) (int, error) {
-	return fmt.Fprintln(Writer, v...) //nolint:wrapcheck
+	return fmt.Fprintln(ensureWriter(), v...) //nolint:wrapcheck
 }
 
 // Printf prints formatted text to stdout, automatically downsampling colors
@@ -38,7 +57,7 @@ func Println(v ...any) (int, error) {
 //
 //	Printf("Time for a %s sandwich!\n", str)
 func Printf(format string, v ...any) (int, error) {
-	return fmt.Fprintf(Writer, format, v...) //nolint:wrapcheck
+	return fmt.Fprintf(ensureWriter(), format, v...) //nolint:wrapcheck
 }
 
 // Print to stdout, automatically downsampling colors when necessary.
@@ -51,7 +70,7 @@ func Printf(format string, v ...any) (int, error) {
 //
 //	Print(str)
 func Print(v ...any) (int, error) {
-	return fmt.Fprint(Writer, v...) //nolint:wrapcheck
+	return fmt.Fprint(ensureWriter(), v...) //nolint:wrapcheck
 }
 
 // Fprint pritnts to the given writer, automatically downsampling colors when
@@ -111,7 +130,7 @@ func Sprint(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: ensureWriter().Profile,
 	}
 	fmt.Fprint(&w, v...) //nolint:errcheck
 	return buf.String()
@@ -132,7 +151,7 @@ func Sprintln(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: ensureWriter().Profile,
 	}
 	fmt.Fprintln(&w, v...) //nolint:errcheck
 	return buf.String()
@@ -153,7 +172,7 @@ func Sprintf(format string, v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: ensureWriter().Profile,
 	}
 	fmt.Fprintf(&w, format, v...) //nolint:errcheck
 	return buf.String()
