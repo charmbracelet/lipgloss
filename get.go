@@ -484,11 +484,11 @@ func (s Style) GetHyperlink() (link, params string) {
 }
 
 // Returns whether or not the given property is set.
-func (s Style) isSet(k propKey) bool {
+func (s *Style) isSet(k propKey) bool {
 	return s.props.has(k)
 }
 
-func (s Style) getAsRune(k propKey) rune {
+func (s *Style) getAsRune(k propKey) rune {
 	if !s.isSet(k) {
 		return 0
 	}
@@ -501,14 +501,14 @@ func (s Style) getAsRune(k propKey) rune {
 	return 0
 }
 
-func (s Style) getAsBool(k propKey, defaultVal bool) bool {
+func (s *Style) getAsBool(k propKey, defaultVal bool) bool {
 	if !s.isSet(k) {
 		return defaultVal
 	}
 	return s.attrs&int64(k) != 0
 }
 
-func (s Style) getAsColors(k propKey) (colors []color.Color) {
+func (s *Style) getAsColors(k propKey) (colors []color.Color) {
 	if !s.isSet(k) {
 		return nil
 	}
@@ -521,7 +521,7 @@ func (s Style) getAsColors(k propKey) (colors []color.Color) {
 	return nil
 }
 
-func (s Style) getAsColor(k propKey) color.Color {
+func (s *Style) getAsColor(k propKey) color.Color {
 	if !s.isSet(k) {
 		return noColor
 	}
@@ -561,7 +561,7 @@ func (s Style) getAsColor(k propKey) color.Color {
 	return noColor
 }
 
-func (s Style) getAsInt(k propKey) int {
+func (s *Style) getAsInt(k propKey) int {
 	if !s.isSet(k) {
 		return 0
 	}
@@ -598,7 +598,7 @@ func (s Style) getAsInt(k propKey) int {
 	return 0
 }
 
-func (s Style) getAsPosition(k propKey) Position {
+func (s *Style) getAsPosition(k propKey) Position {
 	if !s.isSet(k) {
 		return Position(0)
 	}
@@ -611,14 +611,14 @@ func (s Style) getAsPosition(k propKey) Position {
 	return Position(0)
 }
 
-func (s Style) getBorderStyle() Border {
+func (s *Style) getBorderStyle() Border {
 	if !s.isSet(borderStyleKey) {
 		return noBorder
 	}
 	return s.borderStyle
 }
 
-func (s Style) getAsTransform(propKey) func(string) string {
+func (s *Style) getAsTransform(propKey) func(string) string {
 	if !s.isSet(transformKey) {
 		return nil
 	}
@@ -645,7 +645,7 @@ func getLines(s string) (lines []string, widest int) {
 // isBorderStyleSetWithoutSides returns true if the border style is set but no
 // sides are set. This is used to determine if the border should be rendered by
 // default.
-func (s Style) isBorderStyleSetWithoutSides() bool {
+func (s *Style) isBorderStyleSetWithoutSides() bool {
 	var (
 		border    = s.getBorderStyle()
 		topSet    = s.isSet(borderTopKey)
