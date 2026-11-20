@@ -234,7 +234,13 @@ func (s Style) GetVerticalMargins() int {
 // top, right, bottom, and left in that order. If no value is set for the
 // border style, Border{} is returned. For all other unset values false is
 // returned.
+//
+// If a border style is set but no sides are explicitly toggled, all four sides
+// are reported as true, matching the rendering behavior.
 func (s Style) GetBorder() (b Border, top, right, bottom, left bool) {
+	if s.isBorderStyleSetWithoutSides() {
+		return s.getBorderStyle(), true, true, true, true
+	}
 	return s.getBorderStyle(),
 		s.getAsBool(borderTopKey, false),
 		s.getAsBool(borderRightKey, false),
@@ -249,26 +255,42 @@ func (s Style) GetBorderStyle() Border {
 }
 
 // GetBorderTop returns the style's top border setting. If no value is set
-// false is returned.
+// false is returned. If a border style is set but no sides are explicitly
+// toggled, this returns true to match the rendering behavior.
 func (s Style) GetBorderTop() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderTopKey, false)
 }
 
 // GetBorderRight returns the style's right border setting. If no value is set
-// false is returned.
+// false is returned. If a border style is set but no sides are explicitly
+// toggled, this returns true to match the rendering behavior.
 func (s Style) GetBorderRight() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderRightKey, false)
 }
 
 // GetBorderBottom returns the style's bottom border setting. If no value is
-// set false is returned.
+// set false is returned. If a border style is set but no sides are explicitly
+// toggled, this returns true to match the rendering behavior.
 func (s Style) GetBorderBottom() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderBottomKey, false)
 }
 
 // GetBorderLeft returns the style's left border setting. If no value is
-// set false is returned.
+// set false is returned. If a border style is set but no sides are explicitly
+// toggled, this returns true to match the rendering behavior.
 func (s Style) GetBorderLeft() bool {
+	if s.isBorderStyleSetWithoutSides() {
+		return true
+	}
 	return s.getAsBool(borderLeftKey, false)
 }
 
