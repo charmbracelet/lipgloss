@@ -425,8 +425,9 @@ func (s Style) GetMaxHeight() int {
 	return s.getAsInt(maxHeightKey)
 }
 
-// GetTabWidth returns the style's tab width setting. If no value is set 4 is
-// returned which is the implicit default.
+// GetTabWidth returns the style's tab width setting, i.e. the value passed to
+// [Style.TabWidth]. If no tab width has been set 0 is returned; tabs are still
+// expanded to 4 spaces at render time when no width is set.
 func (s Style) GetTabWidth() int {
 	return s.getAsInt(tabWidthKey)
 }
