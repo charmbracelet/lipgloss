@@ -31,6 +31,7 @@ type WrapWriter struct {
 	p     *ansi.Parser
 	style uv.Style
 	link  uv.Link
+	err   error
 }
 
 // NewWrapWriter returns a new [WrapWriter].
@@ -64,7 +65,8 @@ func (w *WrapWriter) Link() uv.Link {
 	return w.link
 }
 
-// Write writes to the buffer.
+// Write writes to the buffer. After a downstream error, further writes return
+// that error without forwarding more output.
 func (w *WrapWriter) Write(p []byte) (int, error) {
 	if w.p == nil {
 		// The writer has been closed and its parser returned to the pool.
@@ -72,57 +74,97 @@ func (w *WrapWriter) Write(p []byte) (int, error) {
 		// nested writer chains; treat it as a no-op rather than panicking.
 		return len(p), nil
 	}
-	// Bytes are forwarded in runs rather than one at a time: only a
-	// newline needs anything written around it, so everything between
-	// newlines is a single downstream Write instead of one per byte.
-	start := 0
-	for i := range p {
-		b := p[i]
-		w.p.Advance(b)
-		if b != '\n' {
-			continue
-		}
-
-		if i > start {
-			_, _ = w.w.Write(p[start:i])
-		}
-		if !w.style.IsZero() {
-			_, _ = w.w.Write([]byte(ansi.ResetStyle))
-		}
-		if !w.link.IsZero() {
-			_, _ = w.w.Write([]byte(ansi.ResetHyperlink()))
-		}
-
-		_, _ = w.w.Write(p[i : i+1])
-		start = i + 1
-
-		if !w.link.IsZero() {
-			_, _ = w.w.Write([]byte(ansi.SetHyperlink(w.link.URL, w.link.Params)))
-		}
-		if !w.style.IsZero() {
-			_, _ = w.w.Write([]byte(w.style.String()))
-		}
-	}
-	if start < len(p) {
-		_, _ = w.w.Write(p[start:])
+	if w.err != nil {
+		return 0, w.err
 	}
 
-	return len(p), nil
+	n := 0
+	for n < len(p) {
+		i := bytes.IndexByte(p[n:], '\n')
+		if i < 0 {
+			i = len(p) - n
+		}
+		if i > 0 {
+			m, err := w.write(p[n : n+i])
+			for _, b := range p[n : n+m] {
+				w.p.Advance(b)
+			}
+			n += m
+			if err != nil {
+				return n, err
+			}
+		}
+		if n == len(p) {
+			break
+		}
+
+		w.p.Advance('\n')
+		if !w.style.IsZero() {
+			if _, err := w.write([]byte(ansi.ResetStyle)); err != nil {
+				return n, err
+			}
+		}
+		if !w.link.IsZero() {
+			if _, err := w.write([]byte(ansi.ResetHyperlink())); err != nil {
+				return n, err
+			}
+		}
+
+		m, err := w.write(p[n : n+1])
+		n += m
+		if err != nil {
+			return n, err
+		}
+
+		if !w.link.IsZero() {
+			if _, err := w.write([]byte(ansi.SetHyperlink(w.link.URL, w.link.Params))); err != nil {
+				return n, err
+			}
+		}
+		if !w.style.IsZero() {
+			if _, err := w.write([]byte(w.style.String())); err != nil {
+				return n, err
+			}
+		}
+	}
+
+	return n, nil
+}
+
+// write retains the first failure: a partially written ANSI sequence cannot be
+// safely resumed by a later caller write.
+func (w *WrapWriter) write(p []byte) (int, error) {
+	n, err := w.w.Write(p)
+	if n < len(p) && err == nil {
+		err = io.ErrShortWrite
+	}
+	w.err = err
+	return n, err
 }
 
 // Close closes the writer, resets the style and link if necessary, and releases
 // its parser. Calling it is performance critical, but forgetting it does not
-// cause safety issues or leaks.
+// cause safety issues or leaks. It returns the first downstream error.
 func (w *WrapWriter) Close() error {
-	if !w.style.IsZero() {
-		_, _ = w.w.Write([]byte(ansi.ResetStyle))
+	if w.p == nil {
+		return nil
 	}
-	if !w.link.IsZero() {
-		_, _ = w.w.Write([]byte(ansi.ResetHyperlink()))
-	}
-	if w.p != nil {
+	defer func() {
 		ansi.PutParser(w.p)
 		w.p = nil
+	}()
+	if w.err != nil {
+		return w.err
+	}
+	if !w.style.IsZero() {
+		if _, err := w.write([]byte(ansi.ResetStyle)); err != nil {
+			return err
+		}
+	}
+	if !w.link.IsZero() {
+		if _, err := w.write([]byte(ansi.ResetHyperlink())); err != nil {
+			return err
+		}
 	}
 	return nil
 }
