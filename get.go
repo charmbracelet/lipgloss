@@ -218,6 +218,12 @@ func (s Style) GetMarginChar() rune {
 	return char
 }
 
+// GetMarginBackground returns the style's margin background color. If no value
+// is set nil is returned.
+func (s Style) GetMarginBackground() color.Color {
+	return s.getAsColor(marginBackgroundKey)
+}
+
 // GetHorizontalMargins returns the style's left and right margins. Unset
 // values are measured as 0.
 func (s Style) GetHorizontalMargins() int {
