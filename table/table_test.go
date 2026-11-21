@@ -754,6 +754,94 @@ func TestTableHeightWithYOffset(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableOverflowRowHidden(t *testing.T) {
+	for _, borderRow := range []bool{false, true} {
+		t.Run(fmt.Sprintf("BorderRow=%t", borderRow), func(t *testing.T) {
+			table := New().
+				Height(9).
+				OverflowRow(false).
+				BorderRow(borderRow).
+				StyleFunc(TableStyle).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Row("Chinese", "Nǐn hǎo", "Nǐ hǎo").
+				Row("French", "Bonjour", "Salut").
+				Row("Japanese", "こんにちは", "やあ").
+				Row("Russian", "Zdravstvuyte", "Privet").
+				Row("Spanish", "Hola", "¿Qué tal?")
+
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestTableOverflowRowHiddenFillsHeight(t *testing.T) {
+	rows := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Japanese", "こんにちは", "やあ"},
+		{"Russian", "Zdravstvuyte", "Privet"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+		{"Italian", "Buongiorno", "Ciao"},
+	}
+	styles := map[string]StyleFunc{
+		"Padding0": TableStyle,
+		"Padding1": func(row, col int) lipgloss.Style { return TableStyle(row, col).Padding(1) },
+	}
+
+	var gained int
+	defer func() {
+		if gained == 0 {
+			t.Error("hiding the overflow row never made room for another data row")
+		}
+	}()
+
+	for name, style := range styles {
+		for _, borderRow := range []bool{false, true} {
+			for _, offset := range []int{0, 2} {
+				for height := 5; height <= 30; height++ {
+					build := func(overflowRow bool) *Table {
+						return New().
+							Height(height).
+							YOffset(offset).
+							BorderRow(borderRow).
+							OverflowRow(overflowRow).
+							StyleFunc(style).
+							Headers("LANGUAGE", "FORMAL", "INFORMAL").
+							Rows(rows...)
+					}
+					hidden, shown := build(false), build(true)
+					out := hidden.String()
+					_ = shown.String()
+					id := fmt.Sprintf("%s/BorderRow=%t/YOffset=%d/Height=%d", name, borderRow, offset, height)
+
+					if strings.Contains(out, "…") {
+						t.Errorf("%s: overflow row rendered:\n%s", id, out)
+					}
+					if got := lipgloss.Height(out); got > height {
+						t.Errorf("%s: rendered %d lines, want at most %d:\n%s", id, got, height, out)
+					}
+					if hidden.VisibleRows() < shown.VisibleRows() {
+						t.Errorf("%s: %d visible rows without the overflow row, %d with it", id, hidden.VisibleRows(), shown.VisibleRows())
+					}
+					if hidden.VisibleRows() > shown.VisibleRows() {
+						gained++
+					}
+					for i, row := range rows {
+						visible := i >= hidden.FirstVisibleRowIndex() && i < hidden.FirstVisibleRowIndex()+hidden.VisibleRows()
+						if strings.Contains(out, row[0]) != visible {
+							t.Errorf("%s: row %d (%s) visible=%t in VisibleRows, but rendered=%t:\n%s", id, i, row[0], visible, !visible, out)
+						}
+					}
+					lines := strings.Split(out, "\n")
+					if hidden.VisibleRows() > 0 && strings.HasPrefix(lines[len(lines)-2], "├") {
+						t.Errorf("%s: row separator right before the bottom border:\n%s", id, out)
+					}
+				}
+			}
+		}
+	}
+}
+
 func TestStyleFunc(t *testing.T) {
 	tests := []struct {
 		name  string
