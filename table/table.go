@@ -384,23 +384,18 @@ func (t *Table) String() string {
 
 	sb.WriteString(bottom)
 
+	content := strings.TrimSuffix(sb.String(), "\n")
+	// Cap at the rendered line count, not a computed estimate: row heights can
+	// undercount padded rows when wrapping is disabled, and a height at or above
+	// the natural height must never slice content.
+	height := t.height
+	if lines := strings.Count(content, "\n") + 1; height <= 0 || height > lines {
+		height = lines
+	}
 	return lipgloss.NewStyle().
-		MaxHeight(min(t.height, t.computeHeight())).
+		MaxHeight(height).
 		MaxWidth(t.width).
-		Render(strings.TrimSuffix(sb.String(), "\n"))
-}
-
-// computeHeight computes the height of the table in its current configuration.
-func (t *Table) computeHeight() int {
-	hasHeaders := len(t.headers) > 0
-	height := sum(t.heights) + btoi(t.borderTop) + btoi(t.borderBottom)
-	if hasHeaders {
-		height += btoi(t.borderHeader)
-	}
-	if rows := t.data.Rows(); rows > 0 {
-		height += (rows - 1) * btoi(t.borderRow)
-	}
-	return height
+		Render(content)
 }
 
 // Render returns the table as a string.

@@ -1715,6 +1715,33 @@ func TestTableRendersNilDataWithHeaders(t *testing.T) {
 	}
 }
 
+func TestTableHeightWithPaddingAndNoWrap(t *testing.T) {
+	// A height at or above the natural height must not truncate padded rows
+	// when wrapping is disabled and row separators are drawn.
+	render := func(height int) string {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(func(row, col int) lipgloss.Style {
+				return TableStyle(row, col).Padding(1, 0)
+			}).
+			Wrap(false).
+			Headers("NAME", "AGE").
+			Row("alice", "30").
+			Row("bob", "41")
+		if height > 0 {
+			table = table.Height(height)
+		}
+		return table.String()
+	}
+
+	want := render(0)
+	for _, height := range []int{9, 10, 12} {
+		if got := render(height); got != want {
+			t.Errorf("Height(%d) truncated the table:\n%s\nwant:\n%s", height, got, want)
+		}
+	}
+}
+
 func TestTableHeightNoHeaderSeparator(t *testing.T) {
 	// A height larger than the table's natural height must not change what is
 	// rendered. Regression: computeHeight counted a header separator that is
