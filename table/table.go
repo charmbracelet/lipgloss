@@ -393,9 +393,14 @@ func (t *Table) String() string {
 // computeHeight computes the height of the table in its current configuration.
 func (t *Table) computeHeight() int {
 	hasHeaders := len(t.headers) > 0
-	return sum(t.heights) - 1 + btoi(hasHeaders) +
-		btoi(t.borderTop) + btoi(t.borderBottom) +
-		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
+	height := sum(t.heights) + btoi(t.borderTop) + btoi(t.borderBottom)
+	if hasHeaders {
+		height += btoi(t.borderHeader)
+	}
+	if rows := t.data.Rows(); rows > 0 {
+		height += (rows - 1) * btoi(t.borderRow)
+	}
+	return height
 }
 
 // Render returns the table as a string.

@@ -1714,3 +1714,53 @@ func TestTableRendersNilDataWithHeaders(t *testing.T) {
 		t.Errorf("nil data without headers rendered %q, want empty output", got)
 	}
 }
+
+func TestTableHeightNoHeaderSeparator(t *testing.T) {
+	// A height larger than the table's natural height must not change what is
+	// rendered. Regression: computeHeight counted a header separator that is
+	// never drawn on a headerless table, so the MaxHeight cap sliced off the
+	// last line: the bottom border, or the last data row when borders are off.
+	tests := []struct {
+		name  string
+		setup func(*Table) *Table
+		want  string
+	}{
+		{
+			name:  "with borders",
+			setup: func(tbl *Table) *Table { return tbl },
+			want:  "┌─────┬──┐\n│alice│30│\n│bob  │41│\n└─────┴──┘",
+		},
+		{
+			name: "without borders",
+			setup: func(tbl *Table) *Table {
+				return tbl.
+					BorderTop(false).
+					BorderBottom(false).
+					BorderLeft(false).
+					BorderRight(false)
+			},
+			want: "alice│30\nbob  │41",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			render := func(height int) string {
+				tbl := tc.setup(New().BorderHeader(false)).
+					Row("alice", "30").
+					Row("bob", "41")
+				if height > 0 {
+					tbl = tbl.Height(height)
+				}
+				return tbl.String()
+			}
+
+			if got := render(0); got != tc.want {
+				t.Fatalf("baseline render:\n%s\nwant:\n%s", got, tc.want)
+			}
+			if got := render(100); got != tc.want {
+				t.Errorf("Height(100) truncated the table:\n%s\nwant:\n%s", got, tc.want)
+			}
+		})
+	}
+}
