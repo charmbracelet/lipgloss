@@ -1744,7 +1744,7 @@ func TestTableHeightWithPaddingAndNoWrap(t *testing.T) {
 
 func TestTableHeightNoHeaderSeparator(t *testing.T) {
 	// A height larger than the table's natural height must not change what is
-	// rendered. Regression: computeHeight counted a header separator that is
+	// rendered. Regression: the old natural-height estimate counted a header separator that is
 	// never drawn on a headerless table, so the MaxHeight cap sliced off the
 	// last line: the bottom border, or the last data row when borders are off.
 	tests := []struct {
