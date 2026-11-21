@@ -144,12 +144,7 @@ type RGBColor struct {
 // RGBA returns the RGBA value of this color. This satisfies the Go Color
 // interface.
 func (c RGBColor) RGBA() (r, g, b, a uint32) {
-	const shift = 8
-	r |= uint32(c.R) << shift
-	g |= uint32(c.G) << shift
-	b |= uint32(c.B) << shift
-	a = 0xFFFF
-	return
+	return color.RGBA{R: c.R, G: c.G, B: c.B, A: 255}.RGBA()
 }
 
 // ANSIColor is a color specified by an ANSI256 color value.
@@ -211,8 +206,8 @@ func LightDark(isDark bool) LightDarkFunc {
 	}
 }
 
-// isDarkColor returns whether the given color is dark (based on the luminance
-// portion of the color as interpreted as HSL).
+// isDarkColor returns whether the given color is dark, based on its CIELAB
+// lightness.
 //
 // Example usage:
 //
@@ -228,7 +223,7 @@ func isDarkColor(c color.Color) bool {
 		return true
 	}
 
-	_, _, l := col.Hsl()
+	l, _, _ := col.Lab()
 	return l < 0.5 //nolint:mnd
 }
 

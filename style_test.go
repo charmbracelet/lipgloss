@@ -34,6 +34,10 @@ func TestUnderline(t *testing.T) {
 			NewStyle().UnderlineStyle(UnderlineCurly),
 			"\x1b[4;4:3ma\x1b[m\x1b[4;4:3mb\x1b[m\x1b[4m \x1b[m\x1b[4;4:3mc\x1b[m",
 		},
+		{
+			NewStyle().UnderlineStyle(UnderlineCurly).UnderlineColor(Color("#FF0000")),
+			"\x1b[4;58;2;255;0;0;4:3ma\x1b[m\x1b[4;58;2;255;0;0;4:3mb\x1b[m\x1b[58;2;255;0;0;4m \x1b[m\x1b[4;58;2;255;0;0;4:3mc\x1b[m",
+		},
 	}
 
 	for i, tc := range tt {
@@ -44,6 +48,29 @@ func TestUnderline(t *testing.T) {
 				i, tc.expected,
 				res)
 		}
+	}
+}
+
+func TestMarginBackground(t *testing.T) {
+	t.Parallel()
+
+	// The background reset must terminate each margin line before its newline,
+	// not leak onto the start of the next line, and the bottom margin line must
+	// be colored too (#115).
+	s := NewStyle().MarginBackground(Color("9")).Margin(1, 0)
+	expected := "\x1b[101m  \x1b[m\nhi\n\x1b[101m  \x1b[m"
+	if res := s.Render("hi"); res != expected {
+		t.Errorf("expected:\n%q\n\nactual:\n%q", expected, res)
+	}
+}
+
+func TestGetUnderlineColor(t *testing.T) {
+	t.Parallel()
+
+	red := Color("#FF0000")
+	s := NewStyle().Underline(true).UnderlineColor(red)
+	if s.GetUnderlineColor() != red {
+		t.Errorf("GetUnderlineColor() = %v, want %v", s.GetUnderlineColor(), red)
 	}
 }
 
@@ -175,6 +202,18 @@ func TestStyleInherit(t *testing.T) {
 	requireNotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
 	requireNotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
 	requireNotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
+}
+
+func TestUnsetUnderlineAllowsInheritance(t *testing.T) {
+	t.Parallel()
+
+	parent := NewStyle().Underline(true)
+
+	explicitOff := NewStyle().Underline(false).Inherit(parent)
+	requireFalse(t, explicitOff.GetUnderline())
+
+	unset := NewStyle().Underline(true).UnsetUnderline().Inherit(parent)
+	requireTrue(t, unset.GetUnderline())
 }
 
 func TestStyleCopy(t *testing.T) {
@@ -500,6 +539,31 @@ func requireNotEqual(tb testing.TB, a, b any) {
 	if reflect.DeepEqual(a, b) {
 		tb.Errorf("%v == %v", a, b)
 		tb.FailNow()
+	}
+}
+
+func TestInlinePreservesWordBoundaries(t *testing.T) {
+	// Inline collapses multi-line input onto a single line. Newlines
+	// should be replaced with a space so adjacent words don't end up
+	// jammed together. Regression for #116.
+	testStyle := NewStyle().Inline(true)
+	got := testStyle.Render("hello\nworld")
+	want := "hello world"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+
+	// \r\n normalizes to \n first, then becomes a single space.
+	got = testStyle.Render("hello\r\nworld")
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+
+	// Multiple consecutive newlines each become their own space.
+	got = testStyle.Render("a\n\nb")
+	want = "a  b"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }
 

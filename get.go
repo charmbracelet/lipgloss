@@ -505,7 +505,7 @@ func (s Style) getAsBool(k propKey, defaultVal bool) bool {
 	if !s.isSet(k) {
 		return defaultVal
 	}
-	return s.attrs&int(k) != 0
+	return s.attrs&int64(k) != 0
 }
 
 func (s Style) getAsColors(k propKey) (colors []color.Color) {
@@ -550,6 +550,8 @@ func (s Style) getAsColor(k propKey) color.Color {
 		c = s.borderBottomBgColor
 	case borderLeftBackgroundKey:
 		c = s.borderLeftBgColor
+	case underlineColorKey:
+		c = s.ulColor
 	}
 
 	if c != nil {

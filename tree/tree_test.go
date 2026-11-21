@@ -1,6 +1,7 @@
 package tree_test
 
 import (
+	"strings"
 	"testing"
 
 	"charm.land/lipgloss/v2"
@@ -158,6 +159,38 @@ func TestTreeNil(t *testing.T) {
 		)
 
 	golden.RequireEqual(t, []byte(tree.String()))
+}
+
+func TestNilValues(t *testing.T) {
+	t.Run("new leaf", func(t *testing.T) {
+		leaf := tree.NewLeaf(nil, false)
+		if got := leaf.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("set leaf value", func(t *testing.T) {
+		leaf := tree.NewLeaf("value", false)
+		leaf.SetValue(nil)
+		if got := leaf.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("new tree", func(t *testing.T) {
+		tr := tree.Root(nil)
+		if got := tr.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
+
+	t.Run("set tree value", func(t *testing.T) {
+		tr := tree.Root("value")
+		tr.SetValue(nil)
+		if got := tr.Value(); got != "" {
+			t.Errorf("expected empty value, got %q", got)
+		}
+	})
 }
 
 func TestTreeCustom(t *testing.T) {
@@ -499,4 +532,38 @@ func TestTypes(t *testing.T) {
 		Child([]string{"Qux", "Quux", "Quuux"})
 
 	golden.RequireEqual(t, []byte(tree.String()))
+}
+
+func TestTreeOffsetAsymmetric(t *testing.T) {
+	// Regression test for #535: Offset(start, end) treats start as "skip N from
+	// the beginning" and end as "skip N from the end". The earlier
+	// implementation swapped them when start > end, which made Offset(2, 1)
+	// behave like Offset(1, 2) — the duckduckgoose example rendered only the
+	// first two Ducks instead of the third Duck and the Goose.
+	tr := tree.New().Child("Duck", "Duck", "Duck", "Goose", "Duck").Offset(2, 1)
+
+	got := tr.String()
+	wantHas := []string{"Duck", "Goose"}
+	for _, w := range wantHas {
+		if !strings.Contains(got, w) {
+			t.Errorf("Offset(2,1) output should contain %q, got:\n%s", w, got)
+		}
+	}
+
+	// The first two Ducks and the final Duck should be hidden.
+	duckCount := strings.Count(got, "Duck")
+	if duckCount != 1 {
+		t.Errorf("Offset(2,1) should leave exactly one Duck visible (index 2), got %d:\n%s", duckCount, got)
+	}
+}
+
+func TestTreeOffsetClampsNegative(t *testing.T) {
+	// Offset(-5, -5) should be equivalent to Offset(0, 0): no skipping.
+	tr := tree.New().Child("a", "b", "c").Offset(-5, -5)
+	got := tr.String()
+	for _, want := range []string{"a", "b", "c"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("Offset(-5,-5) should still show %q, got:\n%s", want, got)
+		}
+	}
 }

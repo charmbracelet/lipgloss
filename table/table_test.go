@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/golden"
+
+	"charm.land/lipgloss/v2"
 )
 
 var TableStyle = func(row, col int) lipgloss.Style {
@@ -821,8 +822,8 @@ func TestClearRows(t *testing.T) {
 	table.ClearRows()
 	table.Row("French", "Bonjour", "Salut")
 
-	// String() will try to get the rows from table.data
-	table.String()
+	// String() will try to get the rows from table.data.
+	_ = table.String()
 }
 
 func TestContentWrapping(t *testing.T) {
@@ -1038,6 +1039,44 @@ func TestContentWrapping_WithMargins(t *testing.T) {
 				})
 			table.Width(80)
 			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestContentWrapping_WithHeight(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers []string
+		data    [][]string
+	}{
+		{
+			"LongHeaderContentLongAndShortRows",
+			[]string{"Destination", "Why are you going on this trip? Is it a hot or cold climate?", "Affordability"},
+			[][]string{
+				{"Mexico", "I want to go somewhere hot, dry, and affordable. Mexico has really good food, just don't drink tap water!", "$"},
+				{"New York", "I'm thinking about going during the Christmas season to check out Rockefeller center. Might be cold though...", "$$$"},
+				{"California", "", "$$$"},
+				{"Florida", "I want to go somewhere hot, humid, and affordable. Florida has really good food, just don't go during hurricane season!", "$$"},
+				{"Maine", "I'm thinking about going during the summer to check out Acadia National Park. Might be cold though...", "$$"},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			for i := 5; i <= 35; i += 10 {
+				t.Run(fmt.Sprintf("HeightOf%02d", i), func(t *testing.T) {
+					table := New().
+						Height(i).
+						Width(60).
+						Border(lipgloss.NormalBorder()).
+						BorderRow(false).
+						StyleFunc(TableStyle).
+						Headers(tc.headers...).
+						Rows(tc.data...)
+					golden.RequireEqual(t, []byte(table.String()))
+				})
+			}
 		})
 	}
 }
@@ -1296,7 +1335,7 @@ func TestTableShrinkWithYOffset(t *testing.T) {
 			Rows(rows...).
 			BorderRow(true).
 			YOffset(80).
-			Height(45)
+			Height(43)
 		content := table.String()
 		golden.RequireEqual(t, []byte(content))
 	})
@@ -1556,4 +1595,199 @@ func TestWrapStyleFuncContent(t *testing.T) {
 		Width(60).
 		Wrap(true)
 	golden.RequireEqual(t, []byte(table.String()))
+}
+
+func TestFitContent(t *testing.T) {
+	const maxWidth = 120
+
+	// narrowData's content fits comfortably within maxWidth.
+	narrowData := [][]string{
+		{"Chinese", "Nǐn hǎo", "Nǐ hǎo"},
+		{"French", "Bonjour", "Salut"},
+		{"Spanish", "Hola", "¿Qué tal?"},
+	}
+
+	// wideData's content is wider than maxWidth, so fit-content mode can't
+	// fit it and must fall back to maxWidth.
+	wideData := [][]string{
+		{"English", "Good morning, I truly hope that you are having a wonderful and relaxing day so far", "Hey there, how is absolutely everything going for you today?"},
+		{"French", "Bonjour, j'espère sincèrement que vous passez une journée merveilleuse et reposante", "Salut, comment se passe vraiment toute ta journée jusqu'ici?"},
+		{"Spanish", "Buenos días, espero de verdad que esté teniendo un día maravilloso y muy relajante", "Hola, ¿cómo va absolutamente todo por aquí el día de hoy?"},
+	}
+
+	tests := []struct {
+		name       string
+		data       [][]string
+		fitContent bool
+		wantWidth  int
+	}{
+		{
+			// No fit-content mode: the table expands to fill maxWidth.
+			name:      "narrow-default",
+			data:      narrowData,
+			wantWidth: maxWidth,
+		},
+		{
+			// Fit-content mode: content fits under maxWidth, so the table
+			// shrinks to its content width.
+			name:       "narrow-fit-content",
+			data:       narrowData,
+			fitContent: true,
+			wantWidth:  34,
+		},
+		{
+			// No fit-content mode: content is wider than maxWidth, so the
+			// table is shrunk to fit maxWidth.
+			name:      "wide-default",
+			data:      wideData,
+			wantWidth: maxWidth,
+		},
+		{
+			// Fit-content mode, but content exceeds maxWidth: maxWidth acts
+			// as the cap, so the result matches the default.
+			name:       "wide-fit-content",
+			data:       wideData,
+			fitContent: true,
+			wantWidth:  maxWidth,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			table := New().
+				Width(maxWidth).
+				StyleFunc(TableStyle).
+				Border(lipgloss.NormalBorder()).
+				Headers("LANGUAGE", "FORMAL", "INFORMAL").
+				Rows(tc.data...)
+			if tc.fitContent {
+				table = table.FitContent()
+			}
+
+			if w := lipgloss.Width(table.String()); w != tc.wantWidth {
+				t.Fatalf("expected table width to be %d, got %d", tc.wantWidth, w)
+			}
+
+			golden.RequireEqual(t, []byte(table.String()))
+		})
+	}
+}
+
+func TestTableRendersHeadersWithEmptyData(t *testing.T) {
+	t.Parallel()
+	got := New().Data(NewStringData()).Headers("a").String()
+	want := "┌─┐\n│a│\n├─┤\n└─┘"
+	if got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+func TestTableRenderingDoesNotReplaceExistingData(t *testing.T) {
+	t.Parallel()
+	data := NewStringData([]string{"b"})
+	table := New().Data(data).Headers("a")
+	got := table.String()
+	want := "┌─┐\n│a│\n├─┤\n│b│\n└─┘"
+	if got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	if table.GetData() != data {
+		t.Error("rendering replaced the existing data source")
+	}
+}
+
+func TestTableRendersNilDataWithHeaders(t *testing.T) {
+	t.Parallel()
+	table := New().Data(nil).Headers("a")
+	want := "┌─┐\n│a│\n├─┤\n└─┘"
+	if got := table.String(); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	// Rendering again must preserve the headers-only output.
+	if got := table.String(); got != want {
+		t.Errorf("second render:\n%s\nwant:\n%s", got, want)
+	}
+	if table.GetData() != nil {
+		t.Error("rendering replaced nil data")
+	}
+	if got := New().Data(nil).String(); got != "" {
+		t.Errorf("nil data without headers rendered %q, want empty output", got)
+	}
+}
+
+func TestTableHeightWithPaddingAndNoWrap(t *testing.T) {
+	// A height at or above the natural height must not truncate padded rows
+	// when wrapping is disabled and row separators are drawn.
+	render := func(height int) string {
+		table := New().
+			Border(lipgloss.NormalBorder()).
+			StyleFunc(func(row, col int) lipgloss.Style {
+				return TableStyle(row, col).Padding(1, 0)
+			}).
+			Wrap(false).
+			Headers("NAME", "AGE").
+			Row("alice", "30").
+			Row("bob", "41")
+		if height > 0 {
+			table = table.Height(height)
+		}
+		return table.String()
+	}
+
+	want := render(0)
+	for _, height := range []int{9, 10, 12} {
+		if got := render(height); got != want {
+			t.Errorf("Height(%d) truncated the table:\n%s\nwant:\n%s", height, got, want)
+		}
+	}
+}
+
+func TestTableHeightNoHeaderSeparator(t *testing.T) {
+	// A height larger than the table's natural height must not change what is
+	// rendered. Regression: the old natural-height estimate counted a header separator that is
+	// never drawn on a headerless table, so the MaxHeight cap sliced off the
+	// last line: the bottom border, or the last data row when borders are off.
+	tests := []struct {
+		name  string
+		setup func(*Table) *Table
+		want  string
+	}{
+		{
+			name:  "with borders",
+			setup: func(tbl *Table) *Table { return tbl },
+			want:  "┌─────┬──┐\n│alice│30│\n│bob  │41│\n└─────┴──┘",
+		},
+		{
+			name: "without borders",
+			setup: func(tbl *Table) *Table {
+				return tbl.
+					BorderTop(false).
+					BorderBottom(false).
+					BorderLeft(false).
+					BorderRight(false)
+			},
+			want: "alice│30\nbob  │41",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			render := func(height int) string {
+				tbl := tc.setup(New().BorderHeader(false)).
+					Row("alice", "30").
+					Row("bob", "41")
+				if height > 0 {
+					tbl = tbl.Height(height)
+				}
+				return tbl.String()
+			}
+
+			if got := render(0); got != tc.want {
+				t.Fatalf("baseline render:\n%s\nwant:\n%s", got, tc.want)
+			}
+			if got := render(100); got != tc.want {
+				t.Errorf("Height(100) truncated the table:\n%s\nwant:\n%s", got, tc.want)
+			}
+		})
+	}
 }

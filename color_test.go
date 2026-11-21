@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image/color"
 	"testing"
+
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 // hex converts a color to a hex string or panics if invalid.
@@ -113,6 +115,32 @@ func TestRGBA(t *testing.T) {
 		if o != tc.expected {
 			t.Errorf("expected %X, got %X (test #%d)", tc.expected, o, i+1)
 		}
+	}
+}
+
+func TestRGBColorRGBA(t *testing.T) {
+	t.Parallel()
+
+	for value := 0; value < 256; value++ {
+		c := RGBColor{R: uint8(value), G: uint8(value * 3), B: uint8(value * 7)}
+		want := color.RGBA{R: c.R, G: c.G, B: c.B, A: 255}
+		r, g, b, a := c.RGBA()
+		wr, wg, wb, wa := want.RGBA()
+		if r != wr || g != wg || b != wb || a != wa {
+			t.Fatalf("RGBColor%+v.RGBA() = (%d, %d, %d, %d), want (%d, %d, %d, %d)", c, r, g, b, a, wr, wg, wb, wa)
+		}
+	}
+}
+
+func TestRGBColorNormalizedWhite(t *testing.T) {
+	t.Parallel()
+
+	c, ok := colorful.MakeColor(RGBColor{R: 255, G: 255, B: 255})
+	if !ok {
+		t.Fatal("MakeColor rejected RGBColor")
+	}
+	if c.R != 1 || c.G != 1 || c.B != 1 {
+		t.Errorf("normalized RGBColor white = %v, want (1, 1, 1)", c)
 	}
 }
 
@@ -307,6 +335,36 @@ func TestLighten(t *testing.T) {
 			t.Parallel()
 
 			expectColorMatches(t, Lighten(tt.color, tt.percent), tt.expected)
+		})
+	}
+}
+
+func TestIsDarkColor(t *testing.T) {
+	tests := []struct {
+		name  string
+		color color.Color
+		dark  bool
+	}{
+		{name: "black", color: hex("#000000"), dark: true},
+		{name: "white", color: hex("#FFFFFF"), dark: false},
+		{name: "pure-blue-issue-743", color: hex("#0000FF"), dark: true},
+		{name: "pure-green", color: hex("#00FF00"), dark: false},
+		{name: "pure-red", color: hex("#FF0000"), dark: false},
+		{name: "mid-gray", color: hex("#808080"), dark: false},
+		// the two grays either side of the 0.5 cutoff
+		{name: "gray-just-dark", color: hex("#767676"), dark: true},
+		{name: "gray-just-light", color: hex("#777777"), dark: false},
+		{name: "solarized-dark-background", color: hex("#002B36"), dark: true},
+		{name: "solarized-light-background", color: hex("#FDF6E3"), dark: false},
+		{name: "dracula-background", color: hex("#282A36"), dark: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := isDarkColor(tt.color); got != tt.dark {
+				t.Errorf("isDarkColor(%s) = %v, want %v", tt.name, got, tt.dark)
+			}
 		})
 	}
 }

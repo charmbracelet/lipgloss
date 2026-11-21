@@ -147,7 +147,7 @@ type Style struct {
 	link, linkParams string
 
 	// we store bool props values here
-	attrs int
+	attrs int64
 
 	// props that have values
 	fgColor color.Color
@@ -399,9 +399,11 @@ func (s Style) Render(strs ...string) string {
 	// carriage returns can cause strange behaviour when rendering.
 	str = strings.ReplaceAll(str, "\r\n", "\n")
 
-	// Strip newlines in single line mode
+	// Strip newlines in single line mode. Replace with a space so that
+	// words on separate lines stay separated when collapsed onto one
+	// line (e.g. "hello\nworld" -> "hello world", not "helloworld").
 	if inline {
-		str = strings.ReplaceAll(str, "\n", "")
+		str = strings.ReplaceAll(str, "\n", " ")
 	}
 
 	// Include borders in block size.
@@ -426,13 +428,28 @@ func (s Style) Render(strs ...string) string {
 				b.WriteRune('\n')
 			}
 			if useSpaceStyler {
-				// Look for spaces and apply a different styler
-				for _, r := range line {
-					if unicode.IsSpace(r) {
-						b.WriteString(teSpace.Styled(string(r)))
-						continue
+				// Look for spaces and apply a different styler, while passing
+				// through any ANSI escape sequences already present in the line
+				// so they are not mangled (e.g. when rendering an
+				// already-styled string).
+				// See https://github.com/charmbracelet/lipgloss/issues/233.
+				var state byte
+				for len(line) > 0 {
+					seq, width, n, newState := ansi.DecodeSequence(line, state, nil)
+					if n == 0 {
+						break
 					}
-					b.WriteString(te.Styled(string(r)))
+					switch {
+					case width == 0:
+						// Control or escape sequence: emit verbatim, unstyled.
+						b.WriteString(seq)
+					case isSpaceSequence(seq):
+						b.WriteString(teSpace.Styled(seq))
+					default:
+						b.WriteString(te.Styled(seq))
+					}
+					line = line[n:]
+					state = newState
 				}
 			} else {
 				b.WriteString(te.Styled(line))
@@ -525,6 +542,17 @@ func (s Style) Render(strs ...string) string {
 	return str
 }
 
+// isSpaceSequence reports whether the given grapheme consists solely of
+// whitespace runes.
+func isSpaceSequence(s string) bool {
+	for _, r := range s {
+		if !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return s != ""
+}
+
 func (s Style) maybeConvertTabs(str string) string {
 	tw := tabWidthDefault
 	if s.isSet(tabWidthKey) {
@@ -568,11 +596,15 @@ func (s Style) applyMargins(str string, inline bool) string {
 		_, width := getLines(str)
 		spaces := strings.Repeat(" ", width)
 
+		// Style each margin line on its own so the reset lands before the
+		// newline, not at the start of the next line (see #115).
 		if topMargin > 0 {
-			str = style.Styled(strings.Repeat(spaces+"\n", topMargin)) + str
+			line := style.Styled(spaces)
+			str = strings.Repeat(line+"\n", topMargin) + str
 		}
 		if bottomMargin > 0 {
-			str += style.Styled(strings.Repeat("\n"+spaces, bottomMargin))
+			line := style.Styled(spaces)
+			str += strings.Repeat("\n"+line, bottomMargin)
 		}
 	}
 

@@ -71,8 +71,10 @@ func (s *Leaf) SetValue(value any) {
 	switch item := value.(type) {
 	case Node, fmt.Stringer:
 		s.value = item.(fmt.Stringer).String()
-	case string, nil:
-		s.value = item.(string)
+	case string:
+		s.value = item
+	case nil:
+		s.value = ""
 	default:
 		s.value = fmt.Sprintf("%v", item)
 	}
@@ -118,19 +120,24 @@ func (t *Tree) Hide(hide bool) *Tree {
 // SetHidden hides a Tree node.
 func (t *Tree) SetHidden(hidden bool) { t.Hide(hidden) }
 
-// Offset sets the Tree children offsets.
+// Offset sets the Tree children offsets. start is the number of children to
+// skip from the beginning and end is the number of children to skip from the
+// end, so Offset(2, 1) on a five-child tree renders children at indices 2 and
+// 3. See charmbracelet/lipgloss#535.
 func (t *Tree) Offset(start, end int) *Tree {
-	if start > end {
-		_start := start
-		start = end
-		end = _start
-	}
-
 	if start < 0 {
 		start = 0
 	}
-	if end < 0 || end > t.children.Length() {
-		end = t.children.Length()
+	if end < 0 {
+		end = 0
+	}
+
+	length := t.children.Length()
+	if start > length {
+		start = length
+	}
+	if end > length {
+		end = length
 	}
 
 	t.offset[0] = start
@@ -156,7 +163,7 @@ func (t *Tree) String() string {
 
 // Child adds a child to this Tree.
 //
-// If a Child Tree is passed without a root, it will be parented to it's sibling
+// If a Child Tree is passed without a root, it will be parented to its sibling
 // child (auto-nesting).
 //
 //	tree.Root("Foo").Child("Bar", tree.New().Child("Baz"), "Qux")
@@ -391,8 +398,10 @@ func (t *Tree) Root(root any) *Tree {
 		t = t.Child(item.children)
 	case Node, fmt.Stringer:
 		t.value = item.(fmt.Stringer).String()
-	case string, nil:
-		t.value = item.(string)
+	case string:
+		t.value = item
+	case nil:
+		t.value = ""
 	default:
 		t.value = fmt.Sprintf("%v", item)
 	}

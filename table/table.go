@@ -60,6 +60,7 @@ type Table struct {
 	data        Data
 
 	width           int
+	fitContent      bool
 	height          int
 	useManualHeight bool
 	yOffset         int
@@ -70,6 +71,7 @@ type Table struct {
 
 	firstVisibleRowIndex int
 	lastVisibleRowIndex  int
+	overflowHeight       int
 }
 
 // New returns a new Table that can be modified through different
@@ -258,6 +260,18 @@ func (t *Table) Width(w int) *Table {
 	return t
 }
 
+// FitContent configures the table to render at its content width—the width
+// needed to fully fit its content, including cell padding and borders—rather
+// than expanding to fill the width set via [Table.Width].
+//
+// When combined with [Table.Width], the configured width acts as a maximum: the
+// table renders at its content width unless that exceeds the maximum, in which
+// case it's constrained to the maximum and its content is resized to fit.
+func (t *Table) FitContent() *Table {
+	t.fitContent = true
+	return t
+}
+
 // Height sets the table height.
 func (t *Table) Height(h int) *Table {
 	t.height = h
@@ -272,6 +286,9 @@ func (t *Table) GetHeight() int {
 
 // YOffset sets the table rendering offset.
 func (t *Table) YOffset(o int) *Table {
+	if o < 0 {
+		o = 0
+	}
 	t.yOffset = o
 	return t
 }
@@ -309,8 +326,15 @@ func (t *Table) Wrap(w bool) *Table {
 
 // String returns the table as a string.
 func (t *Table) String() string {
+	// Render nil data as empty on a copy so the caller's table is untouched.
+	if t.data == nil {
+		tc := *t
+		tc.data = NewStringData()
+		return tc.String()
+	}
+
 	hasHeaders := len(t.headers) > 0
-	hasRows := t.data != nil && t.data.Rows() > 0
+	hasRows := t.data.Rows() > 0
 
 	if !hasHeaders && !hasRows {
 		return ""
@@ -349,24 +373,29 @@ func (t *Table) String() string {
 			if t.lastVisibleRowIndex != -2 && r > t.lastVisibleRowIndex {
 				break
 			}
-			sb.WriteString(t.constructRow(r))
+			sb.WriteString(t.constructRow(r, false))
+		}
+
+		// Add an overflow row to show that there are more rows not being rendered.
+		if t.lastVisibleRowIndex != -2 {
+			sb.WriteString(t.constructRow(t.lastVisibleRowIndex+1, true))
 		}
 	}
 
 	sb.WriteString(bottom)
 
+	content := strings.TrimSuffix(sb.String(), "\n")
+	// Cap at the rendered line count, not a computed estimate: row heights can
+	// undercount padded rows when wrapping is disabled, and a height at or above
+	// the natural height must never slice content.
+	height := t.height
+	if lines := strings.Count(content, "\n") + 1; height <= 0 || height > lines {
+		height = lines
+	}
 	return lipgloss.NewStyle().
-		MaxHeight(min(t.height, t.computeHeight())).
+		MaxHeight(height).
 		MaxWidth(t.width).
-		Render(strings.TrimSuffix(sb.String(), "\n"))
-}
-
-// computeHeight computes the height of the table in it's current configuration.
-func (t *Table) computeHeight() int {
-	hasHeaders := len(t.headers) > 0
-	return sum(t.heights) - 1 + btoi(hasHeaders) +
-		btoi(t.borderTop) + btoi(t.borderBottom) +
-		btoi(t.borderHeader) + t.data.Rows()*btoi(t.borderRow)
+		Render(content)
 }
 
 // Render returns the table as a string.
@@ -475,16 +504,17 @@ func (t *Table) constructHeaders() string {
 // constructRow constructs the row for the table given an index and row data
 // based on the current configuration. If isOverflow is true, the row is
 // rendered as an overflow row (using ellipsis).
-func (t *Table) constructRow(index int) string {
+func (t *Table) constructRow(index int, isOverflow bool) string {
 	var s strings.Builder
 	cells := make([]string, 0, t.data.Columns()*2+1)
 
 	hasHeaders := len(t.headers) > 0
-	height := t.heights[index+btoi(hasHeaders)]
-	isLastRow := index == t.data.Rows()-1
-	isOverflow := !isLastRow && t.lastVisibleRowIndex == index
-	if isOverflow {
-		height = max(height, 1)
+
+	var height int
+	if !isOverflow {
+		height = t.heights[index+btoi(hasHeaders)]
+	} else {
+		height = t.overflowHeight
 	}
 
 	left := strings.Repeat(t.borderStyle.Render(t.border.Left)+"\n", height)
