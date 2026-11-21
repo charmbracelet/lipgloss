@@ -342,6 +342,9 @@ func (s Style) Render(strs ...string) string {
 	if reverse {
 		teWhitespace = teWhitespace.Reverse(true)
 		te = te.Reverse(true)
+		if useSpaceStyler {
+			teSpace = teSpace.Reverse(true)
+		}
 	}
 	if blink {
 		te = te.Blink(true)
