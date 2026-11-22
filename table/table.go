@@ -330,7 +330,7 @@ func (t *Table) Wrap(w bool) *Table {
 // of ellipses when some rows don't fit. It is shown by default.
 //
 // Hide it when something else, such as a paginator, already shows that there
-// are more rows. The line it would take is then used for data rows.
+// are more rows. The space it would take is then used for data rows.
 func (t *Table) OverflowRow(v bool) *Table {
 	t.overflowRow = v
 	return t

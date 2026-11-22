@@ -514,6 +514,10 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 		return firstVisibleRowIndex, -2, 0
 	}
 
+	if !r.overflowRow {
+		return firstVisibleRowIndex, lastVisibleRowIndex, 0
+	}
+
 	overflow := 1 + r.yPaddingForCell(lastVisibleRowIndex+1, 0)
 
 	return firstVisibleRowIndex, lastVisibleRowIndex, overflow

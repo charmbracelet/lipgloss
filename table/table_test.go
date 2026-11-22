@@ -754,6 +754,19 @@ func TestTableHeightWithYOffset(t *testing.T) {
 	golden.RequireEqual(t, []byte(table.String()))
 }
 
+func TestTableOverflowRowGetter(t *testing.T) {
+	tbl := New()
+	if !tbl.GetOverflowRow() {
+		t.Fatal("expected GetOverflowRow() to default to true")
+	}
+	if tbl.OverflowRow(false).GetOverflowRow() {
+		t.Fatal("expected GetOverflowRow() to be false after OverflowRow(false)")
+	}
+	if !tbl.OverflowRow(true).GetOverflowRow() {
+		t.Fatal("expected GetOverflowRow() to be true after OverflowRow(true)")
+	}
+}
+
 func TestTableOverflowRowHidden(t *testing.T) {
 	for _, borderRow := range []bool{false, true} {
 		t.Run(fmt.Sprintf("BorderRow=%t", borderRow), func(t *testing.T) {
@@ -767,11 +780,118 @@ func TestTableOverflowRowHidden(t *testing.T) {
 				Row("French", "Bonjour", "Salut").
 				Row("Japanese", "こんにちは", "やあ").
 				Row("Russian", "Zdravstvuyte", "Privet").
-				Row("Spanish", "Hola", "¿Qué tal?")
+				Row("Spanish", "Hola", "¿Qué tal?").
+				Row("Italian", "Buongiorno", "Ciao")
 
 			golden.RequireEqual(t, []byte(table.String()))
 		})
 	}
+}
+
+func TestTableOverflowRowHiddenEdgeCases(t *testing.T) {
+	t.Run("NoBottomBorderWithRowBorder", func(t *testing.T) {
+		tbl := New().
+			Height(7).
+			OverflowRow(false).
+			BorderRow(true).
+			BorderBottom(false).
+			StyleFunc(TableStyle).
+			Headers("LANGUAGE", "FORMAL").
+			Row("Chinese", "Nǐn hǎo").
+			Row("French", "Bonjour").
+			Row("Japanese", "こんにちは").
+			Row("Russian", "Zdravstvuyte")
+
+		out := tbl.String()
+		if strings.Contains(out, "…") {
+			t.Fatalf("unexpected overflow row:\n%s", out)
+		}
+		if got := lipgloss.Height(out); got > 7 {
+			t.Fatalf("rendered %d lines, want at most 7:\n%s", got, out)
+		}
+		lines := strings.Split(out, "\n")
+		if strings.HasPrefix(lines[len(lines)-1], "├") {
+			t.Fatalf("trailing row separator without bottom border:\n%s", out)
+		}
+		if tbl.VisibleRows() != 2 {
+			t.Fatalf("VisibleRows() = %d, want 2:\n%s", tbl.VisibleRows(), out)
+		}
+	})
+
+	t.Run("NoHeaders", func(t *testing.T) {
+		tbl := New().
+			Height(5).
+			OverflowRow(false).
+			StyleFunc(TableStyle).
+			Row("Chinese", "Nǐn hǎo").
+			Row("French", "Bonjour").
+			Row("Japanese", "こんにちは").
+			Row("Russian", "Zdravstvuyte")
+
+		out := tbl.String()
+		if strings.Contains(out, "…") {
+			t.Fatalf("unexpected overflow row:\n%s", out)
+		}
+		if got := lipgloss.Height(out); got != 5 {
+			t.Fatalf("rendered %d lines, want 5:\n%s", got, out)
+		}
+		if tbl.VisibleRows() != 3 {
+			t.Fatalf("VisibleRows() = %d, want 3:\n%s", tbl.VisibleRows(), out)
+		}
+		if !strings.Contains(out, "Japanese") || strings.Contains(out, "Russian") {
+			t.Fatalf("unexpected visible rows:\n%s", out)
+		}
+	})
+
+	t.Run("ZeroVisibleRows", func(t *testing.T) {
+		tbl := New().
+			Height(4).
+			OverflowRow(false).
+			StyleFunc(TableStyle).
+			Headers("LANGUAGE", "FORMAL").
+			Row("Chinese", "Nǐn hǎo").
+			Row("French", "Bonjour")
+
+		out := tbl.String()
+		if strings.Contains(out, "…") {
+			t.Fatalf("unexpected overflow row:\n%s", out)
+		}
+		if got := lipgloss.Height(out); got != 4 {
+			t.Fatalf("rendered %d lines, want 4:\n%s", got, out)
+		}
+		if tbl.VisibleRows() != 0 {
+			t.Fatalf("VisibleRows() = %d, want 0:\n%s", tbl.VisibleRows(), out)
+		}
+		if strings.Contains(out, "Chinese") {
+			t.Fatalf("expected no data rows to render:\n%s", out)
+		}
+	})
+
+	t.Run("WrappedRows", func(t *testing.T) {
+		tbl := New().
+			Width(22).
+			Height(8).
+			OverflowRow(false).
+			StyleFunc(TableStyle).
+			Headers("LANG", "PHRASE").
+			Row("Row1", "one two three four").
+			Row("Row2", "five six seven eight").
+			Row("Row3", "nine ten eleven twelve")
+
+		out := tbl.String()
+		if strings.Contains(out, "…") {
+			t.Fatalf("unexpected overflow row:\n%s", out)
+		}
+		if got := lipgloss.Height(out); got > 8 {
+			t.Fatalf("rendered %d lines, want at most 8:\n%s", got, out)
+		}
+		if tbl.VisibleRows() != 2 {
+			t.Fatalf("VisibleRows() = %d, want 2:\n%s", tbl.VisibleRows(), out)
+		}
+		if !strings.Contains(out, "Row1") || !strings.Contains(out, "Row2") || strings.Contains(out, "Row3") {
+			t.Fatalf("unexpected visible rows:\n%s", out)
+		}
+	})
 }
 
 func TestTableOverflowRowHiddenFillsHeight(t *testing.T) {
