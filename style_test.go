@@ -216,6 +216,77 @@ func TestUnsetUnderlineAllowsInheritance(t *testing.T) {
 	requireTrue(t, unset.GetUnderline())
 }
 
+func TestInheritBorderBackground(t *testing.T) {
+	t.Parallel()
+
+	red, green, blue := Color("1"), Color("2"), Color("4")
+	tests := []struct {
+		name   string
+		parent Style
+		child  Style
+		want   Style
+	}{
+		{
+			name:   "background supplies all border sides",
+			parent: NewStyle().Background(red),
+			want:   NewStyle().BorderBackground(red),
+		},
+		{
+			name:   "parent border colors take precedence",
+			parent: NewStyle().Background(red).BorderTopBackground(green).BorderLeftBackground(blue),
+			want:   NewStyle().BorderBackground(green, red, red, blue),
+		},
+		{
+			name:   "child border colors take precedence",
+			parent: NewStyle().Background(red).BorderTopBackground(green),
+			child:  NewStyle().BorderTopBackground(blue).BorderRightBackground(green),
+			want:   NewStyle().BorderBackground(blue, green, red, red),
+		},
+		{
+			name:   "explicit nil parent border is preserved",
+			parent: NewStyle().Background(red).BorderBottomBackground(nil),
+			want:   NewStyle().BorderBackground(red, red, nil, red),
+		},
+		{
+			name:   "explicit nil child border is preserved",
+			parent: NewStyle().Background(red).BorderLeftBackground(green),
+			child:  NewStyle().BorderLeftBackground(nil),
+			want:   NewStyle().BorderBackground(red, red, red, nil),
+		},
+		{
+			name:   "unset border inherits again",
+			parent: NewStyle().Background(red),
+			child:  NewStyle().BorderBackground(blue).UnsetBorderTopBackground(),
+			want:   NewStyle().BorderBackground(red, blue, blue, blue),
+		},
+		{
+			name:   "no parent background",
+			parent: NewStyle().BorderRightBackground(green),
+			child:  NewStyle().Background(blue),
+			want:   NewStyle().BorderRightBackground(green),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := tt.child.Inherit(tt.parent)
+			requireEqual(t, tt.want.GetBorderTopBackground(), got.GetBorderTopBackground())
+			requireEqual(t, tt.want.GetBorderRightBackground(), got.GetBorderRightBackground())
+			requireEqual(t, tt.want.GetBorderBottomBackground(), got.GetBorderBottomBackground())
+			requireEqual(t, tt.want.GetBorderLeftBackground(), got.GetBorderLeftBackground())
+		})
+	}
+}
+
+func TestInheritBorderBackgroundRender(t *testing.T) {
+	t.Parallel()
+
+	parent := NewStyle().Background(Color("1"))
+	child := NewStyle().Border(NormalBorder()).Inherit(parent)
+	want := "\x1b[41m┌─┐\x1b[m\n\x1b[41m│\x1b[m\x1b[41mx\x1b[m\x1b[41m│\x1b[m\n\x1b[41m└─┘\x1b[m"
+	requireEqual(t, want, child.Render("x"))
+}
+
 func TestStyleCopy(t *testing.T) {
 	t.Parallel()
 

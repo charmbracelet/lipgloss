@@ -249,9 +249,15 @@ func (s Style) Inherit(i Style) Style {
 			// Padding is not inherited
 			continue
 		case backgroundKey:
-			// The margins also inherit the background color
-			if !s.isSet(marginBackgroundKey) && !i.isSet(marginBackgroundKey) {
-				s.set(marginBackgroundKey, i.bgColor)
+			// The margins and borders also inherit the background color.
+			for _, bg := range []propKey{
+				marginBackgroundKey,
+				borderTopBackgroundKey, borderRightBackgroundKey,
+				borderBottomBackgroundKey, borderLeftBackgroundKey,
+			} {
+				if !s.isSet(bg) && !i.isSet(bg) {
+					s.set(bg, i.bgColor)
+				}
 			}
 		}
 
