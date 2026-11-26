@@ -22,8 +22,9 @@ import (
 //	defer term.Restore(in.Fd(), state)
 //
 // copied from x/term@v0.1.3.
-func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error) {
-	err = queryTerminal(in, out, defaultQueryTimeout,
+func queryBackgroundColor(in io.Reader, out io.Writer) (color.Color, error) {
+	var c color.Color
+	err := queryTerminal(in, out, defaultQueryTimeout,
 		func(seq string, pa *ansi.Parser) bool {
 			switch {
 			case ansi.HasOscPrefix(seq):
@@ -43,7 +44,10 @@ func queryBackgroundColor(in io.Reader, out io.Writer) (c color.Color, err error
 			}
 			return true
 		}, ansi.RequestBackgroundColor+ansi.RequestPrimaryDeviceAttributes)
-	return
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 const defaultQueryTimeout = time.Second * 2
@@ -68,29 +72,45 @@ func queryTerminal(
 	query string,
 ) error {
 	// We use [uv.NewCancelReader] because it uses a different Windows
-	// implementation than the on in the [cancelreader] library, which uses
+	// implementation than the one in the [cancelreader] library, which uses
 	// the Cancel IO API to cancel reads instead of using Overlapped IO.
 	rd, err := uv.NewCancelReader(in)
 	if err != nil {
 		return fmt.Errorf("could not create cancel reader: %w", err)
 	}
 
-	defer rd.Close() //nolint: errcheck
-
-	done := make(chan struct{}, 1)
-	defer close(done)
-	go func() {
-		select {
-		case <-done:
-		case <-time.After(timeout):
-			rd.Cancel()
-		}
-	}()
-
 	if _, err := io.WriteString(out, query); err != nil {
+		_ = rd.Close()
 		return fmt.Errorf("could not write query: %w", err)
 	}
 
+	errCh := make(chan error, 1)
+	go func() {
+		err := readQueryResponse(rd, filter)
+		_ = rd.Close()
+		errCh <- err
+	}()
+
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-timer.C:
+		if rd.Cancel() || cancelRead(in) {
+			timer.Reset(100 * time.Millisecond)
+			select {
+			case err := <-errCh:
+				return err
+			case <-timer.C:
+			}
+		}
+		return fmt.Errorf("query timed out")
+	}
+}
+
+func readQueryResponse(rd io.Reader, filter queryTerminalFilter) error {
 	pa := ansi.GetParser()
 	defer ansi.PutParser(pa)
 
