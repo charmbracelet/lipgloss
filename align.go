@@ -14,7 +14,7 @@ func alignTextHorizontal(str string, pos Position, width int, style *ansi.Style)
 	var b strings.Builder
 
 	for i, l := range lines {
-		lineWidth := ansi.StringWidth(l)
+		lineWidth := stringWidth(l)
 
 		shortAmount := widestLine - lineWidth                // difference from the widest line
 		shortAmount += max(0, width-(shortAmount+lineWidth)) // difference from the total width, if set
