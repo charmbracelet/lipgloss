@@ -3,10 +3,23 @@ package lipgloss
 import (
 	"fmt"
 	"image/color"
+	"os"
 	"runtime"
 
 	"github.com/charmbracelet/x/term"
 )
+
+func openConsole(name string) (*os.File, error) {
+	f, err := os.OpenFile(name, os.O_RDWR, 0o644) //nolint:gosec
+	if err != nil {
+		return nil, fmt.Errorf("error opening %s: %w", name, err)
+	}
+	if !term.IsTerminal(f.Fd()) {
+		_ = f.Close()
+		return nil, fmt.Errorf("%s is not a terminal", name)
+	}
+	return f, nil
+}
 
 func backgroundColor(in term.File, out term.File) (color.Color, error) {
 	state, err := term.MakeRaw(in.Fd())
@@ -31,12 +44,39 @@ func backgroundColor(in term.File, out term.File) (color.Color, error) {
 // This function is intended for standalone Lip Gloss use only. If you're using
 // Bubble Tea, listen for tea.BackgroundColorMsg in your update function.
 func BackgroundColor(in term.File, out term.File) (bg color.Color, err error) {
-	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
-		return nil, fmt.Errorf("input/output is not a terminal")
+	inIsTerm := term.IsTerminal(in.Fd())
+	outIsTerm := term.IsTerminal(out.Fd())
+
+	if runtime.GOOS == "windows" { //nolint:nestif
+		if !inIsTerm && !outIsTerm {
+			return nil, fmt.Errorf("input/output is not a terminal")
+		}
+
+		// On Windows, when input or output is redirected or piped, we need to
+		// open the console explicitly.
+		// See https://learn.microsoft.com/en-us/windows/console/getstdhandle#remarks
+		if !inIsTerm {
+			f, err := openConsole("CONIN$")
+			if err != nil {
+				return nil, err
+			}
+			defer f.Close() //nolint:errcheck
+			in = f
+		}
+		if !outIsTerm {
+			f, err := openConsole("CONOUT$")
+			if err != nil {
+				return nil, err
+			}
+			defer f.Close() //nolint:errcheck
+			out = f
+		}
+		return backgroundColor(in, out)
 	}
 
-	if runtime.GOOS == "windows" {
-		return backgroundColor(in, out)
+	// NOTE: On Unix, both input and output must be a tty.
+	if !inIsTerm || !outIsTerm {
+		return nil, fmt.Errorf("input/output is not a terminal")
 	}
 
 	for _, f := range []term.File{in, out} {
