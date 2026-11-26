@@ -5,13 +5,71 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/charmbracelet/colorprofile"
 )
 
 // Writer is the default writer that prints to stdout, automatically
 // downsampling colors when necessary.
-var Writer = colorprofile.NewWriter(os.Stdout, os.Environ())
+//
+// It is initialized lazily on first use, so importing this package performs
+// no terminal detection and starts no subprocesses. You may assign any
+// [io.Writer] to it, for example:
+//
+//	lipgloss.Writer = colorprofile.NewWriter(os.Stderr, os.Environ())
+var Writer io.Writer = &lazyWriter{}
+
+// lazyWriter is an [io.Writer] that builds the default
+// [colorprofile.Writer] on first use, instead of at package initialization
+// time.
+type lazyWriter struct {
+	once sync.Once
+	w    *colorprofile.Writer
+}
+
+// init builds the underlying writer once.
+func (w *lazyWriter) init() {
+	w.once.Do(func() {
+		w.w = colorprofile.NewWriter(os.Stdout, os.Environ())
+	})
+}
+
+// Write implements [io.Writer], initializing the underlying writer on first
+// use.
+func (w *lazyWriter) Write(p []byte) (int, error) {
+	w.init()
+	return w.w.Write(p) //nolint:wrapcheck
+}
+
+// WriteString implements [io.StringWriter], initializing the underlying
+// writer on first use.
+func (w *lazyWriter) WriteString(s string) (int, error) {
+	w.init()
+	return w.w.WriteString(s) //nolint:wrapcheck
+}
+
+// Profile returns the color profile of the underlying writer, initializing
+// it on first use.
+func (w *lazyWriter) Profile() colorprofile.Profile {
+	w.init()
+	return w.w.Profile
+}
+
+// defaultProfile returns the color profile of [Writer], initializing it if
+// it hasn't been already.
+func defaultProfile() colorprofile.Profile {
+	switch w := Writer.(type) {
+	case interface{ Profile() colorprofile.Profile }:
+		return w.Profile()
+	case *colorprofile.Writer:
+		return w.Profile
+	default:
+		// Writer was replaced with something that doesn't report a color
+		// profile: detect one for stdout, like the default writer would.
+		return colorprofile.Detect(os.Stdout, os.Environ())
+	}
+}
 
 // Println to stdout, automatically downsampling colors when necessary, ending
 // with a trailing newline.
@@ -111,7 +169,7 @@ func Sprint(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: defaultProfile(),
 	}
 	fmt.Fprint(&w, v...) //nolint:errcheck
 	return buf.String()
@@ -132,7 +190,7 @@ func Sprintln(v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: defaultProfile(),
 	}
 	fmt.Fprintln(&w, v...) //nolint:errcheck
 	return buf.String()
@@ -153,7 +211,7 @@ func Sprintf(format string, v ...any) string {
 	var buf bytes.Buffer
 	w := colorprofile.Writer{
 		Forward: &buf,
-		Profile: Writer.Profile,
+		Profile: defaultProfile(),
 	}
 	fmt.Fprintf(&w, format, v...) //nolint:errcheck
 	return buf.String()
