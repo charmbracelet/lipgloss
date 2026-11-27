@@ -36,9 +36,9 @@ func (m *StringData) Append(row []string) {
 	m.rows = append(m.rows, row)
 }
 
-// At returns the contents of the cell at the given index.
+// At returns the contents of the cell at the given index, or an empty string if it is out of bounds.
 func (m *StringData) At(row, cell int) string {
-	if row >= len(m.rows) || cell >= len(m.rows[row]) {
+	if row < 0 || cell < 0 || row >= len(m.rows) || cell >= len(m.rows[row]) {
 		return ""
 	}
 
