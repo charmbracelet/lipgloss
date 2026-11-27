@@ -637,7 +637,16 @@ func pad(str string, n int, style *ansi.Style, r rune) string {
 		sp = style.Styled(sp)
 	}
 
-	b := strings.Builder{}
+	lines := strings.Count(str, "\n") + 1
+	if lines == 1 {
+		if n > 0 {
+			return str + sp
+		}
+		return sp + str
+	}
+
+	var b strings.Builder
+	b.Grow(len(str) + lines*len(sp))
 	isFirst := true
 	for line := range strings.SplitSeq(str, "\n") {
 		if isFirst {
