@@ -177,8 +177,13 @@ func newResizer(tableWidth, tableHeight int, headers []string, rows [][]string) 
 			}
 
 			r.columns[i].rows = append(r.columns[i].rows, row)
-			r.columns[i].min = min(r.columns[i].min, cellLen)
 			r.columns[i].max = max(r.columns[i].max, cellLen)
+			// The header sets the minimum width of a column: cell contents can
+			// wrap, but the header has to stay readable, so the minimum is not
+			// lowered below the header's width.
+			if len(r.headers) == 0 {
+				r.columns[i].min = min(r.columns[i].min, cellLen)
+			}
 		}
 	}
 	for j := range r.columns {
