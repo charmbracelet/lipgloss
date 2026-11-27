@@ -65,6 +65,7 @@ type Table struct {
 	useManualHeight bool
 	yOffset         int
 	wrap            bool
+	overflowRow     bool
 
 	widths  []int
 	heights []int
@@ -89,6 +90,7 @@ func New() *Table {
 		borderRight:  true,
 		borderTop:    true,
 		wrap:         true,
+		overflowRow:  true,
 		data:         NewStringData(),
 	}
 }
@@ -324,6 +326,21 @@ func (t *Table) Wrap(w bool) *Table {
 	return t
 }
 
+// OverflowRow sets whether a table with a fixed [Table.Height] ends with a row
+// of ellipses when some rows don't fit. It is shown by default.
+//
+// Hide it when something else, such as a paginator, already shows that there
+// are more rows. The space it would take is then used for data rows.
+func (t *Table) OverflowRow(v bool) *Table {
+	t.overflowRow = v
+	return t
+}
+
+// GetOverflowRow returns whether the overflow row is shown.
+func (t *Table) GetOverflowRow() bool {
+	return t.overflowRow
+}
+
 // String returns the table as a string.
 func (t *Table) String() string {
 	// Render nil data as empty on a copy so the caller's table is untouched.
@@ -377,7 +394,7 @@ func (t *Table) String() string {
 		}
 
 		// Add an overflow row to show that there are more rows not being rendered.
-		if t.lastVisibleRowIndex != -2 {
+		if t.overflowRow && t.lastVisibleRowIndex != -2 {
 			sb.WriteString(t.constructRow(t.lastVisibleRowIndex+1, true))
 		}
 	}
@@ -556,7 +573,11 @@ func (t *Table) constructRow(index int, isOverflow bool) string {
 
 	s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, cells...) + "\n")
 
-	if t.borderRow && !isOverflow && index < t.data.Rows()-1 {
+	last := t.data.Rows() - 1
+	if !t.overflowRow && t.lastVisibleRowIndex != -2 {
+		last = t.lastVisibleRowIndex
+	}
+	if t.borderRow && !isOverflow && index < last {
 		if t.borderLeft {
 			s.WriteString(t.borderStyle.Render(t.border.MiddleLeft))
 		}

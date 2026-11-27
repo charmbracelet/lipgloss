@@ -54,6 +54,7 @@ func (t *Table) resize() {
 
 	r.yOffset = t.yOffset
 	r.useManualHeight = t.useManualHeight
+	r.overflowRow = t.overflowRow
 	r.borderTop = t.borderTop
 	r.borderBottom = t.borderBottom
 	r.borderLeft = t.borderLeft
@@ -139,6 +140,7 @@ type resizer struct {
 
 	yOffset         int
 	useManualHeight bool
+	overflowRow     bool
 	borderTop       bool
 	borderBottom    bool
 	borderLeft      bool
@@ -484,7 +486,7 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 	// First add rows at the bottom until we reach the available height, or the last row.
 	for available > 0 && lastVisibleRowIndex < lastIndex {
 		row := r.rowHeights[lastVisibleRowIndex+1+btoi(hasHeaders)] + btoi(r.borderRow)
-		overflow := bton(lastVisibleRowIndex+1 < lastIndex, 1+btoi(r.borderRow)+r.yPaddingForCell(lastVisibleRowIndex+2, 0))
+		overflow := bton(r.overflowRow && lastVisibleRowIndex+1 < lastIndex, 1+btoi(r.borderRow)+r.yPaddingForCell(lastVisibleRowIndex+2, 0))
 
 		if available-row-overflow < 0 {
 			break
@@ -510,6 +512,10 @@ func (r *resizer) visibleRowIndexes() (firstVisibleRowIndex, lastVisibleRowIndex
 
 	if lastVisibleRowIndex >= lastIndex {
 		return firstVisibleRowIndex, -2, 0
+	}
+
+	if !r.overflowRow {
+		return firstVisibleRowIndex, lastVisibleRowIndex, 0
 	}
 
 	overflow := 1 + r.yPaddingForCell(lastVisibleRowIndex+1, 0)
