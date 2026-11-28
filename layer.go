@@ -321,7 +321,11 @@ func (c *Compositor) Refresh() {
 // function that creates a temporary canvas, draws the compositor onto it, and
 // returns the resulting string.
 func (c *Compositor) Render() string {
-	width, height := c.bounds.Dx(), c.bounds.Dy()
+	// Layers are drawn at their absolute positions, so the canvas has to
+	// reach from the origin to the far edge of the bounds. Sizing it to
+	// the bounds' width and height cuts off layers that don't start at
+	// (0, 0).
+	width, height := max(c.bounds.Max.X, 0), max(c.bounds.Max.Y, 0)
 	canvas := NewCanvas(width, height)
 	return canvas.Compose(c).Render()
 }
